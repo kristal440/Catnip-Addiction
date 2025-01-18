@@ -3,14 +3,17 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using Unity.Netcode;
 
 /// <summary>
 /// Controls the UI in the MultiplayerLobby scene.
 /// Displays existing rooms, allows creating/joining rooms.
 /// </summary>
 
-public class MenuUI : MonoBehaviour
+public class MenuUI : NetworkBehaviour
 {
+    public static MenuUI Instance { get; private set; }
+
     [Header("UI References")]
     [Tooltip("UI element showing the list of rooms (e.g., a scroll rect or container).")]
     public Transform roomListContainer;
@@ -24,8 +27,20 @@ public class MenuUI : MonoBehaviour
     [Tooltip("Button to create a new room.")]
     public Button createRoomButton;
 
-    // Assuming you have the Netcode/Network manager running in a persistent scene.
-    private void Start()
+    private List<RoomData> currentRooms = new List<RoomData>();
+
+    private void Awake()
+    {
+        // Singleton pattern: Only allow one instance of this manager.
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
+        Instance = this;
+    }
+
+    private void OnEnable()
     {
         // Example usage: Add listeners to your UI buttons
         if (createRoomButton != null)
@@ -33,8 +48,14 @@ public class MenuUI : MonoBehaviour
             createRoomButton.onClick.AddListener(OnCreateRoomClicked);
         }
 
-        // Optionally fetch the list of rooms immediately.
-        RefreshRoomList();
+        if (IsClient)
+            RequestRoomList();
+    }
+
+    private void OnDisable()
+    {
+        if (createRoomButton != null)
+            createRoomButton.onClick.RemoveListener(OnCreateRoomClicked);
     }
 
     /// <summary>
@@ -43,18 +64,14 @@ public class MenuUI : MonoBehaviour
     private void OnCreateRoomClicked()
     {
         string roomName = roomNameInput != null ? roomNameInput.text : "DefaultRoom";
-        Console.WriteLine("roomName: " + roomName);
+
         var rm = GameNetworkManager.Instance.roomManager;
 
         if (rm != null)
         {
-            // Create a new room via the RoomManager
-            var createdRoom = rm.CreateRoom(roomName, 4); // example maxPlayers = 4
-            // You could auto-join or simply refresh the room list
-            rm.JoinRoom(createdRoom.roomId, GameNetworkManager.Instance.LocalClientId);
+            // Call the server to create the room
+            rm.CreateRoomServerRpc(roomName, 4);
         }
-
-        RefreshRoomList();
     }
 
     /// <summary>
@@ -62,17 +79,15 @@ public class MenuUI : MonoBehaviour
     /// </summary>
     public void RefreshRoomList()
     {
+        if (!IsClient) return;
+
         // Clear old entries
         foreach (Transform child in roomListContainer)
         {
             Destroy(child.gameObject);
         }
 
-        var rm = GameNetworkManager.Instance.roomManager;
-        if (rm == null) return;
-
-        List<RoomData> rooms = rm.GetRoomList();
-        foreach (var room in rooms)
+        foreach (var room in currentRooms)
         {
             // Instantiate a UI element for each room
             GameObject entryObj = Instantiate(roomListEntryPrefab, roomListContainer);
@@ -80,19 +95,31 @@ public class MenuUI : MonoBehaviour
             RoomListEntry entry = entryObj.GetComponent<RoomListEntry>();
             if (entry != null)
             {
-                entry.SetRoomInfo(room.roomName, room.connectedPlayers.Count, room.maxPlayers);
+                entry.SetRoomInfo(room.roomName, room.connectedPlayers.Length, room.maxPlayers);
                 // Hook up the join button
                 entry.joinButton.onClick.AddListener(() =>
                 {
                     // Attempt to join the room
-                    bool joined = rm.JoinRoom(room.roomId, GameNetworkManager.Instance.LocalClientId);
-                    if (joined)
-                    {
-                        // Optionally switch scenes or wait for host to switch
-                        GameNetworkManager.Instance.SwitchToGameScene();
-                    }
+                    var rm = GameNetworkManager.Instance.roomManager;
+                   if(rm)
+                        rm.JoinRoomServerRpc(room.roomId, NetworkManager.Singleton.LocalClientId);
                 });
             }
         }
+    }
+
+    private void RequestRoomList()
+    {
+        var rm = GameNetworkManager.Instance.roomManager;
+        if (rm != null)
+        {
+            rm.RequestRoomListServerRpc();
+        }
+    }
+
+     public void AddRoomData(RoomData roomData)
+    {
+        currentRooms.Add(roomData);
+        RefreshRoomList();
     }
 }
