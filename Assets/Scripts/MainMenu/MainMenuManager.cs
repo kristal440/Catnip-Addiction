@@ -16,7 +16,7 @@ public class MainMenuManager : MonoBehaviour
     public void LoadSingleplayer()
     {
         // For now, directly load the game scene. We'll add singleplayer logic later.
-        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex+1);
+        SceneManager.LoadScene("GameScene");
     }
 
     public void LoadMultiplayerMenu()

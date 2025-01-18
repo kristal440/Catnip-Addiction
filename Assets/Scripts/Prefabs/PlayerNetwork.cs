@@ -1,11 +1,10 @@
 using Unity.Collections;
 using Unity.Netcode;
-using UnityEngine;
 
 public class PlayerNetwork : NetworkBehaviour
 {
-    public NetworkVariable<FixedString64Bytes> currentRoomID = new NetworkVariable<FixedString64Bytes>("");
-    public NetworkVariable<bool> isRoomHost = new NetworkVariable<bool>(false);
+    public NetworkVariable<FixedString64Bytes> currentRoomID;
+    public NetworkVariable<bool> isRoomHost;
 
     public override void OnNetworkSpawn()
     {

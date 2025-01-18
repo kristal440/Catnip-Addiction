@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using Unity.Netcode;
-using TMPro; // If you are using TextMeshPro for better text rendering
+using TMPro;
 
 public class MultiplayerMenuManager : MonoBehaviour
 {
