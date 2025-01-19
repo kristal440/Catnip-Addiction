@@ -1,14 +1,8 @@
-using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using Unity.Netcode;
-
-/// <summary>
-/// Controls the UI in the MultiplayerLobby scene.
-/// Displays existing rooms, allows creating/joining rooms.
-/// </summary>
 
 public class MenuUI : NetworkBehaviour
 {
@@ -27,6 +21,9 @@ public class MenuUI : NetworkBehaviour
     [Tooltip("Button to create a new room.")]
     public Button createRoomButton;
 
+    [Tooltip("Button to start the client.")]
+    public Button startClientButton;
+
     private List<RoomData> currentRooms = new List<RoomData>();
 
     private void Awake()
@@ -40,6 +37,28 @@ public class MenuUI : NetworkBehaviour
         Instance = this;
     }
 
+    public override void OnNetworkSpawn()
+    {
+        if (IsClient)
+        {
+            // Introduce a delay before subscribing to the event
+            Invoke(nameof(SubscribeToRoomManagerEvent), 0.5f); // Delay of 0.5 seconds
+        }
+    }
+
+    private void SubscribeToRoomManagerEvent()
+    {
+        // Subscribe to the OnRoomManagerSpawned event
+        if (ServerNetworkManager.Instance != null)
+        {
+            ServerNetworkManager.Instance.OnRoomManagerSpawned += HandleRoomManagerSpawned;
+        }
+        else
+        {
+            Debug.LogError("ServerNetworkManager.Instance is null in MenuUI!");
+        }
+    }
+
     private void OnEnable()
     {
         // Example usage: Add listeners to your UI buttons
@@ -47,15 +66,30 @@ public class MenuUI : NetworkBehaviour
         {
             createRoomButton.onClick.AddListener(OnCreateRoomClicked);
         }
-
-        if (IsClient)
-            RequestRoomList();
+        if (startClientButton != null)
+        {
+            startClientButton.onClick.AddListener(OnStartClientClicked);
+        }
     }
 
     private void OnDisable()
     {
         if (createRoomButton != null)
             createRoomButton.onClick.RemoveListener(OnCreateRoomClicked);
+
+        if (startClientButton != null)
+            startClientButton.onClick.RemoveListener(OnStartClientClicked);
+
+        // Unsubscribe from events when the MenuUI is disabled
+        if (ServerNetworkManager.Instance != null)
+        {
+            ServerNetworkManager.Instance.OnRoomManagerSpawned -= HandleRoomManagerSpawned;
+
+            if (ServerNetworkManager.Instance.roomManager != null)
+            {
+                ServerNetworkManager.Instance.roomManager.OnRoomListChanged -= HandleRoomListChanged;
+            }
+        }
     }
 
     /// <summary>
@@ -63,14 +97,30 @@ public class MenuUI : NetworkBehaviour
     /// </summary>
     private void OnCreateRoomClicked()
     {
+        Debug.Log("Create Room button clicked!");
         string roomName = roomNameInput != null ? roomNameInput.text : "DefaultRoom";
 
-        var rm = GameNetworkManager.Instance.roomManager;
-
-        if (rm != null)
+        if (ServerNetworkManager.Instance && ServerNetworkManager.Instance.roomManager != null)
         {
-            // Call the server to create the room
-            rm.CreateRoomServerRpc(roomName, 4);
+            Debug.Log($"Calling CreateRoomServerRpc with room name: {roomName}");
+            ServerNetworkManager.Instance.roomManager.CreateRoomServerRpc(roomName, 4);
+        }
+        else
+        {
+            Debug.LogError("ServerNetworkManager.Instance or ServerNetworkManager.Instance.roomManager is null!");
+        }
+    }
+
+    private void OnStartClientClicked()
+    {
+        Debug.Log("Start Client button clicked!");
+        if (ClientNetworkManager.Instance != null)
+        {
+            ClientNetworkManager.Instance.NetworkManager.StartClient();
+        }
+        else
+        {
+            Debug.LogError("ClientNetworkManager.Instance is null!");
         }
     }
 
@@ -100,9 +150,8 @@ public class MenuUI : NetworkBehaviour
                 entry.joinButton.onClick.AddListener(() =>
                 {
                     // Attempt to join the room
-                    var rm = GameNetworkManager.Instance.roomManager;
-                   if(rm)
-                        rm.JoinRoomServerRpc(room.roomId, NetworkManager.Singleton.LocalClientId);
+                    if (ServerNetworkManager.Instance && ServerNetworkManager.Instance.roomManager)
+                        ServerNetworkManager.Instance.roomManager.JoinRoomServerRpc(room.roomId, NetworkManager.Singleton.LocalClientId);
                 });
             }
         }
@@ -110,16 +159,37 @@ public class MenuUI : NetworkBehaviour
 
     private void RequestRoomList()
     {
-        var rm = GameNetworkManager.Instance.roomManager;
-        if (rm != null)
+        if (ServerNetworkManager.Instance && ServerNetworkManager.Instance.roomManager != null)
         {
-            rm.RequestRoomListServerRpc();
+            ServerNetworkManager.Instance.roomManager.RequestRoomListServerRpc();
         }
     }
 
-     public void AddRoomData(RoomData roomData)
+    public void AddRoomData(RoomData roomData)
     {
-        currentRooms.Add(roomData);
+        if (!currentRooms.Contains(roomData))
+        {
+            currentRooms.Add(roomData);
+            RefreshRoomList();
+        }
+    }
+
+    private void HandleRoomManagerSpawned(RoomManager roomManager)
+    {
+        Debug.Log("[Client] HandleRoomManagerSpawned called!"); // Add this line
+
+        // Now we have a reference to the RoomManager
+        if (ServerNetworkManager.Instance != null)
+        {
+            ServerNetworkManager.Instance.roomManager.OnRoomListChanged += HandleRoomListChanged;
+        }
+        RequestRoomList();
+    }
+
+    private void HandleRoomListChanged()
+    {
+        // Refresh the room list when it changes
+        currentRooms = ServerNetworkManager.Instance.roomManager.GetRoomList();
         RefreshRoomList();
     }
 }

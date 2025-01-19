@@ -1,61 +1,139 @@
 using System.Collections.Generic;
 using UnityEngine;
+using Unity.Netcode;
+using System.Collections;
 
-/// <summary>
-/// Manages creation, tracking, and removal of rooms on the server side.
-/// </summary>
-
-public class RoomManager : MonoBehaviour
+public class RoomManager : NetworkBehaviour
 {
-    // In a real system, you'd likely store room data on the server (host).
-    private Dictionary<string, RoomData> rooms = new Dictionary<string, RoomData>();
+    private List<RoomData> rooms = new List<RoomData>();
 
-    /// <summary>
-    /// Creates a new room with the given name and max player count.
-    /// Returns the created RoomData or perhaps just the roomId.
-    /// </summary>
-    public RoomData CreateRoom(string roomName, int maxPlayers = 4)
+    public struct RoomDataChange : INetworkSerializable
+    {
+        public RoomData RoomData;
+        public OperationType OperationType;
+
+        public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
+        {
+            RoomData.NetworkSerialize(serializer);
+            serializer.SerializeValue(ref OperationType);
+        }
+    }
+
+    public enum OperationType
+    {
+        Add,
+        Update,
+        Remove
+    }
+
+    // Event that is triggered when the room list changes
+    public delegate void RoomListChangedEventHandler();
+    public event RoomListChangedEventHandler OnRoomListChanged;
+
+    // [ServerRpc] to create room on the server.
+    [ServerRpc]
+    public void CreateRoomServerRpc(string roomName, int maxPlayers, ServerRpcParams serverRpcParams = default)
     {
         string roomId = System.Guid.NewGuid().ToString(); // Generate a unique ID
         var newRoom = new RoomData(roomId, roomName, maxPlayers);
-        rooms.Add(roomId, newRoom);
+        rooms.Add(newRoom);
 
-        Debug.Log($"Created Room: {roomName} (ID: {roomId}, MaxPlayers: {maxPlayers})");
-        return newRoom;
+        Debug.Log($"[Server] Created Room: {roomName} (ID: {roomId}, MaxPlayers: {maxPlayers})");
+
+        // Notify clients
+        NotifyRoomListChangedClientRpc(new RoomDataChange
+        {
+            RoomData = newRoom,
+            OperationType = OperationType.Add
+        });
+
+        //join the room for the player who created it.
+        JoinRoomServerRpc(roomId, serverRpcParams.Receive.SenderClientId);
     }
 
-    /// <summary>
-    /// Joins the specified room with the given playerId (Netcode ClientID).
-    /// Returns true if join was successful, false otherwise.
-    /// </summary>
-    public bool JoinRoom(string roomId, ulong playerId)
+    // [ServerRpc] to join the room on the server.
+    [ServerRpc]
+    public void JoinRoomServerRpc(string roomId, ulong playerId, ServerRpcParams serverRpcParams = default)
     {
-        if (!rooms.ContainsKey(roomId))
+        if (!TryGetRoomData(roomId, out RoomData room))
         {
-            Debug.LogWarning($"JoinRoom failed. RoomId {roomId} not found.");
-            return false;
+            Debug.LogWarning($"[Server] JoinRoom failed. RoomId {roomId} not found.");
+            return;
         }
 
-        RoomData room = rooms[roomId];
         if (room.IsFull())
         {
-            Debug.LogWarning($"JoinRoom failed. RoomId {roomId} is full.");
-            return false;
+            Debug.LogWarning($"[Server] JoinRoom failed. RoomId {roomId} is full.");
+            return;
         }
 
         // Add player to the room
         room.AddPlayer(playerId);
-        Debug.Log($"Player {playerId} joined room {roomId}.");
+
+        //update the room in the network list
+        UpdateRoomInList(room);
+
+        Debug.Log($"[Server] Player {playerId} joined room {roomId}.");
+
+        //Notify clients about the change
+        NotifyRoomListChangedClientRpc(new RoomDataChange
+        {
+            RoomData = room,
+            OperationType = OperationType.Update
+        });
 
         // If the room is now full, we could signal to start the game, etc.
         if (room.IsFull())
         {
-            Debug.Log($"Room {roomId} is now full. Starting game...");
-            // For example:
-            // GameNetworkManager.Instance.SwitchToGameScene();
+            Debug.Log($"[Server] Room {roomId} is now full. Starting game in 2 seconds...");
+            StartCoroutine(StartGameDelayed(room));
         }
+    }
 
-        return true;
+    private IEnumerator StartGameDelayed(RoomData room)
+    {
+        yield return new WaitForSeconds(2f);
+        // Only start the game if the room is still full after the delay
+        if (TryGetRoomData(room.roomId, out RoomData updatedRoom) && updatedRoom.IsFull())
+        {
+            updatedRoom.isInProgress = true;
+            UpdateRoomInList(updatedRoom);
+            //ServerNetworkManager.Singleton.SwitchToGameScene();
+        }
+    }
+
+    private void UpdateRoomInList(RoomData roomData)
+    {
+        for (int i = 0; i < rooms.Count; i++)
+        {
+            if (rooms[i].roomId == roomData.roomId)
+            {
+                rooms[i] = roomData;
+                return;
+            }
+        }
+    }
+    private bool TryGetRoomData(string roomId, out RoomData roomData)
+    {
+        for (int i = 0; i < rooms.Count; i++)
+        {
+            if (rooms[i].roomId == roomId)
+            {
+                roomData = rooms[i];
+                return true;
+            }
+        }
+        roomData = default;
+        return false;
+    }
+
+    [ClientRpc]
+    private void NotifyRoomListChangedClientRpc(RoomDataChange roomDataChange)
+    {
+        Debug.Log($"Client received notification of room change: {roomDataChange.OperationType} room: {roomDataChange.RoomData.roomName}");
+
+        // Invoke the event to notify subscribers (e.g., MenuUI)
+        OnRoomListChanged?.Invoke();
     }
 
     /// <summary>
@@ -63,9 +141,32 @@ public class RoomManager : MonoBehaviour
     /// </summary>
     public List<RoomData> GetRoomList()
     {
-        return new List<RoomData>(rooms.Values);
+        return new List<RoomData>(rooms);
     }
 
-    // Additional methods such as removing a player from a room,
-    // or completely removing a room, can be added here.
+    [ServerRpc]
+    public void RequestRoomListServerRpc(ServerRpcParams serverRpcParams = default)
+    {
+        foreach (var room in rooms)
+        {
+            SendRoomListClientRpc(room, new ClientRpcParams
+            {
+                Send = new ClientRpcSendParams
+                {
+                    TargetClientIds = new ulong[] { serverRpcParams.Receive.SenderClientId }
+                }
+            });
+        }
+    }
+
+    [ClientRpc]
+    private void SendRoomListClientRpc(RoomData roomData, ClientRpcParams clientRpcParams = default)
+    {
+        var menuUI = MenuUI.Instance;
+
+        if (menuUI)
+        {
+            menuUI.AddRoomData(roomData);
+        }
+    }
 }

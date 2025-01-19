@@ -1,26 +1,28 @@
 using Unity.Netcode;
 using UnityEngine;
 
-/// <summary>
-/// Attached to a GameObject in the ServerScene to start the server automatically.
-/// </summary>
 public class ServerBootstrap : MonoBehaviour
 {
+    [SerializeField] private bool autoStartServer = true;
+    [SerializeField] private bool autoLoadGameScene = false;
+
     private void Start()
     {
-        // Confirm we have a NetworkManager in the scene (our custom GameNetworkManager).
-        if (NetworkManager.Singleton == null)
+        if (!autoStartServer) return;
+
+        // Start the server using the ServerNetworkManager's NetworkManager
+        if (ServerNetworkManager.Instance != null && ServerNetworkManager.Instance.NetworkManager.StartServer())
         {
-            Debug.LogError("No NetworkManager found in ServerScene! Server cannot start.");
-            return;
+            Debug.Log("Server started.");
+        }
+        else
+        {
+            Debug.LogError("Failed to start the server.");
         }
 
-        // Start the server
-        NetworkManager.Singleton.StartServer();
-        Debug.Log("Server started in ServerScene.");
-
-        // (Optional) If you want to load a different scene for gameplay
-        // automatically from the server, you could do:
-        // NetworkManager.Singleton.SceneManager.LoadScene("GameScene", LoadSceneMode.Single);
+        if (autoLoadGameScene)
+        {
+            ServerNetworkManager.Instance.SwitchToGameScene();
+        }
     }
 }

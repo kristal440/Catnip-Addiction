@@ -1,82 +1,53 @@
+using Unity.Netcode;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
-namespace MyGameNamespace
+public class GameFlowManager : MonoBehaviour
 {
-    /// <summary>
-    /// Manages the game logic/state once in the GameScene.
-    /// Shows "waiting for players" until conditions are met, then starts gameplay.
-    /// </summary>
-    public class GameFlowManager : MonoBehaviour
+    [Tooltip("Reference to a UI text or panel that shows waiting status.")]
+    public GameObject waitingPanel;
+
+    private bool gameStarted = false;
+
+    private void Start()
     {
-        [Tooltip("Reference to a UI text or panel that shows waiting status.")]
-        public GameObject waitingPanel;
-
-        private bool gameStarted = false;
-
-        private void Start()
+        if (waitingPanel != null)
         {
-            // For example, you might check the RoomData associated with this game
-            // and see how many players have loaded in.
+            waitingPanel.SetActive(true);
+        }
+    }
 
-            // If using Netcode, you might track connected client count,
-            // or rely on the RoomManager's data.
+    private void Update()
+    {
+        if (!gameStarted && CheckAllPlayersReady())
+        {
+            StartGame();
+        }
+    }
 
-            // Example:
-            if (waitingPanel != null)
-            {
-                waitingPanel.SetActive(true);
-            }
+    private bool CheckAllPlayersReady()
+    {
+        // Example: Check if at least 2 players are connected
+        return NetworkManager.Singleton.ConnectedClients.Count >= 2;
+    }
+
+    private void StartGame()
+    {
+        gameStarted = true;
+        if (waitingPanel != null)
+        {
+            waitingPanel.SetActive(false);
         }
 
-        private void Update()
-        {
-            // If the game hasn't started, check if the condition to start is met
-            if (!gameStarted)
-            {
-                // Suppose we require the room to be full,
-                // or a certain number of players are connected.
-                if (CheckAllPlayersReady())
-                {
-                    StartGame();
-                }
-            }
-        }
+        Debug.Log("GameFlowManager: Game started!");
+    }
 
-        /// <summary>
-        /// Placeholder check for whether all players are ready or room is full.
-        /// You can adapt based on your logic in RoomManager/RoomData.
-        /// </summary>
-        private bool CheckAllPlayersReady()
+    public void EndGame()
+    {
+        Debug.Log("GameFlowManager: Game ended. Returning to lobby.");
+        if (NetworkManager.Singleton.IsServer)
         {
-            // For example, if we just require 4 players (or your desired logic):
-            // return (GameNetworkManager.Instance.ConnectedClients.Count == 4);
-            // Or if the RoomData for this match is full.
-            return true; // Always return true for demonstration
-        }
-
-        /// <summary>
-        /// Called when the game actually begins.
-        /// </summary>
-        private void StartGame()
-        {
-            gameStarted = true;
-            if (waitingPanel != null)
-            {
-                waitingPanel.SetActive(false);
-            }
-
-            Debug.Log("GameFlowManager: Game started!");
-            // Here you can enable gameplay systems, spawn NPCs, etc.
-        }
-
-        /// <summary>
-        /// Example method to end the game and go back to the lobby or main menu.
-        /// </summary>
-        public void EndGame()
-        {
-            // Return players to the lobby or main menu
-            Debug.Log("GameFlowManager: Game ended. Returning to lobby.");
-            // e.g., GameNetworkManager.Instance.SwitchToLobbyScene();
+            NetworkManager.Singleton.SceneManager.LoadScene("MultiplayerMenu", LoadSceneMode.Single);
         }
     }
 }

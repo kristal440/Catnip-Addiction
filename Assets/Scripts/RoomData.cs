@@ -1,16 +1,18 @@
-using System.Collections.Generic;
+using Unity.Netcode;
+using System;
+using System.Linq;
 
 /// <summary>
 /// Simple data container representing a single room.
 /// </summary>
 
-[System.Serializable]
-public class RoomData
+[Serializable]
+public struct RoomData : INetworkSerializable
 {
     public string roomId;
     public string roomName;
     public int maxPlayers;
-    public List<ulong> connectedPlayers;
+    public ulong[] connectedPlayers; // Changed to ulong[]
     public bool isInProgress;
 
     // Constructors
@@ -19,7 +21,7 @@ public class RoomData
         roomId = id;
         roomName = name;
         maxPlayers = max;
-        connectedPlayers = new List<ulong>();
+        connectedPlayers = Array.Empty<ulong>(); //Initialize with empty array
         isInProgress = false;
     }
 
@@ -28,18 +30,21 @@ public class RoomData
     /// </summary>
     public bool IsFull()
     {
-        return connectedPlayers.Count >= maxPlayers;
+        return connectedPlayers.Length >= maxPlayers;
     }
 
     /// <summary>
     /// Adds a player to the connectedPlayers list (if not full).
     /// </summary>
-    public void AddPlayer(ulong playerId)
+     public void AddPlayer(ulong playerId)
     {
-        if (!IsFull())
-        {
-            connectedPlayers.Add(playerId);
-        }
+         if (!IsFull())
+         {
+             ulong[] newArray = new ulong[connectedPlayers.Length + 1];
+             connectedPlayers.CopyTo(newArray, 0);
+             newArray[connectedPlayers.Length] = playerId;
+             connectedPlayers = newArray;
+         }
     }
 
     /// <summary>
@@ -47,9 +52,28 @@ public class RoomData
     /// </summary>
     public void RemovePlayer(ulong playerId)
     {
-        if (connectedPlayers.Contains(playerId))
+        if(connectedPlayers.Contains(playerId))
+            connectedPlayers = connectedPlayers.Where(x=> x != playerId).ToArray();
+    }
+
+    public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
+    {
+        serializer.SerializeValue(ref roomId);
+        serializer.SerializeValue(ref roomName);
+        serializer.SerializeValue(ref maxPlayers);
+        // Serialize the length of the array first
+        int length = connectedPlayers == null ? 0 : connectedPlayers.Length;
+        serializer.SerializeValue(ref length);
+        // Then serialize each element of the array
+        if (serializer.IsReader)
         {
-            connectedPlayers.Remove(playerId);
+            connectedPlayers = new ulong[length];
         }
+
+        for (int n = 0; n < length; n++)
+        {
+            serializer.SerializeValue(ref connectedPlayers[n]);
+        }
+        serializer.SerializeValue(ref isInProgress);
     }
 }
