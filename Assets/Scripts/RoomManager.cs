@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Unity.Netcode;
 using System.Collections;
+using System.Linq;
 
 public class RoomManager : NetworkBehaviour
 {
@@ -169,4 +170,82 @@ public class RoomManager : NetworkBehaviour
             menuUI.AddRoomData(roomData);
         }
     }
+
+    private void HandleClientDisconnected(ulong clientId)
+    {
+        Debug.Log($"[Server] Client disconnected: {clientId}");
+
+        // Find the room the player was in
+        RoomData roomToRemove = default;
+        bool roomFound = false;
+
+        foreach (var room in rooms)
+        {
+            if (room.connectedPlayers.Contains(clientId))
+            {
+                room.RemovePlayer(clientId);
+                Debug.Log($"[Server] Player {clientId} removed from room {room.roomId}.");
+
+                if (room.connectedPlayers.Length == 0 && !room.isInProgress)
+                {
+                    // Mark the room for removal if it's empty and not in progress
+                    roomToRemove = room;
+                    roomFound = true;
+                }
+                else
+                {
+                    // Update the room in the list
+                    UpdateRoomInList(room);
+
+                    // Notify clients about the change
+                    NotifyRoomListChangedClientRpc(new RoomDataChange
+                    {
+                        RoomData = room,
+                        OperationType = OperationType.Update
+                    });
+                }
+                break;
+            }
+        }
+
+        // Remove the room if it's empty
+        if (roomFound)
+        {
+            rooms.Remove(roomToRemove);
+            Debug.Log($"[Server] Room {roomToRemove.roomId} removed because it was empty.");
+
+            // Notify clients about the room removal
+            NotifyRoomListChangedClientRpc(new RoomDataChange
+            {
+                RoomData = roomToRemove,
+                OperationType = OperationType.Remove
+            });
+        }
+    }
+
+    public override void OnNetworkSpawn()
+    {
+        base.OnNetworkSpawn();
+
+        if (IsServer)
+        {
+            // Subscribe to the client disconnection event
+            NetworkManager.Singleton.OnClientDisconnectCallback += HandleClientDisconnected;
+        }
+    }
+
+    public override void OnNetworkDespawn()
+    {
+        base.OnNetworkDespawn();
+
+        if (IsServer)
+        {
+            // Unsubscribe from the client disconnection event
+            if (NetworkManager.Singleton != null)
+            {
+                NetworkManager.Singleton.OnClientDisconnectCallback -= HandleClientDisconnected;
+            }
+        }
+    }
+
 }
