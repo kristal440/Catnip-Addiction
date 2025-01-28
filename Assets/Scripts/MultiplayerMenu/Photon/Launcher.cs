@@ -1,9 +1,10 @@
+using System.Collections;
 using UnityEngine;
-using UnityEngine.UI;
-using System.Collections.Generic;
-using TMPro;
 using Photon.Pun;
 using Photon.Realtime;
+using TMPro;
+using UnityEngine.UI;
+using System.Collections.Generic;
 
 public class Launcher : MonoBehaviourPunCallbacks
 {
@@ -30,5 +31,114 @@ public class Launcher : MonoBehaviourPunCallbacks
         roomListPanel.SetActive(false);
         controlPanel.SetActive(false);
         loadingPanel.SetActive(true);
+
+        if (PhotonNetwork.IsConnected)
+        {
+            OnJoinedLobby();
+            return;
+        }
+
+        _isConnecting = true;
+        PhotonNetwork.GameVersion = "1";
+        loadingText.text = "Connecting to Server...";
+        PhotonNetwork.ConnectUsingSettings();
+    }
+
+    public override void OnConnectedToMaster()
+    {
+        Debug.Log("OnConnectedToMaster() was called by PUN.");
+
+        if (!_isConnecting) return;
+        PhotonNetwork.JoinLobby();
+        _isConnecting = false;
+        loadingText.text = "Connected to Server :3";
+    }
+
+    public override void OnJoinedLobby()
+    {
+        Debug.Log("OnJoinedLobby() was called by PUN.");
+        StartCoroutine(ShowRoomListWithDelay());
+    }
+    private IEnumerator ShowRoomListWithDelay()
+    {
+        yield return new WaitForSeconds(0);
+        loadingPanel.SetActive(false);
+        controlPanel.SetActive(true);
+        roomListPanel.SetActive(true);
+    }
+
+    public void CreateRoom()
+    {
+        if (string.IsNullOrEmpty(roomNameInputField.text))
+        {
+            Debug.Log("Room name can't be empty");
+            return;
+        }
+
+        if (_roomLst.Contains(roomNameInputField.text))
+        {
+            Debug.Log("Room already exists");
+            return;
+        }
+        var roomOptions = new RoomOptions
+        {
+            MaxPlayers = (int)slider.value,
+            IsVisible = true,
+            IsOpen = true
+        };
+        SetNickname();
+        PhotonNetwork.CreateRoom(roomNameInputField.text, roomOptions);
+    }
+
+    public override void OnCreatedRoom()
+    {
+        Debug.Log("Room created successfully.");
+    }
+
+    public override void OnCreateRoomFailed(short returnCode, string message)
+    {
+        Debug.Log($"Room creation failed: {message} ({returnCode})");
+    }
+
+    private void JoinRoom(string roomName)
+    {
+        Debug.Log("Joining room: " + roomName);
+        SetNickname();
+        PhotonNetwork.JoinRoom(roomName);
+    }
+
+    public override void OnJoinedRoom()
+    {
+        Debug.Log("Joined Room" + PhotonNetwork.CurrentRoom.Name);
+        SetNickname();
+        PhotonNetwork.LoadLevel("GameScene_Map1_Multi");
+    }
+
+    public override void OnJoinRoomFailed(short returnCode, string message)
+    {
+        Debug.Log("Room creation failed: " + message);
+    }
+
+    public override void OnRoomListUpdate(List<RoomInfo> roomList)
+    {
+        _roomLst = roomList.ConvertAll(x => x.Name);
+        foreach (Transform trans in roomsContainer)
+        {
+            Destroy(trans.gameObject);
+        }
+
+        foreach (var roomInfo in roomList)
+        {
+            if (roomInfo.RemovedFromList) continue; // Skip rooms that have been removed
+
+            var roomObject = Instantiate(roomPrefab, roomsContainer);
+            roomObject.GetComponentInChildren<TextMeshProUGUI>().text = roomInfo.Name;
+            roomObject.GetComponent<Button>().onClick.AddListener(() => JoinRoom(roomInfo.Name)); // Use a lambda to pass the room name
+        }
+    }
+
+    private void SetNickname()
+    {
+        PhotonNetwork.NickName = playerNameInputField.text;
     }
 }
