@@ -11,7 +11,6 @@ public class SliderValueDisplay : MonoBehaviour
     private void Start()
     {
         UpdateValueText(slider.value);
-
         slider.onValueChanged.AddListener(delegate { UpdateValueText(slider.value); });
     }
 

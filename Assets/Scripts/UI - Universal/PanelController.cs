@@ -26,8 +26,8 @@ public class PanelController : MonoBehaviour
 
     private void HidePanel()
     {
-        panel.SetActive(false); // Hide the panel
-        showButton.interactable = true; // Enable the "Show" button
-        hideButton.interactable = false; // Disable the "Hide" button
+        panel.SetActive(false);
+        showButton.interactable = true;
+        hideButton.interactable = false;
     }
 }

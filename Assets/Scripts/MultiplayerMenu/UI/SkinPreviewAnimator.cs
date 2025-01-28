@@ -38,7 +38,6 @@ public class SkinPreviewAnimator : MonoBehaviour
         var stateName = $"{_currentSkinName}{IdleStateSuffix}";
         var stateHash = Animator.StringToHash(stateName);
 
-        // **Set the "Skin" integer parameter**
         _animator.SetInteger(Skin, GetSkinIndex(_currentSkinName));
 
         if (_animator.HasState(_baseLayerIndex, stateHash))
@@ -52,7 +51,6 @@ public class SkinPreviewAnimator : MonoBehaviour
         }
     }
 
-    // **Adapted GetSkinIndex function from SkinPicker.txt**
     private static int GetSkinIndex(string skinName)
     {
         return skinName.ToLower() switch
@@ -60,7 +58,7 @@ public class SkinPreviewAnimator : MonoBehaviour
             "cat-1" => 0,
             "cat-2" => 1,
             "cat-6" => 2,
-            _ => 0 // Default to 0 if skin name is not recognized
+            _ => 0
         };
     }
 }

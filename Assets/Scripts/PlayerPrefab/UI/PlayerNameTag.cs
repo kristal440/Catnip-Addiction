@@ -1,10 +1,10 @@
 using UnityEngine;
 using Photon.Pun;
-using TMPro; // Import the TextMeshPro namespace
+using TMPro;
 
 public class PlayerNameTag : MonoBehaviourPun
 {
-    [SerializeField] private TextMeshProUGUI nameTagText; // Drag your TextMeshPro object here in the Inspector
+    [SerializeField] private TextMeshProUGUI nameTagText;
 
     private void Start()
     {
@@ -14,7 +14,6 @@ public class PlayerNameTag : MonoBehaviourPun
             return;
         }
 
-        // Set the name tag text to the Photon Nickname of the player
         nameTagText.text = photonView.Owner.NickName;
         Debug.Log("Name tag set to: " + photonView.Owner.NickName);
     }

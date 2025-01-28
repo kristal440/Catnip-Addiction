@@ -59,6 +59,7 @@ public class Launcher : MonoBehaviourPunCallbacks
         Debug.Log("OnJoinedLobby() was called by PUN.");
         StartCoroutine(ShowRoomListWithDelay());
     }
+
     private IEnumerator ShowRoomListWithDelay()
     {
         yield return new WaitForSeconds(0);
@@ -80,12 +81,14 @@ public class Launcher : MonoBehaviourPunCallbacks
             Debug.Log("Room already exists");
             return;
         }
+
         var roomOptions = new RoomOptions
         {
             MaxPlayers = (int)slider.value,
             IsVisible = true,
             IsOpen = true
         };
+
         SetNickname();
         PhotonNetwork.CreateRoom(roomNameInputField.text, roomOptions);
     }
@@ -109,14 +112,14 @@ public class Launcher : MonoBehaviourPunCallbacks
 
     public override void OnJoinedRoom()
     {
-        Debug.Log("Joined Room" + PhotonNetwork.CurrentRoom.Name);
+        Debug.Log("Joined Room: " + PhotonNetwork.CurrentRoom.Name);
         SetNickname();
         PhotonNetwork.LoadLevel("GameScene_Map1_Multi");
     }
 
     public override void OnJoinRoomFailed(short returnCode, string message)
     {
-        Debug.Log("Room creation failed: " + message);
+        Debug.Log($"Join room failed: {message} ({returnCode})");
     }
 
     public override void OnRoomListUpdate(List<RoomInfo> roomList)
@@ -129,11 +132,11 @@ public class Launcher : MonoBehaviourPunCallbacks
 
         foreach (var roomInfo in roomList)
         {
-            if (roomInfo.RemovedFromList) continue; // Skip rooms that have been removed
+            if (roomInfo.RemovedFromList) continue;
 
             var roomObject = Instantiate(roomPrefab, roomsContainer);
             roomObject.GetComponentInChildren<TextMeshProUGUI>().text = roomInfo.Name;
-            roomObject.GetComponent<Button>().onClick.AddListener(() => JoinRoom(roomInfo.Name)); // Use a lambda to pass the room name
+            roomObject.GetComponent<Button>().onClick.AddListener(() => JoinRoom(roomInfo.Name));
         }
     }
 
