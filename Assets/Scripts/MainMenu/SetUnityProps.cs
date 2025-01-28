@@ -4,7 +4,7 @@ public class SetUnityProps : MonoBehaviour
 {
     private void Start()
     {
-        QualitySettings.vSyncCount = 0; // Set vSyncCount to 0 so that using .targetFrameRate is enabled.
+        QualitySettings.vSyncCount = 0;
         Application.targetFrameRate = 240;
     }
 }

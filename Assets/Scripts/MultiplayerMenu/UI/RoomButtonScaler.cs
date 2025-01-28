@@ -13,9 +13,6 @@ public class RoomButtonScaler : MonoBehaviour, IScrollHandler, IBeginDragHandler
     private void Start()
     {
         _layoutGroup = GetComponent<VerticalLayoutGroup>();
-
-        if (viewport != null) return;
-        Debug.LogError("Viewport not assigned in RoomCardScaler!");
     }
 
     private void Update()
@@ -38,7 +35,6 @@ public class RoomButtonScaler : MonoBehaviour, IScrollHandler, IBeginDragHandler
             var normalizedDistance = Mathf.Clamp01(distance / (viewport.rect.height / 2f));
             var scaleFactor = Mathf.Lerp(normalScale, minScale, normalizedDistance);
 
-            // Apply the horizontal scale
             childRect.localScale = new Vector3(scaleFactor, scaleFactor, 1f);
         }
     }
@@ -50,11 +46,9 @@ public class RoomButtonScaler : MonoBehaviour, IScrollHandler, IBeginDragHandler
 
     public void OnBeginDrag(PointerEventData eventData)
     {
-        // Optional
     }
 
     public void OnEndDrag(PointerEventData eventData)
     {
-        // Optional
     }
 }
