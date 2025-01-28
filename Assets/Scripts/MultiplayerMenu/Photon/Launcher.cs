@@ -1,10 +1,9 @@
-using System.Collections;
 using UnityEngine;
-using Photon.Pun;
-using Photon.Realtime;
-using TMPro;
 using UnityEngine.UI;
 using System.Collections.Generic;
+using TMPro;
+using Photon.Pun;
+using Photon.Realtime;
 
 public class Launcher : MonoBehaviourPunCallbacks
 {
@@ -30,4 +29,6 @@ public class Launcher : MonoBehaviourPunCallbacks
     {
         roomListPanel.SetActive(false);
         controlPanel.SetActive(false);
-        loadingPanel.SetActive
+        loadingPanel.SetActive(true);
+    }
+}
