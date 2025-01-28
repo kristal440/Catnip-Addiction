@@ -1,7 +1,8 @@
 using System.Collections;
 using UnityEngine;
 using Photon.Pun;
-using UnityEngine.UI; // Add this line to use Canvas
+
+// Add this line to use Canvas
 
 public class PlayerController : MonoBehaviourPunCallbacks
 {

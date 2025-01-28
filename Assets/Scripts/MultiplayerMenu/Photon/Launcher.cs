@@ -5,7 +5,6 @@ using Photon.Realtime;
 using TMPro;
 using UnityEngine.UI;
 using System.Collections.Generic;
-using SkinPreviewAnimator = SkinPreviewAnimator;
 
 public class Launcher : MonoBehaviourPunCallbacks
 {
