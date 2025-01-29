@@ -3,8 +3,6 @@ using UnityEngine;
 using Photon.Pun;
 using UnityEngine.Serialization;
 
-// Add this line to use Canvas
-
 public class PlayerController : MonoBehaviourPunCallbacks
 {
     private static readonly int Speed = Animator.StringToHash("Speed");
@@ -76,6 +74,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
     private void Update()
     {
         UpdateAnimations();
+        CheckWallCollision();
 
         if (!photonView.IsMine) return;
         verticalSpeed = _rb.linearVelocity.y;
@@ -85,43 +84,43 @@ public class PlayerController : MonoBehaviourPunCallbacks
     private void HandleMovement()
     {
         if (_isJumpQueued) return;
-            var horizontalInput = _playerInputActions.Player.Move.ReadValue<Vector2>().x;
+        var horizontalInput = _playerInputActions.Player.Move.ReadValue<Vector2>().x;
 
-            if (horizontalInput > 0) // Moving right
-            {
-                transform.localScale = new Vector3((transform.localScale.y * 2) / 2, transform.localScale.y, transform.localScale.z);
-                playerNameTag.transform.localScale = new Vector3((playerNameTag.transform.localScale.y * 2) / 2, playerNameTag.transform.localScale.y, playerNameTag.transform.localScale.z);
-            }
-            else if (horizontalInput < 0) // Moving left
-            {
-                transform.localScale = new Vector3(transform.localScale.y * (-1), transform.localScale.y, transform.localScale.z);
-                playerNameTag.transform.localScale = new Vector3(playerNameTag.transform.localScale.y * (-1), playerNameTag.transform.localScale.y, playerNameTag.transform.localScale.z);
-            }
+        if (horizontalInput > 0) // Moving right
+        {
+            transform.localScale = new Vector3((transform.localScale.y * 2) / 2, transform.localScale.y, transform.localScale.z);
+            playerNameTag.transform.localScale = new Vector3((playerNameTag.transform.localScale.y * 2) / 2, playerNameTag.transform.localScale.y, playerNameTag.transform.localScale.z);
+        }
+        else if (horizontalInput < 0) // Moving left
+        {
+            transform.localScale = new Vector3(transform.localScale.y * (-1), transform.localScale.y, transform.localScale.z);
+            playerNameTag.transform.localScale = new Vector3(playerNameTag.transform.localScale.y * (-1), playerNameTag.transform.localScale.y, playerNameTag.transform.localScale.z);
+        }
 
-            // Gradual acceleration
-            if (Mathf.Abs(horizontalInput) > 0.01f)
-            {
-                currentSpeed = Mathf.MoveTowards(currentSpeed, horizontalInput * maxSpeed, acceleration * Time.deltaTime);
-            }
-            else
-            {
-                // Deceleration with a slight threshold to avoid sticking at 0
-                currentSpeed = Mathf.MoveTowards(currentSpeed, 0, deceleration * Time.deltaTime);
-                if (Mathf.Abs(currentSpeed) < 0.01f) currentSpeed = 0; // Prevent floating-point issues
-            }
+        // Gradual acceleration
+        if (Mathf.Abs(horizontalInput) > 0.01f)
+        {
+            currentSpeed = Mathf.MoveTowards(currentSpeed, horizontalInput * maxSpeed, acceleration * Time.deltaTime);
+        }
+        else
+        {
+            // Deceleration with a slight threshold to avoid sticking at 0
+            currentSpeed = Mathf.MoveTowards(currentSpeed, 0, deceleration * Time.deltaTime);
+            if (Mathf.Abs(currentSpeed) < 0.01f) currentSpeed = 0; // Prevent floating-point issues
+        }
 
-            // Preserve y velocity and apply movement
-            var targetVelocity = new Vector2(currentSpeed, _rb.linearVelocity.y);
-            _rb.linearVelocity = targetVelocity;
+        // Preserve y velocity and apply movement
+        var targetVelocity = new Vector2(currentSpeed, _rb.linearVelocity.y);
+        _rb.linearVelocity = targetVelocity;
 
-            // Jump logic
-            if (_playerInputActions.Player.Jump.WasPressedThisFrame() && _isGrounded && !_isJumpQueued)
-            {
-                animator.SetBool(IsJumpQueued, true);
-                _isJumpQueued = true;
+        // Jump logic
+        if (_playerInputActions.Player.Jump.WasPressedThisFrame() && _isGrounded && !_isJumpQueued)
+        {
+            animator.SetBool(IsJumpQueued, true);
+            _isJumpQueued = true;
 
-                StartCoroutine(JumpAfterDelay(0.1f)); // Trigger the jump
-            }
+            StartCoroutine(JumpAfterDelay(0.1f)); // Trigger the jump
+        }
     }
 
     private IEnumerator JumpAfterDelay(float delay)
@@ -178,5 +177,24 @@ public class PlayerController : MonoBehaviourPunCallbacks
         animator.speed = 0f;
         _isJumpPaused = true;
         Debug.Log("Jump paused");
+    }
+
+    private void CheckWallCollision()
+    {
+        // Check for collision with walls
+        RaycastHit2D hitLeft = Physics2D.Raycast(transform.position, Vector2.left, 0.1f, groundLayerMask);
+        RaycastHit2D hitRight = Physics2D.Raycast(transform.position, Vector2.right, 0.1f, groundLayerMask);
+
+        if (hitLeft.collider != null && currentSpeed < 0)
+        {
+            // Player is moving left and hitting a wall
+            currentSpeed = 0;
+        }
+
+        if (hitRight.collider != null && currentSpeed > 0)
+        {
+            // Player is moving right and hitting a wall
+            currentSpeed = 0;
+        }
     }
 }

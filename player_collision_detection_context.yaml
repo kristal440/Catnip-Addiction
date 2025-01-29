@@ -1,0 +1,4 @@
+---
+files:
+- path: "Assets/Scripts/PlayerPrefab/PlayerController.cs"
+  readOnly: false
