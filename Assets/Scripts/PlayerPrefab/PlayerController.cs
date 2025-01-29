@@ -83,6 +83,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
     private void HandleMovement()
     {
+        // TODO: return if collider is touching a wall
         if (_isJumpQueued) return;
         var horizontalInput = _playerInputActions.Player.Move.ReadValue<Vector2>().x;
 

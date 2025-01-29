@@ -121,8 +121,7 @@ public class DynamicCameraController : MonoBehaviour
 
     private void UpdateVerticalOffset()
     {
-        // Get normalized vertical speed specifically
-        float normalizedVerticalSpeed = Mathf.Clamp(_playerController.verticalSpeed / _playerController.maxSpeed, -1, 1);
+        var normalizedVerticalSpeed = Mathf.Clamp(_playerController.verticalSpeed / _playerController.maxSpeed, -1, 1);
 
         var targetVerticalOffset = normalizedVerticalSpeed * maxVerticalOffset;
         var targetPosition = _defaultPosition + new Vector3(0, targetVerticalOffset, 0);

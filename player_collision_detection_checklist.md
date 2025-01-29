@@ -1,5 +1,0 @@
-- [ ] Create a new method `CheckWallCollision` in `PlayerController.cs`.
-- [ ] Use `Physics2D.Raycast` to detect collisions with walls.
-- [ ] Determine the direction of collision (left or right).
-- [ ] Adjust the player's speed based on the direction of collision.
-- [ ] Ensure the method is called in the `Update` method.
