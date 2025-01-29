@@ -1,6 +1,7 @@
 using System.Collections;
 using UnityEngine;
 using Photon.Pun;
+using UnityEngine.Serialization;
 
 // Add this line to use Canvas
 
@@ -10,58 +11,58 @@ public class PlayerController : MonoBehaviourPunCallbacks
     private static readonly int InAir = Animator.StringToHash("InAir");
     private static readonly int IsJumpQueued = Animator.StringToHash("IsJumpQueued");
     private Rigidbody2D _rb;
-    public float maxSpeed = 5f; // Maximum horizontal movement speed
-    public float acceleration = 10f; // How fast the player reaches the target speed
-    public float deceleration = 15f; // How fast the player stops
+    public float maxSpeed = 5f;
+    public float acceleration = 10f;
+    public float deceleration = 15f;
     public float jumpForce = 10f;
     public Animator animator;
 
     [Header("Ground Check")]
-    public Transform groundCheck; // Transform to mark the ground check position
-    public float groundCheckRadius = 0.2f; // Radius of the ground check circle
-    public LayerMask groundLayerMask; // Layer mask for ground detection
+    public Transform groundCheck;
+    public float groundCheckRadius = 0.2f;
+    public LayerMask groundLayerMask;
 
     [Header("Dont flip")]
-    public TMPro.TextMeshProUGUI playerNameTag; //
+    public TMPro.TextMeshProUGUI playerNameTag;
 
     private bool _isGrounded;
     private bool _isJumpQueued;
     private bool _isJumpPaused;
 
-    // Reference to the generated Input Action class
     private InputSystem_Actions _playerInputActions;
 
-    private float _currentSpeed;
+    public float currentSpeed;
+    public float verticalSpeed;
 
     private void Awake()
     {
-        _playerInputActions = new InputSystem_Actions(); // Instantiate the input actions
+        _playerInputActions = new InputSystem_Actions();
     }
 
     public override void OnEnable()
     {
-        _playerInputActions.Player.Enable(); // Enable the Player action map
+        _playerInputActions.Player.Enable();
     }
 
     public override void OnDisable()
     {
-        _playerInputActions.Player.Disable(); // Disable the Player action map
+        _playerInputActions.Player.Disable();
     }
 
     private void Start()
     {
         _rb = GetComponent<Rigidbody2D>();
-        var mainCamera = Camera.main; // Store Camera.main in a variable to avoid multiple lookups
+        var mainCamera = Camera.main;
 
         // Canvas Event Camera setup
-        var playerCanvas = GetComponentInChildren<Canvas>(); // Get the Canvas component from children
+        var playerCanvas = GetComponentInChildren<Canvas>();
         if (playerCanvas != null)
         {
-            playerCanvas.worldCamera = mainCamera; // Assign the main camera as the Event Camera
+            playerCanvas.worldCamera = mainCamera;
         }
         else
         {
-            Debug.LogWarning("Canvas not found in Player prefab. Name Tag might not work correctly.");
+            Debug.LogWarning("Canvas not found in Player prefab. Name Tag won't not work correctly.");
         }
 
         if (!photonView.IsMine) return;
@@ -77,6 +78,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
         UpdateAnimations();
 
         if (!photonView.IsMine) return;
+        verticalSpeed = _rb.linearVelocity.y;
         HandleMovement();
     }
 
@@ -99,17 +101,17 @@ public class PlayerController : MonoBehaviourPunCallbacks
             // Gradual acceleration
             if (Mathf.Abs(horizontalInput) > 0.01f)
             {
-                _currentSpeed = Mathf.MoveTowards(_currentSpeed, horizontalInput * maxSpeed, acceleration * Time.deltaTime);
+                currentSpeed = Mathf.MoveTowards(currentSpeed, horizontalInput * maxSpeed, acceleration * Time.deltaTime);
             }
             else
             {
                 // Deceleration with a slight threshold to avoid sticking at 0
-                _currentSpeed = Mathf.MoveTowards(_currentSpeed, 0, deceleration * Time.deltaTime);
-                if (Mathf.Abs(_currentSpeed) < 0.01f) _currentSpeed = 0; // Prevent floating-point issues
+                currentSpeed = Mathf.MoveTowards(currentSpeed, 0, deceleration * Time.deltaTime);
+                if (Mathf.Abs(currentSpeed) < 0.01f) currentSpeed = 0; // Prevent floating-point issues
             }
 
             // Preserve y velocity and apply movement
-            var targetVelocity = new Vector2(_currentSpeed, _rb.linearVelocity.y);
+            var targetVelocity = new Vector2(currentSpeed, _rb.linearVelocity.y);
             _rb.linearVelocity = targetVelocity;
 
             // Jump logic
