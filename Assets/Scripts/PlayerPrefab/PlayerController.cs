@@ -20,17 +20,23 @@ public class PlayerController : MonoBehaviourPunCallbacks
     public float groundCheckRadius = 0.2f;
     public LayerMask groundLayerMask;
 
+    [Header("Wall Check")]
+    public Transform wallCheck;
+    public float wallCheckRadius = 0.2f;
+    public LayerMask wallLayerMask;
+
     [Header("Dont flip")]
     public TMPro.TextMeshProUGUI playerNameTag;
 
     private bool _isGrounded;
+    private bool _isTouchingWall;
     private bool _isJumpQueued;
     private bool _isJumpPaused;
 
     private InputSystem_Actions _playerInputActions;
 
-    public float currentSpeed;
-    public float verticalSpeed;
+    [HideInInspector] public float currentSpeed;
+    [HideInInspector] public float verticalSpeed;
 
     private void Awake()
     {
@@ -56,7 +62,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
         var playerCanvas = GetComponentInChildren<Canvas>();
         if (playerCanvas != null)
         {
-            playerCanvas.worldCamera = mainCamera;
+            if (mainCamera != null) playerCanvas.worldCamera = mainCamera;
         }
         else
         {
@@ -65,7 +71,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
         if (!photonView.IsMine) return;
         // Camera setup
-        if (Camera.main == null) return;
+        if (mainCamera == null) return;
         mainCamera.transform.SetParent(transform);
         mainCamera.transform.localPosition = new Vector3(0, 0, -10);
         mainCamera.transform.localRotation = Quaternion.identity;
@@ -74,7 +80,6 @@ public class PlayerController : MonoBehaviourPunCallbacks
     private void Update()
     {
         UpdateAnimations();
-        CheckWallCollision();
 
         if (!photonView.IsMine) return;
         verticalSpeed = _rb.linearVelocity.y;
@@ -83,19 +88,34 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
     private void HandleMovement()
     {
-        // TODO: return if collider is touching a wall
+        // return if player's collider is touching a wall or is jump queued
+        _isTouchingWall = Physics2D.OverlapCircle(wallCheck.position, wallCheckRadius, wallLayerMask);
         if (_isJumpQueued) return;
         var horizontalInput = _playerInputActions.Player.Move.ReadValue<Vector2>().x;
 
-        if (horizontalInput > 0) // Moving right
+        // Queue the jump
+        if (_playerInputActions.Player.Jump.WasPressedThisFrame() && _isGrounded && !_isJumpQueued)
         {
-            transform.localScale = new Vector3((transform.localScale.y * 2) / 2, transform.localScale.y, transform.localScale.z);
-            playerNameTag.transform.localScale = new Vector3((playerNameTag.transform.localScale.y * 2) / 2, playerNameTag.transform.localScale.y, playerNameTag.transform.localScale.z);
+            _isJumpQueued = true;
         }
-        else if (horizontalInput < 0) // Moving left
+
+        switch (horizontalInput)
         {
-            transform.localScale = new Vector3(transform.localScale.y * (-1), transform.localScale.y, transform.localScale.z);
-            playerNameTag.transform.localScale = new Vector3(playerNameTag.transform.localScale.y * (-1), playerNameTag.transform.localScale.y, playerNameTag.transform.localScale.z);
+            // Moving right
+            case > 0 when _isTouchingWall && transform.localScale.x > 0 && !_isJumpQueued:
+                return;
+            case > 0:
+                transform.localScale = new Vector3((transform.localScale.y * 2) / 2, transform.localScale.y, transform.localScale.z);
+                playerNameTag.transform.localScale = new Vector3((playerNameTag.transform.localScale.y * 2) / 2, playerNameTag.transform.localScale.y, playerNameTag.transform.localScale.z);
+                break;
+
+            // Moving left
+            case < 0 when _isTouchingWall && transform.localScale.x < 0 && !_isJumpQueued:
+                return;
+            case < 0:
+                transform.localScale = new Vector3(transform.localScale.y * (-1), transform.localScale.y, transform.localScale.z);
+                playerNameTag.transform.localScale = new Vector3(playerNameTag.transform.localScale.y * (-1), playerNameTag.transform.localScale.y, playerNameTag.transform.localScale.z);
+                break;
         }
 
         // Gradual acceleration
@@ -112,32 +132,26 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
         // Preserve y velocity and apply movement
         var targetVelocity = new Vector2(currentSpeed, _rb.linearVelocity.y);
-        _rb.linearVelocity = targetVelocity;
+        if (!_isTouchingWall) _rb.linearVelocity = targetVelocity;
 
-        // Jump logic
-        if (_playerInputActions.Player.Jump.WasPressedThisFrame() && _isGrounded && !_isJumpQueued)
-        {
-            animator.SetBool(IsJumpQueued, true);
-            _isJumpQueued = true;
-
-            StartCoroutine(JumpAfterDelay(0.1f)); // Trigger the jump
-        }
+        // Do the jump
+        if (!_isJumpQueued) return;
+        animator.SetBool(IsJumpQueued, true);
+        StartCoroutine(JumpAfterDelay(0.1f)); // Trigger the jump
     }
 
+    // Jump logic
     private IEnumerator JumpAfterDelay(float delay)
     {
-        animator.speed = 0f; // Pause animation - Keep this for the slight pause before jump force
+        animator.speed = 0f;
         yield return new WaitForSeconds(delay);
 
-        _rb.linearVelocity = new Vector2(_rb.linearVelocity.x, jumpForce); // Perform the jump
+        _rb.linearVelocity = new Vector2(_rb.linearVelocity.x, jumpForce);
 
-        // Reset jump queue
         animator.SetBool(IsJumpQueued, false);
         _isJumpQueued = false;
-        Debug.Log("Jump Queue Reset by Coroutine");
 
-        animator.speed = 1f; // Resume animation
-        Debug.Log("Jump performed");
+        animator.speed = 1f;
     }
 
     private void UpdateAnimations()
@@ -150,23 +164,23 @@ public class PlayerController : MonoBehaviourPunCallbacks
         {
             animator.speed = 1f;
             _isJumpPaused = false;
-            Debug.Log("Jump resumed");
         }
 
         if (photonView.IsMine)
         {
-            // Update InAir parameter for jump animation
+            // Update InAir anim parameter
             animator.SetBool(InAir, !_isGrounded);
-            // Update Speed parameter for run animation (using absolute horizontal velocity)
+            // Update Speed anim parameter (using absolute horizontal velocity)
             animator.SetFloat(Speed, Mathf.Abs(_rb.linearVelocity.x));
         }
         else
         {
             // Flip the name tag if the player is moving left
-            if (transform.localScale.x < 0)
-                playerNameTag.transform.localScale = new Vector3(playerNameTag.transform.localScale.y * (-1), playerNameTag.transform.localScale.y, playerNameTag.transform.localScale.z);
-            else
-                playerNameTag.transform.localScale = new Vector3((playerNameTag.transform.localScale.y * 2) / 2, playerNameTag.transform.localScale.y, playerNameTag.transform.localScale.z);
+            playerNameTag.transform.localScale = transform.localScale.x < 0
+                ? new Vector3(playerNameTag.transform.localScale.y * (-1), playerNameTag.transform.localScale.y,
+                    playerNameTag.transform.localScale.z)
+                : new Vector3((playerNameTag.transform.localScale.y * 2) / 2, playerNameTag.transform.localScale.y,
+                    playerNameTag.transform.localScale.z);
         }
     }
 
@@ -175,27 +189,8 @@ public class PlayerController : MonoBehaviourPunCallbacks
     {
         // Only pause if still in the air
         if (_isGrounded) return;
+
         animator.speed = 0f;
         _isJumpPaused = true;
-        Debug.Log("Jump paused");
-    }
-
-    private void CheckWallCollision()
-    {
-        // Check for collision with walls
-        RaycastHit2D hitLeft = Physics2D.Raycast(transform.position, Vector2.left, 0.1f, groundLayerMask);
-        RaycastHit2D hitRight = Physics2D.Raycast(transform.position, Vector2.right, 0.1f, groundLayerMask);
-
-        if (hitLeft.collider != null && currentSpeed < 0)
-        {
-            // Player is moving left and hitting a wall
-            currentSpeed = 0;
-        }
-
-        if (hitRight.collider != null && currentSpeed > 0)
-        {
-            // Player is moving right and hitting a wall
-            currentSpeed = 0;
-        }
     }
 }
