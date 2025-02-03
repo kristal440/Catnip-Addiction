@@ -78,7 +78,7 @@ public class DynamicCameraController : MonoBehaviour
         _defaultPosition = transform.localPosition;
     }
 
-    private void Update()
+    private void FixedUpdate()
     {
         if (!_playerController) return;
 
@@ -92,9 +92,9 @@ public class DynamicCameraController : MonoBehaviour
     // Smoothly increase Orthographic Size based on player speed
     private void UpdateOrthographicSizeOffset(float normalizedSpeed)
     {
-        if (_playerController.transform.localScale != _previousPlayerScale)
-            transform.localPosition = new Vector3(transform.localPosition.x * -1, transform.localPosition.y, transform.localPosition.z);
-        _previousPlayerScale = _playerController.transform.localScale;
+        // if (_playerController.transform.localScale != _previousPlayerScale)
+        //     transform.localPosition = new Vector3(transform.localPosition.x * -1, transform.localPosition.y, transform.localPosition.z);
+        // _previousPlayerScale = _playerController.transform.localScale;
 
         var targetOrthographicSizeOffset = normalizedSpeed * maxOrthographicSizeOffset;
         var targetOrthographicSize = _defaultOrthographicSize + targetOrthographicSizeOffset;

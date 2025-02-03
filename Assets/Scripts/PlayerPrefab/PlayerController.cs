@@ -1,7 +1,7 @@
 using System.Collections;
 using UnityEngine;
 using Photon.Pun;
-using UnityEngine.Serialization;
+using static UnityEngine.Mathf;
 
 public class PlayerController : MonoBehaviourPunCallbacks
 {
@@ -28,15 +28,24 @@ public class PlayerController : MonoBehaviourPunCallbacks
     [Header("Dont flip")]
     public TMPro.TextMeshProUGUI playerNameTag;
 
-    private bool _isGrounded;
     private bool _isTouchingWall;
     private bool _isJumpQueued;
-    private bool _isJumpPaused;
 
     private InputSystem_Actions _playerInputActions;
 
     [HideInInspector] public float currentSpeed;
     [HideInInspector] public float verticalSpeed;
+    private Vector3 _previousPlayerScale;
+
+    private static readonly int IsLaying = Animator.StringToHash("IsLaying");
+    private float _idleTimer;
+
+    public bool IsStanding { get; set; }
+    public bool IsGrounded { get; private set; }
+    public bool IsJumpPaused { get; set; }
+
+    private Camera _mainCamera;
+
 
     private void Awake()
     {
@@ -55,14 +64,14 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
     private void Start()
     {
+        _mainCamera = Camera.main;
         _rb = GetComponent<Rigidbody2D>();
-        var mainCamera = Camera.main;
 
         // Canvas Event Camera setup
         var playerCanvas = GetComponentInChildren<Canvas>();
         if (playerCanvas != null)
         {
-            if (mainCamera != null) playerCanvas.worldCamera = mainCamera;
+            if (_mainCamera != null) playerCanvas.worldCamera = _mainCamera;
         }
         else
         {
@@ -71,10 +80,10 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
         if (!photonView.IsMine) return;
         // Camera setup
-        if (mainCamera == null) return;
-        mainCamera.transform.SetParent(transform);
-        mainCamera.transform.localPosition = new Vector3(0, 0, -10);
-        mainCamera.transform.localRotation = Quaternion.identity;
+        if (_mainCamera == null) return;
+        _mainCamera.transform.SetParent(transform);
+        _mainCamera.transform.localPosition = new Vector3(0, 0, -10);
+        _mainCamera.transform.localRotation = Quaternion.identity;
     }
 
     private void Update()
@@ -83,6 +92,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
         if (!photonView.IsMine) return;
         verticalSpeed = _rb.linearVelocity.y;
+        CheckIdleState();
         HandleMovement();
     }
 
@@ -93,8 +103,9 @@ public class PlayerController : MonoBehaviourPunCallbacks
         if (_isJumpQueued) return;
         var horizontalInput = _playerInputActions.Player.Move.ReadValue<Vector2>().x;
 
+        #region handle input
         // Queue the jump
-        if (_playerInputActions.Player.Jump.WasPressedThisFrame() && _isGrounded && !_isJumpQueued)
+        if (_playerInputActions.Player.Jump.WasPressedThisFrame() && IsGrounded && !_isJumpQueued)
         {
             _isJumpQueued = true;
         }
@@ -107,27 +118,41 @@ public class PlayerController : MonoBehaviourPunCallbacks
             case > 0:
                 transform.localScale = new Vector3((transform.localScale.y * 2) / 2, transform.localScale.y, transform.localScale.z);
                 playerNameTag.transform.localScale = new Vector3((playerNameTag.transform.localScale.y * 2) / 2, playerNameTag.transform.localScale.y, playerNameTag.transform.localScale.z);
+                animator.SetBool(IsLaying, false);
+                _idleTimer = 0f;
                 break;
 
             // Moving left
             case < 0 when _isTouchingWall && transform.localScale.x < 0 && !_isJumpQueued:
                 return;
             case < 0:
-                transform.localScale = new Vector3(transform.localScale.y * (-1), transform.localScale.y, transform.localScale.z);
+                transform.localScale = new Vector3(transform.localScale.y * -1, transform.localScale.y, transform.localScale.z);
                 playerNameTag.transform.localScale = new Vector3(playerNameTag.transform.localScale.y * (-1), playerNameTag.transform.localScale.y, playerNameTag.transform.localScale.z);
+                animator.SetBool(IsLaying, false);
+                _idleTimer = 0f;
                 break;
         }
 
+        // Flip the camera
+        if (transform.localScale != _previousPlayerScale)
+            _mainCamera.transform.localPosition = new Vector3(_mainCamera.transform.localPosition.x * -1, _mainCamera.transform.localPosition.y, _mainCamera.transform.localPosition.z);
+        _previousPlayerScale = transform.localScale;
+        #endregion
+
+        // If laying down and not finished standing up, don't process movement
+        if (!IsStanding) return;
+
+        #region handle movement
         // Gradual acceleration
-        if (Mathf.Abs(horizontalInput) > 0.01f)
+        if (Abs(horizontalInput) > 0.01f)
         {
-            currentSpeed = Mathf.MoveTowards(currentSpeed, horizontalInput * maxSpeed, acceleration * Time.deltaTime);
+            currentSpeed = MoveTowards(currentSpeed, horizontalInput * maxSpeed, acceleration * Time.deltaTime);
         }
         else
         {
             // Deceleration with a slight threshold to avoid sticking at 0
-            currentSpeed = Mathf.MoveTowards(currentSpeed, 0, deceleration * Time.deltaTime);
-            if (Mathf.Abs(currentSpeed) < 0.01f) currentSpeed = 0; // Prevent floating-point issues
+            currentSpeed = MoveTowards(currentSpeed, 0, deceleration * Time.deltaTime);
+            if (Abs(currentSpeed) < 0.01f) currentSpeed = 0; // Prevent floating-point issues
         }
 
         // Preserve y velocity and apply movement
@@ -138,6 +163,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
         if (!_isJumpQueued) return;
         animator.SetBool(IsJumpQueued, true);
         StartCoroutine(JumpAfterDelay(0.1f)); // Trigger the jump
+        #endregion
     }
 
     // Jump logic
@@ -154,24 +180,40 @@ public class PlayerController : MonoBehaviourPunCallbacks
         animator.speed = 1f;
     }
 
+    #region Animations
+    private void CheckIdleState()
+    {
+        if (Approximately(currentSpeed, 0f) && Approximately(verticalSpeed, 0f) && animator.GetBool(IsLaying) == false)
+        {
+            _idleTimer += Time.deltaTime;
+            if (!(_idleTimer >= 3f)) return;
+            animator.SetBool(IsLaying, true);
+            Debug.Log("Laying down");
+            _idleTimer = 3f;
+        }
+        else
+        {
+            _idleTimer = 0f;
+        }
+    }
     private void UpdateAnimations()
     {
         // Ground check
-        _isGrounded = Physics2D.OverlapCircle(groundCheck.position, groundCheckRadius, groundLayerMask);
+        IsGrounded = Physics2D.OverlapCircle(groundCheck.position, groundCheckRadius, groundLayerMask);
 
         // Landing animation
-        if (_isGrounded && _isJumpPaused)
+        if (IsGrounded && IsJumpPaused)
         {
             animator.speed = 1f;
-            _isJumpPaused = false;
+            IsJumpPaused = false;
         }
 
         if (photonView.IsMine)
         {
             // Update InAir anim parameter
-            animator.SetBool(InAir, !_isGrounded);
+            animator.SetBool(InAir, !IsGrounded);
             // Update Speed anim parameter (using absolute horizontal velocity)
-            animator.SetFloat(Speed, Mathf.Abs(_rb.linearVelocity.x));
+            animator.SetFloat(Speed, Abs(_rb.linearVelocity.x));
         }
         else
         {
@@ -183,14 +225,5 @@ public class PlayerController : MonoBehaviourPunCallbacks
                     playerNameTag.transform.localScale.z);
         }
     }
-
-    // Animation event: gets called when the player is midair
-    public void PauseJump()
-    {
-        // Only pause if still in the air
-        if (_isGrounded) return;
-
-        animator.speed = 0f;
-        _isJumpPaused = true;
-    }
+    #endregion
 }
