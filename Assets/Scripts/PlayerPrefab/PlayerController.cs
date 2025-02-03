@@ -46,6 +46,8 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
     private Camera _mainCamera;
 
+    public bool IsPaused { get; set; }
+
 
     private void Awake()
     {
@@ -98,6 +100,8 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
     private void HandleMovement()
     {
+        if (IsPaused) return;
+
         // return if player's collider is touching a wall or is jump queued
         _isTouchingWall = Physics2D.OverlapCircle(wallCheck.position, wallCheckRadius, wallLayerMask);
         if (_isJumpQueued) return;
