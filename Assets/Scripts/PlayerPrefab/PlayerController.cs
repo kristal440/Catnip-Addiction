@@ -71,14 +71,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
         // Canvas Event Camera setup
         var playerCanvas = GetComponentInChildren<Canvas>();
-        if (playerCanvas != null)
-        {
-            if (_mainCamera != null) playerCanvas.worldCamera = _mainCamera;
-        }
-        else
-        {
-            Debug.LogWarning("Canvas not found in Player prefab. Name Tag won't not work correctly.");
-        }
+        if (_mainCamera != null) playerCanvas.worldCamera = _mainCamera;
 
         if (!photonView.IsMine) return;
         // Camera setup
@@ -166,7 +159,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
         // Do the jump
         if (!_isJumpQueued) return;
         animator.SetBool(IsJumpQueued, true);
-        StartCoroutine(JumpAfterDelay(0.1f)); // Trigger the jump
+        StartCoroutine(JumpAfterDelay(0.2f)); // Trigger the jump
         #endregion
     }
 
