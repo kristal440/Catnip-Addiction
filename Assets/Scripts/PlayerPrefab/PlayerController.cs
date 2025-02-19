@@ -177,6 +177,20 @@ public class PlayerController : MonoBehaviourPunCallbacks
         animator.speed = 1f;
     }
 
+    public void Teleport(Vector3 position)
+    {
+        if (photonView.IsMine)
+        {
+            transform.position = position;
+        }
+    }
+
+    public void SetMovement(bool enabled)
+    {
+        // Implement your movement enable/disable logic here
+        IsPaused = !enabled;
+    }
+
     #region Animations
     private void CheckIdleState()
     {
