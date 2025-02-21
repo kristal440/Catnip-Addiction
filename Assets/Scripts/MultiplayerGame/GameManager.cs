@@ -6,6 +6,7 @@ using TMPro;
 public class GameManager : MonoBehaviourPunCallbacks
 {
     public static GameManager Instance;
+    private static readonly int isLaying = Animator.StringToHash("IsLaying");
 
     [Header("Settings")]
     public float countdownDuration = 5f;
@@ -33,12 +34,11 @@ public class GameManager : MonoBehaviourPunCallbacks
         if (!PhotonNetwork.IsMasterClient || gameStarted) return;
         if (PhotonNetwork.CurrentRoom.PlayerCount == PhotonNetwork.CurrentRoom.MaxPlayers)
         {
-            photonView.RPC("StartCountdown", RpcTarget.All);
+            photonView.RPC(nameof(StartCountdown), RpcTarget.All);
         }
     }
 
     [PunRPC]
-    // ReSharper disable once UnusedMember.Local
     private void StartCountdown()
     {
         gameStarted = true;
@@ -53,16 +53,19 @@ public class GameManager : MonoBehaviourPunCallbacks
         while (remainingTime > 0)
         {
             countdownText.text = "game starts in: " + Mathf.CeilToInt(remainingTime);
+            if (Mathf.CeilToInt(remainingTime) == 2)
+            {
+                photonView.RPC(nameof(StandUp), RpcTarget.All);
+            }
             remainingTime -= Time.deltaTime;
             yield return null;
         }
 
         countdownUI.SetActive(false);
-        photonView.RPC("StartGame", RpcTarget.All);
+        photonView.RPC(nameof(StartGame), RpcTarget.All);
     }
 
     [PunRPC]
-    // ReSharper disable once UnusedMember.Local
     private void StartGame()
     {
         var players = FindObjectsByType<PlayerController>(sortMode: FindObjectsSortMode.None);
@@ -104,12 +107,11 @@ public class GameManager : MonoBehaviourPunCallbacks
         }
         if (!alreadyFinished)
         {
-            photonView.RPC("UpdateLeaderboard", RpcTarget.All, playerId, finishTime); // Line 85
+            photonView.RPC(nameof(UpdateLeaderboard), RpcTarget.All, playerId, finishTime); // Line 85
         }
     }
 
     [PunRPC]
-    // ReSharper disable once UnusedMember.Local
     private void UpdateLeaderboard(int playerId, float finishTime)
     {
         Debug.Log($"{PhotonNetwork.CurrentRoom.GetPlayer(playerId).NickName} finished in {finishTime}s");
@@ -130,6 +132,16 @@ public class GameManager : MonoBehaviourPunCallbacks
         PhotonNetwork.CurrentRoom.SetCustomProperties(roomProps);
 
         PhotonNetwork.LoadLevel("Leaderboard"); // Load the leaderboard scene
+    }
+
+    [PunRPC]
+    private void StandUp()
+    {
+        var players = FindObjectsByType<PlayerController>(FindObjectsSortMode.None);
+        foreach (var player in players)
+        {
+            player.animator.SetBool(isLaying, false);
+        }
     }
 }
 
