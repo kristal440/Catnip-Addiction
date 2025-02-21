@@ -8,6 +8,7 @@ public class FinishLine : MonoBehaviour
         if (!GameManager.Instance.gameStarted) return;
         if (!other.CompareTag("Player")) return; // Ensure only players trigger this
         if (!PhotonView.Get(other).IsMine) return; // Ensure only the local player triggers this
+        Debug.Log("Player has crossed the finish line!");
 
         var player = other.GetComponent<PlayerController>();
 
@@ -16,10 +17,11 @@ public class FinishLine : MonoBehaviour
         var playerID = PhotonNetwork.LocalPlayer.ActorNumber;
 
         // Inform GameManager that this player has finished
-        GameManager.Instance.PlayerFinished(playerID, finishTime);
+        GameManager.Instance.PlayerFinished(playerID, finishTime-GameManager.Instance.startTime);
 
         // Disable player movement upon finishing
-        player.enabled = false;
+        player.HasFinished = true;
+        player.SetSpectatorMode(true);
 
         Debug.Log($"Player {playerID} finished the race in {finishTime:F2} seconds!");
     }

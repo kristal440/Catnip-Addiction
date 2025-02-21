@@ -47,7 +47,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
     private Camera _mainCamera;
 
     public bool IsPaused { get; set; }
-
+    public bool HasFinished { get; set; }
 
     private void Awake()
     {
@@ -185,10 +185,10 @@ public class PlayerController : MonoBehaviourPunCallbacks
         }
     }
 
-    public void SetMovement(bool enabled)
+    public void SetMovement(bool isEnabled)
     {
         // Implement your movement enable/disable logic here
-        IsPaused = !enabled;
+        IsPaused = !isEnabled;
     }
 
     #region Animations
@@ -237,4 +237,18 @@ public class PlayerController : MonoBehaviourPunCallbacks
         }
     }
     #endregion
+
+    // spectator mode
+    public void SetSpectatorMode(bool isEnabled)
+    {
+        if (isEnabled)
+        {
+            Debug.Log("Spectator mode enabled");
+            // TODO: hide UI elements
+        }
+        else
+        {
+            Debug.Log("Spectator mode disabled");
+        }
+    }
 }
