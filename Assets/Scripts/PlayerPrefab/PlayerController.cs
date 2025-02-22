@@ -101,8 +101,8 @@ public class PlayerController : MonoBehaviourPunCallbacks
         var horizontalInput = _playerInputActions.Player.Move.ReadValue<Vector2>().x;
 
         #region handle input
-        // Queue the jump
-        if (_playerInputActions.Player.Jump.WasPressedThisFrame() && IsGrounded && !_isJumpQueued)
+        // Queue the jump only if player is standing
+        if (_playerInputActions.Player.Jump.WasPressedThisFrame() && IsGrounded && !_isJumpQueued && IsStanding)
         {
             _isJumpQueued = true;
         }
