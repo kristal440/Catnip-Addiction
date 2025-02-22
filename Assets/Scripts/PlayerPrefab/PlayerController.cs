@@ -73,12 +73,56 @@ public class PlayerController : MonoBehaviourPunCallbacks
         var playerCanvas = GetComponentInChildren<Canvas>();
         if (_mainCamera != null) playerCanvas.worldCamera = _mainCamera;
 
-        if (!photonView.IsMine) return;
-        // Camera setup
-        if (_mainCamera == null) return;
-        _mainCamera.transform.SetParent(transform);
-        _mainCamera.transform.localPosition = new Vector3(0, 0, -10);
-        _mainCamera.transform.localRotation = Quaternion.identity;
+        var sr = GetComponent<SpriteRenderer>(); // Get the SpriteRenderer
+        var nameTagText = GetComponentInChildren<TextMeshProUGUI>(); // Get the TextMeshProUGUI
+
+        if (!photonView.IsMine)
+        {
+            // Make remote players more transparent
+            if (sr != null)
+            {
+                var c = sr.color;
+                c.a = 0.7f; // Adjust alpha value (0.0f = fully transparent, 1.0f = fully opaque)
+                sr.color = c;
+
+                // Set a lower sorting order to render behind the local player
+                sr.sortingOrder = 0; // You can adjust this value as needed
+            }
+            else
+            {
+                Debug.LogWarning("No SpriteRenderer found on player GameObject!");
+            }
+
+            // Make remote player's name tag more transparent
+            if (nameTagText != null)
+            {
+                var textColor = nameTagText.color;
+                textColor.a = 0.7f;
+                nameTagText.color = textColor;
+            }
+            else
+            {
+                Debug.LogWarning("No TextMeshProUGUI found on player GameObject!");
+            }
+
+            // Set the Canvas sorting order to render behind the local player's canvas
+            if (playerCanvas != null)
+            {
+                playerCanvas.sortingOrder = 0;
+            }
+            else
+            {
+                Debug.LogWarning("No Canvas found on player GameObject!");
+            }
+        }
+        else
+        {
+            // Camera setup for local player
+            if (_mainCamera == null) return;
+            _mainCamera.transform.SetParent(transform);
+            _mainCamera.transform.localPosition = new Vector3(0, 0, -10);
+            _mainCamera.transform.localRotation = Quaternion.identity;
+        }
     }
 
     private void Update()
