@@ -27,6 +27,7 @@ public class GameManager : MonoBehaviourPunCallbacks
         if (photonView != null) return;
         gameObject.AddComponent<PhotonView>();
         finishLine.GetComponent<BoxCollider2D>().enabled = false;
+        countdownUI.SetActive(false);
     }
 
     private void Update()

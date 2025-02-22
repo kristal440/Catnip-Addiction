@@ -2,6 +2,7 @@ using System.Collections;
 using UnityEngine;
 using Photon.Pun;
 using static UnityEngine.Mathf;
+using TMPro;
 
 public class PlayerController : MonoBehaviourPunCallbacks
 {
@@ -26,7 +27,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
     public LayerMask wallLayerMask;
 
     [Header("Dont flip")]
-    public TMPro.TextMeshProUGUI playerNameTag;
+    public TextMeshProUGUI playerNameTag;
 
     private bool _isTouchingWall;
     private bool _isJumpQueued;
@@ -47,7 +48,6 @@ public class PlayerController : MonoBehaviourPunCallbacks
     private Camera _mainCamera;
 
     public bool IsPaused { get; set; }
-    public bool HasFinished { get; set; }
 
     private void Awake()
     {
@@ -139,7 +139,6 @@ public class PlayerController : MonoBehaviourPunCallbacks
     {
         if (IsPaused) return;
 
-        // return if player's collider is touching a wall or is jump queued
         _isTouchingWall = Physics2D.OverlapCircle(wallCheck.position, wallCheckRadius, wallLayerMask);
         if (_isJumpQueued) return;
         var horizontalInput = _playerInputActions.Player.Move.ReadValue<Vector2>().x;
@@ -285,14 +284,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
     // spectator mode
     public void SetSpectatorMode(bool isEnabled)
     {
-        if (isEnabled)
-        {
-            Debug.Log("Spectator mode enabled");
-            // TODO: hide UI elements
-        }
-        else
-        {
-            Debug.Log("Spectator mode disabled");
-        }
+        // TODO: hide UI elements
+        Debug.Log(isEnabled ? "Spectator mode enabled" : "Spectator mode disabled");
     }
 }

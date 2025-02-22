@@ -135,7 +135,14 @@ public class Launcher : MonoBehaviourPunCallbacks
             if (roomInfo.RemovedFromList) continue;
 
             var roomObject = Instantiate(roomPrefab, roomsContainer);
-            roomObject.GetComponentInChildren<TextMeshProUGUI>().text = roomInfo.Name;
+
+            var roomNameText = roomObject.transform.Find("RoomNameTxt").GetComponent<TextMeshProUGUI>();
+            roomNameText.text = roomInfo.Name;
+
+            var playerCountText = roomObject.transform.Find("playerCountGroup/RoomPlayerCountTxt").GetComponent<TextMeshProUGUI>();
+            playerCountText.text = $"{roomInfo.PlayerCount}/{roomInfo.MaxPlayers}";
+            playerCountText.color = roomInfo.PlayerCount >= roomInfo.MaxPlayers ? new Color(1f, 0.239f, 0.239f) : new Color(0.475f, 1f, 0.498f);
+
             roomObject.GetComponent<Button>().onClick.AddListener(() => JoinRoom(roomInfo.Name));
         }
     }

@@ -20,7 +20,6 @@ public class FinishLine : MonoBehaviour
         GameManager.Instance.PlayerFinished(playerID, finishTime-GameManager.Instance.startTime);
 
         // Disable player movement upon finishing
-        player.HasFinished = true;
         player.SetSpectatorMode(true);
 
         Debug.Log($"Player {playerID} finished the race in {finishTime:F2} seconds!");
