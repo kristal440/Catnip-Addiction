@@ -5,24 +5,26 @@ using UnityEngine.SceneManagement;
 public class PauseMenu : MonoBehaviour
 {
     public GameObject pauseMenuUI;
-    private bool _isPaused;
     private PlayerController _playerController;
 
-    void Start()
+    private void Start()
     {
         if (PhotonNetwork.IsConnected && PhotonNetwork.LocalPlayer != null)
         {
-            _playerController = FindFirstObjectByType<PlayerController>();
+            var playerControllers = FindObjectsByType<PlayerController>(sortMode: FindObjectsSortMode.None);
+            foreach (var controller in playerControllers)
+            {
+                if (!controller.photonView.IsMine) continue;
+                _playerController = controller;
+                break;
+            }
         }
         pauseMenuUI.SetActive(false);
     }
 
     public void PauseGame()
     {
-        if (GameManager.Instance.gameStarted) return;
-        _isPaused = true;
         pauseMenuUI.SetActive(true);
-        Time.timeScale = 0f;
         if (_playerController)
         {
             _playerController.IsPaused = true;
@@ -31,9 +33,7 @@ public class PauseMenu : MonoBehaviour
 
     public void ResumeGame()
     {
-        _isPaused = false;
         pauseMenuUI.SetActive(false);
-        Time.timeScale = 1f;
         if (_playerController)
         {
             _playerController.IsPaused = false;
@@ -45,8 +45,8 @@ public class PauseMenu : MonoBehaviour
         if (PhotonNetwork.IsConnected)
         {
             PhotonNetwork.LeaveRoom();
+            PhotonNetwork.Disconnect();
         }
-        Time.timeScale = 1f;
         SceneManager.LoadScene("MainMenu");
     }
 }

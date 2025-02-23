@@ -1,0 +1,8 @@
+/home/uwuclxdy/Unity/Catnip-Addiction/.utmp/Debug/4hx5f1m4/x86_64/CMakeFiles/edit_cache.dir
+/home/uwuclxdy/Unity/Catnip-Addiction/.utmp/Debug/4hx5f1m4/x86_64/CMakeFiles/rebuild_cache.dir
+/home/uwuclxdy/Unity/Catnip-Addiction/.utmp/Debug/4hx5f1m4/x86_64/GameActivity/CMakeFiles/game.dir
+/home/uwuclxdy/Unity/Catnip-Addiction/.utmp/Debug/4hx5f1m4/x86_64/GameActivity/CMakeFiles/edit_cache.dir
+/home/uwuclxdy/Unity/Catnip-Addiction/.utmp/Debug/4hx5f1m4/x86_64/GameActivity/CMakeFiles/rebuild_cache.dir
+/home/uwuclxdy/Unity/Catnip-Addiction/.utmp/Debug/4hx5f1m4/x86_64/FramePacing/CMakeFiles/swappywrapper.dir
+/home/uwuclxdy/Unity/Catnip-Addiction/.utmp/Debug/4hx5f1m4/x86_64/FramePacing/CMakeFiles/edit_cache.dir
+/home/uwuclxdy/Unity/Catnip-Addiction/.utmp/Debug/4hx5f1m4/x86_64/FramePacing/CMakeFiles/rebuild_cache.dir

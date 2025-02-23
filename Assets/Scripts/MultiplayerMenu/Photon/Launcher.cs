@@ -8,15 +8,24 @@ using System.Collections.Generic;
 
 public class Launcher : MonoBehaviourPunCallbacks
 {
+    [Header("Main UI")]
+    [SerializeField] private GameObject mainPanel;
     [SerializeField] private TMP_InputField playerNameInputField;
     [SerializeField] private TMP_InputField roomNameInputField;
-    [SerializeField] private GameObject controlPanel;
+    [SerializeField] private Slider slider;
+
+    [Header("Loading Panel")]
     [SerializeField] private GameObject loadingPanel;
     [SerializeField] private TMP_Text loadingText;
+
+    [Header("Room List")]
     [SerializeField] private GameObject roomListPanel;
     [SerializeField] private GameObject roomPrefab;
     [SerializeField] private Transform roomsContainer;
-    public Slider slider;
+
+    [Header("Error popup")]
+    [SerializeField] private GameObject errorPanel;
+    [SerializeField] private TextMeshProUGUI errorText;
 
     private bool _isConnecting;
     private List<string> _roomLst;
@@ -29,7 +38,7 @@ public class Launcher : MonoBehaviourPunCallbacks
     private void Start()
     {
         roomListPanel.SetActive(false);
-        controlPanel.SetActive(false);
+        mainPanel.SetActive(false);
         loadingPanel.SetActive(true);
 
         if (PhotonNetwork.IsConnected)
@@ -62,9 +71,9 @@ public class Launcher : MonoBehaviourPunCallbacks
 
     private IEnumerator ShowRoomListWithDelay()
     {
-        yield return new WaitForSeconds(0);
+        yield return new WaitForSeconds(1);
         loadingPanel.SetActive(false);
-        controlPanel.SetActive(true);
+        mainPanel.SetActive(true);
         roomListPanel.SetActive(true);
     }
 
@@ -72,13 +81,15 @@ public class Launcher : MonoBehaviourPunCallbacks
     {
         if (string.IsNullOrEmpty(roomNameInputField.text))
         {
-            Debug.Log("Room name can't be empty");
+            errorText.text = "Room name can't be empty";
+            errorPanel.SetActive(true);
             return;
         }
 
         if (_roomLst.Contains(roomNameInputField.text))
         {
-            Debug.Log("Room already exists");
+            errorText.text = "Room with this name already exists";
+            errorPanel.SetActive(true);
             return;
         }
 
@@ -93,11 +104,6 @@ public class Launcher : MonoBehaviourPunCallbacks
         PhotonNetwork.CreateRoom(roomNameInputField.text, roomOptions);
     }
 
-    public override void OnCreatedRoom()
-    {
-        Debug.Log("Room created successfully.");
-    }
-
     public override void OnCreateRoomFailed(short returnCode, string message)
     {
         Debug.Log($"Room creation failed: {message} ({returnCode})");
@@ -105,14 +111,18 @@ public class Launcher : MonoBehaviourPunCallbacks
 
     private void JoinRoom(string roomName)
     {
-        Debug.Log("Joining room: " + roomName);
+        if (playerNameInputField.text.Length < 3)
+        {
+            errorText.text = "Player name must be at least 3 characters long!";
+            errorPanel.SetActive(true);
+            return;
+        }
         SetNickname();
         PhotonNetwork.JoinRoom(roomName);
     }
 
     public override void OnJoinedRoom()
     {
-        Debug.Log("Joined Room: " + PhotonNetwork.CurrentRoom.Name);
         SetNickname();
         PhotonNetwork.LoadLevel("GameScene_Map1_Multi");
     }

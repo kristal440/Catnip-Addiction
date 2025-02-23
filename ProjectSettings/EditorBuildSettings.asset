@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1045 &1
+EditorBuildSettings:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Scenes:
+  - enabled: 1
+    path: Assets/Scenes/MainMenu.unity
+    guid: 9d53eff0873a715bcb0a6b6bf7387ad9
+  - enabled: 1
+    path: Assets/Scenes/MultiplayerMenu.unity
+    guid: 1a404a1bcbbe890a2afd6c408c7a8abc
+  - enabled: 1
+    path: Assets/Scenes/GameScene_Map1_Multi.unity
+    guid: 7e3aaaecb143906cf82a7d4d3989937f
+  - enabled: 1
+    path: Assets/Scenes/Leaderboard.unity
+    guid: c53d4ef431c85a026b5a7e3b332fca76
+  m_configObjects:
+    com.unity.adaptiveperformance.google.android.provider_settings: {fileID: 11400000, guid: 2295be1619b539454a8203faab5facd4, type: 2}
+    com.unity.adaptiveperformance.loader_settings: {fileID: 11400000, guid: 9a04af1606727f8b9b5a36bbf8d38902, type: 2}
+    com.unity.adaptiveperformance.simulator.provider_settings: {fileID: 11400000, guid: e9bf69bf6a396555cac5c2528827424b, type: 2}
+    com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 2bcd2660ca9b64942af0de543d8d7100, type: 3}
+  m_UseUCBPForAssetBundles: 0
