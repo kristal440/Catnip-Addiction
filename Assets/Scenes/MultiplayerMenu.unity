@@ -3413,7 +3413,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: set your name here...
+  m_text: name your cat...
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: cb7e8d1aca08aea29aa7412068bd694e, type: 2}
   m_sharedMaterial: {fileID: -4701192204372218067, guid: cb7e8d1aca08aea29aa7412068bd694e, type: 2}
