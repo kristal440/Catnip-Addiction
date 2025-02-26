@@ -290,7 +290,7 @@ Transform:
   m_GameObject: {fileID: 7518269461545255114}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: -2, z: -10}
+  m_LocalPosition: {x: 0, y: 0, z: -10}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -333,8 +333,8 @@ Camera:
     height: 1
   near clip plane: 0.3
   far clip plane: 1000
-  field of view: 60
-  orthographic: 1
+  field of view: 37
+  orthographic: 0
   orthographic size: 3.5
   m_Depth: -1
   m_CullingMask:
@@ -383,7 +383,7 @@ MonoBehaviour:
   m_VolumeTrigger: {fileID: 0}
   m_VolumeFrameworkUpdateModeOption: 2
   m_RenderPostProcessing: 1
-  m_Antialiasing: 1
+  m_Antialiasing: 2
   m_AntialiasingQuality: 2
   m_StopNaN: 0
   m_Dithering: 0
@@ -397,7 +397,7 @@ MonoBehaviour:
   m_RequiresColorTexture: 0
   m_Version: 2
   m_TaaSettings:
-    m_Quality: 3
+    m_Quality: 0
     m_FrameInfluence: 0.1
     m_JitterScale: 1
     m_MipBias: 0
@@ -415,8 +415,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 52b40d3d99da43acbb99a5b1d14daddf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxOrthographicSizeOffset: 1.2
-  orthographicSizeSmoothTime: 0.5
+  defaultFOV: 37
+  maxFOVOffset: 7
+  fovSmoothTime: 0.5
   maxHorizontalOffset: 0.32
   positionSmoothTime: 0.6
   maxVerticalOffset: 0.2

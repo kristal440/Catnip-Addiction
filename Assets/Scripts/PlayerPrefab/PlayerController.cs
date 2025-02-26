@@ -31,6 +31,8 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
     private bool _isTouchingWall;
     private bool _isJumpQueued;
+    private bool _isFalling;
+    private bool _jump1;
 
     private InputSystem_Actions _playerInputActions;
 
@@ -44,10 +46,15 @@ public class PlayerController : MonoBehaviourPunCallbacks
     public bool IsStanding { get; set; }
     public bool IsGrounded { get; private set; }
     public bool IsJumpPaused { get; set; }
+    public bool IsPaused { get; set; }
+    public bool HasCatnip { get; set; }
 
     private Camera _mainCamera;
 
-    public bool IsPaused { get; set; }
+    //Catnip effects
+    private float _newJumpForce;
+    private float _newMaxSpeed;
+    private float _newDeceleration;
 
     private void Awake()
     {
@@ -89,9 +96,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
                 sr.sortingOrder = 0; // You can adjust this value as needed
             }
             else
-            {
                 Debug.LogWarning("No SpriteRenderer found on player GameObject!");
-            }
 
             // Make remote player's name tag more transparent
             if (nameTagText != null)
@@ -101,19 +106,13 @@ public class PlayerController : MonoBehaviourPunCallbacks
                 nameTagText.color = textColor;
             }
             else
-            {
                 Debug.LogWarning("No TextMeshProUGUI found on player GameObject!");
-            }
 
             // Set the Canvas sorting order to render behind the local player's canvas
             if (playerCanvas != null)
-            {
                 playerCanvas.sortingOrder = 0;
-            }
             else
-            {
                 Debug.LogWarning("No Canvas found on player GameObject!");
-            }
         }
         else
         {
@@ -183,15 +182,22 @@ public class PlayerController : MonoBehaviourPunCallbacks
         if (!IsStanding) return;
 
         #region handle movement
+
+        if (HasCatnip) {
+            _newMaxSpeed = maxSpeed * 1.2f;
+            _newDeceleration = deceleration * 0.8f;
+        }
+        else {
+            _newMaxSpeed = maxSpeed;
+            _newDeceleration = deceleration;
+        }
+
         // Gradual acceleration
         if (Abs(horizontalInput) > 0.01f)
-        {
-            currentSpeed = MoveTowards(currentSpeed, horizontalInput * maxSpeed, acceleration * Time.deltaTime);
-        }
-        else
-        {
+            currentSpeed = MoveTowards(currentSpeed, horizontalInput * _newMaxSpeed, acceleration * Time.deltaTime);
+        else {
             // Deceleration with a slight threshold to avoid sticking at 0
-            currentSpeed = MoveTowards(currentSpeed, 0, deceleration * Time.deltaTime);
+            currentSpeed = MoveTowards(currentSpeed, 0, _newDeceleration * Time.deltaTime);
             if (Abs(currentSpeed) < 0.01f) currentSpeed = 0; // Prevent floating-point issues
         }
 
@@ -212,7 +218,12 @@ public class PlayerController : MonoBehaviourPunCallbacks
         animator.speed = 0f;
         yield return new WaitForSeconds(delay);
 
-        _rb.linearVelocity = new Vector2(_rb.linearVelocity.x, jumpForce);
+        if (HasCatnip)
+            _newJumpForce = jumpForce * 1.2f;
+        else
+            _newJumpForce = jumpForce;
+
+        _rb.linearVelocity = new Vector2(_rb.linearVelocity.x, _newJumpForce);
 
         animator.SetBool(IsJumpQueued, false);
         _isJumpQueued = false;
@@ -223,14 +234,11 @@ public class PlayerController : MonoBehaviourPunCallbacks
     public void Teleport(Vector3 position)
     {
         if (photonView.IsMine)
-        {
             transform.position = position;
-        }
     }
 
     public void SetMovement(bool isEnabled)
     {
-        // Implement your movement enable/disable logic here
         IsPaused = !isEnabled;
     }
 
@@ -260,6 +268,24 @@ public class PlayerController : MonoBehaviourPunCallbacks
         {
             animator.speed = 1f;
             IsJumpPaused = false;
+            _isFalling = false;
+            _jump1 = false;
+        }
+
+        // jump - stage 1
+        if (!_jump1 && _rb.linearVelocity.y is < 3.5f and > 2.5f)
+        {
+            Debug.Log("1");
+            animator.speed = 1f;
+            _jump1 = true;
+        }
+
+        // falling down after jump
+        if (_jump1 && !_isFalling && _rb.linearVelocity.y < -0.5f)
+        {
+            Debug.Log("2");
+            animator.speed = 1f;
+            _isFalling = true;
         }
 
         if (photonView.IsMine)
