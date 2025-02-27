@@ -272,7 +272,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
         }
 
         // jump - stage 1
-        if (!_jump1 && _rb.linearVelocity.y is < 3.5f and > 2.5f)
+        if (!_jump1 && _rb.linearVelocity.y is < 3f and > 2.5f)
         {
             Debug.Log("1");
             animator.speed = 1f;
