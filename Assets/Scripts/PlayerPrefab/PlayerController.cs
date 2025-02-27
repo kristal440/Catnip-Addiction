@@ -62,6 +62,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
     public bool IsJumpPaused { get; set; }
     public bool IsPaused { get; set; }
     public bool HasCatnip { get; set; }
+    private DynamicCameraController _cameraController;
 
     private Camera _mainCamera;
 
@@ -134,6 +135,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
             _mainCamera.transform.SetParent(transform);
             _mainCamera.transform.localPosition = new Vector3(0, 0, -10);
             _mainCamera.transform.localRotation = Quaternion.identity;
+            _cameraController = GetComponentInChildren<DynamicCameraController>();
         }
     }
 
@@ -223,6 +225,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
         #endregion
     }
 
+    #region Jump
     private void HandleJumpInput()
     {
         // Jump button pressed
@@ -269,6 +272,12 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
             jumpChargeBar.fillAmount = chargeProgress;
 
+            // Update camera FOV during charging
+            if (_cameraController)
+            {
+                _cameraController.UpdateChargingJumpFOV(chargeProgress);
+            }
+
             yield return null;
         }
 
@@ -293,6 +302,11 @@ public class PlayerController : MonoBehaviourPunCallbacks
         // Apply catnip effect if present
         if (HasCatnip)
             jumpMultiplier *= 1.2f;
+
+        if (_cameraController)
+        {
+            _cameraController.TriggerJumpFOV();
+        }
 
         // Apply jump force
         _rb.linearVelocity = new Vector2(_rb.linearVelocity.x, jumpMultiplier);
@@ -319,6 +333,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
         animator.speed = 1f;
     }
+    #endregion
 
     public void Teleport(Vector3 position)
     {

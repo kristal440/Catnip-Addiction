@@ -423,6 +423,9 @@ MonoBehaviour:
   maxVerticalOffset: 0.2
   verticalSmoothTime: 0.3
   playerSearchTimeout: 5
+  jumpFOV: 45
+  minChargeJumpFOV: 20
+  jumpFOVTransitionSpeed: 5
 --- !u!1 &8073337522067690864
 GameObject:
   m_ObjectHideFlags: 0
