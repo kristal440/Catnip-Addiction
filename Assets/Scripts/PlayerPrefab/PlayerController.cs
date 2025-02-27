@@ -310,6 +310,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
     // spectator mode
     public void SetSpectatorMode(bool isEnabled)
     {
+        SetMovement(false);
         // TODO: hide UI elements
         Debug.Log(isEnabled ? "Spectator mode enabled" : "Spectator mode disabled");
     }
