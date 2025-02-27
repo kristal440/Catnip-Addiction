@@ -29,7 +29,7 @@ MonoBehaviour:
     m_Nodes:
     - Instance - Build
     - Instance - Run
-    m_BuildProfile: {fileID: 11400000, guid: 4c8b96680e8aa8a14bda724f1ddc9370, type: 2}
+    m_BuildProfile: {fileID: 11400000, guid: 9b624660d7811e791af8f4c4efd29c5f, type: 2}
     advancedConfiguration:
       m_StreamLogsToMainEditor: 1
       m_LogsColor: {r: 0.3643, g: 0.581, b: 0.8679, a: 1}
@@ -37,7 +37,7 @@ MonoBehaviour:
   - Name: Instance 2
     <CorrespondingNodeId>k__BackingField: 
     m_Nodes: []
-    m_BuildProfile: {fileID: 11400000, guid: 4c8b96680e8aa8a14bda724f1ddc9370, type: 2}
+    m_BuildProfile: {fileID: 11400000, guid: 9b624660d7811e791af8f4c4efd29c5f, type: 2}
     advancedConfiguration:
       m_StreamLogsToMainEditor: 1
       m_LogsColor: {r: 0.3643, g: 0.581, b: 0.8679, a: 1}

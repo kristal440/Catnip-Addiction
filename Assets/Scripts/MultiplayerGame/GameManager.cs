@@ -2,6 +2,7 @@ using System.Collections;
 using UnityEngine;
 using Photon.Pun;
 using TMPro;
+using static UnityEngine.Mathf;
 
 public class GameManager : MonoBehaviourPunCallbacks
 {
@@ -15,28 +16,51 @@ public class GameManager : MonoBehaviourPunCallbacks
     public TMP_Text countdownText;
     public GameObject finishLine;
 
+    [Header("UI")]
+    public TMP_Text gameTimerText;
+
     [Header("Game State")]
     public bool gameStarted;
     public float startTime;
-    private readonly ExitGames.Client.Photon.Hashtable _finishTimes = new(); // Explicitly use ExitGames.Client.Photon.Hashtable
+    private readonly ExitGames.Client.Photon.Hashtable _finishTimes = new();
+    private bool _localPlayerFinished;
 
     private void Awake() => Instance = this;
 
     private void Start()
     {
-        if (photonView != null) return;
-        gameObject.AddComponent<PhotonView>();
+        if (photonView == null)
+            gameObject.AddComponent<PhotonView>();
         finishLine.GetComponent<BoxCollider2D>().enabled = false;
-        countdownUI.SetActive(false);
     }
 
     private void Update()
     {
         if (!PhotonNetwork.IsMasterClient || gameStarted) return;
         if (PhotonNetwork.CurrentRoom.PlayerCount == PhotonNetwork.CurrentRoom.MaxPlayers)
-        {
             photonView.RPC(nameof(StartCountdown), RpcTarget.All);
-        }
+
+        UpdateTimer();
+    }
+
+    private void UpdateTimer()
+    {
+        if (!gameStarted || !gameTimerText) return;
+        if (_localPlayerFinished) return;
+
+        if (Time.timeSinceLevelLoad <= startTime) return;
+
+        var elapsedTime = Time.timeSinceLevelLoad - startTime;
+        DisplayTime(elapsedTime);
+    }
+
+    private void DisplayTime(float timeToDisplay)
+    {
+        float minutes = FloorToInt(timeToDisplay / 60);
+        float seconds = FloorToInt(timeToDisplay % 60);
+        float milliseconds = FloorToInt((timeToDisplay * 1000) % 1000);
+
+        gameTimerText.text = $"{minutes:00}:{seconds:00}:{milliseconds:000}";
     }
 
     [PunRPC]
@@ -53,11 +77,9 @@ public class GameManager : MonoBehaviourPunCallbacks
 
         while (remainingTime > 0)
         {
-            countdownText.text = "game starts in: " + Mathf.CeilToInt(remainingTime);
-            if (Mathf.CeilToInt(remainingTime) == 2)
-            {
+            countdownText.text = "game starts in: " + CeilToInt(remainingTime);
+            if (CeilToInt(remainingTime) == 2)
                 photonView.RPC(nameof(StandUp), RpcTarget.All);
-            }
             remainingTime -= Time.deltaTime;
             yield return null;
         }
@@ -77,23 +99,31 @@ public class GameManager : MonoBehaviourPunCallbacks
             p.SetMovement(true);
         }
         finishLine.GetComponent<BoxCollider2D>().enabled = true;
-        startTime = Time.timeSinceLevelLoad; // Record start time when the game actually starts
+        startTime = Time.timeSinceLevelLoad;
     }
 
     public void PlayerFinished(int playerId, float finishTime)
     {
-        Debug.Log($"PlayerFinished called for playerId: {playerId}, finishTime: {finishTime}");
-        Debug.Log($"Type of playerId: {playerId.GetType()}, Type of finishTime: {finishTime.GetType()}");
-        Debug.Log($"Current finishTimes Keys Type: {_finishTimes.Keys.GetType()}");
+        if (playerId == PhotonNetwork.LocalPlayer.ActorNumber)
+        {
+            _localPlayerFinished = true;
+
+            if (gameTimerText != null)
+                DisplayTime(finishTime);
+        }
+
+        // Debug.Log($"PlayerFinished called for playerId: {playerId}, finishTime: {finishTime}");
+        // Debug.Log($"Type of playerId: {playerId.GetType()}, Type of finishTime: {finishTime.GetType()}");
+        // Debug.Log($"Current finishTimes Keys Type: {_finishTimes.Keys.GetType()}");
 
         var alreadyFinished = false;
         foreach (var key in _finishTimes.Keys)
         {
-            Debug.Log($"Key in finishTimes (before cast): {key}, Type of Key: {key.GetType()}"); // Log key before cast
+            // Debug.Log($"Key in finishTimes (before cast): {key}, Type of Key: {key.GetType()}"); // Log key before cast
             try
             {
-                var keyInt = (int)key; // Explicit cast here
-                Debug.Log($"Key after cast to int: {keyInt}, Type after cast: {keyInt.GetType()}"); // Log key after cast
+                var keyInt = (int)key;
+                // Debug.Log($"Key after cast to int: {keyInt}, Type after cast: {keyInt.GetType()}"); // Log key after cast
                 if (keyInt != playerId) continue;
                 alreadyFinished = true;
                 break;
@@ -102,21 +132,19 @@ public class GameManager : MonoBehaviourPunCallbacks
             {
                 Debug.LogError($"InvalidCastException during key cast: {e.Message}");
                 Debug.LogError($"Type of key that caused exception: {key.GetType()}");
-                alreadyFinished = true; // To prevent further errors in this loop, but ideally we should fix the root cause
-                break; // Exit loop after logging error
+                alreadyFinished = true;
+                break;
             }
         }
         if (!alreadyFinished)
-        {
             photonView.RPC(nameof(UpdateLeaderboard), RpcTarget.All, playerId, finishTime); // Line 85
-        }
     }
 
     [PunRPC]
     private void UpdateLeaderboard(int playerId, float finishTime)
     {
-        Debug.Log($"{PhotonNetwork.CurrentRoom.GetPlayer(playerId).NickName} finished in {finishTime}s");
-        Debug.Log($"Leaderboard keys: {_finishTimes.Keys}\nLeaderboard values: {_finishTimes.Values}");
+        // Debug.Log($"{PhotonNetwork.CurrentRoom.GetPlayer(playerId).NickName} finished in {finishTime}s");
+        // Debug.Log($"Leaderboard keys: {_finishTimes.Keys}\nLeaderboard values: {_finishTimes.Values}");
         var playerName = PhotonNetwork.CurrentRoom.GetPlayer(playerId).NickName;
 
         var playerDataHash = new ExitGames.Client.Photon.Hashtable
@@ -125,14 +153,14 @@ public class GameManager : MonoBehaviourPunCallbacks
             { "finishTime", finishTime }
         };
 
-        _finishTimes.Add(playerId, playerDataHash); // Store nested Hashtable
+        _finishTimes.Add(playerId, playerDataHash);
 
         if (_finishTimes.Count != PhotonNetwork.CurrentRoom.PlayerCount) return;
-        // Prepare leaderboard data to be sent to the Leaderboard scene
-        var roomProps = new ExitGames.Client.Photon.Hashtable { { "LeaderboardData", _finishTimes } }; // Explicitly use ExitGames.Client.Photon.Hashtable
+
+        var roomProps = new ExitGames.Client.Photon.Hashtable { { "LeaderboardData", _finishTimes } };
         PhotonNetwork.CurrentRoom.SetCustomProperties(roomProps);
 
-        PhotonNetwork.LoadLevel("Leaderboard"); // Load the leaderboard scene
+        PhotonNetwork.LoadLevel("Leaderboard");
     }
 
     [PunRPC]
@@ -140,13 +168,11 @@ public class GameManager : MonoBehaviourPunCallbacks
     {
         var players = FindObjectsByType<PlayerController>(FindObjectsSortMode.None);
         foreach (var player in players)
-        {
             player.animator.SetBool(isLaying, false);
-        }
     }
 }
 
-[System.Serializable] // Make it serializable so Photon can transfer it (Although not directly used for Photon serialization anymore)
+[System.Serializable]
 public struct PlayerResultData
 {
     public string playerName;
