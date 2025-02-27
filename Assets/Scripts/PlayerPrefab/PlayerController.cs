@@ -3,6 +3,7 @@ using UnityEngine;
 using Photon.Pun;
 using static UnityEngine.Mathf;
 using TMPro;
+using UnityEngine.UI;
 
 public class PlayerController : MonoBehaviourPunCallbacks
 {
@@ -28,6 +29,19 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
     [Header("Dont flip")]
     public TextMeshProUGUI playerNameTag;
+
+    [Header("Charged Jump")]
+    public float minJumpForce = 8.5f;
+    public float maxJumpForce = 14.5f;
+    public float quickJumpThreshold = 0.2f;
+    public float maxChargeTime = 2f;
+    public GameObject jumpChargeBarGameObject;
+    public Image jumpChargeBar;
+
+    private bool _isChargingJump;
+    private float _jumpChargeStartTime;
+    private bool _jumpButtonHeld;
+    private bool _movementDisabledForJump;
 
     private bool _isTouchingWall;
     private bool _isJumpQueued;
@@ -138,15 +152,16 @@ public class PlayerController : MonoBehaviourPunCallbacks
         if (IsPaused) return;
 
         _isTouchingWall = Physics2D.OverlapCircle(wallCheck.position, wallCheckRadius, wallLayerMask);
-        if (_isJumpQueued) return;
+        // Handle jump input
+        HandleJumpInput();
+
+        // Disable movement while charging jump
+        if (_movementDisabledForJump)
+            return;
+
         var horizontalInput = _playerInputActions.Player.Move.ReadValue<Vector2>().x;
 
         #region handle input
-        // Queue the jump only if player is standing
-        if (_playerInputActions.Player.Jump.WasPressedThisFrame() && IsGrounded && !_isJumpQueued && IsStanding)
-        {
-            _isJumpQueued = true;
-        }
 
         switch (horizontalInput)
         {
@@ -156,6 +171,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
             case > 0:
                 transform.localScale = new Vector3((transform.localScale.y * 2) / 2, transform.localScale.y, transform.localScale.z);
                 playerNameTag.transform.localScale = new Vector3((playerNameTag.transform.localScale.y * 2) / 2, playerNameTag.transform.localScale.y, playerNameTag.transform.localScale.z);
+                jumpChargeBarGameObject.transform.localScale = new Vector3((jumpChargeBarGameObject.transform.localScale.y * 2) / 2, jumpChargeBarGameObject.transform.localScale.y, jumpChargeBarGameObject.transform.localScale.z);
                 animator.SetBool(IsLaying, false);
                 _idleTimer = 0f;
                 break;
@@ -166,6 +182,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
             case < 0:
                 transform.localScale = new Vector3(transform.localScale.y * -1, transform.localScale.y, transform.localScale.z);
                 playerNameTag.transform.localScale = new Vector3(playerNameTag.transform.localScale.y * (-1), playerNameTag.transform.localScale.y, playerNameTag.transform.localScale.z);
+                jumpChargeBarGameObject.transform.localScale = new Vector3(jumpChargeBarGameObject.transform.localScale.y * (-1), jumpChargeBarGameObject.transform.localScale.y, jumpChargeBarGameObject.transform.localScale.z);
                 animator.SetBool(IsLaying, false);
                 _idleTimer = 0f;
                 break;
@@ -203,12 +220,86 @@ public class PlayerController : MonoBehaviourPunCallbacks
         // Preserve y velocity and apply movement
         var targetVelocity = new Vector2(currentSpeed, _rb.linearVelocity.y);
         if (!_isTouchingWall) _rb.linearVelocity = targetVelocity;
-
-        // Do the jump
-        if (!_isJumpQueued) return;
-        animator.SetBool(IsJumpQueued, true);
-        StartCoroutine(JumpAfterDelay(0.2f)); // Trigger the jump
         #endregion
+    }
+
+    private void HandleJumpInput()
+    {
+        // Jump button pressed
+        if (_playerInputActions.Player.Jump.WasPressedThisFrame() && IsGrounded && !_isJumpQueued && IsStanding)
+        {
+            _jumpButtonHeld = true;
+            _jumpChargeStartTime = Time.time;
+            StartCoroutine(ChargeJump());
+        }
+
+        // Jump button released
+        if (!_playerInputActions.Player.Jump.WasReleasedThisFrame() || !_jumpButtonHeld) return;
+        _jumpButtonHeld = false;
+        if (!_isChargingJump) return;
+        var chargeTime = Min(Time.time - _jumpChargeStartTime, maxChargeTime);
+        ExecuteJump(chargeTime);
+    }
+
+    private IEnumerator ChargeJump()
+    {
+        yield return new WaitForSeconds(quickJumpThreshold);
+
+        // If button was released before threshold, execute normal jump in JumpAfterDelay
+        if (!_jumpButtonHeld)
+        {
+            _isJumpQueued = true;
+            animator.SetBool(IsJumpQueued, true);
+            StartCoroutine(JumpAfterDelay(0f));
+            yield break;
+        }
+
+        // Otherwise start charging
+        _isChargingJump = true;
+        _movementDisabledForJump = true;
+        animator.SetBool(IsJumpQueued, true);
+
+        // Show and charge bar
+        jumpChargeBarGameObject.SetActive(true);
+
+        // Charging loop
+        while (_jumpButtonHeld && (Time.time - _jumpChargeStartTime) < maxChargeTime)
+        {
+            var chargeProgress = (Time.time - _jumpChargeStartTime) / maxChargeTime;
+
+            jumpChargeBar.fillAmount = chargeProgress;
+
+            yield return null;
+        }
+
+        // Max charge reached, auto-jump
+        if (!_jumpButtonHeld) yield break;
+        ExecuteJump(maxChargeTime);
+        _jumpButtonHeld = false;
+    }
+
+    private void ExecuteJump(float chargeTime)
+    {
+        _isChargingJump = false;
+        _movementDisabledForJump = false;
+
+        // Hide charge bar
+        jumpChargeBarGameObject.SetActive(false);
+
+        // Calculate jump force based on charge time
+        var chargeProgress = Clamp01(chargeTime / maxChargeTime);
+        var jumpMultiplier = Lerp(minJumpForce, maxJumpForce, chargeProgress);
+
+        // Apply catnip effect if present
+        if (HasCatnip)
+            jumpMultiplier *= 1.2f;
+
+        // Apply jump force
+        _rb.linearVelocity = new Vector2(_rb.linearVelocity.x, jumpMultiplier);
+
+        // Reset animation flags
+        animator.SetBool(IsJumpQueued, false);
+        _isJumpQueued = false;
     }
 
     // Jump logic
@@ -217,12 +308,11 @@ public class PlayerController : MonoBehaviourPunCallbacks
         animator.speed = 0f;
         yield return new WaitForSeconds(delay);
 
+        var jumpForceToApply = minJumpForce;
         if (HasCatnip)
-            _newJumpForce = jumpForce * 1.2f;
-        else
-            _newJumpForce = jumpForce;
+            jumpForceToApply *= 1.2f;
 
-        _rb.linearVelocity = new Vector2(_rb.linearVelocity.x, _newJumpForce);
+        _rb.linearVelocity = new Vector2(_rb.linearVelocity.x, jumpForceToApply);
 
         animator.SetBool(IsJumpQueued, false);
         _isJumpQueued = false;
@@ -302,6 +392,14 @@ public class PlayerController : MonoBehaviourPunCallbacks
                     playerNameTag.transform.localScale.z)
                 : new Vector3((playerNameTag.transform.localScale.y * 2) / 2, playerNameTag.transform.localScale.y,
                     playerNameTag.transform.localScale.z);
+
+            // Also flip the jump charge bar
+            if (jumpChargeBarGameObject)
+                jumpChargeBarGameObject.transform.localScale = transform.localScale.x < 0
+                    ? new Vector3(jumpChargeBarGameObject.transform.localScale.y * (-1), jumpChargeBarGameObject.transform.localScale.y,
+                        jumpChargeBarGameObject.transform.localScale.z)
+                    : new Vector3((jumpChargeBarGameObject.transform.localScale.y * 2) / 2, jumpChargeBarGameObject.transform.localScale.y,
+                        jumpChargeBarGameObject.transform.localScale.z);
         }
     }
     #endregion
