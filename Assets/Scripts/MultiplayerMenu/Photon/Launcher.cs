@@ -55,8 +55,6 @@ public class Launcher : MonoBehaviourPunCallbacks
 
     public override void OnConnectedToMaster()
     {
-        Debug.Log("OnConnectedToMaster() was called by PUN.");
-
         if (!_isConnecting) return;
         PhotonNetwork.JoinLobby();
         _isConnecting = false;
@@ -65,7 +63,6 @@ public class Launcher : MonoBehaviourPunCallbacks
 
     public override void OnJoinedLobby()
     {
-        Debug.Log("OnJoinedLobby() was called by PUN.");
         StartCoroutine(ShowRoomListWithDelay());
     }
 
@@ -106,7 +103,7 @@ public class Launcher : MonoBehaviourPunCallbacks
 
     public override void OnCreateRoomFailed(short returnCode, string message)
     {
-        Debug.Log($"Room creation failed: {message} ({returnCode})");
+        Debug.LogError($"Room creation failed: {message} ({returnCode})");
     }
 
     private void JoinRoom(string roomName)
@@ -129,7 +126,7 @@ public class Launcher : MonoBehaviourPunCallbacks
 
     public override void OnJoinRoomFailed(short returnCode, string message)
     {
-        Debug.Log($"Join room failed: {message} ({returnCode})");
+        Debug.LogError($"Join room failed: {message} ({returnCode})");
     }
 
     public override void OnRoomListUpdate(List<RoomInfo> roomList)

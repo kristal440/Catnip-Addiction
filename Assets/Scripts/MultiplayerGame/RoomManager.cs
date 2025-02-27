@@ -37,7 +37,7 @@ public class RoomManager : MonoBehaviourPunCallbacks
             var spawnRotation = spawn?.rotation ?? Quaternion.identity;
 
             PhotonNetwork.Instantiate(playerPrefab.name, spawnPosition, spawnRotation);
-            Debug.Log($"Player instantiated at {spawnPosition} with ID: {PhotonNetwork.LocalPlayer.ActorNumber}");
+            // Debug.Log($"Player instantiated at {spawnPosition} with ID: {PhotonNetwork.LocalPlayer.ActorNumber}");
         }
         else
         {
@@ -47,16 +47,16 @@ public class RoomManager : MonoBehaviourPunCallbacks
 
     public override void OnPlayerEnteredRoom(Player newPlayer)
     {
-        Debug.Log($"{newPlayer.NickName} entered the room.");
-        Debug.Log("Current players in room:");
-        foreach (var player in PhotonNetwork.PlayerList)
-        {
-            Debug.Log($"- {player.NickName}");
-        }
+        // Debug.Log($"{newPlayer.NickName} entered the room.");
+        // Debug.Log("Current players in room:");
+        // foreach (var player in PhotonNetwork.PlayerList)
+        // {
+        //     Debug.Log($"- {player.NickName}");
+        // }
     }
 
     public override void OnPlayerLeftRoom(Player otherPlayer)
     {
-        Debug.Log($"{otherPlayer.NickName} left the room.");
+        // Debug.Log($"{otherPlayer.NickName} left the room.");
     }
 }

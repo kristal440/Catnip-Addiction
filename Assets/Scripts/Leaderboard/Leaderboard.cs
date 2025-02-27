@@ -149,19 +149,7 @@ public class Leaderboard : MonoBehaviour
 
                         Debug.LogError("Leaderboard data is not of the expected type (ExitGames.Client.Photon.Hashtable)");
                     }
-                    else
-                    {
-                        Debug.Log("LeaderboardData is null. Retrying...");
-                    }
                 }
-                else
-                {
-                    Debug.Log("Leaderboard data not found in Custom Room Properties. Retrying...");
-                }
-            }
-            else
-            {
-                Debug.Log("PhotonNetwork.CurrentRoom or CustomProperties is null. Retrying...");
             }
 
             yield return new WaitForSeconds(RetryInterval);

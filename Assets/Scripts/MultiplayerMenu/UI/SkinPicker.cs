@@ -119,6 +119,5 @@ public class SkinPicker : MonoBehaviour
 
         var selectedSkin = skinNames[_currentIndex];
         PhotonNetwork.LocalPlayer.SetCustomProperties(new ExitGames.Client.Photon.Hashtable { { "Skin", selectedSkin } });
-        Debug.Log($"Skin saved: {selectedSkin}");
     }
 }

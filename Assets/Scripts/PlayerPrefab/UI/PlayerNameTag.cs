@@ -15,6 +15,5 @@ public class PlayerNameTag : MonoBehaviourPun
         }
 
         nameTagText.text = photonView.Owner.NickName;
-        Debug.Log("Name tag set to: " + photonView.Owner.NickName);
     }
 }

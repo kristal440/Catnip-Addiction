@@ -13,7 +13,6 @@ public class FpsCounter : MonoBehaviour
     private void Start()
     {
         if (fpsText != null) return;
-        Debug.LogError("FpsCounter: fpsText is not assigned! Please assign a TextMeshProUGUI component in the Inspector.");
         enabled = false;
     }
 

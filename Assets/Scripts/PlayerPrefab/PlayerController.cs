@@ -339,7 +339,6 @@ public class PlayerController : MonoBehaviourPunCallbacks
             _idleTimer += Time.deltaTime;
             if (!(_idleTimer >= 3f)) return;
             animator.SetBool(IsLaying, true);
-            Debug.Log("Laying down");
             _idleTimer = 3f;
         }
         else
@@ -364,7 +363,6 @@ public class PlayerController : MonoBehaviourPunCallbacks
         // jump - stage 1
         if (!_jump1 && _rb.linearVelocity.y is < 3f and > 2.5f)
         {
-            Debug.Log("1");
             animator.speed = 1f;
             _jump1 = true;
         }
@@ -372,7 +370,6 @@ public class PlayerController : MonoBehaviourPunCallbacks
         // falling down after jump
         if (_jump1 && !_isFalling && _rb.linearVelocity.y < -0.5f)
         {
-            Debug.Log("2");
             animator.speed = 1f;
             _isFalling = true;
         }

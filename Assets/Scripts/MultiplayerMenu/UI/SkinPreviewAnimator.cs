@@ -42,7 +42,6 @@ public class SkinPreviewAnimator : MonoBehaviour
 
         if (_animator.HasState(_baseLayerIndex, stateHash))
         {
-            Debug.Log($"Playing state: {stateName} for skin: {_currentSkinName}, Skin Index: {GetSkinIndex(_currentSkinName)}");
             _animator.Play(stateHash, _baseLayerIndex);
         }
         else
