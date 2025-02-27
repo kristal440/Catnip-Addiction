@@ -32,15 +32,16 @@ public class GameManager : MonoBehaviourPunCallbacks
         if (photonView == null)
             gameObject.AddComponent<PhotonView>();
         finishLine.GetComponent<BoxCollider2D>().enabled = false;
+        gameTimerText.enabled = false;
     }
 
     private void Update()
     {
+        if (gameStarted)
+            UpdateTimer();
         if (!PhotonNetwork.IsMasterClient || gameStarted) return;
         if (PhotonNetwork.CurrentRoom.PlayerCount == PhotonNetwork.CurrentRoom.MaxPlayers)
             photonView.RPC(nameof(StartCountdown), RpcTarget.All);
-
-        UpdateTimer();
     }
 
     private void UpdateTimer()
@@ -58,9 +59,8 @@ public class GameManager : MonoBehaviourPunCallbacks
     {
         float minutes = FloorToInt(timeToDisplay / 60);
         float seconds = FloorToInt(timeToDisplay % 60);
-        float milliseconds = FloorToInt((timeToDisplay * 1000) % 1000);
 
-        gameTimerText.text = $"{minutes:00}:{seconds:00}:{milliseconds:000}";
+        gameTimerText.text = $"{minutes:00}:{seconds:00}";
     }
 
     [PunRPC]
@@ -99,6 +99,7 @@ public class GameManager : MonoBehaviourPunCallbacks
             p.SetMovement(true);
         }
         finishLine.GetComponent<BoxCollider2D>().enabled = true;
+        gameTimerText.enabled = true;
         startTime = Time.timeSinceLevelLoad;
     }
 
