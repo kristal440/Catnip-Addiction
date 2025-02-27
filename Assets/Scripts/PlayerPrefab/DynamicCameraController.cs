@@ -31,6 +31,20 @@ public class DynamicCameraController : MonoBehaviour
     [Tooltip("Time in seconds to search for the PlayerController before disabling the script.")]
     public float playerSearchTimeout = 5f;
 
+    [Header("Jump FOV Settings")]
+    [Tooltip("FOV value when player initiates a jump")]
+    public float jumpFOV = 45f;
+
+    [Tooltip("Minimum FOV value during jump charge")]
+    public float minChargeJumpFOV = 25f;
+
+    [Tooltip("How quickly to transition to jump FOV")]
+    public float jumpFOVTransitionSpeed = 5f;
+
+    private bool _isInJumpTransition = false;
+    private float _jumpTransitionTimer = 0f;
+    private const float JUMP_TRANSITION_DURATION = 0.2f;
+
     private Camera _camera;
     private float _currentFOVVelocity;
     private PlayerController _playerController;
@@ -107,17 +121,54 @@ public class DynamicCameraController : MonoBehaviour
         UpdateVerticalOffset();
     }
 
-    // Smoothly increase FOV based on player speed
+    #region FOV stuff
+    public void UpdateChargingJumpFOV(float chargeProgress)
+    {
+        // Calculate target FOV based on charge progress (0 to 1)
+        // From default FOV down to minChargeJumpFOV
+        float targetFOV = Mathf.Lerp(defaultFOV, minChargeJumpFOV, chargeProgress);
+
+        // Apply the FOV change with smoothing
+        _camera.fieldOfView = Mathf.Lerp(_camera.fieldOfView, targetFOV,
+            Time.deltaTime * jumpFOVTransitionSpeed);
+    }
+    public void TriggerJumpFOV()
+    {
+        _isInJumpTransition = true;
+        _jumpTransitionTimer = 0f;
+    }
     private void UpdateFOV(float normalizedSpeed)
     {
-        var targetFOVOffset = normalizedSpeed * maxFOVOffset;
-        var targetFOV = defaultFOV + targetFOVOffset;
+        float targetFOV;
 
-        targetFOV = Mathf.Clamp(targetFOV, defaultFOV, defaultFOV + maxFOVOffset);
+        if (_isInJumpTransition)
+        {
+            // Handle jump FOV transition
+            _jumpTransitionTimer += Time.deltaTime;
 
-        _camera.fieldOfView = Mathf.SmoothDamp(_camera.fieldOfView, targetFOV,
-            ref _currentFOVVelocity, fovSmoothTime);
+            // Quickly transition to jump FOV
+            targetFOV = jumpFOV;
+            _camera.fieldOfView = Mathf.Lerp(_camera.fieldOfView, targetFOV,
+                Time.deltaTime * jumpFOVTransitionSpeed);
+
+            // After transition duration, return to normal FOV calculation
+            if (_jumpTransitionTimer >= JUMP_TRANSITION_DURATION)
+            {
+                _isInJumpTransition = false;
+            }
+        }
+        else
+        {
+            // Normal FOV calculation based on speed
+            float targetFOVOffset = normalizedSpeed * maxFOVOffset;
+            targetFOV = defaultFOV + targetFOVOffset;
+            targetFOV = Mathf.Clamp(targetFOV, defaultFOV, defaultFOV + maxFOVOffset);
+
+            _camera.fieldOfView = Mathf.SmoothDamp(_camera.fieldOfView, targetFOV,
+                ref _currentFOVVelocity, fovSmoothTime);
+        }
     }
+    #endregion
 
     // Smoothly move the camera horizontally based on player speed
     private void UpdateHorizontalOffset(float normalizedSpeed)
