@@ -124,8 +124,8 @@ public class GameManager : MonoBehaviourPunCallbacks
             try
             {
                 var keyInt = (int)key;
-                // Debug.Log($"Key after cast to int: {keyInt}, Type after cast: {keyInt.GetType()}"); // Log key after cast
                 if (keyInt != playerId) continue;
+                // player that finished was found
                 alreadyFinished = true;
                 break;
             }

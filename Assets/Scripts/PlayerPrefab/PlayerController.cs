@@ -51,7 +51,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
     private Camera _mainCamera;
 
-    //Catnip effects
+    // Catnip effects
     private float _newJumpForce;
     private float _newMaxSpeed;
     private float _newDeceleration;
@@ -80,8 +80,8 @@ public class PlayerController : MonoBehaviourPunCallbacks
         var playerCanvas = GetComponentInChildren<Canvas>();
         if (_mainCamera != null) playerCanvas.worldCamera = _mainCamera;
 
-        var sr = GetComponent<SpriteRenderer>(); // Get the SpriteRenderer
-        var nameTagText = GetComponentInChildren<TextMeshProUGUI>(); // Get the TextMeshProUGUI
+        var sr = GetComponent<SpriteRenderer>();
+        var nameTagText = GetComponentInChildren<TextMeshProUGUI>();
 
         if (!photonView.IsMine)
         {
@@ -89,11 +89,10 @@ public class PlayerController : MonoBehaviourPunCallbacks
             if (sr != null)
             {
                 var c = sr.color;
-                c.a = 0.7f; // Adjust alpha value (0.0f = fully transparent, 1.0f = fully opaque)
+                c.a = 0.7f; // transparency
                 sr.color = c;
 
-                // Set a lower sorting order to render behind the local player
-                sr.sortingOrder = 0; // You can adjust this value as needed
+                sr.sortingOrder = 0;
             }
             else
                 Debug.LogWarning("No SpriteRenderer found on player GameObject!");
