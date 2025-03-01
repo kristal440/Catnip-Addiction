@@ -799,7 +799,7 @@ MonoBehaviour:
   minJumpForce: 8.5
   maxJumpForce: 14.5
   quickJumpThreshold: 0.2
-  maxChargeTime: 2
+  maxChargeTime: 1.1
   jumpChargeBarGameObject: {fileID: 4709443584379856986}
   jumpChargeBar: {fileID: 1315758324830475671}
   currentSpeed: 0

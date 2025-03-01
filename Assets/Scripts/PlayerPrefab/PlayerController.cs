@@ -203,8 +203,8 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
         if (HasCatnip)
         {
-            _newMaxSpeed = maxSpeed * 1.2f;
-            _newDeceleration = deceleration * 0.8f;
+            _newMaxSpeed = maxSpeed * 1.1f;
+            _newDeceleration = deceleration * 0.9f;
         }
         else
         {
@@ -302,7 +302,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
         // Apply catnip effect if present
         if (HasCatnip)
-            jumpMultiplier *= 1.2f;
+            jumpMultiplier *= 1.1f;
 
         if (_cameraController)
             _cameraController.TriggerJumpFOV();
@@ -323,7 +323,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
         var jumpForceToApply = minJumpForce;
         if (HasCatnip)
-            jumpForceToApply *= 1.2f;
+            jumpForceToApply *= 1.1f;
 
         _rb.linearVelocity = new Vector2(_rb.linearVelocity.x, jumpForceToApply);
 
