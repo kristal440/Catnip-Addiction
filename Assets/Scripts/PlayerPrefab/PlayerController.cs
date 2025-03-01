@@ -213,7 +213,8 @@ public class PlayerController : MonoBehaviourPunCallbacks
         // Gradual acceleration
         if (Abs(horizontalInput) > 0.01f)
             currentSpeed = MoveTowards(currentSpeed, horizontalInput * _newMaxSpeed, acceleration * Time.deltaTime);
-        else {
+        else
+        {
             // Deceleration with a slight threshold to avoid sticking at 0
             currentSpeed = MoveTowards(currentSpeed, 0, _newDeceleration * Time.deltaTime);
             if (Abs(currentSpeed) < 0.01f) currentSpeed = 0; // Prevent floating-point issues
@@ -274,9 +275,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
             // Update camera FOV during charging
             if (_cameraController)
-            {
                 _cameraController.UpdateChargingJumpFOV(chargeProgress);
-            }
 
             yield return null;
         }
@@ -304,9 +303,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
             jumpMultiplier *= 1.2f;
 
         if (_cameraController)
-        {
             _cameraController.TriggerJumpFOV();
-        }
 
         // Apply jump force
         _rb.linearVelocity = new Vector2(_rb.linearVelocity.x, jumpMultiplier);

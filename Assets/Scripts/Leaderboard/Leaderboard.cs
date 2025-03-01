@@ -112,9 +112,7 @@ public class Leaderboard : MonoBehaviour
                                 GameObject entryInstance;
 
                                 if (leaderboardEntryPrefab != null)
-                                {
                                     entryInstance = Instantiate(leaderboardEntryPrefab, leaderboardListContainer);
-                                }
                                 else
                                 {
                                     if (leaderboardListContainer.childCount > 0)

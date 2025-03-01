@@ -155,9 +155,7 @@ public class DynamicCameraController : MonoBehaviour
 
             // After transition duration, return to normal FOV calculation
             if (_jumpTransitionTimer >= JUMP_TRANSITION_DURATION)
-            {
                 _isInJumpTransition = false;
-            }
         }
         else
         {

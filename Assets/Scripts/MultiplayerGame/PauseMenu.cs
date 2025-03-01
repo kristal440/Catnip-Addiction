@@ -26,18 +26,14 @@ public class PauseMenu : MonoBehaviour
     {
         pauseMenuUI.SetActive(true);
         if (_playerController)
-        {
             _playerController.IsPaused = true;
-        }
     }
 
     public void ResumeGame()
     {
         pauseMenuUI.SetActive(false);
         if (_playerController)
-        {
             _playerController.IsPaused = false;
-        }
     }
 
     public void LeaveGame()

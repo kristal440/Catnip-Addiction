@@ -7,8 +7,6 @@ public class PanelCloser : MonoBehaviour
     public void ClosePanel()
     {
         if (panel != null)
-        {
             panel.SetActive(false);
-        }
     }
 }

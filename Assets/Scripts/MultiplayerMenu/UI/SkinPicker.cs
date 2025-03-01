@@ -63,9 +63,7 @@ public class SkinPicker : MonoBehaviour
 
             itemRect.anchoredPosition = new Vector2(currentX, 0f);
             if (i == 0)
-            {
                 _itemWidth = itemRect.rect.width;
-            }
 
             currentX += _itemWidth + itemSpacing;
         }
