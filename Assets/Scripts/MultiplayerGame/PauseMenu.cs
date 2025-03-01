@@ -1,5 +1,5 @@
-using UnityEngine;
 using Photon.Pun;
+using UnityEngine;
 using UnityEngine.SceneManagement;
 
 public class PauseMenu : MonoBehaviour

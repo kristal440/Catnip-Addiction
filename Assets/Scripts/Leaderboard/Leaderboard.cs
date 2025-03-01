@@ -111,7 +111,7 @@ public class Leaderboard : MonoBehaviour
                                 var playerData = entry.Value;
                                 GameObject entryInstance;
 
-                                if (leaderboardEntryPrefab != null)
+                                if (leaderboardEntryPrefab)
                                     entryInstance = Instantiate(leaderboardEntryPrefab, leaderboardListContainer);
                                 else
                                 {

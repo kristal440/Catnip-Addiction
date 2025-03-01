@@ -1,6 +1,5 @@
 ﻿using UnityEngine;
 
-
 namespace TMPro.Examples
 {
 
@@ -10,7 +9,7 @@ namespace TMPro.Examples
         private float m_LastInterval;
         private int m_Frames;
 
-        public enum FpsCounterAnchorPositions { TopLeft, BottomLeft, TopRight, BottomRight };
+        public enum FpsCounterAnchorPositions { TopLeft, BottomLeft, TopRight, BottomRight }
 
         public FpsCounterAnchorPositions AnchorPosition = FpsCounterAnchorPositions.TopRight;
 

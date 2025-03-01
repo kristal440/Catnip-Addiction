@@ -1,9 +1,9 @@
 using System.Collections;
-using UnityEngine;
 using Photon.Pun;
-using static UnityEngine.Mathf;
 using TMPro;
+using UnityEngine;
 using UnityEngine.UI;
+using static UnityEngine.Mathf;
 
 public class PlayerController : MonoBehaviourPunCallbacks
 {

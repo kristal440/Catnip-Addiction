@@ -1,6 +1,5 @@
 ﻿using UnityEngine;
 
-
 namespace TMPro.Examples
 {
 
@@ -10,7 +9,7 @@ namespace TMPro.Examples
         private float m_LastInterval;
         private int m_Frames;
 
-        public enum FpsCounterAnchorPositions { TopLeft, BottomLeft, TopRight, BottomRight };
+        public enum FpsCounterAnchorPositions { TopLeft, BottomLeft, TopRight, BottomRight }
 
         public FpsCounterAnchorPositions AnchorPosition = FpsCounterAnchorPositions.TopRight;
 
@@ -32,7 +31,7 @@ namespace TMPro.Examples
             var frameCounter = new GameObject("Frame Counter");
             m_frameCounter_transform = frameCounter.AddComponent<RectTransform>();
 
-            m_frameCounter_transform.SetParent(this.transform, false);
+            m_frameCounter_transform.SetParent(transform, false);
 
             m_TextMeshPro = frameCounter.AddComponent<TextMeshProUGUI>();
             m_TextMeshPro.font = Resources.Load<TMP_FontAsset>("Fonts & Materials/LiberationSans SDF");

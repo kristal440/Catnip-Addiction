@@ -1,6 +1,6 @@
+using Photon.Pun;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using Photon.Pun;
 
 public class SwitchScene : MonoBehaviour
 {

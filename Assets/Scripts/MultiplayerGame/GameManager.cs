@@ -1,8 +1,10 @@
+using System;
 using System.Collections;
-using UnityEngine;
 using Photon.Pun;
 using TMPro;
+using UnityEngine;
 using static UnityEngine.Mathf;
+using Hashtable = ExitGames.Client.Photon.Hashtable;
 
 public class GameManager : MonoBehaviourPunCallbacks
 {
@@ -22,7 +24,7 @@ public class GameManager : MonoBehaviourPunCallbacks
     [Header("Game State")]
     public bool gameStarted;
     public float startTime;
-    private readonly ExitGames.Client.Photon.Hashtable _finishTimes = new();
+    private readonly Hashtable _finishTimes = new();
     private bool _localPlayerFinished;
 
     private void Awake() => Instance = this;
@@ -129,7 +131,7 @@ public class GameManager : MonoBehaviourPunCallbacks
                 alreadyFinished = true;
                 break;
             }
-            catch (System.InvalidCastException e)
+            catch (InvalidCastException e)
             {
                 Debug.LogError($"InvalidCastException during key cast: {e.Message}");
                 Debug.LogError($"Type of key that caused exception: {key.GetType()}");
@@ -148,7 +150,7 @@ public class GameManager : MonoBehaviourPunCallbacks
         // Debug.Log($"Leaderboard keys: {_finishTimes.Keys}\nLeaderboard values: {_finishTimes.Values}");
         var playerName = PhotonNetwork.CurrentRoom.GetPlayer(playerId).NickName;
 
-        var playerDataHash = new ExitGames.Client.Photon.Hashtable
+        var playerDataHash = new Hashtable
         {
             { "playerName", playerName },
             { "finishTime", finishTime }
@@ -158,7 +160,7 @@ public class GameManager : MonoBehaviourPunCallbacks
 
         if (_finishTimes.Count != PhotonNetwork.CurrentRoom.PlayerCount) return;
 
-        var roomProps = new ExitGames.Client.Photon.Hashtable { { "LeaderboardData", _finishTimes } };
+        var roomProps = new Hashtable { { "LeaderboardData", _finishTimes } };
         PhotonNetwork.CurrentRoom.SetCustomProperties(roomProps);
 
         PhotonNetwork.LoadLevel("Leaderboard");
@@ -173,7 +175,7 @@ public class GameManager : MonoBehaviourPunCallbacks
     }
 }
 
-[System.Serializable]
+[Serializable]
 public struct PlayerResultData
 {
     public string playerName;

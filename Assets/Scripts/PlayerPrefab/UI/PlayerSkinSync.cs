@@ -1,5 +1,5 @@
-using UnityEngine;
 using Photon.Pun;
+using UnityEngine;
 
 [RequireComponent(typeof(Animator))]
 public class PlayerSkinSync : MonoBehaviourPunCallbacks

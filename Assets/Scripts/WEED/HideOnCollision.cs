@@ -1,6 +1,6 @@
+using System.Collections;
 using Photon.Pun;
 using UnityEngine;
-using System.Collections;
 
 public class HideOnCollision : MonoBehaviour
 {

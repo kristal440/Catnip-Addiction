@@ -1,7 +1,8 @@
+using System.Collections.Generic;
+using ExitGames.Client.Photon;
+using Photon.Pun;
 using UnityEngine;
 using UnityEngine.UI;
-using Photon.Pun;
-using System.Collections.Generic;
 
 public class SkinPicker : MonoBehaviour
 {
@@ -116,6 +117,6 @@ public class SkinPicker : MonoBehaviour
         if (_currentIndex < 0 || _currentIndex >= skinNames.Count) return;
 
         var selectedSkin = skinNames[_currentIndex];
-        PhotonNetwork.LocalPlayer.SetCustomProperties(new ExitGames.Client.Photon.Hashtable { { "Skin", selectedSkin } });
+        PhotonNetwork.LocalPlayer.SetCustomProperties(new Hashtable { { "Skin", selectedSkin } });
     }
 }

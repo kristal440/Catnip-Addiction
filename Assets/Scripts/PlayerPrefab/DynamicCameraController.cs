@@ -1,5 +1,6 @@
-using UnityEngine;
 using System.Collections;
+using UnityEngine;
+using static UnityEngine.Mathf;
 
 public class DynamicCameraController : MonoBehaviour
 {
@@ -41,9 +42,9 @@ public class DynamicCameraController : MonoBehaviour
     [Tooltip("How quickly to transition to jump FOV")]
     public float jumpFOVTransitionSpeed = 5f;
 
-    private bool _isInJumpTransition = false;
-    private float _jumpTransitionTimer = 0f;
-    private const float JUMP_TRANSITION_DURATION = 0.2f;
+    private bool _isInJumpTransition;
+    private float _jumpTransitionTimer;
+    private const float JumpTransitionDuration = 0.2f;
 
     private Camera _camera;
     private float _currentFOVVelocity;
@@ -114,7 +115,7 @@ public class DynamicCameraController : MonoBehaviour
     {
         if (!_playerController) return;
 
-        var normalizedSpeed = Mathf.Clamp01(Mathf.Abs(_playerController.currentSpeed) / _playerController.maxSpeed);
+        var normalizedSpeed = Clamp01(Abs(_playerController.currentSpeed) / _playerController.maxSpeed);
 
         UpdateFOV(normalizedSpeed);
         UpdateHorizontalOffset(normalizedSpeed);
@@ -126,10 +127,10 @@ public class DynamicCameraController : MonoBehaviour
     {
         // Calculate target FOV based on charge progress (0 to 1)
         // From default FOV down to minChargeJumpFOV
-        float targetFOV = Mathf.Lerp(defaultFOV, minChargeJumpFOV, chargeProgress);
+        float targetFOV = Lerp(defaultFOV, minChargeJumpFOV, chargeProgress);
 
         // Apply the FOV change with smoothing
-        _camera.fieldOfView = Mathf.Lerp(_camera.fieldOfView, targetFOV,
+        _camera.fieldOfView = Lerp(_camera.fieldOfView, targetFOV,
             Time.deltaTime * jumpFOVTransitionSpeed);
     }
 
@@ -150,11 +151,11 @@ public class DynamicCameraController : MonoBehaviour
 
             // Quickly transition to jump FOV
             targetFOV = jumpFOV;
-            _camera.fieldOfView = Mathf.Lerp(_camera.fieldOfView, targetFOV,
+            _camera.fieldOfView = Lerp(_camera.fieldOfView, targetFOV,
                 Time.deltaTime * jumpFOVTransitionSpeed);
 
             // After transition duration, return to normal FOV calculation
-            if (_jumpTransitionTimer >= JUMP_TRANSITION_DURATION)
+            if (_jumpTransitionTimer >= JumpTransitionDuration)
                 _isInJumpTransition = false;
         }
         else
@@ -162,9 +163,9 @@ public class DynamicCameraController : MonoBehaviour
             // Normal FOV calculation based on speed
             var targetFOVOffset = normalizedSpeed * maxFOVOffset;
             targetFOV = defaultFOV + targetFOVOffset;
-            targetFOV = Mathf.Clamp(targetFOV, defaultFOV, defaultFOV + maxFOVOffset);
+            targetFOV = Clamp(targetFOV, defaultFOV, defaultFOV + maxFOVOffset);
 
-            _camera.fieldOfView = Mathf.SmoothDamp(_camera.fieldOfView, targetFOV,
+            _camera.fieldOfView = SmoothDamp(_camera.fieldOfView, targetFOV,
                 ref _currentFOVVelocity, fovSmoothTime);
         }
     }
@@ -177,7 +178,7 @@ public class DynamicCameraController : MonoBehaviour
 
         var targetPosition = _defaultPosition + new Vector3(targetHorizontalOffset, 0, 0);
         var newPosition = transform.localPosition;
-        newPosition.x = Mathf.SmoothDamp(transform.localPosition.x, targetPosition.x, ref _currentHorizontalVelocity,
+        newPosition.x = SmoothDamp(transform.localPosition.x, targetPosition.x, ref _currentHorizontalVelocity,
             positionSmoothTime);
 
         transform.localPosition = newPosition;
@@ -185,13 +186,13 @@ public class DynamicCameraController : MonoBehaviour
 
     private void UpdateVerticalOffset()
     {
-        var normalizedVerticalSpeed = Mathf.Clamp(_playerController.verticalSpeed / _playerController.maxSpeed, -1, 1);
+        var normalizedVerticalSpeed = Clamp(_playerController.verticalSpeed / _playerController.maxSpeed, -1, 1);
 
         var targetVerticalOffset = normalizedVerticalSpeed * maxVerticalOffset;
         var targetPosition = _defaultPosition + new Vector3(0, targetVerticalOffset, 0);
         var newPosition = transform.localPosition;
 
-        newPosition.y = Mathf.SmoothDamp(transform.localPosition.y, targetPosition.y, ref _currentVerticalVelocity,
+        newPosition.y = SmoothDamp(transform.localPosition.y, targetPosition.y, ref _currentVerticalVelocity,
             verticalSmoothTime);
 
         transform.localPosition = newPosition;

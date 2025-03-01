@@ -1,5 +1,5 @@
-using UnityEngine;
 using Photon.Pun;
+using UnityEngine;
 
 public class FinishLine : MonoBehaviour
 {

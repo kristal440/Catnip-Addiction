@@ -1,7 +1,6 @@
-using UnityEngine;
 using System.Collections;
+using UnityEngine;
 using UnityEngine.UI;
-
 
 namespace TMPro.Examples
 {
@@ -79,12 +78,9 @@ namespace TMPro.Examples
                     m_textMesh.font = TextMeshFont;
                     //m_textMesh.renderer.sharedMaterial = m_textMesh.font.material;
                 }
-                else
-                {
-                    //m_textMesh.font = Resources.Load("Fonts/ARIAL", typeof(Font)) as Font;
-                    //m_textMesh.renderer.sharedMaterial = m_textMesh.font.material;
-                }
 
+                //m_textMesh.font = Resources.Load("Fonts/ARIAL", typeof(Font)) as Font;
+                //m_textMesh.renderer.sharedMaterial = m_textMesh.font.material;
                 m_textMesh.fontSize = 48;
                 m_textMesh.alignment = TextAnchor.MiddleCenter;
 
@@ -105,7 +101,7 @@ namespace TMPro.Examples
 
                 }
                 else if (BenchmarkType == 1)
-                    m_textMesh.text = label02 + (i % 1000).ToString();
+                    m_textMesh.text = label02 + (i % 1000);
 
                 yield return null;
             }

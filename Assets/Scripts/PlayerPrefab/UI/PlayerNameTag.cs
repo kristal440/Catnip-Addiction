@@ -1,6 +1,6 @@
-using UnityEngine;
 using Photon.Pun;
 using TMPro;
+using UnityEngine;
 
 public class PlayerNameTag : MonoBehaviourPun
 {

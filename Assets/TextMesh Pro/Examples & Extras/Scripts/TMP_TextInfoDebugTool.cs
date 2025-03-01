@@ -1,7 +1,6 @@
 ﻿using System;
-using UnityEngine;
 using UnityEditor;
-
+using UnityEngine;
 
 namespace TMPro.Examples
 {
@@ -638,12 +637,12 @@ namespace TMPro.Examples
         {
             var cam = Camera.current;
             var dotSpacing = (cam.WorldToScreenPoint(br).x - cam.WorldToScreenPoint(bl).x) / 75f;
-            UnityEditor.Handles.color = color;
+            Handles.color = color;
 
-            UnityEditor.Handles.DrawDottedLine(bl, tl, dotSpacing);
-            UnityEditor.Handles.DrawDottedLine(tl, tr, dotSpacing);
-            UnityEditor.Handles.DrawDottedLine(tr, br, dotSpacing);
-            UnityEditor.Handles.DrawDottedLine(br, bl, dotSpacing);
+            Handles.DrawDottedLine(bl, tl, dotSpacing);
+            Handles.DrawDottedLine(tl, tr, dotSpacing);
+            Handles.DrawDottedLine(tr, br, dotSpacing);
+            Handles.DrawDottedLine(br, bl, dotSpacing);
         }
         #endif
     }

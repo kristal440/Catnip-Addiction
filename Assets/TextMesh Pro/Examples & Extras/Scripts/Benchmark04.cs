@@ -1,6 +1,5 @@
 using UnityEngine;
 
-
 namespace TMPro.Examples
 {
 
@@ -54,11 +53,9 @@ namespace TMPro.Examples
 
                     lineHeight += i;
                 }
-                else
-                {
-                    // TextMesh Implementation
-                    // Causes crashes since atlas needed exceeds 4096 X 4096
-                    /*
+                // TextMesh Implementation
+                // Causes crashes since atlas needed exceeds 4096 X 4096
+                /*
                     GameObject go = new GameObject("Arial " + i);
 
                     //if (lineHeight > orthoSize * 2 * 0.9f) return;
@@ -76,7 +73,6 @@ namespace TMPro.Examples
 
                     lineHeight += i;
                     */
-                }
             }
         }
 

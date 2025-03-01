@@ -1,6 +1,5 @@
 using UnityEngine;
 
-
 namespace TMPro.Examples
 {
 
@@ -92,12 +91,9 @@ namespace TMPro.Examples
                 {
                     desiredPosition = CameraTarget.position + CameraTarget.TransformDirection(Quaternion.Euler(ElevationAngle, OrbitalAngle, 0f) * (new Vector3(0, 0, -FollowDistance)));
                 }
-                else
-                {
-                    // Free Camera implementation
-                }
 
-                if (MovementSmoothing == true)
+                // Free Camera implementation
+                if (MovementSmoothing)
                 {
                     // Using Smoothing
                     cameraTransform.position = Vector3.SmoothDamp(cameraTransform.position, desiredPosition, ref currentVelocity, MovementSmoothingValue * Time.fixedDeltaTime);
@@ -109,7 +105,7 @@ namespace TMPro.Examples
                     cameraTransform.position = desiredPosition;
                 }
 
-                if (RotationSmoothing == true)
+                if (RotationSmoothing)
                     cameraTransform.rotation = Quaternion.Lerp(cameraTransform.rotation, Quaternion.LookRotation(CameraTarget.position - cameraTransform.position), RotationSmoothingValue * Time.deltaTime);
                 else
                 {
