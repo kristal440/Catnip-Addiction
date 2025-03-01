@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using Photon.Pun;
 using TMPro;
 using UnityEngine;
@@ -30,7 +31,7 @@ public class Leaderboard : MonoBehaviour
             {
                 if (PhotonNetwork.CurrentRoom.CustomProperties.TryGetValue("LeaderboardData", out var leaderboardDataObj))
                 {
-                    if (leaderboardDataObj != null) // Check if the value returned is not null.
+                    if (leaderboardDataObj != null)
                     {
                         //Debug.Log("Leaderboard data FOUND in Custom Room Properties.");
                         //Debug.Log($"Data Type: {leaderboardDataObj.GetType()}");
@@ -90,25 +91,20 @@ public class Leaderboard : MonoBehaviour
                                         }
                                     }
                                     else
-                                    {
                                         Debug.LogError($"finishTime key not found in playerDataHash for Player {playerID}");
-                                    }
 
                                     leaderboardData.Add(playerID, new PlayerResultData(playerName, finishTime));
                                 }
                                 else
-                                {
                                     Debug.LogError($"Entry Value for Player {playerID} is NOT a Hashtable! Type: {playerDataHashObj.GetType()}");
-                                }
                             }
 
                             var sortedLeaderboard = new List<KeyValuePair<int, PlayerResultData>>(leaderboardData);
                             sortedLeaderboard.Sort((pair1, pair2) => pair1.Value.finishTime.CompareTo(pair2.Value.finishTime));
 
                             var position = 1;
-                            foreach (var entry in sortedLeaderboard)
+                            foreach (var playerData in sortedLeaderboard.Select(entry => entry.Value))
                             {
-                                var playerData = entry.Value;
                                 GameObject entryInstance;
 
                                 if (leaderboardEntryPrefab)
@@ -116,9 +112,7 @@ public class Leaderboard : MonoBehaviour
                                 else
                                 {
                                     if (leaderboardListContainer.childCount > 0)
-                                    {
                                         entryInstance = Instantiate(leaderboardListContainer.GetChild(0).gameObject, leaderboardListContainer);
-                                    }
                                     else
                                     {
                                         Debug.LogError("No Leaderboard Entry Prefab assigned and no entry in scene to duplicate!");
@@ -134,15 +128,14 @@ public class Leaderboard : MonoBehaviour
                                     texts[2].text = playerData.finishTime.ToString("F2") + "s";
                                 }
                                 else
-                                {
                                     Debug.LogError("Leaderboard Entry prefab/structure does not have 3 TextMeshPro Text objects!");
-                                }
+
                                 entryInstance.SetActive(true);
                                 position++;
                             }
+
                             _dataLoaded = true; // Set the flag to true to exit the loop.
                             yield break; // Exit the coroutine, no need to retry.
-
                         }
 
                         Debug.LogError("Leaderboard data is not of the expected type (ExitGames.Client.Photon.Hashtable)");
@@ -154,9 +147,7 @@ public class Leaderboard : MonoBehaviour
         }
 
         if (!_dataLoaded)
-        {
             Debug.LogError("Failed to load leaderboard data after multiple retries.");
-        }
     }
 
     private static string ShortenName(string playerName)

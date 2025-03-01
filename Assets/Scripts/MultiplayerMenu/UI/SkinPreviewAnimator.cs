@@ -41,13 +41,9 @@ public class SkinPreviewAnimator : MonoBehaviour
         _animator.SetInteger(Skin, GetSkinIndex(_currentSkinName));
 
         if (_animator.HasState(_baseLayerIndex, stateHash))
-        {
             _animator.Play(stateHash, _baseLayerIndex);
-        }
         else
-        {
             Debug.LogError($"State '{stateName}' not found in Animator Controller for skin: {_currentSkinName} on layer '{BaseLayerName}' (index: {_baseLayerIndex})");
-        }
     }
 
     private static int GetSkinIndex(string skinName)

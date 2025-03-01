@@ -25,9 +25,7 @@ public class FpsCounter : MonoBehaviour
         _currentFps = _frameCount / _deltaTimeAccumulator;
 
         if (fpsText)
-        {
             fpsText.text = Mathf.RoundToInt(_currentFps) + "FPS";
-        }
 
         _deltaTimeAccumulator = 0f;
         _frameCount = 0;

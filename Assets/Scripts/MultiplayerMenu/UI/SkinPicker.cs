@@ -45,22 +45,13 @@ public class SkinPicker : MonoBehaviour
         {
             var previewGo = Instantiate(skinPreviewPrefab, content);
             var itemRect = previewGo.GetComponent<RectTransform>();
-            if (itemRect == null)
-            {
-                Debug.LogError("SkinPreviewPrefab must have a RectTransform component!");
-                return;
-            }
             skinItemRects.Add(itemRect);
 
             var previewAnimator = previewGo.GetComponent<SkinPreviewAnimator>();
             if (previewAnimator != null)
-            {
                 previewAnimator.SetSkinName(skinNames[i]);
-            }
             else
-            {
                 Debug.LogWarning("SkinPreviewPrefab is missing SkinPreviewAnimator script!");
-            }
 
             itemRect.anchoredPosition = new Vector2(currentX, 0f);
             if (i == 0)

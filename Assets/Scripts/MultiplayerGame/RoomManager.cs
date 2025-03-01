@@ -40,9 +40,7 @@ public class RoomManager : MonoBehaviourPunCallbacks
             // Debug.Log($"Player instantiated at {spawnPosition} with ID: {PhotonNetwork.LocalPlayer.ActorNumber}");
         }
         else
-        {
             Debug.LogError("Player prefab is null or not connected to Photon! Cannot instantiate player.");
-        }
     }
 
     public override void OnPlayerEnteredRoom(Player newPlayer)

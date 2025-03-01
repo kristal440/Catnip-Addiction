@@ -201,11 +201,13 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
         #region handle movement
 
-        if (HasCatnip) {
+        if (HasCatnip)
+        {
             _newMaxSpeed = maxSpeed * 1.2f;
             _newDeceleration = deceleration * 0.8f;
         }
-        else {
+        else
+        {
             _newMaxSpeed = maxSpeed;
             _newDeceleration = deceleration;
         }
@@ -354,9 +356,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
             _idleTimer = 3f;
         }
         else
-        {
             _idleTimer = 0f;
-        }
     }
     private void UpdateAnimations()
     {

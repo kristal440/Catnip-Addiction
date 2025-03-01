@@ -132,10 +132,8 @@ public class Launcher : MonoBehaviourPunCallbacks
     public override void OnRoomListUpdate(List<RoomInfo> roomList)
     {
         _roomLst = roomList.ConvertAll(x => x.Name);
-        foreach (Transform trans in roomsContainer)
-        {
-            Destroy(trans.gameObject);
-        }
+        foreach (Transform transform1 in roomsContainer)
+            Destroy(transform1.gameObject);
 
         foreach (var roomInfo in roomList)
         {

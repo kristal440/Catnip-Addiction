@@ -100,13 +100,9 @@ public class DynamicCameraController : MonoBehaviour
     {
         // If defaultFOV is not explicitly set in the Inspector, use the camera's current FOV
         if (defaultFOV <= 0)
-        {
             defaultFOV = _camera.fieldOfView;
-        }
         else
-        {
             _camera.fieldOfView = defaultFOV;
-        }
 
         _defaultPosition = transform.localPosition;
     }
@@ -127,7 +123,7 @@ public class DynamicCameraController : MonoBehaviour
     {
         // Calculate target FOV based on charge progress (0 to 1)
         // From default FOV down to minChargeJumpFOV
-        float targetFOV = Lerp(defaultFOV, minChargeJumpFOV, chargeProgress);
+        var targetFOV = Lerp(defaultFOV, minChargeJumpFOV, chargeProgress);
 
         // Apply the FOV change with smoothing
         _camera.fieldOfView = Lerp(_camera.fieldOfView, targetFOV,
