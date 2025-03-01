@@ -14,7 +14,6 @@ public class PlayerController : MonoBehaviourPunCallbacks
     public float maxSpeed = 5f;
     public float acceleration = 10f;
     public float deceleration = 15f;
-    public float jumpForce = 10f;
     public Animator animator;
 
     [Header("Ground Check")]
