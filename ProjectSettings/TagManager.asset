@@ -4,8 +4,9 @@
 TagManager:
   serializedVersion: 3
   tags:
-  - Ladder
   - Platform
+  - Death
+  - Checkpoint
   layers:
   - Default
   - TransparentFX

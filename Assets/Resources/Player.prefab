@@ -482,6 +482,9 @@ GameObject:
   - component: {fileID: 3371783163660792845}
   - component: {fileID: 4098701528552782764}
   - component: {fileID: 4483483204535086902}
+  - component: {fileID: 9176519645128001645}
+  - component: {fileID: 6099844445017409013}
+  - component: {fileID: 2032181316847181466}
   m_Layer: 6
   m_Name: Player
   m_TagString: Player
@@ -783,7 +786,6 @@ MonoBehaviour:
   maxSpeed: 8
   acceleration: 20
   deceleration: 25
-  jumpForce: 13
   animator: {fileID: 6911483947514504114}
   groundCheck: {fileID: 1442861436919526986}
   groundCheckRadius: 0.2
@@ -843,3 +845,44 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   playerController: {fileID: 145821301250412423}
+--- !u!114 &9176519645128001645
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6966233725223629069}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 77370be00550478b81637c7741f1ca7a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  checkpointTag: Checkpoint
+--- !u!114 &6099844445017409013
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6966233725223629069}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 74822956521d40a4a9b89c74454f4c6e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  hazardTag: Death
+  respawnDelay: 1
+  playerController: {fileID: 145821301250412423}
+--- !u!114 &2032181316847181466
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6966233725223629069}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 77370be00550478b81637c7741f1ca7a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  checkpointTag: Checkpoint
