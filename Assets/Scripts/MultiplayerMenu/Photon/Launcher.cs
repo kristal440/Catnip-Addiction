@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using Photon.Pun;
 using Photon.Realtime;
 using TMPro;
@@ -26,6 +27,17 @@ public class Launcher : MonoBehaviourPunCallbacks
     [Header("Error popup")]
     [SerializeField] private GameObject errorPanel;
     [SerializeField] private TextMeshProUGUI errorText;
+
+    [Header("Map Selection")]
+    [Tooltip("UI panel that contains the entire map selection interface")]
+    [SerializeField] private GameObject mapListPanel;
+    [Tooltip("Transform parent where map selection buttons will be instantiated")]
+    [SerializeField] private Transform mapsContainer;
+    [Tooltip("Parent GameObject containing child objects that represent available maps - each active child will become a selectable map")]
+    [SerializeField] private GameObject mapListParent;
+
+    private string _selectedMapName = "GameScene_Map1_Multi"; // Default map
+    private readonly Dictionary<string, string> _availableMaps = new(); // Scene name -> Display name
 
     private bool _isConnecting;
     private List<string> _roomLst;
@@ -90,11 +102,19 @@ public class Launcher : MonoBehaviourPunCallbacks
             return;
         }
 
+        // Store map in custom room properties
+        var customRoomProperties = new ExitGames.Client.Photon.Hashtable
+        {
+            { "map", _selectedMapName }
+        };
+
         var roomOptions = new RoomOptions
         {
             MaxPlayers = (int)slider.value,
             IsVisible = true,
-            IsOpen = true
+            IsOpen = true,
+            CustomRoomProperties = customRoomProperties,
+            CustomRoomPropertiesForLobby = new[] { "map" }
         };
 
         SetNickname();
@@ -121,7 +141,15 @@ public class Launcher : MonoBehaviourPunCallbacks
     public override void OnJoinedRoom()
     {
         SetNickname();
-        PhotonNetwork.LoadLevel("GameScene_Map1_Multi");
+
+        // Get map from room properties
+        var mapToLoad = _selectedMapName;
+        if (PhotonNetwork.CurrentRoom.CustomProperties.TryGetValue("map", out var mapName))
+        {
+            mapToLoad = (string)mapName;
+        }
+
+        PhotonNetwork.LoadLevel(mapToLoad);
     }
 
     public override void OnJoinRoomFailed(short returnCode, string message)
@@ -155,5 +183,121 @@ public class Launcher : MonoBehaviourPunCallbacks
     private void SetNickname()
     {
         PhotonNetwork.NickName = playerNameInputField.text;
+    }
+
+    public void InitializeMaps()
+    {
+        mapListPanel.SetActive(true);
+        _availableMaps.Clear();
+
+        // Find all enabled child objects of the map list parent
+        foreach (Transform child in mapListParent.transform)
+        {
+            if (!child.gameObject.activeSelf) continue;
+            var sceneName = child.gameObject.name;
+
+            // Get display name from TextMeshProUGUI component if it exists,
+            // otherwise use the scene name as display name
+            var displayName = sceneName;
+            var displayText = child.GetComponentInChildren<TextMeshProUGUI>();
+            if (displayText)
+            {
+                displayName = displayText.text;
+            }
+
+            _availableMaps.Add(sceneName, displayName);
+            Debug.Log($"Added map: {sceneName} -> {displayName}");
+        }
+
+        // Set default selected map (first one in the list)
+        if (!_availableMaps.ContainsKey(_selectedMapName) && _availableMaps.Count > 0)
+        {
+            _selectedMapName = _availableMaps.Keys.GetEnumerator().Current;
+        }
+
+        // Populate the UI
+        CreateMapSelectionButtons();
+    }
+
+    private void CreateMapSelectionButtons()
+    {
+        // Get all existing map button objects in the container
+        var existingButtons = (from Transform child in mapsContainer select child.gameObject).ToList();
+
+        var buttonIndex = 0;
+
+        // Configure each button for the available maps
+        foreach (var (mapSceneName, value) in _availableMaps)
+        {
+            // If we've run out of buttons, stop
+            if (buttonIndex >= existingButtons.Count)
+                break;
+
+            var mapButton = existingButtons[buttonIndex];
+            mapButton.SetActive(true);
+
+            // Set map name text
+            var mapNameText = mapButton.transform.Find("MapNameTxt").GetComponent<TextMeshProUGUI>();
+            if (mapNameText)
+                mapNameText.text = value;
+
+            // Add click listener - first remove any existing listeners
+            var button = mapButton.GetComponent<Button>();
+            button.onClick.RemoveAllListeners();
+            button.onClick.AddListener(() => SelectMap(mapSceneName));
+
+            // Reset button color
+            button.GetComponent<Image>().color = Color.white;
+
+            // Mark default selected map
+            if (mapSceneName == _selectedMapName)
+            {
+                // Highlight the selected map button
+                HighlightSelectedMapButton(button);
+            }
+
+            buttonIndex++;
+        }
+
+        // Disable any unused buttons
+        for (var i = buttonIndex; i < existingButtons.Count; i++)
+        {
+            existingButtons[i].SetActive(false);
+        }
+    }
+
+    private void SelectMap(string mapName)
+    {
+        _selectedMapName = mapName;
+        Debug.Log($"Selected map: {_selectedMapName}");
+
+        // Update UI to highlight selected map
+        foreach (Transform child in mapsContainer)
+        {
+            var button = child.GetComponent<Button>();
+            if (!button) continue;
+
+            // Reset all buttons
+            button.GetComponent<Image>().color = Color.white;
+
+            // Check if this is the selected button using our helper component
+            var mapData = child.GetComponent<MapButtonData>();
+            if (mapData && mapData.MapName == mapName)
+            {
+                HighlightSelectedMapButton(button);
+            }
+        }
+    }
+
+    private static void HighlightSelectedMapButton(Button button)
+    {
+        // Visual indication of selection
+        button.GetComponent<Image>().color = new Color(0.7f, 1f, 0.7f);
+    }
+
+    // Helper component to store map data on buttons
+    private class MapButtonData : MonoBehaviour
+    {
+        public string MapName { get; set; }
     }
 }
