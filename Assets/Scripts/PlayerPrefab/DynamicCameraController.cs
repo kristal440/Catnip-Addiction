@@ -231,13 +231,11 @@ public class DynamicCameraController : MonoBehaviour
         transform.localPosition = newPosition;
     }
 
-    // Call this method when the player dies
     public void OnPlayerDeath()
     {
         _isInDeathZoom = true;
     }
 
-    // Call this method when the player respawns
     public void OnPlayerRespawn()
     {
         _isInDeathZoom = false;

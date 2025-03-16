@@ -70,6 +70,9 @@ public class PlayerController : MonoBehaviourPunCallbacks
     private float _newMaxSpeed;
     private float _newDeceleration;
 
+    private float _originalGravityScale;
+    private bool _isDead = false;
+
     private void Awake()
     {
         _playerInputActions = new InputSystem_Actions();
@@ -339,6 +342,42 @@ public class PlayerController : MonoBehaviourPunCallbacks
         transform.position = position;
         currentSpeed = 0f;
     }
+
+    #region Death
+    public void OnPlayerDeath()
+    {
+        if (_isDead) return;
+
+        _isDead = true;
+
+        // Store original gravity scale
+        _originalGravityScale = _rb.gravityScale;
+
+        // Stop gravity and freeze position/rotation
+        _rb.gravityScale = 0;
+        _rb.linearVelocity = Vector2.zero;
+        _rb.constraints = RigidbodyConstraints2D.FreezeAll;
+
+        // Notify camera controller
+        if (_cameraController)
+            _cameraController.OnPlayerDeath();
+    }
+
+    public void OnPlayerRespawn()
+    {
+        if (!_isDead) return;
+
+        _isDead = false;
+
+        // Restore original gravity scale and constraints
+        _rb.gravityScale = _originalGravityScale;
+        _rb.constraints = RigidbodyConstraints2D.FreezeRotation;
+
+        // Notify camera controller
+        if (_cameraController)
+            _cameraController.OnPlayerRespawn();
+    }
+    #endregion
 
     public void SetMovement(bool isEnabled)
     {

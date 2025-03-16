@@ -61,6 +61,8 @@ public class PlayerDeathHandler : MonoBehaviour
         _isRespawning = true;
         SetPlayerMovementEnabled(false);
 
+        playerController.OnPlayerDeath();
+
         playerSpriteToHide.enabled = false;
         playerCanvasToHide.enabled = false;
 
@@ -77,6 +79,8 @@ public class PlayerDeathHandler : MonoBehaviour
         yield return new WaitForSeconds(respawnDelay);
 
         playerController.Teleport(CheckpointManager.LastCheckpointPosition);
+
+        playerController.OnPlayerRespawn();
 
         playerSpriteToHide.enabled = true;
         playerCanvasToHide.enabled = true;
