@@ -8,6 +8,7 @@ public class PlayerDeathHandler : MonoBehaviour
     [SerializeField] private float respawnDelay = 1f;
     [SerializeField] private PlayerController playerController;
     [SerializeField] private DynamicCameraController cameraController;
+    [SerializeField] private DeathBorderEffect deathBorderEffect; // Add this line
 
     private bool _isRespawning;
 
@@ -27,6 +28,12 @@ public class PlayerDeathHandler : MonoBehaviour
         if (playerController == null)
         {
             Debug.LogWarning("PlayerController reference is missing!");
+        }
+
+        // If death border effect is not assigned, try to find it
+        if (deathBorderEffect == null)
+        {
+            deathBorderEffect = FindFirstObjectByType<DeathBorderEffect>();
         }
     }
 
@@ -49,6 +56,12 @@ public class PlayerDeathHandler : MonoBehaviour
             cameraController.OnPlayerDeath();
         }
 
+        // Show the red border effect
+        if (deathBorderEffect)
+        {
+            deathBorderEffect.ShowDeathBorder();
+        }
+
         yield return new WaitForSeconds(respawnDelay);
 
         playerController.Teleport(CheckpointManager.LastCheckpointPosition);
@@ -57,6 +70,12 @@ public class PlayerDeathHandler : MonoBehaviour
         if (cameraController)
         {
             cameraController.OnPlayerRespawn();
+        }
+
+        // Hide the red border effect
+        if (deathBorderEffect)
+        {
+            deathBorderEffect.HideDeathBorder();
         }
 
         SetPlayerMovementEnabled(true);

@@ -426,6 +426,8 @@ MonoBehaviour:
   jumpFOV: 45
   minChargeJumpFOV: 20
   jumpFOVTransitionSpeed: 5
+  deathZoomFOV: 23
+  deathZoomSpeed: 4
 --- !u!1 &8073337522067690864
 GameObject:
   m_ObjectHideFlags: 0
