@@ -8,7 +8,10 @@ public class PlayerDeathHandler : MonoBehaviour
     [SerializeField] private float respawnDelay = 1f;
     [SerializeField] private PlayerController playerController;
     [SerializeField] private DynamicCameraController cameraController;
-    [SerializeField] private DeathBorderEffect deathBorderEffect; // Add this line
+    [SerializeField] private DeathBorderEffect deathBorderEffect;
+    [SerializeField] private GameObject deathExplosionPrefab;
+    [SerializeField] private SpriteRenderer playerSpriteToHide;
+    [SerializeField] private Canvas playerCanvasToHide;
 
     private bool _isRespawning;
 
@@ -30,10 +33,18 @@ public class PlayerDeathHandler : MonoBehaviour
             Debug.LogWarning("PlayerController reference is missing!");
         }
 
-        // If death border effect is not assigned, try to find it
         if (deathBorderEffect == null)
         {
             deathBorderEffect = FindFirstObjectByType<DeathBorderEffect>();
+        }
+
+        if (playerSpriteToHide != null) return;
+        playerSpriteToHide = GetComponent<SpriteRenderer>();
+        if (playerSpriteToHide != null) return;
+        playerSpriteToHide = GetComponentInChildren<SpriteRenderer>();
+        if (playerSpriteToHide == null)
+        {
+            Debug.LogWarning("SpriteRenderer not found! Please assign it in the inspector.");
         }
     }
 
@@ -50,11 +61,12 @@ public class PlayerDeathHandler : MonoBehaviour
         _isRespawning = true;
         SetPlayerMovementEnabled(false);
 
-        // Trigger camera zoom on death
-        if (cameraController)
-        {
-            cameraController.OnPlayerDeath();
-        }
+        playerSpriteToHide.enabled = false;
+        playerCanvasToHide.enabled = false;
+
+        Instantiate(deathExplosionPrefab, transform.position, Quaternion.identity);
+
+        cameraController.OnPlayerDeath();
 
         // Show the red border effect
         if (deathBorderEffect)
@@ -66,17 +78,12 @@ public class PlayerDeathHandler : MonoBehaviour
 
         playerController.Teleport(CheckpointManager.LastCheckpointPosition);
 
-        // Reset camera to normal after respawn
-        if (cameraController)
-        {
-            cameraController.OnPlayerRespawn();
-        }
+        playerSpriteToHide.enabled = true;
+        playerCanvasToHide.enabled = true;
 
-        // Hide the red border effect
-        if (deathBorderEffect)
-        {
-            deathBorderEffect.HideDeathBorder();
-        }
+        cameraController.OnPlayerRespawn();
+
+        deathBorderEffect.HideDeathBorder();
 
         SetPlayerMovementEnabled(true);
         _isRespawning = false;

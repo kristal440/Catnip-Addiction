@@ -192,7 +192,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   borderImage: {fileID: 77519825811968850}
   fadeSpeed: 1.4
-  maxAlpha: 0.9
+  maxAlpha: 0.65
 --- !u!1 &1387929401543560812
 GameObject:
   m_ObjectHideFlags: 0
@@ -1068,3 +1068,6 @@ MonoBehaviour:
   playerController: {fileID: 145821301250412423}
   cameraController: {fileID: 0}
   deathBorderEffect: {fileID: 4536768457498509798}
+  deathExplosionPrefab: {fileID: 3062182869956756065, guid: bbe3880071c5f65d6ab00e5c256d1ff0, type: 3}
+  playerSpriteToHide: {fileID: 1340974120236893500}
+  playerCanvasToHide: {fileID: 8698612799634927445}
