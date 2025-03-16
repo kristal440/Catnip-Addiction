@@ -62,6 +62,9 @@ public class DynamicCameraController : MonoBehaviour
     private Vector3 _previousPlayerScale;
     private float _currentVerticalVelocity;
 
+    private Vector3 _lastPlayerPosition;
+    private float _actualPlayerSpeed;
+
     private void Start()
     {
         _camera = GetComponent<Camera>();
@@ -80,6 +83,9 @@ public class DynamicCameraController : MonoBehaviour
         }
 
         StartCoroutine(FindPlayerControllerWithTimeout());
+
+        _lastPlayerPosition = Vector3.zero;
+        _actualPlayerSpeed = 0f;
     }
 
     // Automatically find the PlayerController in the parent hierarchy
@@ -119,7 +125,17 @@ public class DynamicCameraController : MonoBehaviour
     {
         if (!_playerController) return;
 
-        var normalizedSpeed = Clamp01(Abs(_playerController.currentSpeed) / _playerController.maxSpeed);
+        // Calculate actual movement speed based on position change
+        if (Time.deltaTime > 0)
+        {
+            var currentPlayerPosition = _playerController.transform.position;
+            _actualPlayerSpeed = Vector3.Distance(_lastPlayerPosition, currentPlayerPosition) / Time.deltaTime;
+            _lastPlayerPosition = currentPlayerPosition;
+        }
+
+        // Use the smaller of the reported speed and actual movement speed
+        var effectiveSpeed = Min(Abs(_playerController.currentSpeed), _actualPlayerSpeed);
+        var normalizedSpeed = Clamp01(effectiveSpeed / _playerController.maxSpeed);
 
         UpdateFOV(normalizedSpeed);
         UpdateHorizontalOffset(normalizedSpeed);
