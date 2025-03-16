@@ -335,8 +335,9 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
     public void Teleport(Vector3 position)
     {
-        if (photonView.IsMine)
-            transform.position = position;
+        if (!photonView.IsMine) return;
+        transform.position = position;
+        currentSpeed = 0f;
     }
 
     public void SetMovement(bool isEnabled)
