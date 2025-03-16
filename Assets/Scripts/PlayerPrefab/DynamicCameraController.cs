@@ -42,7 +42,15 @@ public class DynamicCameraController : MonoBehaviour
     [Tooltip("How quickly to transition to jump FOV")]
     public float jumpFOVTransitionSpeed = 5f;
 
+    [Header("Death Camera Settings")]
+    [Tooltip("FOV value when player dies (zoomed in)")]
+    public float deathZoomFOV = 25f;
+
+    [Tooltip("How quickly to zoom in when player dies")]
+    public float deathZoomSpeed = 3f;
+
     private bool _isInJumpTransition;
+    private bool _isInDeathZoom;
     private float _jumpTransitionTimer;
     private const float JumpTransitionDuration = 0.2f;
 
@@ -121,6 +129,9 @@ public class DynamicCameraController : MonoBehaviour
     #region FOV stuff
     public void UpdateChargingJumpFOV(float chargeProgress)
     {
+        // Skip if in death zoom
+        if (_isInDeathZoom) return;
+
         // Calculate target FOV based on charge progress (0 to 1)
         // From default FOV down to minChargeJumpFOV
         var targetFOV = Lerp(defaultFOV, minChargeJumpFOV, chargeProgress);
@@ -132,6 +143,9 @@ public class DynamicCameraController : MonoBehaviour
 
     public void TriggerJumpFOV()
     {
+        // Skip if in death zoom
+        if (_isInDeathZoom) return;
+
         _isInJumpTransition = true;
         _jumpTransitionTimer = 0f;
     }
@@ -140,6 +154,13 @@ public class DynamicCameraController : MonoBehaviour
     {
         float targetFOV;
 
+        if (_isInDeathZoom)
+        {
+            // Death zoom effect - zoom in on player
+            targetFOV = deathZoomFOV;
+            _camera.fieldOfView = Lerp(_camera.fieldOfView, targetFOV,
+                Time.deltaTime * deathZoomSpeed);
+        }
         if (_isInJumpTransition)
         {
             // Handle jump FOV transition
@@ -192,5 +213,17 @@ public class DynamicCameraController : MonoBehaviour
             verticalSmoothTime);
 
         transform.localPosition = newPosition;
+    }
+
+    // Call this method when the player dies
+    public void OnPlayerDeath()
+    {
+        _isInDeathZoom = true;
+    }
+
+    // Call this method when the player respawns
+    public void OnPlayerRespawn()
+    {
+        _isInDeathZoom = false;
     }
 }

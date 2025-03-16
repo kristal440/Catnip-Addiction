@@ -873,6 +873,7 @@ MonoBehaviour:
   hazardTag: Death
   respawnDelay: 1
   playerController: {fileID: 145821301250412423}
+  cameraController: {fileID: 0}
 --- !u!114 &2032181316847181466
 MonoBehaviour:
   m_ObjectHideFlags: 0
