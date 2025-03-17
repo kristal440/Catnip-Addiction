@@ -22,8 +22,8 @@ public class PlayerDeathHandler : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D other)
     {
-        if (!other.CompareTag(hazardTag) || _isRespawning) return;
-        StartCoroutine(RespawnPlayer());
+        if (other.CompareTag(hazardTag) && !_isRespawning)
+            StartCoroutine(RespawnPlayer());
     }
 
     private IEnumerator RespawnPlayer()
