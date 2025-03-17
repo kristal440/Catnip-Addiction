@@ -17,43 +17,13 @@ public class PlayerDeathHandler : MonoBehaviour
 
     private void Start()
     {
-        if (cameraController == null)
-        {
-            cameraController = FindFirstObjectByType<DynamicCameraController>();
-            if (cameraController == null)
-            {
-                Debug.LogWarning("DynamicCameraController not found. Camera zoom on death won't work.");
-            }
-        }
-
-        if (playerController != null) return;
-        playerController = GetComponent<PlayerController>();
-        if (playerController == null)
-        {
-            Debug.LogWarning("PlayerController reference is missing!");
-        }
-
-        if (deathBorderEffect == null)
-        {
-            deathBorderEffect = FindFirstObjectByType<DeathBorderEffect>();
-        }
-
-        if (playerSpriteToHide != null) return;
-        playerSpriteToHide = GetComponent<SpriteRenderer>();
-        if (playerSpriteToHide != null) return;
-        playerSpriteToHide = GetComponentInChildren<SpriteRenderer>();
-        if (playerSpriteToHide == null)
-        {
-            Debug.LogWarning("SpriteRenderer not found! Please assign it in the inspector.");
-        }
+        cameraController = FindFirstObjectByType<DynamicCameraController>();
     }
 
     private void OnTriggerEnter2D(Collider2D other)
     {
-        if (other.CompareTag(hazardTag) && !_isRespawning)
-        {
-            StartCoroutine(RespawnPlayer());
-        }
+        if (!other.CompareTag(hazardTag) || _isRespawning) return;
+        StartCoroutine(RespawnPlayer());
     }
 
     private IEnumerator RespawnPlayer()
@@ -61,32 +31,22 @@ public class PlayerDeathHandler : MonoBehaviour
         _isRespawning = true;
         SetPlayerMovementEnabled(false);
 
+        // Death
         playerController.OnPlayerDeath();
-
         playerSpriteToHide.enabled = false;
         playerCanvasToHide.enabled = false;
-
         Instantiate(deathExplosionPrefab, transform.position, Quaternion.identity);
-
         cameraController.OnPlayerDeath();
-
-        // Show the red border effect
-        if (deathBorderEffect)
-        {
-            deathBorderEffect.ShowDeathBorder();
-        }
+        deathBorderEffect.ShowDeathBorder();
 
         yield return new WaitForSeconds(respawnDelay);
 
+        // Respawn
         playerController.Teleport(CheckpointManager.LastCheckpointPosition);
-
         playerController.OnPlayerRespawn();
-
         playerSpriteToHide.enabled = true;
         playerCanvasToHide.enabled = true;
-
         cameraController.OnPlayerRespawn();
-
         deathBorderEffect.HideDeathBorder();
 
         SetPlayerMovementEnabled(true);
@@ -95,13 +55,6 @@ public class PlayerDeathHandler : MonoBehaviour
 
     private void SetPlayerMovementEnabled(bool movementEnabled)
     {
-        if (playerController)
-        {
-            playerController.SetMovement(movementEnabled);
-        }
-        else
-        {
-            Debug.LogWarning("PlayerController reference is missing!");
-        }
+        playerController.SetMovement(movementEnabled);
     }
 }

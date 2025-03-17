@@ -10,8 +10,6 @@ public class PlayerSkinSync : MonoBehaviourPunCallbacks
 
     private void Awake()
     {
-        animator = GetComponent<Animator>();
-
         if (photonView.IsMine && PhotonNetwork.LocalPlayer.CustomProperties.TryGetValue("Skin", out var localSkin))
             _currentSkin = localSkin.ToString();
     }
@@ -28,7 +26,6 @@ public class PlayerSkinSync : MonoBehaviourPunCallbacks
 
         _currentSkin = skinName;
         animator.SetInteger(Skin, GetSkinIndex(skinName));
-        // Debug.Log($"[PlayerSkinSync] Skin applied: {skinName}\nIs Mine: {photonView.IsMine}");
     }
 
     private static int GetSkinIndex(string skinName)

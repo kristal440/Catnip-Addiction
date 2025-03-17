@@ -13,7 +13,7 @@ public class HomeButton : MonoBehaviour
             PhotonNetwork.LeaveLobby();
         if (PhotonNetwork.IsConnected)
             PhotonNetwork.Disconnect();
-        // Load the main menu scene
+
         SceneManager.LoadScene("MainMenu");
     }
 }

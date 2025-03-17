@@ -7,15 +7,11 @@ public class DeathBorderEffect : MonoBehaviour
     [SerializeField] private float fadeSpeed = 2.0f;
     [SerializeField] private float maxAlpha = 0.8f;
 
-    private float _currentAlpha = 0f;
-    private bool _shouldShow = false;
+    private float _currentAlpha;
+    private bool _shouldShow;
 
     private void Start()
     {
-        if (borderImage == null)
-            borderImage = GetComponent<Image>();
-
-        // Initialize as invisible
         SetBorderAlpha(0);
     }
 

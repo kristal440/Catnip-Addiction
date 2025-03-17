@@ -1,4 +1,5 @@
 using Photon.Pun;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -12,12 +13,7 @@ public class PauseMenu : MonoBehaviour
         if (PhotonNetwork.IsConnected && PhotonNetwork.LocalPlayer != null)
         {
             var playerControllers = FindObjectsByType<PlayerController>(sortMode: FindObjectsSortMode.None);
-            foreach (var controller in playerControllers)
-            {
-                if (!controller.photonView.IsMine) continue;
-                _playerController = controller;
-                break;
-            }
+            _playerController = playerControllers.FirstOrDefault(controller => controller.photonView.IsMine);
         }
         pauseMenuUI.SetActive(false);
     }

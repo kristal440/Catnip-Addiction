@@ -8,6 +8,7 @@ public class RoomManager : MonoBehaviourPunCallbacks
 {
     public GameObject playerPrefab;
     public Transform[] spawnPoints;
+
     public TMP_Text pingText;
 
     private void Start()
@@ -37,7 +38,6 @@ public class RoomManager : MonoBehaviourPunCallbacks
             var spawnRotation = spawn?.rotation ?? Quaternion.identity;
 
             PhotonNetwork.Instantiate(playerPrefab.name, spawnPosition, spawnRotation);
-            // Debug.Log($"Player instantiated at {spawnPosition} with ID: {PhotonNetwork.LocalPlayer.ActorNumber}");
         }
         else
             Debug.LogError("Player prefab is null or not connected to Photon! Cannot instantiate player.");
@@ -45,16 +45,11 @@ public class RoomManager : MonoBehaviourPunCallbacks
 
     public override void OnPlayerEnteredRoom(Player newPlayer)
     {
-        // Debug.Log($"{newPlayer.NickName} entered the room.");
-        // Debug.Log("Current players in room:");
-        // foreach (var player in PhotonNetwork.PlayerList)
-        // {
-        //     Debug.Log($"- {player.NickName}");
-        // }
+        // TODO: update UI of connected players
     }
 
     public override void OnPlayerLeftRoom(Player otherPlayer)
     {
-        // Debug.Log($"{otherPlayer.NickName} left the room.");
+        // TODO: update UI of connected players
     }
 }
