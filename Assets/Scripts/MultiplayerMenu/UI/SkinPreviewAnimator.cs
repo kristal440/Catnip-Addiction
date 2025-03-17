@@ -2,12 +2,13 @@ using UnityEngine;
 
 public class SkinPreviewAnimator : MonoBehaviour
 {
-    private static readonly int Skin = Animator.StringToHash("Skin");
-    private Animator _animator;
-    private string _currentSkinName;
-    private const string IdleStateSuffix = "-Idle";
     private const string BaseLayerName = "Base Layer";
+    private const string IdleStateSuffix = "-Idle";
+    private static readonly int Skin = Animator.StringToHash("Skin");
+
+    private Animator _animator;
     private int _baseLayerIndex;
+    private string _currentSkinName;
 
     private void Awake()
     {

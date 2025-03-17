@@ -4,14 +4,15 @@ using UnityEngine.UI;
 
 public class CreateRoomPanel : MonoBehaviour
 {
-    public Button showButton;
+    [Header("Panel Controls")]
     public Button hideButton;
     public GameObject panel;
+    public Button showButton;
 
     [Header("Error popup")]
-    [SerializeField] private TMP_InputField playerNameInputField;
     [SerializeField] private GameObject errorPanel;
     [SerializeField] private TextMeshProUGUI errorText;
+    [SerializeField] private TMP_InputField playerNameInputField;
 
     private void Start()
     {
