@@ -13,6 +13,7 @@ public class PlayerDeathHandler : MonoBehaviour
     [SerializeField] private SpriteRenderer playerSpriteToHide;
     [SerializeField] private Canvas playerCanvasToHide;
     [Range(0f, 1f)][SerializeField] private float overlapThreshold = 0.7f;
+    [SerializeField] private float explosionDuration = 10f;
 
     private bool _isRespawning;
     private Collider2D _playerCollider;
@@ -41,9 +42,9 @@ public class PlayerDeathHandler : MonoBehaviour
 
     private IEnumerator CheckOverlapAndDie()
     {
-        while (_currentHazardCollider != null)
+        while (_currentHazardCollider)
         {
-            float overlapPercentage = GetOverlapPercentage(_playerCollider, _currentHazardCollider);
+            var overlapPercentage = GetOverlapPercentage(_playerCollider, _currentHazardCollider);
 
             if (overlapPercentage >= overlapThreshold)
             {
@@ -55,30 +56,24 @@ public class PlayerDeathHandler : MonoBehaviour
         }
     }
 
-    private float GetOverlapPercentage(Collider2D collider1, Collider2D collider2)
+    private static float GetOverlapPercentage(Collider2D collider1, Collider2D collider2)
     {
-        // Get bounds of both colliders
-        Bounds bounds1 = collider1.bounds;
-        Bounds bounds2 = collider2.bounds;
+        var bounds1 = collider1.bounds;
+        var bounds2 = collider2.bounds;
 
-        // Calculate intersection volume
-        Bounds intersection = new Bounds();
-        bool intersects = bounds1.Intersects(bounds2);
+        var intersects = bounds1.Intersects(bounds2);
 
         if (!intersects)
             return 0f;
 
-        // Calculate overlap bounds
-        float minX = Mathf.Max(bounds1.min.x, bounds2.min.x);
-        float minY = Mathf.Max(bounds1.min.y, bounds2.min.y);
-        float maxX = Mathf.Min(bounds1.max.x, bounds2.max.x);
-        float maxY = Mathf.Min(bounds1.max.y, bounds2.max.y);
+        var minX = Mathf.Max(bounds1.min.x, bounds2.min.x);
+        var minY = Mathf.Max(bounds1.min.y, bounds2.min.y);
+        var maxX = Mathf.Min(bounds1.max.x, bounds2.max.x);
+        var maxY = Mathf.Min(bounds1.max.y, bounds2.max.y);
 
-        // Calculate areas
-        float overlapArea = (maxX - minX) * (maxY - minY);
-        float playerArea = bounds1.size.x * bounds1.size.y;
+        var overlapArea = (maxX - minX) * (maxY - minY);
+        var playerArea = bounds1.size.x * bounds1.size.y;
 
-        // Return percentage of player collider that's overlapping
         return overlapArea / playerArea;
     }
 
@@ -91,7 +86,8 @@ public class PlayerDeathHandler : MonoBehaviour
         playerController.OnPlayerDeath();
         playerSpriteToHide.enabled = false;
         playerCanvasToHide.enabled = false;
-        Instantiate(deathExplosionPrefab, transform.position, Quaternion.identity);
+        GameObject explosion = Instantiate(deathExplosionPrefab, transform.position, Quaternion.identity);
+        Destroy(explosion, explosionDuration);
         cameraController.OnPlayerDeath();
         deathBorderEffect.ShowDeathBorder();
 
