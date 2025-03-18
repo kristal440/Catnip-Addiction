@@ -5957,6 +5957,9 @@ MonoBehaviour:
   - Cat-2
   - Cat-6
   skinItemRects: []
+  selectedScale: 1.15
+  unselectedScale: 0.5
+  scaleSmoothing: 3
 --- !u!1 &1760589729
 GameObject:
   m_ObjectHideFlags: 0
