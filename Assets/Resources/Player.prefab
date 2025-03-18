@@ -1103,3 +1103,4 @@ MonoBehaviour:
   deathExplosionPrefab: {fileID: 3062182869956756065, guid: bbe3880071c5f65d6ab00e5c256d1ff0, type: 3}
   playerSpriteToHide: {fileID: 6563650613660426911}
   playerCanvasToHide: {fileID: 8698612799634927445}
+  overlapThreshold: 0.7

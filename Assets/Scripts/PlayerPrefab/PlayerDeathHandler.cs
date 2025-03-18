@@ -12,10 +12,11 @@ public class PlayerDeathHandler : MonoBehaviour
     [SerializeField] private GameObject deathExplosionPrefab;
     [SerializeField] private SpriteRenderer playerSpriteToHide;
     [SerializeField] private Canvas playerCanvasToHide;
-    [SerializeField, Range(0f, 1f)] private float colliderOverlapThreshold = 0.3f; // Percentage of overlap required to die
+    [Range(0f, 1f)][SerializeField] private float overlapThreshold = 0.7f;
 
     private bool _isRespawning;
     private Collider2D _playerCollider;
+    private Collider2D _currentHazardCollider;
 
     private void Start()
     {
@@ -25,41 +26,59 @@ public class PlayerDeathHandler : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D other)
     {
-        if (!other.CompareTag(hazardTag) || _isRespawning) return;
-        var overlapPercentage = CalculateOverlapPercentage(_playerCollider, other);
-        if (overlapPercentage >= colliderOverlapThreshold)
+        if (_isRespawning || !other.CompareTag(hazardTag))
+            return;
+
+        _currentHazardCollider = other;
+        StartCoroutine(CheckOverlapAndDie());
+    }
+
+    private void OnTriggerExit2D(Collider2D other)
+    {
+        if (other == _currentHazardCollider)
+            _currentHazardCollider = null;
+    }
+
+    private IEnumerator CheckOverlapAndDie()
+    {
+        while (_currentHazardCollider != null)
         {
-            StartCoroutine(RespawnPlayer());
+            float overlapPercentage = GetOverlapPercentage(_playerCollider, _currentHazardCollider);
+
+            if (overlapPercentage >= overlapThreshold)
+            {
+                StartCoroutine(RespawnPlayer());
+                break;
+            }
+
+            yield return null;
         }
     }
 
-    private void OnTriggerStay2D(Collider2D other)
+    private float GetOverlapPercentage(Collider2D collider1, Collider2D collider2)
     {
-        if (!other.CompareTag(hazardTag) || _isRespawning) return;
-        var overlapPercentage = CalculateOverlapPercentage(_playerCollider, other);
-        if (overlapPercentage >= colliderOverlapThreshold)
-        {
-            StartCoroutine(RespawnPlayer());
-        }
-    }
+        // Get bounds of both colliders
+        Bounds bounds1 = collider1.bounds;
+        Bounds bounds2 = collider2.bounds;
 
-    private static float CalculateOverlapPercentage(Collider2D collider1, Collider2D collider2)
-    {
-        var bounds1 = collider1.bounds;
-        var bounds2 = collider2.bounds;
+        // Calculate intersection volume
+        Bounds intersection = new Bounds();
+        bool intersects = bounds1.Intersects(bounds2);
 
-        var intersection = new Bounds();
-        intersection.SetMinMax(
-            Vector3.Max(bounds1.min, bounds2.min),
-            Vector3.Min(bounds1.max, bounds2.max)
-        );
+        if (!intersects)
+            return 0f;
 
-        if (intersection.size.x <= 0 || intersection.size.y <= 0)
-            return 0;
+        // Calculate overlap bounds
+        float minX = Mathf.Max(bounds1.min.x, bounds2.min.x);
+        float minY = Mathf.Max(bounds1.min.y, bounds2.min.y);
+        float maxX = Mathf.Min(bounds1.max.x, bounds2.max.x);
+        float maxY = Mathf.Min(bounds1.max.y, bounds2.max.y);
 
-        var overlapArea = intersection.size.x * intersection.size.y;
-        var playerArea = bounds1.size.x * bounds1.size.y;
+        // Calculate areas
+        float overlapArea = (maxX - minX) * (maxY - minY);
+        float playerArea = bounds1.size.x * bounds1.size.y;
 
+        // Return percentage of player collider that's overlapping
         return overlapArea / playerArea;
     }
 
