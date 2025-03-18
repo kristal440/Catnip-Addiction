@@ -331,8 +331,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
         if (HasCatnip)
             jumpMultiplier *= 1.1f;
 
-        if (_cameraController)
-            _cameraController.TriggerJumpFOV();
+        _cameraController.TriggerJumpFOV();
 
         _rb.linearVelocity = new Vector2(_rb.linearVelocity.x, jumpMultiplier);
         animator.SetBool(IsJumpQueued, false);
