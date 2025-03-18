@@ -21,8 +21,8 @@ public class SkinPicker : MonoBehaviour
 
     [Header("Scale Effect")]
     [SerializeField] private float selectedScale = 1.2f;
-    [SerializeField] private float unselectedScale = 0.8f;
-    [SerializeField] private float scaleSmoothing = 8f;
+    [SerializeField] private float unselectedScale = 0.5f;
+    [SerializeField] private float scaleSmoothing = 3f;
 
     private float _contentStartPosition;
     private int _currentIndex;
