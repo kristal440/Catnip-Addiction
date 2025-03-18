@@ -19,6 +19,11 @@ public class SkinPicker : MonoBehaviour
     [SerializeField] public List<string> skinNames = new();
     [SerializeField] private List<RectTransform> skinItemRects = new();
 
+    [Header("Scale Effect")]
+    [SerializeField] private float selectedScale = 1.2f;
+    [SerializeField] private float unselectedScale = 0.8f;
+    [SerializeField] private float scaleSmoothing = 8f;
+
     private float _contentStartPosition;
     private int _currentIndex;
     private float _itemWidth;
@@ -98,20 +103,41 @@ public class SkinPicker : MonoBehaviour
 
     private void Update()
     {
-        if (!_isSnapping)
+        if (_isSnapping)
+        {
+            content.anchoredPosition = Vector2.Lerp(
+                content.anchoredPosition,
+                new Vector2(_snapTargetPosition, content.anchoredPosition.y),
+                snapSpeed * Time.deltaTime
+            );
+
+            if (Mathf.Abs(content.anchoredPosition.x - _snapTargetPosition) < 0.01f)
+            {
+                content.anchoredPosition = new Vector2(_snapTargetPosition, content.anchoredPosition.y);
+                _isSnapping = false;
+            }
+        }
+
+        UpdateItemScales();
+    }
+
+    private void UpdateItemScales()
+    {
+        if (skinItemRects.Count == 0)
             return;
 
-        content.anchoredPosition = Vector2.Lerp(
-            content.anchoredPosition,
-            new Vector2(_snapTargetPosition, content.anchoredPosition.y),
-            snapSpeed * Time.deltaTime
-        );
+        for (var i = 0; i < skinItemRects.Count; i++)
+        {
+            float distanceFactor = Mathf.Abs(i - _currentIndex);
 
-        if (Mathf.Abs(content.anchoredPosition.x - _snapTargetPosition) >= 0.01f)
-            return;
+            var targetScale = Mathf.Lerp(selectedScale, unselectedScale, Mathf.Clamp01(distanceFactor));
 
-        content.anchoredPosition = new Vector2(_snapTargetPosition, content.anchoredPosition.y);
-        _isSnapping = false;
+            skinItemRects[i].localScale = Vector3.Lerp(
+                skinItemRects[i].localScale,
+                new Vector3(targetScale, targetScale, 1f),
+                scaleSmoothing * Time.deltaTime
+            );
+        }
     }
 
     private void SaveSelectedSkin()
