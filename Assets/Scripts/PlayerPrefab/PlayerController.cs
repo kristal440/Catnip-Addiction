@@ -333,7 +333,8 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
         _cameraController.TriggerJumpFOV();
 
-        _rb.linearVelocity = new Vector2(_rb.linearVelocity.x, jumpMultiplier);
+        if (IsGrounded)
+            _rb.linearVelocity = new Vector2(_rb.linearVelocity.x, jumpMultiplier);
         animator.SetBool(IsJumpQueued, false);
         _isJumpQueued = false;
     }
