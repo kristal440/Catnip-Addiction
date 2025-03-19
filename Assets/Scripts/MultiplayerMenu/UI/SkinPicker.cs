@@ -76,6 +76,7 @@ public class SkinPicker : MonoBehaviour
     {
         leftButton.onClick.AddListener(ScrollLeft);
         rightButton.onClick.AddListener(ScrollRight);
+        UpdateButtonStates();
     }
 
     private void ScrollLeft()
@@ -84,6 +85,7 @@ public class SkinPicker : MonoBehaviour
         if (_currentIndex < 0)
             _currentIndex = 0;
         UpdateContentPosition();
+        UpdateButtonStates();
     }
 
     private void ScrollRight()
@@ -92,6 +94,13 @@ public class SkinPicker : MonoBehaviour
         if (_currentIndex >= skinNames.Count)
             _currentIndex = skinNames.Count - 1;
         UpdateContentPosition();
+        UpdateButtonStates();
+    }
+
+    private void UpdateButtonStates()
+    {
+        leftButton.interactable = _currentIndex > 0;
+        rightButton.interactable = _currentIndex < skinNames.Count - 1;
     }
 
     private void UpdateContentPosition()
