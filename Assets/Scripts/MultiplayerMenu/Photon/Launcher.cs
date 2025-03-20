@@ -232,13 +232,17 @@ public class Launcher : MonoBehaviourPunCallbacks
             if (mapNameText)
                 mapNameText.text = value;
 
+            // Add or get the MapButtonData component and set the map name
+            var mapData = mapButton.GetComponent<MapButtonData>() ??
+                          mapButton.AddComponent<MapButtonData>();
+            mapData.MapName = mapSceneName;
+
             var button = mapButton.GetComponent<Button>();
             button.onClick.RemoveAllListeners();
             button.onClick.AddListener(() => SelectMap(mapSceneName));
-            button.GetComponent<Image>().color = Color.white;
 
             if (mapSceneName == _selectedMapName)
-                HighlightSelectedMapButton(button);
+                button.Select();
 
             buttonIndex++;
         }
@@ -257,21 +261,14 @@ public class Launcher : MonoBehaviourPunCallbacks
             var button = child.GetComponent<Button>();
             if (!button) continue;
 
-            button.GetComponent<Image>().color = Color.white;
-
             var mapData = child.GetComponent<MapButtonData>();
             if (mapData && mapData.MapName == mapName)
-                HighlightSelectedMapButton(button);
+                button.Select();
         }
     }
 
-    private static void HighlightSelectedMapButton(Button button)
-    {
-        button.GetComponent<Image>().color = new Color(0.7f, 1f, 0.7f);
-    }
-
     // Helper component to store map data on buttons
-    private class MapButtonData : MonoBehaviour
+    public class MapButtonData : MonoBehaviour
     {
         public string MapName { get; set; }
     }
