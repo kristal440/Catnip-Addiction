@@ -2914,7 +2914,7 @@ MonoBehaviour:
   viewport: {fileID: 469500461}
   scrollRect: {fileID: 480557254}
   selectedScale: 1.1
-  unselectedScale: 0.78
+  unselectedScale: 0.82
   scaleSmoothing: 6.6
   selectedAlpha: 1
   unselectedAlpha: 0.78
