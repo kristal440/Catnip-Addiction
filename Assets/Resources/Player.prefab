@@ -1057,6 +1057,8 @@ MonoBehaviour:
   maxJumpForce: 14.2
   quickJumpThreshold: 0.11
   maxChargeTime: 1.1
+  jumpCooldown: 0.25
+  deathHeight: -100
 --- !u!114 &4098701528552782764
 MonoBehaviour:
   m_ObjectHideFlags: 0

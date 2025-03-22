@@ -42,6 +42,10 @@ public class PlayerController : MonoBehaviourPunCallbacks
     public float maxJumpForce = 14.5f;
     public float quickJumpThreshold = 0.2f;
     public float maxChargeTime = 2f;
+    public float jumpCooldown = 0.1f;
+
+    [Header("Death")]
+    public float deathHeight = -100f;
 
     // Component references
     private Camera _mainCamera;
@@ -63,6 +67,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
     private float _originalGravityScale;
     private bool _isDead;
     private bool _wallCollisionHandled;
+    private float _lastJumpTime;
 
     // Catnip effects
     private float _newJumpForce;
@@ -125,6 +130,12 @@ public class PlayerController : MonoBehaviourPunCallbacks
         verticalSpeed = _rb.linearVelocity.y;
         CheckIdleState();
         HandleMovement();
+
+        // Check if player has fallen below the death height
+        if (transform.position.y < deathHeight && !_isDead)
+        {
+            OnPlayerDeath();
+        }
     }
     #endregion
 
@@ -266,7 +277,13 @@ public class PlayerController : MonoBehaviourPunCallbacks
     #region Jump
     private void HandleJumpInput()
     {
-        if (_playerInputActions.Player.Jump.WasPressedThisFrame() && IsGrounded && !_isJumpQueued && IsStanding)
+        bool jumpOnCooldown = Time.time < _lastJumpTime + jumpCooldown;
+
+        if (_playerInputActions.Player.Jump.WasPressedThisFrame() &&
+            IsGrounded &&
+            !_isJumpQueued &&
+            IsStanding &&
+            !jumpOnCooldown)
         {
             _jumpButtonHeld = true;
             _jumpChargeStartTime = Time.time;
@@ -303,6 +320,12 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
         while (_jumpButtonHeld && (Time.time - _jumpChargeStartTime) < maxChargeTime)
         {
+            if (!IsGrounded)
+            {
+                CancelJumpCharge();
+                yield break;
+            }
+
             var chargeProgress = (Time.time - _jumpChargeStartTime) / maxChargeTime;
             jumpChargeBar.fillAmount = chargeProgress;
 
@@ -334,7 +357,11 @@ public class PlayerController : MonoBehaviourPunCallbacks
         _cameraController.TriggerJumpFOV();
 
         if (IsGrounded)
+        {
             _rb.linearVelocity = new Vector2(_rb.linearVelocity.x, jumpMultiplier);
+            _lastJumpTime = Time.time; // Record when we jumped
+        }
+
         animator.SetBool(IsJumpQueued, false);
         _isJumpQueued = false;
     }
@@ -349,9 +376,21 @@ public class PlayerController : MonoBehaviourPunCallbacks
             jumpForceToApply *= 1.1f;
 
         _rb.linearVelocity = new Vector2(_rb.linearVelocity.x, jumpForceToApply);
+        _lastJumpTime = Time.time; // Record when we jumped
+
         animator.SetBool(IsJumpQueued, false);
         _isJumpQueued = false;
         animator.speed = 1f;
+    }
+
+    private void CancelJumpCharge()
+    {
+        _isChargingJump = false;
+        _movementDisabledForJump = false;
+        _jumpButtonHeld = false;
+        jumpChargeBarGameObject.SetActive(false);
+        animator.SetBool(IsJumpQueued, false);
+        _isJumpQueued = false;
     }
     #endregion
 
@@ -372,6 +411,11 @@ public class PlayerController : MonoBehaviourPunCallbacks
     private void UpdateAnimations()
     {
         IsGrounded = Physics2D.OverlapCircle(groundCheck.position, groundCheckRadius, groundLayerMask);
+
+        if (!IsGrounded && (_isChargingJump || _isJumpQueued))
+        {
+            CancelJumpCharge();
+        }
 
         if (IsGrounded && IsJumpPaused)
         {
@@ -452,6 +496,14 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
         if (_cameraController)
             _cameraController.OnPlayerDeath();
+
+        Invoke(nameof(RespawnAtLastCheckpoint), 0f);
+    }
+
+    private void RespawnAtLastCheckpoint()
+    {
+        Teleport(CheckpointManager.LastCheckpointPosition);
+        OnPlayerRespawn();
     }
 
     public void OnPlayerRespawn()
