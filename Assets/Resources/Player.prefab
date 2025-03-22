@@ -1104,3 +1104,4 @@ MonoBehaviour:
   playerSpriteToHide: {fileID: 6563650613660426911}
   playerCanvasToHide: {fileID: 8698612799634927445}
   overlapThreshold: 0.7
+  explosionDuration: 10
