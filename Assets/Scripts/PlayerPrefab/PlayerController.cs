@@ -410,7 +410,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
     private void UpdateAnimations()
     {
-        IsGrounded = Physics2D.OverlapCircle(groundCheck.position, groundCheckRadius, groundLayerMask);
+        IsGrounded = Physics2D.OverlapCircle(groundCheck.position, groundCheckRadius, groundLayerMask) || _isDead;
 
         if (!IsGrounded && (_isChargingJump || _isJumpQueued))
         {
