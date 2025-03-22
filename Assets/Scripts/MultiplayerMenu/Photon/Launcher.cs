@@ -146,6 +146,14 @@ public class Launcher : MonoBehaviourPunCallbacks
 
     public void CreateRoom()
     {
+        // TODO: add a check if room name is valid (is in build profile)
+        if (playerNameInputField.text.Length < 3)
+        {
+            errorText.text = "Player name must be at least 3 characters long!";
+            errorPanel.SetActive(true);
+            return;
+        }
+
         if (string.IsNullOrEmpty(roomNameInputField.text))
         {
             errorText.text = "Room name can't be empty";
