@@ -3,28 +3,28 @@ using UnityEngine.UI;
 using System.Collections.Generic;
 
 [RequireComponent(typeof(VerticalLayoutGroup))]
-public class RoomButtonScaler : MonoBehaviour
+public class ScrollListController : MonoBehaviour
 {
     [Header("References")]
     public RectTransform viewport;
     public ScrollRect scrollRect;
 
     [Header("Scaling Settings")]
-    public float selectedScale = 1.0f;
-    public float unselectedScale = 0.7f;
-    public float scaleSmoothing = 3f;
+    public float selectedScale = 1.1f;
+    public float unselectedScale = 0.82f;
+    public float scaleSmoothing = 6.6f;
     [Range(0, 1)] public float selectedAlpha = 1.0f;
-    [Range(0, 1)] public float unselectedAlpha = 0.5f;
-    public float alphaSmoothing = 3f;
+    [Range(0, 1)] public float unselectedAlpha = 0.78f;
+    public float alphaSmoothing = 100f;
 
     [Header("Snapping Settings")]
-    public float snapSpeed = 5f;
-    [SerializeField] private float baseItemSpacing = 10f;
+    public float snapSpeed = 15f;
+    [SerializeField] private float baseItemSpacing;
 
     [Header("Height Expansion")]
-    public float heightExpansionAmount = 20f;
-    public float childHeightExpansionAmount = 10f;
-    public float expansionSpeed = 3f;
+    public float heightExpansionAmount = 40f;
+    public float childHeightExpansionAmount = 45f;
+    public float expansionSpeed = 20f;
 
     private int _currentIndex = -1;
     private readonly List<RectTransform> _itemRects = new();
@@ -40,6 +40,8 @@ public class RoomButtonScaler : MonoBehaviour
 
     private float ItemSpacing => Mathf.Max(2f, baseItemSpacing / Mathf.Max(1f, Mathf.Sqrt(_itemRects.Count)));
 
+    public int CurrentIndex => _currentIndex;
+
     private void Start()
     {
         scrollRect ??= GetComponentInParent<ScrollRect>();
@@ -47,11 +49,9 @@ public class RoomButtonScaler : MonoBehaviour
         _verticalLayoutGroup = GetComponent<VerticalLayoutGroup>();
 
         InitializeItems();
-        SetupButtons();
         UpdatePadding();
     }
 
-    // Collects all child item references and stores their original dimensions
     private void InitializeItems()
     {
         _itemRects.Clear();
@@ -73,7 +73,6 @@ public class RoomButtonScaler : MonoBehaviour
         _verticalLayoutGroup.spacing = ItemSpacing;
     }
 
-    // Adjusts padding to center the selected item in the viewport
     private void UpdatePadding()
     {
         if (!viewport || !_verticalLayoutGroup) return;
@@ -103,31 +102,17 @@ public class RoomButtonScaler : MonoBehaviour
         LayoutRebuilder.ForceRebuildLayoutImmediate(transform as RectTransform);
     }
 
-    // Adds click listeners to all button items
-    private void SetupButtons()
+    public void SelectItem(int index)
     {
-        for (var i = 0; i < _itemRects.Count; i++)
-        {
-            var button = _itemRects[i].GetComponent<Button>() ??
-                         _itemRects[i].gameObject.AddComponent<Button>();
+        if (index < 0 || index >= _itemRects.Count || index == _currentIndex) return;
 
-            if (button.colors.normalColor.a == 0)
-            {
-                var colors = button.colors;
-                colors.normalColor = Color.white;
-                colors.highlightedColor = Color.white;
-                colors.pressedColor = Color.white;
-                colors.selectedColor = Color.white;
-                button.colors = colors;
-            }
+        _currentIndex = index;
+        _needsContentUpdate = true;
 
-            var index = i;
-            button.onClick.RemoveAllListeners();
-            button.onClick.AddListener(() => SelectItem(index));
-        }
+        UpdatePadding();
+        StartCoroutine(ScrollToSelectedItem());
     }
 
-    // Smoothly scrolls to the selected item after layout updates
     private System.Collections.IEnumerator ScrollToSelectedItem()
     {
         yield return null;
@@ -149,19 +134,6 @@ public class RoomButtonScaler : MonoBehaviour
         _isSnapping = true;
     }
 
-    // Handles selection of an item by index
-    private void SelectItem(int index)
-    {
-        if (index < 0 || index >= _itemRects.Count || index == _currentIndex) return;
-
-        _currentIndex = index;
-        _needsContentUpdate = true;
-
-        UpdatePadding();
-        StartCoroutine(ScrollToSelectedItem());
-    }
-
-    // Updates visual elements and handles smooth scrolling each frame
     private void Update()
     {
         HandleSnapping();
@@ -172,7 +144,6 @@ public class RoomButtonScaler : MonoBehaviour
         _needsContentUpdate = false;
     }
 
-    // Handles smooth snapping animation to target scroll position
     private void HandleSnapping()
     {
         if (!_isSnapping) return;
@@ -188,7 +159,6 @@ public class RoomButtonScaler : MonoBehaviour
         _isSnapping = false;
     }
 
-    // Updates scale, alpha and height of all items based on their position relative to viewport center
     private void UpdateItemScalesAndHeights()
     {
         if (_itemRects.Count == 0 || !viewport) return;
@@ -209,7 +179,6 @@ public class RoomButtonScaler : MonoBehaviour
 
             var distanceFromCenter = Mathf.Clamp01(Mathf.Abs(itemCenterY - viewportCenter) / (viewportHeight * 0.5f));
 
-            // Update item scale
             var targetScale = Mathf.Lerp(selectedScale, unselectedScale, distanceFromCenter);
             item.localScale = Vector3.Lerp(
                 item.localScale,
@@ -217,7 +186,6 @@ public class RoomButtonScaler : MonoBehaviour
                 scaleSmoothing * Time.deltaTime
             );
 
-            // Update visual child if present
             var visualChild = item.Find("visual")?.GetComponent<RectTransform>();
             if (visualChild)
             {
@@ -225,7 +193,6 @@ public class RoomButtonScaler : MonoBehaviour
                 heightChanged |= UpdateVisualChildHeight(visualChild, i);
             }
 
-            // Update item height
             heightChanged |= UpdateItemHeight(item, i);
         }
 
@@ -233,7 +200,6 @@ public class RoomButtonScaler : MonoBehaviour
             _needsContentUpdate = true;
     }
 
-    // Updates the alpha/transparency of the visual child
     private void UpdateVisualChildAppearance(RectTransform visualChild, int index)
     {
         var image = visualChild.GetComponent<Image>();
@@ -248,7 +214,6 @@ public class RoomButtonScaler : MonoBehaviour
         image.color = new Color(color.r, color.g, color.b, newAlpha);
     }
 
-    // Updates the height of the visual child component
     private bool UpdateVisualChildHeight(RectTransform visualChild, int index)
     {
         var childTargetHeight = _originalChildHeights[index];
@@ -264,7 +229,6 @@ public class RoomButtonScaler : MonoBehaviour
         return true;
     }
 
-    // Updates the overall height of the item
     private bool UpdateItemHeight(RectTransform item, int index)
     {
         var targetHeight = _originalHeights[index] + (index == _currentIndex ? heightExpansionAmount : 0);
@@ -277,9 +241,13 @@ public class RoomButtonScaler : MonoBehaviour
         return true;
     }
 
-    // Called when the RectTransform dimensions change
     private void OnRectTransformDimensionsChange()
     {
         UpdatePadding();
+    }
+
+    public List<RectTransform> GetItemRects()
+    {
+        return _itemRects;
     }
 }

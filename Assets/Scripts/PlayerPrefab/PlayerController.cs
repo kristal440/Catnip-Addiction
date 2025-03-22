@@ -496,17 +496,15 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
         if (_cameraController)
             _cameraController.OnPlayerDeath();
-
-        Invoke(nameof(RespawnAtLastCheckpoint), 0f);
     }
 
-    private void RespawnAtLastCheckpoint()
+    public void RespawnAtLastCheckpoint()
     {
         Teleport(CheckpointManager.LastCheckpointPosition);
         OnPlayerRespawn();
     }
 
-    public void OnPlayerRespawn()
+    private void OnPlayerRespawn()
     {
         if (!_isDead)
             return;

@@ -82,8 +82,6 @@ public class PlayerDeathHandler : MonoBehaviour
         _isRespawning = true;
         SetPlayerMovementEnabled(false);
 
-        // Death
-        playerController.OnPlayerDeath();
         playerSpriteToHide.enabled = false;
         playerCanvasToHide.enabled = false;
         GameObject explosion = Instantiate(deathExplosionPrefab, transform.position, Quaternion.identity);
@@ -91,11 +89,12 @@ public class PlayerDeathHandler : MonoBehaviour
         cameraController.OnPlayerDeath();
         deathBorderEffect.ShowDeathBorder();
 
+        playerController.OnPlayerDeath();
+
         yield return new WaitForSeconds(respawnDelay);
 
-        // Respawn
-        playerController.Teleport(CheckpointManager.LastCheckpointPosition);
-        playerController.OnPlayerRespawn();
+        playerController.RespawnAtLastCheckpoint();
+
         playerSpriteToHide.enabled = true;
         playerCanvasToHide.enabled = true;
         cameraController.OnPlayerRespawn();

@@ -10,11 +10,9 @@ using UnityEngine.UI;
 public class Launcher : MonoBehaviourPunCallbacks
 {
     #region Variables
-    // Connection State
     private bool _isConnecting;
     private List<string> _roomLst;
 
-    // Map Selection
     private readonly Dictionary<string, string> _availableMaps = new(); // Scene name -> Display name
     private string _selectedMapName = "GameScene_Map1_Multi"; // Default map
 
@@ -34,8 +32,9 @@ public class Launcher : MonoBehaviourPunCallbacks
 
     [Header("Map Selection")]
     [SerializeField] private GameObject mapListPanel;
-    [SerializeField] private GameObject mapListParent; // Parent with child objects representing maps
-    [SerializeField] private Transform mapsContainer;  // Transform for map selection buttons
+    [SerializeField] private GameObject mapListParent;
+    [SerializeField] private Transform mapsContainer;
+    [SerializeField] private ScrollListSelectionHandler mapSelectionHandler;
 
     [Header("Room List")]
     [SerializeField] private GameObject roomListPanel;
@@ -65,6 +64,14 @@ public class Launcher : MonoBehaviourPunCallbacks
         PhotonNetwork.GameVersion = "1";
         loadingText.text = "Connecting to Server...";
         PhotonNetwork.ConnectUsingSettings();
+        if (mapSelectionHandler != null)
+            mapSelectionHandler.OnItemSelected += OnMapSelected;
+    }
+
+    private void OnDestroy()
+    {
+        if (mapSelectionHandler != null)
+            mapSelectionHandler.OnItemSelected -= OnMapSelected;
     }
     #endregion
 
@@ -213,6 +220,13 @@ public class Launcher : MonoBehaviourPunCallbacks
             _selectedMapName = _availableMaps.Keys.GetEnumerator().Current;
 
         CreateMapSelectionButtons();
+    }
+
+    private void OnMapSelected(int index)
+    {
+        if (index < 0 || index >= _availableMaps.Count) return;
+        _selectedMapName = _availableMaps.Keys.ElementAt(index);
+        Debug.Log($"Selected map from handler: {_selectedMapName}");
     }
 
     private void CreateMapSelectionButtons()
