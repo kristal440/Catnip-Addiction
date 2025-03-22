@@ -3300,7 +3300,7 @@ GameObject:
   - component: {fileID: 1760118636}
   - component: {fileID: 1760118635}
   - component: {fileID: 1760118634}
-  m_Layer: 3
+  m_Layer: 8
   m_Name: death
   m_TagString: Death
   m_Icon: {fileID: 0}
