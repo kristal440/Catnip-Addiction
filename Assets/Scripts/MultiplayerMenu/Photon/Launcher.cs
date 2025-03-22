@@ -6,6 +6,7 @@ using Photon.Realtime;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public class Launcher : MonoBehaviourPunCallbacks
 {
@@ -146,7 +147,6 @@ public class Launcher : MonoBehaviourPunCallbacks
 
     public void CreateRoom()
     {
-        // TODO: add a check if room name is valid (is in build profile)
         if (playerNameInputField.text.Length < 3)
         {
             errorText.text = "Player name must be at least 3 characters long!";
@@ -157,6 +157,13 @@ public class Launcher : MonoBehaviourPunCallbacks
         if (string.IsNullOrEmpty(roomNameInputField.text))
         {
             errorText.text = "Room name can't be empty";
+            errorPanel.SetActive(true);
+            return;
+        }
+
+        if (!IsRoomNameValid(roomNameInputField.text))
+        {
+            errorText.text = "Room name contains invalid characters or is too long";
             errorPanel.SetActive(true);
             return;
         }
@@ -184,6 +191,14 @@ public class Launcher : MonoBehaviourPunCallbacks
 
         SetNickname();
         PhotonNetwork.CreateRoom(roomNameInputField.text, roomOptions);
+    }
+
+    private static bool IsRoomNameValid(string roomName)
+    {
+        if (roomName.Length < 3 || roomName.Length > 20)
+            return false;
+
+        return roomName.All(c => char.IsLetterOrDigit(c) || c == '_' || c == '-' || c == ' ');
     }
 
     private void JoinRoom(string roomName)
@@ -214,6 +229,23 @@ public class Launcher : MonoBehaviourPunCallbacks
         {
             if (!child.gameObject.activeSelf) continue;
             var sceneName = child.gameObject.name;
+
+            var sceneInBuild = false;
+            for (var i = 0; i < SceneManager.sceneCountInBuildSettings; i++)
+            {
+                var scenePath = SceneUtility.GetScenePathByBuildIndex(i);
+                var sceneNameFromBuild = System.IO.Path.GetFileNameWithoutExtension(scenePath);
+
+                if (sceneNameFromBuild != sceneName) continue;
+                sceneInBuild = true;
+                break;
+            }
+
+            if (!sceneInBuild)
+            {
+                Debug.LogWarning($"Skipping map '{sceneName}' because it's not included in the build profile.");
+                continue;
+            }
 
             var displayName = sceneName;
             var displayText = child.GetComponentInChildren<TextMeshProUGUI>();
@@ -254,7 +286,6 @@ public class Launcher : MonoBehaviourPunCallbacks
             if (mapNameText)
                 mapNameText.text = value;
 
-            // Add or get the MapButtonData component and set the map name
             var mapData = mapButton.GetComponent<MapButtonData>() ??
                           mapButton.AddComponent<MapButtonData>();
             mapData.MapName = mapSceneName;
