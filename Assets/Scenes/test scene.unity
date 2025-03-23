@@ -529,7 +529,7 @@ Tilemap:
       m_TileColorIndex: 0
       m_TileObjectToInstantiateIndex: 65535
       dummyAlignment: 0
-      m_AllTileFlags: 0
+      m_AllTileFlags: 1073741824
   - first: {x: 11, y: -2, z: 0}
     second:
       serializedVersion: 2
@@ -539,7 +539,7 @@ Tilemap:
       m_TileColorIndex: 0
       m_TileObjectToInstantiateIndex: 65535
       dummyAlignment: 0
-      m_AllTileFlags: 0
+      m_AllTileFlags: 1073741824
   - first: {x: 12, y: -2, z: 0}
     second:
       serializedVersion: 2
@@ -549,7 +549,7 @@ Tilemap:
       m_TileColorIndex: 0
       m_TileObjectToInstantiateIndex: 65535
       dummyAlignment: 0
-      m_AllTileFlags: 0
+      m_AllTileFlags: 1073741824
   - first: {x: 13, y: -2, z: 0}
     second:
       serializedVersion: 2
@@ -559,7 +559,7 @@ Tilemap:
       m_TileColorIndex: 0
       m_TileObjectToInstantiateIndex: 65535
       dummyAlignment: 0
-      m_AllTileFlags: 0
+      m_AllTileFlags: 1073741824
   - first: {x: 14, y: -2, z: 0}
     second:
       serializedVersion: 2
@@ -569,7 +569,7 @@ Tilemap:
       m_TileColorIndex: 0
       m_TileObjectToInstantiateIndex: 65535
       dummyAlignment: 0
-      m_AllTileFlags: 0
+      m_AllTileFlags: 1073741824
   - first: {x: 15, y: -2, z: 0}
     second:
       serializedVersion: 2
@@ -579,7 +579,7 @@ Tilemap:
       m_TileColorIndex: 0
       m_TileObjectToInstantiateIndex: 65535
       dummyAlignment: 0
-      m_AllTileFlags: 0
+      m_AllTileFlags: 1073741824
   - first: {x: 16, y: -2, z: 0}
     second:
       serializedVersion: 2
@@ -589,7 +589,7 @@ Tilemap:
       m_TileColorIndex: 0
       m_TileObjectToInstantiateIndex: 65535
       dummyAlignment: 0
-      m_AllTileFlags: 0
+      m_AllTileFlags: 1073741824
   - first: {x: 17, y: -2, z: 0}
     second:
       serializedVersion: 2
@@ -599,7 +599,7 @@ Tilemap:
       m_TileColorIndex: 0
       m_TileObjectToInstantiateIndex: 65535
       dummyAlignment: 0
-      m_AllTileFlags: 0
+      m_AllTileFlags: 1073741824
   m_AnimatedTiles:
   - first: {x: 10, y: -2, z: 0}
     second:
@@ -3756,6 +3756,10 @@ PrefabInstance:
       propertyPath: waterCheckPoint
       value: 
       objectReference: {fileID: 600108260}
+    - target: {fileID: 5206486501185713570, guid: 156aa367c27c7a26ba64e71f0ae1b2cc, type: 3}
+      propertyPath: waterSplashPrefab
+      value: 
+      objectReference: {fileID: 3062182869956756065, guid: 5e308d9b4f1ade24db990f0a763a4d79, type: 3}
     - target: {fileID: 5206486501185713570, guid: 156aa367c27c7a26ba64e71f0ae1b2cc, type: 3}
       propertyPath: waterSplashParticles
       value: 
