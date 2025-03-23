@@ -6,5 +6,7 @@ public class SetUnityProps : MonoBehaviour
     {
         QualitySettings.vSyncCount = 0;
         Application.targetFrameRate = 1000;
+        Application.runInBackground = true;
+        Application.backgroundLoadingPriority = ThreadPriority.BelowNormal;
     }
 }
