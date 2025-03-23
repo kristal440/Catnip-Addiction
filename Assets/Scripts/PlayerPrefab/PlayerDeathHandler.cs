@@ -108,4 +108,12 @@ public class PlayerDeathHandler : MonoBehaviour
     {
         playerController.SetMovement(movementEnabled);
     }
+
+    public void HandleOutOfBoundsDeath()
+    {
+        if (_isRespawning)
+            return;
+
+        StartCoroutine(RespawnPlayer());
+    }
 }

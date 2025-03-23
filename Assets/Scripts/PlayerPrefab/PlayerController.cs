@@ -4,6 +4,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using static UnityEngine.Mathf;
+using static UnityEngine.Vector2;
 
 public class PlayerController : MonoBehaviourPunCallbacks
 {
@@ -46,6 +47,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
     [Header("Death")]
     public float deathHeight = -100f;
+    [SerializeField] private PlayerDeathHandler playerDeathHandler;
 
     // Component references
     private Camera _mainCamera;
@@ -131,10 +133,9 @@ public class PlayerController : MonoBehaviourPunCallbacks
         CheckIdleState();
         HandleMovement();
 
-        // Check if player has fallen below the death height
         if (transform.position.y < deathHeight && !_isDead)
         {
-            OnPlayerDeath();
+            playerDeathHandler.HandleOutOfBoundsDeath();
         }
     }
     #endregion
@@ -491,7 +492,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
         _isDead = true;
         _originalGravityScale = _rb.gravityScale;
         _rb.gravityScale = 0;
-        _rb.linearVelocity = Vector2.zero;
+        _rb.linearVelocity = zero;
         _rb.constraints = RigidbodyConstraints2D.FreezeAll;
 
         if (_cameraController)
