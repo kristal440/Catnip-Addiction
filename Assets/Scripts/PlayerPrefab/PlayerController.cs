@@ -107,7 +107,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
         if (_mainCamera != null)
             playerCanvas.worldCamera = _mainCamera;
 
-        var sr = GetComponent<SpriteRenderer>();
+        var sr = GetComponentInChildren<SpriteRenderer>();
         var nameTagText = GetComponentInChildren<TextMeshProUGUI>();
 
         if (!photonView.IsMine)
