@@ -844,6 +844,7 @@ GameObject:
   - component: {fileID: 4098701528552782764}
   - component: {fileID: 9176519645128001645}
   - component: {fileID: 6099844445017409013}
+  - component: {fileID: 5206486501185713570}
   m_Layer: 6
   m_Name: Player
   m_TagString: Player
@@ -911,7 +912,7 @@ CapsuleCollider2D:
   m_Material: {fileID: 0}
   m_IncludeLayers:
     serializedVersion: 2
-    m_Bits: 648
+    m_Bits: 1672
   m_ExcludeLayers:
     serializedVersion: 2
     m_Bits: 119
@@ -1106,5 +1107,25 @@ MonoBehaviour:
   deathExplosionPrefab: {fileID: 3062182869956756065, guid: bbe3880071c5f65d6ab00e5c256d1ff0, type: 3}
   playerSpriteToHide: {fileID: 6563650613660426911}
   playerCanvasToHide: {fileID: 8698612799634927445}
-  overlapThreshold: 0.7
   explosionDuration: 5
+--- !u!114 &5206486501185713570
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6966233725223629069}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 90986d622a7348998d55ada542c1d8df, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  waterTag: Water
+  waterLayer:
+    serializedVersion: 2
+    m_Bits: 16
+  speedMultiplierInWater: 0.6
+  jumpMultiplierInWater: 0.7
+  accelerationMultiplierInWater: 0.5
+  waterMovementParticles: {fileID: 1639026455853799744, guid: 5e308d9b4f1ade24db990f0a763a4d79, type: 3}
+  minSpeedToShowParticles: 0.5
