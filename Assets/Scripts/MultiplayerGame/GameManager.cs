@@ -236,8 +236,7 @@ public class GameManager : MonoBehaviourPunCallbacks
 
         finishLine.GetComponent<BoxCollider2D>().enabled = true;
         gameTimerText.enabled = true;
-
-        startTime = (float)PhotonNetwork.Time;
+        startTime = Time.timeSinceLevelLoad;
     }
 
     [PunRPC]
