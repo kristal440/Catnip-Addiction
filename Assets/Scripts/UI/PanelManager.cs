@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class PanelCloser : MonoBehaviour
+public class PanelManager : MonoBehaviour
 {
     public GameObject panel;
 
@@ -8,5 +8,10 @@ public class PanelCloser : MonoBehaviour
     {
         if (panel != null)
             panel.SetActive(false);
+    }
+    public void OpenPanel()
+    {
+        if (panel != null)
+            panel.SetActive(true);
     }
 }
