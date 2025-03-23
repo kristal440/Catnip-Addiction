@@ -24,7 +24,6 @@ public class WaterEffectsHandler : MonoBehaviour
     private bool _isInWater;
     private float _lastParticleTime;
 
-    // Original values storage
     private float _originalMaxSpeed;
     private float _originalMinJumpForce;
     private float _originalMaxJumpForce;
@@ -86,13 +85,11 @@ public class WaterEffectsHandler : MonoBehaviour
 
     private void ApplyWaterEffects()
     {
-        // Store current values which may already include catnip effects
         _originalMaxSpeed = _playerController.maxSpeed;
         _originalMinJumpForce = _playerController.minJumpForce;
         _originalMaxJumpForce = _playerController.maxJumpForce;
         _originalAcceleration = _playerController.acceleration;
 
-        // Apply water multipliers to current values
         _playerController.maxSpeed *= speedMultiplierInWater;
         _playerController.minJumpForce *= jumpMultiplierInWater;
         _playerController.maxJumpForce *= jumpMultiplierInWater;
@@ -101,7 +98,6 @@ public class WaterEffectsHandler : MonoBehaviour
 
     private void RemoveWaterEffects()
     {
-        // Restore to pre-water values (which may include catnip effects)
         _playerController.maxSpeed = _originalMaxSpeed;
         _playerController.minJumpForce = _originalMinJumpForce;
         _playerController.maxJumpForce = _originalMaxJumpForce;
