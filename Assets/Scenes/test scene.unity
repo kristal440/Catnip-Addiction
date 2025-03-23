@@ -3752,18 +3752,6 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 5206486501185713570, guid: 156aa367c27c7a26ba64e71f0ae1b2cc, type: 3}
-      propertyPath: waterCheckPoint
-      value: 
-      objectReference: {fileID: 600108260}
-    - target: {fileID: 5206486501185713570, guid: 156aa367c27c7a26ba64e71f0ae1b2cc, type: 3}
-      propertyPath: waterSplashPrefab
-      value: 
-      objectReference: {fileID: 3062182869956756065, guid: 5e308d9b4f1ade24db990f0a763a4d79, type: 3}
-    - target: {fileID: 5206486501185713570, guid: 156aa367c27c7a26ba64e71f0ae1b2cc, type: 3}
-      propertyPath: waterSplashParticles
-      value: 
-      objectReference: {fileID: 1639026455853799744, guid: 5e308d9b4f1ade24db990f0a763a4d79, type: 3}
     - target: {fileID: 6319566315764023598, guid: 156aa367c27c7a26ba64e71f0ae1b2cc, type: 3}
       propertyPath: sceneViewId
       value: 1

@@ -17,8 +17,11 @@ public class WaterEffectsHandler : MonoBehaviour
 
     [Header("Particle Effects")]
     [SerializeField] private GameObject waterSplashPrefab;
+    [SerializeField] private GameObject waterEntrySplashPrefab;
     [SerializeField] private float minSpeedToShowParticles = 0.5f;
     [SerializeField] private float particleSpawnInterval = 0.2f;
+    [SerializeField] private float regularSplashLifetime = 2f;
+    [SerializeField] private float entrySplashLifetime = 3f;
 
     private PlayerController _playerController;
     private bool _isInWater;
@@ -33,11 +36,15 @@ public class WaterEffectsHandler : MonoBehaviour
     {
         _playerController = GetComponent<PlayerController>();
 
-        // Store original values
         _originalMaxSpeed = _playerController.maxSpeed;
         _originalMinJumpForce = _playerController.minJumpForce;
         _originalMaxJumpForce = _playerController.maxJumpForce;
         _originalAcceleration = _playerController.acceleration;
+
+        if (waterEntrySplashPrefab == null)
+        {
+            waterEntrySplashPrefab = waterSplashPrefab;
+        }
     }
 
     private void Update()
@@ -48,7 +55,7 @@ public class WaterEffectsHandler : MonoBehaviour
             !(Mathf.Abs(_playerController.currentSpeed) > minSpeedToShowParticles) ||
             !(Time.time > _lastParticleTime + particleSpawnInterval)) return;
         var splash = Instantiate(waterSplashPrefab, transform.position, Quaternion.identity);
-        Destroy(splash, 2f);
+        Destroy(splash, regularSplashLifetime);
         _lastParticleTime = Time.time;
     }
 
@@ -59,10 +66,10 @@ public class WaterEffectsHandler : MonoBehaviour
         _isInWater = true;
         ApplyWaterEffects();
 
-        // Initial splash when entering water
-        if (waterSplashPrefab == null) return;
-        var splash = Instantiate(waterSplashPrefab, transform.position, Quaternion.identity);
-        Destroy(splash, 2f);
+        // Initial splash
+        if (waterEntrySplashPrefab == null) return;
+        var splash = Instantiate(waterEntrySplashPrefab, transform.position, Quaternion.identity);
+        Destroy(splash, entrySplashLifetime);
     }
 
     private void OnTriggerExit2D(Collider2D other)
@@ -73,9 +80,9 @@ public class WaterEffectsHandler : MonoBehaviour
         RemoveWaterEffects();
 
         // Exit splash
-        if (waterSplashPrefab == null) return;
-        var splash = Instantiate(waterSplashPrefab, transform.position, Quaternion.identity);
-        Destroy(splash, 2f);
+        if (waterEntrySplashPrefab == null) return;
+        var splash = Instantiate(waterEntrySplashPrefab, transform.position, Quaternion.identity);
+        Destroy(splash, entrySplashLifetime);
     }
 
     private bool IsInWaterLayer(GameObject obj)
