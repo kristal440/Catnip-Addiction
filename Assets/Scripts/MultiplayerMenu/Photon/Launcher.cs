@@ -287,10 +287,6 @@ public class Launcher : MonoBehaviourPunCallbacks
             if (mapNameText)
                 mapNameText.text = value;
 
-            var mapData = mapButton.GetComponent<MapButtonData>() ??
-                          mapButton.AddComponent<MapButtonData>();
-            mapData.MapName = mapSceneName;
-
             var button = mapButton.GetComponent<Button>();
 
             if (mapSceneName == _selectedMapName)
@@ -305,28 +301,6 @@ public class Launcher : MonoBehaviourPunCallbacks
         Debug.Log($"Created map selection buttons: {_availableMaps.Count} maps available.");
         visualController.InitializeItems();
         mapSelectionHandler.SetupButtons();
-    }
-
-    private void SelectMap(string mapName)
-    {
-        _selectedMapName = mapName;
-        Debug.Log($"Selected map: {_selectedMapName}");
-
-        foreach (Transform child in mapsContainer)
-        {
-            var button = child.GetComponent<Button>();
-            if (!button) continue;
-
-            var mapData = child.GetComponent<MapButtonData>();
-            if (mapData && mapData.MapName == mapName)
-                button.Select();
-        }
-    }
-
-    // Helper component to store map data on buttons
-    public class MapButtonData : MonoBehaviour
-    {
-        public string MapName { get; set; }
     }
     #endregion
 }
