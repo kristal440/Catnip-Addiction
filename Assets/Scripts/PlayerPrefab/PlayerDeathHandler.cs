@@ -84,7 +84,7 @@ public class PlayerDeathHandler : MonoBehaviour
 
         playerSpriteToHide.enabled = false;
         playerCanvasToHide.enabled = false;
-        GameObject explosion = Instantiate(deathExplosionPrefab, transform.position, Quaternion.identity);
+        var explosion = Instantiate(deathExplosionPrefab, transform.position, Quaternion.identity);
         Destroy(explosion, explosionDuration);
         cameraController.OnPlayerDeath();
         deathBorderEffect.ShowDeathBorder();
