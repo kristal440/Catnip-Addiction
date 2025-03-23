@@ -31,6 +31,7 @@ public class GameManager : MonoBehaviourPunCallbacks
     public TMP_Text gameTimerText;
 
     [Header("In-Game Leaderboard")]
+    public GameObject inGameLeaderboardParent;
     public Transform inGameLeaderboardContainer;
     public GameObject inGameLeaderboardEntryPrefab;
     private readonly Dictionary<int, GameObject> _leaderboardEntries = new();
@@ -55,6 +56,9 @@ public class GameManager : MonoBehaviourPunCallbacks
         finishLine.GetComponent<BoxCollider2D>().enabled = false;
         gameTimerText.enabled = false;
         countdownUI.SetActive(false);
+
+        if (inGameLeaderboardParent != null)
+            inGameLeaderboardParent.SetActive(false);
     }
 
     private void OnDestroy()
@@ -119,6 +123,9 @@ public class GameManager : MonoBehaviourPunCallbacks
 
             leaderboardData.Add(playerID, new PlayerResultData(playerName, finishTime));
         }
+
+        if (_finishTimes.Count > 0 && inGameLeaderboardParent != null && !inGameLeaderboardParent.activeSelf)
+            inGameLeaderboardParent.SetActive(true);
 
         var sortedLeaderboard = leaderboardData.OrderBy(pair => pair.Value.finishTime).ToList();
 
