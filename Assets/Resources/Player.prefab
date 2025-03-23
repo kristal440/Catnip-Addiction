@@ -911,7 +911,7 @@ CapsuleCollider2D:
   m_Material: {fileID: 0}
   m_IncludeLayers:
     serializedVersion: 2
-    m_Bits: 136
+    m_Bits: 648
   m_ExcludeLayers:
     serializedVersion: 2
     m_Bits: 119
@@ -1059,6 +1059,7 @@ MonoBehaviour:
   maxChargeTime: 1.1
   jumpCooldown: 0.25
   deathHeight: -100
+  playerDeathHandler: {fileID: 6099844445017409013}
 --- !u!114 &4098701528552782764
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1106,4 +1107,4 @@ MonoBehaviour:
   playerSpriteToHide: {fileID: 6563650613660426911}
   playerCanvasToHide: {fileID: 8698612799634927445}
   overlapThreshold: 0.7
-  explosionDuration: 10
+  explosionDuration: 5
