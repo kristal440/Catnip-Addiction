@@ -52,11 +52,14 @@ public class ScrollListController : MonoBehaviour
         UpdatePadding();
     }
 
-    private void InitializeItems()
+    public void InitializeItems()
     {
         _itemRects.Clear();
         _originalHeights.Clear();
         _originalChildHeights.Clear();
+
+        if (_verticalLayoutGroup == null)
+            _verticalLayoutGroup = GetComponent<VerticalLayoutGroup>();
 
         for (var i = 0; i < transform.childCount; i++)
         {
@@ -70,7 +73,8 @@ public class ScrollListController : MonoBehaviour
             _originalChildHeights.Add(visualChild != null ? visualChild.sizeDelta.y : 0f);
         }
 
-        _verticalLayoutGroup.spacing = ItemSpacing;
+        if (_verticalLayoutGroup != null)
+            _verticalLayoutGroup.spacing = ItemSpacing;
     }
 
     private void UpdatePadding()

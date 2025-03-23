@@ -13,34 +13,19 @@ public class ScrollListSelectionHandler : MonoBehaviour
         _visualController = GetComponent<ScrollListController>();
     }
 
-    private void Start()
-    {
-        SetupButtons();
-    }
-
-    private void SetupButtons()
+    public void SetupButtons()
     {
         var itemRects = _visualController.GetItemRects();
 
         for (var i = 0; i < itemRects.Count; i++)
         {
-            var button = itemRects[i].GetComponent<Button>() ??
-                         itemRects[i].gameObject.AddComponent<Button>();
-
-            if (button.colors.normalColor.a == 0)
-            {
-                var colors = button.colors;
-                colors.normalColor = Color.white;
-                colors.highlightedColor = Color.white;
-                colors.pressedColor = Color.white;
-                colors.selectedColor = Color.white;
-                button.colors = colors;
-            }
+            var button = itemRects[i].GetComponent<Button>();
 
             var index = i;
             button.onClick.RemoveAllListeners();
             button.onClick.AddListener(() => HandleItemClick(index));
         }
+        Debug.Log($"SetupButtons: {itemRects.Count} buttons set up in handler.");
     }
 
     private void HandleItemClick(int index)

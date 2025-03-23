@@ -1,5 +1,7 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 using Photon.Pun;
 using TMPro;
 using UnityEngine;
@@ -8,8 +10,7 @@ using Hashtable = ExitGames.Client.Photon.Hashtable;
 
 public class GameManager : MonoBehaviourPunCallbacks
 {
-    #region Variables
-    public static GameManager Instance;
+    public static GameManager Instance { get; private set; }
     private static readonly int isLaying = Animator.StringToHash("IsLaying");
 
     [Header("Game State")]
@@ -17,6 +18,7 @@ public class GameManager : MonoBehaviourPunCallbacks
     private readonly Hashtable _finishTimes = new();
     private bool _localPlayerFinished;
     public float startTime;
+    private bool _countdownStarted;
 
     [Header("Game Settings")]
     public float countdownDuration = 5f;
@@ -27,10 +29,23 @@ public class GameManager : MonoBehaviourPunCallbacks
 
     [Header("UI")]
     public TMP_Text gameTimerText;
-    #endregion
 
-    #region Initialization
-    private void Awake() => Instance = this;
+    [Header("In-Game Leaderboard")]
+    public Transform inGameLeaderboardContainer;
+    public GameObject inGameLeaderboardEntryPrefab;
+    private readonly Dictionary<int, GameObject> _leaderboardEntries = new();
+
+    private Coroutine _countdownCoroutine;
+
+    private void Awake()
+    {
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
+        Instance = this;
+    }
 
     private void Start()
     {
@@ -39,27 +54,35 @@ public class GameManager : MonoBehaviourPunCallbacks
 
         finishLine.GetComponent<BoxCollider2D>().enabled = false;
         gameTimerText.enabled = false;
+        countdownUI.SetActive(false);
     }
-    #endregion
 
-    #region Game Update Logic
+    private void OnDestroy()
+    {
+        if (_countdownCoroutine != null)
+            StopCoroutine(_countdownCoroutine);
+
+        ClearInGameLeaderboard();
+    }
+
     private void Update()
     {
         if (gameStarted)
             UpdateTimer();
 
-        if (!PhotonNetwork.IsMasterClient || gameStarted)
+        if (!PhotonNetwork.IsMasterClient || gameStarted || _countdownStarted)
             return;
 
-        if (PhotonNetwork.CurrentRoom.PlayerCount == PhotonNetwork.CurrentRoom.MaxPlayers)
-            photonView.RPC(nameof(StartCountdown), RpcTarget.All);
+        if (PhotonNetwork.CurrentRoom == null ||
+            PhotonNetwork.CurrentRoom.PlayerCount != PhotonNetwork.CurrentRoom.MaxPlayers) return;
+        _countdownStarted = true;
+        photonView.RPC(nameof(StartCountdown), RpcTarget.All);
     }
-    #endregion
 
     #region UI Methods
     private void UpdateTimer()
     {
-        if (!gameStarted || !gameTimerText)
+        if (!gameStarted)
             return;
 
         if (_localPlayerFinished)
@@ -79,6 +102,71 @@ public class GameManager : MonoBehaviourPunCallbacks
 
         gameTimerText.text = $"{minutes:00}:{seconds:00}";
     }
+
+    private void UpdateInGameLeaderboard()
+    {
+        ClearInGameLeaderboard();
+
+        var leaderboardData = new Dictionary<int, PlayerResultData>();
+
+        foreach (var entry in _finishTimes)
+        {
+            if (entry.Key is not int playerID) continue;
+            if (entry.Value is not Hashtable playerDataHash) continue;
+
+            var playerName = playerDataHash["playerName"] as string ?? "Unknown";
+            var finishTime = playerDataHash["finishTime"] is float f ? f : 0f;
+
+            leaderboardData.Add(playerID, new PlayerResultData(playerName, finishTime));
+        }
+
+        var sortedLeaderboard = leaderboardData.OrderBy(pair => pair.Value.finishTime).ToList();
+
+        var position = 1;
+        foreach (var entry in sortedLeaderboard)
+        {
+            AddLeaderboardEntry(position, entry.Value.playerName, entry.Value.finishTime, entry.Key);
+            position++;
+        }
+    }
+
+    private void ClearInGameLeaderboard()
+    {
+        foreach (var entry in _leaderboardEntries.Values.Where(entry => entry != null))
+        {
+            Destroy(entry);
+        }
+
+        _leaderboardEntries.Clear();
+    }
+
+    private void AddLeaderboardEntry(int position, string playerName, float finishTime, int playerId)
+    {
+        var entryInstance = Instantiate(inGameLeaderboardEntryPrefab, inGameLeaderboardContainer);
+        if (entryInstance == null) return;
+
+        _leaderboardEntries[playerId] = entryInstance;
+
+        var texts = entryInstance.GetComponentsInChildren<TextMeshProUGUI>();
+        if (texts.Length >= 2)
+        {
+            texts[0].text = $"{position}. {ShortenName(playerName)}";
+            texts[1].text = finishTime.ToString("F2") + "s";
+        }
+
+        entryInstance.SetActive(true);
+    }
+
+    private static string ShortenName(string playerName)
+    {
+        if (string.IsNullOrEmpty(playerName))
+            return "Unknown";
+
+        if (playerName.Length <= 10)
+            return playerName;
+
+        return playerName[..9] + "..";
+    }
     #endregion
 
     #region Game State Management
@@ -88,33 +176,13 @@ public class GameManager : MonoBehaviourPunCallbacks
         {
             _localPlayerFinished = true;
 
-            if (gameTimerText != null)
-                DisplayTime(finishTime);
+            DisplayTime(finishTime);
         }
 
-        var alreadyFinished = false;
-        foreach (var key in _finishTimes.Keys)
-        {
-            try
-            {
-                var keyInt = (int)key;
-                if (keyInt != playerId)
-                    continue;
+        if (_finishTimes.ContainsKey(playerId))
+            return;
 
-                alreadyFinished = true;
-                break;
-            }
-            catch (InvalidCastException e)
-            {
-                Debug.LogError($"InvalidCastException during key cast: {e.Message}");
-                Debug.LogError($"Type of key that caused exception: {key.GetType()}");
-                alreadyFinished = true;
-                break;
-            }
-        }
-
-        if (!alreadyFinished)
-            photonView.RPC(nameof(UpdateLeaderboard), RpcTarget.All, playerId, finishTime);
+        photonView.RPC(nameof(UpdateLeaderboard), RpcTarget.All, playerId, finishTime);
     }
 
     private IEnumerator CountdownCoroutine()
@@ -125,7 +193,7 @@ public class GameManager : MonoBehaviourPunCallbacks
         while (remainingTime > 0)
         {
             countdownText.text = "game starts in: " + CeilToInt(remainingTime);
-            if (CeilToInt(remainingTime) == 2)
+            if (CeilToInt(remainingTime) == 2 && photonView)
                 photonView.RPC(nameof(StandUp), RpcTarget.All);
 
             remainingTime -= Time.deltaTime;
@@ -133,7 +201,8 @@ public class GameManager : MonoBehaviourPunCallbacks
         }
 
         countdownUI.SetActive(false);
-        photonView.RPC(nameof(StartGame), RpcTarget.All);
+        if (photonView)
+            photonView.RPC(nameof(StartGame), RpcTarget.All);
     }
     #endregion
 
@@ -141,30 +210,45 @@ public class GameManager : MonoBehaviourPunCallbacks
     [PunRPC]
     private void StartCountdown()
     {
-        gameStarted = true;
-        StartCoroutine(CountdownCoroutine());
+        _countdownStarted = true;
+        if (_countdownCoroutine != null)
+            StopCoroutine(_countdownCoroutine);
+
+        _countdownCoroutine = StartCoroutine(CountdownCoroutine());
     }
 
     [PunRPC]
     private void StartGame()
     {
+        gameStarted = true;
+
         var players = FindObjectsByType<PlayerController>(sortMode: FindObjectsSortMode.None);
         foreach (var p in players)
         {
+            if (p == null || p.photonView == null || p.photonView.Owner == null) continue;
+
             var spawnIndex = p.photonView.Owner.ActorNumber % spawnPoints.Length;
-            p.Teleport(spawnPoints[spawnIndex].position);
+            if (spawnPoints.Length > 0 && spawnIndex < spawnPoints.Length)
+                p.Teleport(spawnPoints[spawnIndex].position);
+
             p.SetMovement(true);
         }
 
         finishLine.GetComponent<BoxCollider2D>().enabled = true;
         gameTimerText.enabled = true;
-        startTime = Time.timeSinceLevelLoad;
+
+        startTime = (float)PhotonNetwork.Time;
     }
 
     [PunRPC]
     private void UpdateLeaderboard(int playerId, float finishTime)
     {
-        var playerName = PhotonNetwork.CurrentRoom.GetPlayer(playerId).NickName;
+        if (PhotonNetwork.CurrentRoom == null) return;
+
+        var player = PhotonNetwork.CurrentRoom.GetPlayer(playerId);
+        if (player == null) return;
+
+        var playerName = player.NickName;
 
         var playerDataHash = new Hashtable
         {
@@ -172,14 +256,20 @@ public class GameManager : MonoBehaviourPunCallbacks
             { "finishTime", finishTime }
         };
 
-        _finishTimes.Add(playerId, playerDataHash);
+        _finishTimes[playerId] = playerDataHash;
 
-        if (_finishTimes.Count != PhotonNetwork.CurrentRoom.PlayerCount)
-            return;
+        UpdateInGameLeaderboard();
 
+        if (_finishTimes.Count != PhotonNetwork.CurrentRoom.PlayerCount || !PhotonNetwork.IsMasterClient) return;
         var roomProps = new Hashtable { { "LeaderboardData", _finishTimes } };
         PhotonNetwork.CurrentRoom.SetCustomProperties(roomProps);
 
+        StartCoroutine(LoadLeaderboardWithDelay(0.5f));
+    }
+
+    private static IEnumerator LoadLeaderboardWithDelay(float delay)
+    {
+        yield return new WaitForSeconds(delay);
         PhotonNetwork.LoadLevel("Leaderboard");
     }
 
@@ -188,7 +278,10 @@ public class GameManager : MonoBehaviourPunCallbacks
     {
         var players = FindObjectsByType<PlayerController>(FindObjectsSortMode.None);
         foreach (var player in players)
-            player.animator.SetBool(isLaying, false);
+        {
+            if (player != null && player.animator != null)
+                player.animator.SetBool(isLaying, false);
+        }
     }
     #endregion
 }

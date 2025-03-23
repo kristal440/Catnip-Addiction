@@ -2847,7 +2847,6 @@ GameObject:
   - component: {fileID: 480557251}
   - component: {fileID: 480557255}
   - component: {fileID: 480557254}
-  - component: {fileID: 480557253}
   - component: {fileID: 480557252}
   - component: {fileID: 480557256}
   - component: {fileID: 480557257}
@@ -2901,19 +2900,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_HorizontalFit: 2
   m_VerticalFit: 2
---- !u!114 &480557253
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 480557250}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6320aa1b4700534b88256261b37d372d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _visualController: {fileID: 0}
 --- !u!114 &480557254
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3420,6 +3406,7 @@ MonoBehaviour:
   mapListParent: {fileID: 480557250}
   mapsContainer: {fileID: 480557251}
   mapSelectionHandler: {fileID: 480557257}
+  visualController: {fileID: 480557256}
   roomListPanel: {fileID: 1793596965}
   roomPrefab: {fileID: 304625506192927063, guid: 2d39ed7ae05dd545da43087755eb229b, type: 3}
   roomsContainer: {fileID: 1698616569}

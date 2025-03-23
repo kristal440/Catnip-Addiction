@@ -36,6 +36,7 @@ public class Launcher : MonoBehaviourPunCallbacks
     [SerializeField] private GameObject mapListParent;
     [SerializeField] private Transform mapsContainer;
     [SerializeField] private ScrollListSelectionHandler mapSelectionHandler;
+    [SerializeField] private ScrollListController visualController;
 
     [Header("Room List")]
     [SerializeField] private GameObject roomListPanel;
@@ -291,8 +292,6 @@ public class Launcher : MonoBehaviourPunCallbacks
             mapData.MapName = mapSceneName;
 
             var button = mapButton.GetComponent<Button>();
-            button.onClick.RemoveAllListeners();
-            button.onClick.AddListener(() => SelectMap(mapSceneName));
 
             if (mapSceneName == _selectedMapName)
                 button.Select();
@@ -302,6 +301,10 @@ public class Launcher : MonoBehaviourPunCallbacks
 
         for (var i = buttonIndex; i < existingButtons.Count; i++)
             existingButtons[i].SetActive(false);
+
+        Debug.Log($"Created map selection buttons: {_availableMaps.Count} maps available.");
+        visualController.InitializeItems();
+        mapSelectionHandler.SetupButtons();
     }
 
     private void SelectMap(string mapName)
