@@ -3356,6 +3356,7 @@ GameObject:
   - component: {fileID: 832149946}
   - component: {fileID: 832149947}
   - component: {fileID: 832149948}
+  - component: {fileID: 832149949}
   m_Layer: 5
   m_Name: MultiplayerMenuManager
   m_TagString: Untagged
@@ -3403,10 +3404,7 @@ MonoBehaviour:
   roomNameInputField: {fileID: 229658538}
   slider: {fileID: 1882189937}
   mapListPanel: {fileID: 1193840017}
-  mapListParent: {fileID: 480557250}
-  mapsContainer: {fileID: 480557251}
-  mapSelectionHandler: {fileID: 480557257}
-  visualController: {fileID: 480557256}
+  mapSelectionManager: {fileID: 832149949}
   roomListPanel: {fileID: 1793596965}
   roomPrefab: {fileID: 304625506192927063, guid: 2d39ed7ae05dd545da43087755eb229b, type: 3}
   roomsContainer: {fileID: 1698616569}
@@ -3442,6 +3440,21 @@ MonoBehaviour:
   errorPanel: {fileID: 1851084374}
   errorText: {fileID: 280221684}
   playerNameInputField: {fileID: 1760589731}
+--- !u!114 &832149949
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 832149944}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 49eb23c67eed4dd98194c803e6f2d65e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  visualController: {fileID: 480557256}
+  selectionHandler: {fileID: 480557257}
+  mapsContainer: {fileID: 480557251}
 --- !u!1 &945573888
 GameObject:
   m_ObjectHideFlags: 0

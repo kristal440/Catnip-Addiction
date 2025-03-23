@@ -6,7 +6,6 @@ using Photon.Realtime;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using UnityEngine.SceneManagement;
 
 public class Launcher : MonoBehaviourPunCallbacks
 {
@@ -14,8 +13,7 @@ public class Launcher : MonoBehaviourPunCallbacks
     private bool _isConnecting;
     private List<string> _roomLst;
 
-    private readonly Dictionary<string, string> _availableMaps = new(); // Scene name -> Display name
-    private string _selectedMapName = "GameScene_Map1_Multi"; // Default map
+    private string _selectedMapName = "GameScene_Map1_Multi";
 
     [Header("Error popup")]
     [SerializeField] private GameObject errorPanel;
@@ -33,10 +31,7 @@ public class Launcher : MonoBehaviourPunCallbacks
 
     [Header("Map Selection")]
     [SerializeField] private GameObject mapListPanel;
-    [SerializeField] private GameObject mapListParent;
-    [SerializeField] private Transform mapsContainer;
-    [SerializeField] private ScrollListSelectionHandler mapSelectionHandler;
-    [SerializeField] private ScrollListController visualController;
+    [SerializeField] private MapSelectionManager mapSelectionManager;
 
     [Header("Room List")]
     [SerializeField] private GameObject roomListPanel;
@@ -66,14 +61,14 @@ public class Launcher : MonoBehaviourPunCallbacks
         PhotonNetwork.GameVersion = "1";
         loadingText.text = "Connecting to Server...";
         PhotonNetwork.ConnectUsingSettings();
-        if (mapSelectionHandler != null)
-            mapSelectionHandler.OnItemSelected += OnMapSelected;
+        if (mapSelectionManager != null)
+            mapSelectionManager.OnMapSelected += OnMapSelected;
     }
 
     private void OnDestroy()
     {
-        if (mapSelectionHandler != null)
-            mapSelectionHandler.OnItemSelected -= OnMapSelected;
+        if (mapSelectionManager != null)
+            mapSelectionManager.OnMapSelected -= OnMapSelected;
     }
     #endregion
 
@@ -224,83 +219,13 @@ public class Launcher : MonoBehaviourPunCallbacks
     public void InitializeMaps()
     {
         mapListPanel.SetActive(true);
-        _availableMaps.Clear();
-
-        foreach (Transform child in mapListParent.transform)
-        {
-            if (!child.gameObject.activeSelf) continue;
-            var sceneName = child.gameObject.name;
-
-            var sceneInBuild = false;
-            for (var i = 0; i < SceneManager.sceneCountInBuildSettings; i++)
-            {
-                var scenePath = SceneUtility.GetScenePathByBuildIndex(i);
-                var sceneNameFromBuild = System.IO.Path.GetFileNameWithoutExtension(scenePath);
-
-                if (sceneNameFromBuild != sceneName) continue;
-                sceneInBuild = true;
-                break;
-            }
-
-            if (!sceneInBuild)
-            {
-                Debug.LogWarning($"Skipping map '{sceneName}' because it's not included in the build profile.");
-                continue;
-            }
-
-            var displayName = sceneName;
-            var displayText = child.GetComponentInChildren<TextMeshProUGUI>();
-            if (displayText)
-                displayName = displayText.text;
-
-            _availableMaps.Add(sceneName, displayName);
-            Debug.Log($"Added map: {sceneName} -> {displayName}");
-        }
-
-        if (!_availableMaps.ContainsKey(_selectedMapName) && _availableMaps.Count > 0)
-            _selectedMapName = _availableMaps.Keys.GetEnumerator().Current;
-
-        CreateMapSelectionButtons();
+        mapSelectionManager.Initialize(_selectedMapName);
     }
 
-    private void OnMapSelected(int index)
+    private void OnMapSelected(string mapSceneName, string mapDisplayName)
     {
-        if (index < 0 || index >= _availableMaps.Count) return;
-        _selectedMapName = _availableMaps.Keys.ElementAt(index);
-        Debug.Log($"Selected map from handler: {_selectedMapName}");
-    }
-
-    private void CreateMapSelectionButtons()
-    {
-        var existingButtons = (from Transform child in mapsContainer select child.gameObject).ToList();
-        var buttonIndex = 0;
-
-        foreach (var (mapSceneName, value) in _availableMaps)
-        {
-            if (buttonIndex >= existingButtons.Count)
-                break;
-
-            var mapButton = existingButtons[buttonIndex];
-            mapButton.SetActive(true);
-
-            var mapNameText = mapButton.transform.Find("MapNameTxt").GetComponent<TextMeshProUGUI>();
-            if (mapNameText)
-                mapNameText.text = value;
-
-            var button = mapButton.GetComponent<Button>();
-
-            if (mapSceneName == _selectedMapName)
-                button.Select();
-
-            buttonIndex++;
-        }
-
-        for (var i = buttonIndex; i < existingButtons.Count; i++)
-            existingButtons[i].SetActive(false);
-
-        Debug.Log($"Created map selection buttons: {_availableMaps.Count} maps available.");
-        visualController.InitializeItems();
-        mapSelectionHandler.SetupButtons();
+        _selectedMapName = mapSceneName;
+        Debug.Log($"Selected map: {mapSceneName} ({mapDisplayName})");
     }
     #endregion
 }

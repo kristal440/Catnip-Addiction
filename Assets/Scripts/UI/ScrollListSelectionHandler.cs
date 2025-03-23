@@ -4,13 +4,28 @@ using System;
 
 public class ScrollListSelectionHandler : MonoBehaviour
 {
-    public event Action<int> OnItemSelected;
+    // Define a delegate that provides more context
+    public delegate void ItemSelectedHandler(int index, GameObject item);
+    public event ItemSelectedHandler OnItemSelected;
 
     private ScrollListController _visualController;
 
     private void Awake()
     {
         _visualController = GetComponent<ScrollListController>();
+        if (_visualController != null)
+            _visualController.OnSelectionChanged += HandleVisualSelectionChanged;
+    }
+
+    private void OnDestroy()
+    {
+        if (_visualController != null)
+            _visualController.OnSelectionChanged -= HandleVisualSelectionChanged;
+    }
+
+    public void Initialize()
+    {
+        SetupButtons();
     }
 
     public void SetupButtons()
@@ -20,22 +35,39 @@ public class ScrollListSelectionHandler : MonoBehaviour
         for (var i = 0; i < itemRects.Count; i++)
         {
             var button = itemRects[i].GetComponent<Button>();
+            if (button == null) continue;
 
             var index = i;
             button.onClick.RemoveAllListeners();
             button.onClick.AddListener(() => HandleItemClick(index));
         }
-        Debug.Log($"SetupButtons: {itemRects.Count} buttons set up in handler.");
     }
 
     private void HandleItemClick(int index)
     {
         _visualController.SelectItem(index);
-        OnItemSelected?.Invoke(index);
     }
 
-    protected int GetSelectedIndex()
+    private void HandleVisualSelectionChanged(int index)
+    {
+        var itemGameObject = _visualController.GetItemAt(index)?.gameObject;
+        if (itemGameObject != null)
+            OnItemSelected?.Invoke(index, itemGameObject);
+    }
+
+    public int GetSelectedIndex()
     {
         return _visualController.CurrentIndex;
+    }
+
+    public GameObject GetSelectedItem()
+    {
+        var index = _visualController.CurrentIndex;
+        return _visualController.GetItemAt(index)?.gameObject;
+    }
+
+    public void SelectItemProgrammatically(int index)
+    {
+        _visualController.SelectItem(index);
     }
 }

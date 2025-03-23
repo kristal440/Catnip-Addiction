@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using System.Collections.Generic;
+using System;
 
 [RequireComponent(typeof(VerticalLayoutGroup))]
 public class ScrollListController : MonoBehaviour
@@ -39,6 +40,8 @@ public class ScrollListController : MonoBehaviour
     private readonly Vector3[] _tempItemCorners = new Vector3[4];
 
     private float ItemSpacing => Mathf.Max(2f, baseItemSpacing / Mathf.Max(1f, Mathf.Sqrt(_itemRects.Count)));
+
+    public event Action<int> OnSelectionChanged;
 
     public int CurrentIndex => _currentIndex;
 
@@ -112,6 +115,8 @@ public class ScrollListController : MonoBehaviour
 
         _currentIndex = index;
         _needsContentUpdate = true;
+
+        OnSelectionChanged?.Invoke(_currentIndex);
 
         UpdatePadding();
         StartCoroutine(ScrollToSelectedItem());
@@ -253,5 +258,20 @@ public class ScrollListController : MonoBehaviour
     public List<RectTransform> GetItemRects()
     {
         return _itemRects;
+    }
+    public RectTransform GetItemAt(int index)
+    {
+        return index >= 0 && index < _itemRects.Count ? _itemRects[index] : null;
+    }
+
+    public int GetItemCount()
+    {
+        return _itemRects.Count;
+    }
+
+    public T GetItemComponent<T>(int index) where T : Component
+    {
+        if (index < 0 || index >= _itemRects.Count) return null;
+        return _itemRects[index].GetComponent<T>();
     }
 }
