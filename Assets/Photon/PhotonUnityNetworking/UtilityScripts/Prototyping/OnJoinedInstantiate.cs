@@ -1,6 +1,6 @@
 // --------------------------------------------------------------------------------------------------------------------
 // <copyright file="OnJoinedInstantiate.cs" company="Exit Games GmbH">
-//   Part of: Photon Unity Utilities,
+//   Part of: Photon Unity Utilities, 
 // </copyright>
 // <summary>
 //  This component will instantiate a network GameObject when a room is joined
@@ -112,7 +112,7 @@ namespace Photon.Pun.UtilityScripts
         }
 
         /// <summary>
-        /// Determines if the supplied GameObject is an instance of a prefab, or the actual source Asset,
+        /// Determines if the supplied GameObject is an instance of a prefab, or the actual source Asset, 
         /// and returns a best guess at the actual resource the dev intended to use.
         /// </summary>
         /// <returns></returns>
@@ -253,17 +253,17 @@ namespace Photon.Pun.UtilityScripts
                 spawnPos = new Vector3(0, 0, 0);
                 spawnRot = new Quaternion(0, 0, 0, 1);
             }
-
+            
             if (UseRandomOffset)
             {
                 Random.InitState((int)(Time.time * 10000));
                 spawnPos += GetRandomOffset();
             }
         }
-
+        
 
         /// <summary>
-        /// Get the transform of the next SpawnPoint from the list, selected using the SpawnSequence setting.
+        /// Get the transform of the next SpawnPoint from the list, selected using the SpawnSequence setting. 
         /// RandomOffset is not applied, only the transform of the SpawnPoint is returned.
         /// Override this method to change how Spawn Point transform is selected. Return the transform you want to use as a spawn point.
         /// </summary>
@@ -430,12 +430,12 @@ namespace Photon.Pun.UtilityScripts
                 }
 
                 EditorGUILayout.GetControlRect(false, 4);
-
+                
                 if (GUI.Button(EditorGUILayout.GetControlRect(), "Add", (GUIStyle)"minibutton"))
                     Add(list, count);
 
             }
-
+               
 
             EditorGUILayout.EndVertical();
         }
@@ -449,7 +449,7 @@ namespace Photon.Pun.UtilityScripts
             }
         }
     }
-
+   
 
 #endif
 }

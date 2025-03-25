@@ -262,7 +262,7 @@ namespace Photon.Pun
                 _AsyncLevelLoadingOperation.allowSceneActivation = false;
                 _AsyncLevelLoadingOperation = null;
             }
-
+            
             rpcEvent.Clear();   // none of the last RPC parameters are needed anymore
 
             bool wasInRoom = NetworkingClient.CurrentRoom != null;
@@ -855,7 +855,7 @@ namespace Photon.Pun
             {
                 Debug.Log("Network destroy Instantiated GO: " + go.name);
             }
-
+            
             foundPVs.Clear();           // as foundPVs is re-used, clean it to avoid lingering references
 
             go.SetActive(false);        // PUN 2 disables objects before the return to the pool
@@ -2530,7 +2530,7 @@ namespace Photon.Pun
 
 
             // the dev region overrides the best region selection in "development" builds (unless it was set but is empty).
-
+            
             #if UNITY_EDITOR
             if (!PhotonServerSettings.DevRegionSetOnce)
             {

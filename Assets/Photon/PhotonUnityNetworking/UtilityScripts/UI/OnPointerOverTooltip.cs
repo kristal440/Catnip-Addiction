@@ -21,7 +21,7 @@ namespace Photon.Pun.UtilityScripts
 	    {
 	        PointedAtGameObjectInfo.Instance.RemoveFocus(this.GetComponent<PhotonView>());
 	    }
-
+		
 		#region IPointerExitHandler implementation
 
 		void IPointerExitHandler.OnPointerExit (PointerEventData eventData)

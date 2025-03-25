@@ -16,7 +16,7 @@
     public interface IOnPhotonViewPreNetDestroy : IPhotonViewCallback
     {
         /// <summary>
-        /// This method is called before Destroy() is initiated for a networked object.
+        /// This method is called before Destroy() is initiated for a networked object. 
         /// </summary>
         /// <param name="rootView"></param>
         void OnPreNetDestroy(PhotonView rootView);

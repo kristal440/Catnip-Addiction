@@ -1,13 +1,13 @@
 // --------------------------------------------------------------------------------------------------------------------
 // <copyright file="ConnectAndJoinRandom.cs" company="Exit Games GmbH">
-//   Part of: Photon Unity Utilities,
+//   Part of: Photon Unity Utilities, 
 // </copyright>
 // <summary>
 //  Simple component to call ConnectUsingSettings and to get into a PUN room easily.
 // </summary>
 // <remarks>
 //  A custom inspector provides a button to connect in PlayMode, should AutoConnect be false.
-//  </remarks>
+//  </remarks>                                                                                               
 // <author>developer@exitgames.com</author>
 // --------------------------------------------------------------------------------------------------------------------
 
@@ -50,10 +50,10 @@ namespace Photon.Pun.UtilityScripts
         {
             Debug.Log("ConnectAndJoinRandom.ConnectNow() will now call: PhotonNetwork.ConnectUsingSettings().");
 
-
+            
             PhotonNetwork.ConnectUsingSettings();
             PhotonNetwork.GameVersion = this.Version + "." + SceneManagerHelper.ActiveSceneBuildIndex;
-
+           
         }
 
 

@@ -1,6 +1,6 @@
 // --------------------------------------------------------------------------------------------------------------------
 // <copyright file="OnStartDelete.cs" company="Exit Games GmbH">
-//   Part of: Photon Unity Utilities,
+//   Part of: Photon Unity Utilities, 
 // </copyright>
 // <summary>
 //  This component will destroy the GameObject it is attached to (in Start()).

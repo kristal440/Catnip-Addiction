@@ -1,6 +1,6 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="OnJoinedInstantiate.cs" company="Exit Games GmbH">
-//   Part of: Photon Unity Utilities,
+//   Part of: Photon Unity Utilities, 
 // </copyright>
 // <summary>
 //  This component will quit the application when escape key is pressed

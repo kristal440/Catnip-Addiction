@@ -70,7 +70,7 @@ namespace Photon.Chat
         /// <summary>(26) Code for broadcast parameter of <see cref="ChatOperationCode.SetProperties"/> method.</summary>
         public const byte Broadcast = 26;
         /// <summary>
-        /// WellKnown and custom user properties.
+        /// WellKnown and custom user properties. 
         /// </summary>
         /// <remarks>
         /// Used only in event <see cref="ChatEventCode.Subscribe"/>

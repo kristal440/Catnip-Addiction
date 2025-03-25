@@ -136,7 +136,7 @@ namespace Photon.Pun
             {
                 if (PunSceneViews.Instance.Views.ContainsKey(view.sceneViewId))
                 {
-                    Debug.LogError("ViewIDs should no longer have duplicates! "+view.sceneViewId, view);
+                    Debug.LogError("ViewIDs should no longer have duplicates! "+view.sceneViewId, view);  
                     continue;
                 }
 
@@ -177,7 +177,7 @@ namespace Photon.Pun
                 {
                     return instanceField;
                 }
-
+                
                 #if UNITY_6000_0_OR_NEWER
                 instanceField = GameObject.FindFirstObjectByType<PunSceneViews>();
                 #else

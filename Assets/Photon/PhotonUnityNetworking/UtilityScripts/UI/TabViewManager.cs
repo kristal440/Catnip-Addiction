@@ -3,7 +3,7 @@
 //   Part of: PunCockpit
 // </copyright>
 // <summary>
-//  Simple Management for Tabs, it requires a ToggleGroup, and then for each Tab, a Unique Name, the related Toggle and its associated RectTransform View
+//  Simple Management for Tabs, it requires a ToggleGroup, and then for each Tab, a Unique Name, the related Toggle and its associated RectTransform View 
 // this manager handles Tab views activation and deactivation, and provides a Unity Event Callback when a tab was selected.
 // </summary>
 // <author>developer@exitgames.com</author>

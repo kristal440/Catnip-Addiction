@@ -7,7 +7,7 @@
 // <author>developer@exitgames.com</author>
 // --------------------------------------------------------------------------------------------------------------------
 
-using UnityEngine;
+using UnityEngine;  
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
@@ -20,7 +20,7 @@ namespace Photon.Pun.UtilityScripts
 	[RequireComponent(typeof(Text))]
 	public class TextButtonTransition : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
     {
-
+		
 		Text _text;
 
         /// <summary>
@@ -59,11 +59,11 @@ namespace Photon.Pun.UtilityScripts
 				_text.color = HoverColor;
 			}
 		}
-
+		
 		public void OnPointerExit(PointerEventData eventData)
 		{
 			if (Selectable == null || Selectable.IsInteractable()) {
-				_text.color = NormalColor;
+				_text.color = NormalColor; 
 			}
 		}
 	}

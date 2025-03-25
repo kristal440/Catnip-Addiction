@@ -7,7 +7,7 @@
 // <author>developer@exitgames.com</author>
 // --------------------------------------------------------------------------------------------------------------------
 
-using UnityEngine;
+using UnityEngine;  
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
@@ -53,7 +53,7 @@ namespace Photon.Pun.UtilityScripts
 		public void OnEnable()
 		{
 			_text = GetComponent<Text>();
-
+		
 			OnValueChanged (toggle.isOn);
 
 			toggle.onValueChanged.AddListener(OnValueChanged);
@@ -75,7 +75,7 @@ namespace Photon.Pun.UtilityScripts
 			isHover = true;
 			_text.color = toggle.isOn?HoverOnColor:HoverOffColor;
 		}
-
+		
 		public void OnPointerExit(PointerEventData eventData)
 		{
 			isHover = false;

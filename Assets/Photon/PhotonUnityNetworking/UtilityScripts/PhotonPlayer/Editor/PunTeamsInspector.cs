@@ -1,6 +1,6 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="PunTeamsInspector.cs" company="Exit Games GmbH">
-//   Part of: Photon Unity Utilities,
+//   Part of: Photon Unity Utilities, 
 // </copyright>
 // <summary>
 //  Custom inspector for PunTeams
@@ -37,7 +37,7 @@ namespace Photon.Pun.UtilityScripts
 			if (PunTeams.PlayersPerTeam!=null)
 			{
 				foreach (KeyValuePair<PunTeams.Team,List<Player>> _pair in PunTeams.PlayersPerTeam)
-				{
+				{	
 #pragma warning restore 0618
 					if (!_Foldouts.ContainsKey(_pair.Key))
 					{
@@ -55,7 +55,7 @@ namespace Photon.Pun.UtilityScripts
 						}
 						EditorGUI.indentLevel--;
 					}
-
+				
 				}
 			}
 		}

@@ -1,10 +1,10 @@
 // --------------------------------------------------------------------------------------------------------------------
 // <copyright file="SmoothSyncMovement.cs" company="Exit Games GmbH">
-//   Part of: Photon Unity Utilities,
+//   Part of: Photon Unity Utilities, 
 // </copyright>
 // <summary>
 //  Smoothed out movement for network gameobjects
-// </summary>
+// </summary>                                                                                             
 // <author>developer@exitgames.com</author>
 // --------------------------------------------------------------------------------------------------------------------
 

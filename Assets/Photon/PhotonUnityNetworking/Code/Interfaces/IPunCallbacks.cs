@@ -45,8 +45,8 @@ namespace Photon.Pun
     public interface IPunOwnershipCallbacks
     {
         /// <summary>
-        /// Called when another player requests ownership of a PhotonView.
-        /// Called on all clients, so check if (targetView.IsMine) or (targetView.Owner == PhotonNetwork.LocalPlayer)
+        /// Called when another player requests ownership of a PhotonView. 
+        /// Called on all clients, so check if (targetView.IsMine) or (targetView.Owner == PhotonNetwork.LocalPlayer) 
         /// to determine if a targetView.TransferOwnership(requestingPlayer) response should be given.
         /// </summary>
         /// <remarks>
@@ -76,7 +76,7 @@ namespace Photon.Pun
         /// <param name="targetView">PhotonView for which ownership changed.</param>
         /// <param name="previousOwner">Player who was the previous owner (or null, if none).</param>
         void OnOwnershipTransfered(PhotonView targetView, Player previousOwner);
-
+        
         /// <summary>
         /// Called when an Ownership Request fails for objects with "takeover" setting.
         /// </summary>

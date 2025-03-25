@@ -41,7 +41,7 @@ namespace Photon.Pun.UtilityScripts
 
         public const string CountdownStartTime = "StartTime";
 
-        [Header("Countdown time in seconds")]
+        [Header("Countdown time in seconds")] 
         public float Countdown = 5.0f;
 
         private bool isTimerRunning;

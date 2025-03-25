@@ -41,7 +41,7 @@ namespace Photon.Pun.UtilityScripts
         public KeyCode ModifierKey;
 
         public bool DestroyByRpc;
-
+        
 
         void IPointerClickHandler.OnPointerClick(PointerEventData eventData)
         {

@@ -37,11 +37,11 @@ namespace Photon.Pun
         bool SceneSettingsListFoldoutOpen = true;
         #pragma warning restore 0414
         #endif
-
+        
         [SerializeField]
         public List<SceneSetting> MinViewIdPerScene = new List<SceneSetting>();
 
-
+      
         private const string SceneSettingsFileName = "PunSceneSettingsFile.asset";
 
         // we use the path to PunSceneSettings.cs as path to create a scene settings file
@@ -137,13 +137,13 @@ namespace Photon.Pun
             {
                 return;
             }
-
+            
             #if UNITY_EDITOR
             foreach (SceneSetting sceneSetting in Instance.MinViewIdPerScene)
             {
                 if (sceneSetting.sceneAsset == null && !string.IsNullOrEmpty(sceneSetting.sceneName))
                 {
-
+                    
                     string[] guids = AssetDatabase.FindAssets(sceneSetting.sceneName + " t:SceneAsset");
 
                     foreach (string guid in guids)
@@ -154,17 +154,17 @@ namespace Photon.Pun
                             sceneSetting.sceneAsset =
                                 AssetDatabase.LoadAssetAtPath<SceneAsset>(
                                     AssetDatabase.GUIDToAssetPath(guid));
-
+                            
                         //    Debug.Log("SceneSettings : ''"+sceneSetting.sceneName+"'' scene is missing: Issue corrected",Instance);
                             break;
                         }
                     }
-
+                    
                     //Debug.Log("SceneSettings : ''"+sceneSetting.sceneName+"'' scene is missing",Instance);
-
+                    
                     continue;
                 }
-
+                
                 if (sceneSetting.sceneAsset != null && sceneSetting.sceneName!= sceneSetting.sceneAsset.name )
                 {
                  //   Debug.Log("SceneSettings : '"+sceneSetting.sceneName+"' mismatch with sceneAsset: '"+sceneSetting.sceneAsset.name+"' : Issue corrected",Instance);

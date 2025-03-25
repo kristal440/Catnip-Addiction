@@ -170,7 +170,7 @@ namespace Photon.Pun
 
             return _thisIconPath;
         }
-
+        
         static Texture2D m_HelpIcon;
 
         public static Texture2D HelpIcon
@@ -182,15 +182,15 @@ namespace Photon.Pun
                     m_HelpIcon = AssetDatabase.LoadAssetAtPath(GetIconPath("help.png"), typeof(Texture2D)) as Texture2D;
                 }
 
-
+                
                 return m_HelpIcon;
             }
         }
-
-
+        
+        
         static Texture2D m_CopyIcon;
         static Texture2D m_CopyIconPro;
-
+        
         public static Texture2D CopyIcon
         {
             get
@@ -204,7 +204,7 @@ namespace Photon.Pun
 
                     return m_CopyIconPro;
                 }
-
+                
                 if (m_CopyIcon == null)
                 {
                     m_CopyIcon = AssetDatabase.LoadAssetAtPath(GetIconPath("CopyIcon.png"), typeof(Texture2D)) as Texture2D;

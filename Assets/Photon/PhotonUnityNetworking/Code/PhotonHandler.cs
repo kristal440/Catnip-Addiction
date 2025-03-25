@@ -180,7 +180,7 @@ namespace Photon.Pun
                 SendAsap = true; // immediately send when synchronization code was running
             }
 
-
+            
             if (SendAsap || this.swSendOutgoing.ElapsedMilliseconds >= this.UpdateInterval)
             {
                 SendAsap = false;

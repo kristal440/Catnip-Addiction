@@ -251,7 +251,7 @@ namespace Photon.Realtime
             {
                 return;
             }
-
+            
             // only remote player instances update their NickName from the properties
             if (!this.IsLocal && properties.ContainsKey(ActorProperties.PlayerName))
             {

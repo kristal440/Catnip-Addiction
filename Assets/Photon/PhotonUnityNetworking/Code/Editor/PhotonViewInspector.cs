@@ -115,7 +115,7 @@ namespace Photon.Pun
                 this.m_Target.OwnershipTransfer = own;
             }
 
-
+            
             GUILayout.Space(5);
 
             // Observables section
@@ -196,7 +196,7 @@ namespace Photon.Pun
         {
             Undo.RecordObject(serializedObject.targetObject, "Find Observables");
             var property = serializedObject.FindProperty("ObservedComponents");
-
+            
             // Just doing a Find updates the Observables list, but Unity fails to save that change.
             // Instead we do the find, and then iterate the found objects into the serialize property, then apply that.
             property.ClearArray();

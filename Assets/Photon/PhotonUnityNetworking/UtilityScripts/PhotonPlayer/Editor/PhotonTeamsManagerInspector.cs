@@ -1,6 +1,6 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="PhotonTeamsManagerEditor.cs" company="Exit Games GmbH">
-//   Part of: Photon Unity Utilities,
+//   Part of: Photon Unity Utilities, 
 // </copyright>
 // <summary>
 //  Custom inspector for PhotonTeamsManager
@@ -159,7 +159,7 @@ namespace Photon.Pun.UtilityScripts
                 Rect propertyPosition = new Rect(elementRect.xMin + paddingLeft, elementRect.yMin + spacingY,
                     codePropertyWidth, propertyHeight);
                 EditorGUI.LabelField(propertyPosition, "Code");
-                Rect secondPropertyPosition = new Rect(elementRect.xMin + paddingLeft + codePropertyWidth, elementRect.yMin + spacingY,
+                Rect secondPropertyPosition = new Rect(elementRect.xMin + paddingLeft + codePropertyWidth, elementRect.yMin + spacingY, 
                     namePropertyWidth, propertyHeight);
                 EditorGUI.LabelField(secondPropertyPosition, "Name");
                 for (int i = 0; i < teamsListSp.arraySize; ++i)
@@ -184,7 +184,7 @@ namespace Photon.Pun.UtilityScripts
                             teamCodeSp.intValue = oldCode;
                         }
                     }
-                    secondPropertyPosition = new Rect(elementRect.xMin + paddingLeft + codePropertyWidth, elementRect.yMin + spacingY,
+                    secondPropertyPosition = new Rect(elementRect.xMin + paddingLeft + codePropertyWidth, elementRect.yMin + spacingY, 
                         namePropertyWidth, propertyHeight);
                     EditorGUI.BeginChangeCheck();
                     EditorGUI.PropertyField(secondPropertyPosition, teamNameSp, GUIContent.none);
@@ -195,7 +195,7 @@ namespace Photon.Pun.UtilityScripts
                         {
                             Debug.LogWarning("Team name cannot be null or empty");
                             teamNameSp.stringValue = oldName;
-                        }
+                        } 
                         else if (names.Contains(newName))
                         {
                             Debug.LogWarningFormat("Team with the same name \"{0}\" already exists", newName);
