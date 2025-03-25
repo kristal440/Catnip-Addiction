@@ -319,7 +319,7 @@ AnimatorState:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Cat-2-Walk 0
+  m_Name: Cat-2-Walk
   m_Speed: 1
   m_CycleOffset: 0
   m_Transitions:
@@ -570,7 +570,7 @@ AnimatorState:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Cat-6-Walk 0 0
+  m_Name: Cat-6-Walk
   m_Speed: 1
   m_CycleOffset: 0
   m_Transitions:
@@ -1063,7 +1063,7 @@ AnimatorState:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Cat-2-Run 0
+  m_Name: Cat-2-Run
   m_Speed: 1
   m_CycleOffset: 0
   m_Transitions:
@@ -1423,7 +1423,7 @@ AnimatorState:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Cat-6-Run 0 0
+  m_Name: Cat-6-Run
   m_Speed: 1
   m_CycleOffset: 0
   m_Transitions:
