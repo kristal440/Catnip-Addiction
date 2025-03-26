@@ -182,8 +182,10 @@ public class GameManager : MonoBehaviourPunCallbacks
         if (playerId == PhotonNetwork.LocalPlayer.ActorNumber)
         {
             _localPlayerFinished = true;
-
             DisplayTime(finishTime);
+
+            if (GetComponent<SpectatorModeManager>() != null)
+                GetComponent<SpectatorModeManager>().OnPlayerFinish();
         }
 
         if (_finishTimes.ContainsKey(playerId))
