@@ -5201,7 +5201,7 @@ MonoBehaviour:
   animationSpeedVariance: 0
   spawnYPosition: 0
   spawnYVariance: 0
-  destroyXPosition: 15
+  destroyXPosition: 20
   skinAnimVariables: 000000000100000002000000
   poolSize: 10
   backgroundController: {fileID: 48705946}
