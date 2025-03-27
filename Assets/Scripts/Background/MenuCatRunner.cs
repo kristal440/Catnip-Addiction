@@ -56,4 +56,7 @@ public class MenuCatRunner : MonoBehaviour
             gameObject.SetActive(false);
         }
     }
+
+    public void OnStandingAnimationComplete() { }
+    public void PauseJump() { }
 }
