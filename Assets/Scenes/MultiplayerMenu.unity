@@ -5193,16 +5193,16 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   catPrefab: {fileID: 7394916511445686541, guid: 153d0b5f62cb29933a460f71092735d2, type: 3}
-  skinVariants: 000000000100000006000000
   catSpawnInterval: 5.5
   catSpawnIntervalVariance: 2
   slowCatSpeed: 3.5
-  fastCatSpeed: 6.25
+  fastCatSpeed: 7.8
   animationSpeedMultiplier: 1
   animationSpeedVariance: 0
   spawnYPosition: 0
   spawnYVariance: 0
   destroyXPosition: 15
+  skinAnimVariables: 000000000100000002000000
   poolSize: 10
   backgroundController: {fileID: 48705946}
 --- !u!1 &641005164
