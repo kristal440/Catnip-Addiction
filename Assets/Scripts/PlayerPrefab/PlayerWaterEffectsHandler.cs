@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections;
 
 [RequireComponent(typeof(PlayerController))]
 public class WaterEffectsHandler : MonoBehaviour
@@ -23,7 +24,15 @@ public class WaterEffectsHandler : MonoBehaviour
     [SerializeField] private float regularSplashLifetime = 2f;
     [SerializeField] private float entrySplashLifetime = 3f;
 
+    [Header("Water Tint Effect")]
+    [SerializeField] private bool enableWaterTint = true;
+    [SerializeField] private Color waterTintColor = new Color(0.6f, 0.8f, 1.0f, 0.9f);
+    [SerializeField] private float colorTransitionDuration = 0.5f;
+
     private PlayerController _playerController;
+    private SpriteRenderer _spriteRenderer;
+    private Color _originalColor;
+    private Coroutine _colorTransitionCoroutine;
     private bool _isInWater;
     private float _lastParticleTime;
 
@@ -45,6 +54,12 @@ public class WaterEffectsHandler : MonoBehaviour
         {
             waterEntrySplashPrefab = waterSplashPrefab;
         }
+
+        _spriteRenderer = GetComponentInChildren<SpriteRenderer>();
+        if (_spriteRenderer != null)
+        {
+            _originalColor = _spriteRenderer.color;
+        }
     }
 
     private void Update()
@@ -65,6 +80,7 @@ public class WaterEffectsHandler : MonoBehaviour
 
         _isInWater = true;
         ApplyWaterEffects();
+        StartWaterTintTransition(true);
 
         // Initial splash
         if (waterEntrySplashPrefab == null) return;
@@ -78,6 +94,7 @@ public class WaterEffectsHandler : MonoBehaviour
 
         _isInWater = false;
         RemoveWaterEffects();
+        StartWaterTintTransition(false);
 
         // Exit splash
         if (waterEntrySplashPrefab == null) return;
@@ -109,5 +126,34 @@ public class WaterEffectsHandler : MonoBehaviour
         _playerController.minJumpForce = _originalMinJumpForce;
         _playerController.maxJumpForce = _originalMaxJumpForce;
         _playerController.acceleration = _originalAcceleration;
+    }
+
+    private void StartWaterTintTransition(bool entering)
+    {
+        if (!enableWaterTint || _spriteRenderer == null) return;
+
+        if (_colorTransitionCoroutine != null)
+        {
+            StopCoroutine(_colorTransitionCoroutine);
+        }
+
+        _colorTransitionCoroutine = StartCoroutine(TransitionColor(entering ? waterTintColor : _originalColor));
+    }
+
+    private IEnumerator TransitionColor(Color targetColor)
+    {
+        var startColor = _spriteRenderer.color;
+        var elapsedTime = 0f;
+
+        while (elapsedTime < colorTransitionDuration)
+        {
+            elapsedTime += Time.deltaTime;
+            var t = Mathf.Clamp01(elapsedTime / colorTransitionDuration);
+            _spriteRenderer.color = Color.Lerp(startColor, targetColor, t);
+            yield return null;
+        }
+
+        _spriteRenderer.color = targetColor;
+        _colorTransitionCoroutine = null;
     }
 }
