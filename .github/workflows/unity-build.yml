@@ -33,7 +33,6 @@ jobs:
           git lfs pull
           git add .
           git reset --hard
-
       # Cache the Unity Library folder to speed up builds
       - name: Cache Library folder
         uses: actions/cache@v3
@@ -42,7 +41,6 @@ jobs:
           key: Library-Windows-${{ hashFiles('Assets/**', 'Packages/**', 'ProjectSettings/**') }}
           restore-keys: |
             Library-Windows-
-
       # Run the Unity build
       - name: Build Windows Player
         uses: game-ci/unity-builder@v3
@@ -83,7 +81,6 @@ jobs:
           git lfs pull
           git add .
           git reset --hard
-
       # Cache the Unity Library folder to speed up builds
       - name: Cache Library folder
         uses: actions/cache@v3
@@ -92,7 +89,6 @@ jobs:
           key: Library-Linux-${{ hashFiles('Assets/**', 'Packages/**', 'ProjectSettings/**') }}
           restore-keys: |
             Library-Linux-
-
       # Run the Unity build
       - name: Build Linux Player
         uses: game-ci/unity-builder@v3
@@ -117,9 +113,9 @@ jobs:
           cp -r build/StandaloneLinux64/* linux-only/
           chmod +x linux-only/*
           
-      # Upload the Linux executable
+      # Upload the Linux executable - UPDATED TO v4
       - name: Upload Linux Build
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ github.repository_name }}-Linux
           path: linux-only
@@ -133,9 +129,9 @@ jobs:
           # Rename to get a predictable filename
           mv exe-only/*.exe exe-only/${{ github.event.repository.name }}-${{ github.ref_name }}.exe
           
-      # Upload only the .exe file
+      # Upload only the .exe file - UPDATED TO v4
       - name: Upload Windows EXE
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ github.event.repository.name }}-Windows
           path: exe-only/*.exe
@@ -149,19 +145,19 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Download Windows Build
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: ${{ github.repository_name }}-Windows
           path: windows-build
       
       - name: Download Android Build
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: ${{ github.repository_name }}-Android
           path: android-build
           
       - name: Download Linux Build
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: ${{ github.repository_name }}-Linux
           path: linux-build
@@ -212,7 +208,6 @@ jobs:
           git lfs pull
           git add .
           git reset --hard
-
       # Cache the Unity Library folder to speed up builds
       - name: Cache Library folder
         uses: actions/cache@v3
@@ -221,7 +216,6 @@ jobs:
           key: Library-Android-${{ hashFiles('Assets/**', 'Packages/**', 'ProjectSettings/**') }}
           restore-keys: |
             Library-Android-
-
       # Run the Unity build
       - name: Build Android Player
         uses: game-ci/unity-builder@v3
@@ -257,9 +251,9 @@ jobs:
             mv apk-only/*.aab apk-only/${{ github.event.repository.name }}-${{ github.ref_name }}.aab
           fi
           
-      # Upload only the .apk file
+      # Upload only the .apk file - UPDATED TO v4
       - name: Upload Android APK
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ github.event.repository.name }}-Android
           path: apk-only/*
