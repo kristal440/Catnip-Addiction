@@ -1,0 +1,266 @@
+name: Build Unity Project
+
+on:
+  push:
+    tags:
+      - 'v*' # Run workflow ONLY on version tags
+  workflow_dispatch: # Allows manual triggering if needed
+
+jobs:
+  buildWindows:
+    name: Build for Windows
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          lfs: true
+
+      - name: Create LFS file list
+        run: git lfs ls-files -l | cut -d' ' -f1 | sort > .lfs-assets-id
+
+      - name: Cache LFS objects
+        uses: actions/cache@v3
+        id: lfs-cache
+        with:
+          path: .git/lfs
+          key: ${{ runner.os }}-lfs-${{ hashFiles('.lfs-assets-id') }}
+
+      - name: Git LFS Pull
+        run: |
+          git lfs pull
+          git add .
+          git reset --hard
+
+      # Cache the Unity Library folder to speed up builds
+      - name: Cache Library folder
+        uses: actions/cache@v3
+        with:
+          path: Library
+          key: Library-Windows-${{ hashFiles('Assets/**', 'Packages/**', 'ProjectSettings/**') }}
+          restore-keys: |
+            Library-Windows-
+
+      # Run the Unity build
+      - name: Build Windows Player
+        uses: game-ci/unity-builder@v3
+        env:
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+        with:
+          targetPlatform: StandaloneWindows64
+          buildName: ${{ github.repository_name }}
+          buildMethod: '' # Leave empty to use the default build method
+          versioning: Semantic
+          allowDirtyBuild: true
+
+  buildLinux:
+    name: Build for Linux
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          lfs: true
+
+      - name: Create LFS file list
+        run: git lfs ls-files -l | cut -d' ' -f1 | sort > .lfs-assets-id
+
+      - name: Cache LFS objects
+        uses: actions/cache@v3
+        id: lfs-cache
+        with:
+          path: .git/lfs
+          key: ${{ runner.os }}-lfs-${{ hashFiles('.lfs-assets-id') }}
+
+      - name: Git LFS Pull
+        run: |
+          git lfs pull
+          git add .
+          git reset --hard
+
+      # Cache the Unity Library folder to speed up builds
+      - name: Cache Library folder
+        uses: actions/cache@v3
+        with:
+          path: Library
+          key: Library-Linux-${{ hashFiles('Assets/**', 'Packages/**', 'ProjectSettings/**') }}
+          restore-keys: |
+            Library-Linux-
+
+      # Run the Unity build
+      - name: Build Linux Player
+        uses: game-ci/unity-builder@v3
+        env:
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+        with:
+          targetPlatform: StandaloneLinux64
+          buildName: ${{ github.repository_name }}
+          buildMethod: '' # Leave empty to use the default build method
+          versioning: Semantic
+          allowDirtyBuild: true
+
+      # Find and upload only the Linux executable
+      - name: Prepare Linux executable
+        run: |
+          mkdir -p linux-only
+          # Find the main executable (no extension) and make it executable
+          find build/StandaloneLinux64 -type f -executable -not -path "*/\.*" | grep -v "\.so$" | xargs -I {} cp {} linux-only/
+          # Also copy the entire build for dependency files
+          cp -r build/StandaloneLinux64/* linux-only/
+          chmod +x linux-only/*
+          
+      # Upload the Linux executable
+      - name: Upload Linux Build
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ github.repository_name }}-Linux
+          path: linux-only
+          retention-days: 14
+
+      # Find and copy EXE file with a predictable name
+      - name: Find and rename EXE file
+        run: |
+          mkdir -p exe-only
+          find build/StandaloneWindows64 -name "*.exe" -exec cp {} exe-only/ \;
+          # Rename to get a predictable filename
+          mv exe-only/*.exe exe-only/${{ github.event.repository.name }}-${{ github.ref_name }}.exe
+          
+      # Upload only the .exe file
+      - name: Upload Windows EXE
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ github.event.repository.name }}-Windows
+          path: exe-only/*.exe
+          retention-days: 14
+          
+  # Create GitHub Release with executables when a version tag is pushed
+  createRelease:
+    name: Create Release
+    needs: [buildWindows, buildAndroid, buildLinux]
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download Windows Build
+        uses: actions/download-artifact@v3
+        with:
+          name: ${{ github.repository_name }}-Windows
+          path: windows-build
+      
+      - name: Download Android Build
+        uses: actions/download-artifact@v3
+        with:
+          name: ${{ github.repository_name }}-Android
+          path: android-build
+          
+      - name: Download Linux Build
+        uses: actions/download-artifact@v3
+        with:
+          name: ${{ github.repository_name }}-Linux
+          path: linux-build
+      
+      # Package Linux Build with predictable name
+      - name: Package Linux Build
+        run: |
+          cd linux-build
+          tar -czf ../${{ github.event.repository.name }}-${{ github.ref_name }}-linux.tar.gz *
+          cd ..
+      
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            windows-build/${{ github.event.repository.name }}-${{ github.ref_name }}.exe
+            android-build/${{ github.event.repository.name }}-${{ github.ref_name }}.apk
+            android-build/${{ github.event.repository.name }}-${{ github.ref_name }}.aab
+            ${{ github.event.repository.name }}-${{ github.ref_name }}-linux.tar.gz
+          name: Release ${{ github.ref_name }}
+          draft: false
+          prerelease: false
+          generate_release_notes: true
+
+  buildAndroid:
+    name: Build for Android
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          lfs: true
+
+      - name: Create LFS file list
+        run: git lfs ls-files -l | cut -d' ' -f1 | sort > .lfs-assets-id
+
+      - name: Cache LFS objects
+        uses: actions/cache@v3
+        id: lfs-cache
+        with:
+          path: .git/lfs
+          key: ${{ runner.os }}-lfs-${{ hashFiles('.lfs-assets-id') }}
+
+      - name: Git LFS Pull
+        run: |
+          git lfs pull
+          git add .
+          git reset --hard
+
+      # Cache the Unity Library folder to speed up builds
+      - name: Cache Library folder
+        uses: actions/cache@v3
+        with:
+          path: Library
+          key: Library-Android-${{ hashFiles('Assets/**', 'Packages/**', 'ProjectSettings/**') }}
+          restore-keys: |
+            Library-Android-
+
+      # Run the Unity build
+      - name: Build Android Player
+        uses: game-ci/unity-builder@v3
+        env:
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+        with:
+          targetPlatform: Android
+          buildName: ${{ github.repository_name }}
+          buildMethod: '' # Leave empty to use the default build method
+          versioning: Semantic
+          androidAppBundle: true
+          androidKeystoreName: ${{ secrets.ANDROID_KEYSTORE_NAME }}
+          androidKeystoreBase64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          androidKeystorePass: ${{ secrets.ANDROID_KEYSTORE_PASS }}
+          androidKeyaliasName: ${{ secrets.ANDROID_KEYALIAS_NAME }}
+          androidKeyaliasPass: ${{ secrets.ANDROID_KEYALIAS_PASS }}
+          allowDirtyBuild: true
+
+      # Find and upload only the .apk or .aab file with predictable names
+      - name: Find and rename APK/AAB files
+        run: |
+          mkdir -p apk-only
+          find build/Android -name "*.apk" -exec cp {} apk-only/ \;
+          find build/Android -name "*.aab" -exec cp {} apk-only/ \;
+          
+          # Rename to get predictable filenames
+          if [ -f apk-only/*.apk ]; then
+            mv apk-only/*.apk apk-only/${{ github.event.repository.name }}-${{ github.ref_name }}.apk
+          fi
+          if [ -f apk-only/*.aab ]; then
+            mv apk-only/*.aab apk-only/${{ github.event.repository.name }}-${{ github.ref_name }}.aab
+          fi
+          
+      # Upload only the .apk file
+      - name: Upload Android APK
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ github.event.repository.name }}-Android
+          path: apk-only/*
+          retention-days: 14
