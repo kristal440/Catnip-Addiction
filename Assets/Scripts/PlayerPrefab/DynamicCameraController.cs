@@ -28,6 +28,10 @@ public class DynamicCameraController : MonoBehaviour
     public float deathZoomFOV = 25f;
     public float deathZoomSpeed = 3f;
 
+    [Header("Water Effects")]
+    [Range(-1f, 2f)] public float waterZoomMultiplier = 0.8f;
+
+    private float _defaultFOVBackup;
     private bool _isInJumpTransition;
     private bool _isInDeathZoom;
     private float _jumpTransitionTimer;
@@ -55,6 +59,7 @@ public class DynamicCameraController : MonoBehaviour
             return;
         }
 
+        _defaultFOVBackup = defaultFOV;
         StartCoroutine(FindPlayerControllerWithTimeout());
     }
 
@@ -172,5 +177,15 @@ public class DynamicCameraController : MonoBehaviour
     public void OnPlayerDeath() => _isInDeathZoom = true;
 
     public void OnPlayerRespawn() => _isInDeathZoom = false;
+
+    public void EnterWater()
+    {
+        defaultFOV = _defaultFOVBackup * waterZoomMultiplier;
+    }
+
+    public void ExitWater()
+    {
+        defaultFOV = _defaultFOVBackup;
+    }
     #endregion
 }

@@ -29,8 +29,12 @@ public class WaterEffectsHandler : MonoBehaviour
     [SerializeField] private Color waterTintColor = new Color(0.6f, 0.8f, 1.0f, 0.9f);
     [SerializeField] private float colorTransitionDuration = 0.5f;
 
+    [Header("Camera Effects")]
+    [SerializeField] private bool affectCamera = true;
+
     private PlayerController _playerController;
     private SpriteRenderer _spriteRenderer;
+    private DynamicCameraController _cameraController;
     private Color _originalColor;
     private Coroutine _colorTransitionCoroutine;
     private bool _isInWater;
@@ -44,6 +48,17 @@ public class WaterEffectsHandler : MonoBehaviour
     private void Awake()
     {
         _playerController = GetComponent<PlayerController>();
+
+        // Find the camera controller
+        if (affectCamera)
+        {
+            var playerCamera = GetComponentInChildren<Camera>();
+            if (playerCamera != null)
+                _cameraController = playerCamera.GetComponent<DynamicCameraController>();
+
+            if (_cameraController == null)
+                _cameraController = Camera.main?.GetComponent<DynamicCameraController>();
+        }
 
         _originalMaxSpeed = _playerController.maxSpeed;
         _originalMinJumpForce = _playerController.minJumpForce;
@@ -109,6 +124,7 @@ public class WaterEffectsHandler : MonoBehaviour
 
     private void ApplyWaterEffects()
     {
+        // Apply movement effects
         _originalMaxSpeed = _playerController.maxSpeed;
         _originalMinJumpForce = _playerController.minJumpForce;
         _originalMaxJumpForce = _playerController.maxJumpForce;
@@ -118,14 +134,23 @@ public class WaterEffectsHandler : MonoBehaviour
         _playerController.minJumpForce *= jumpMultiplierInWater;
         _playerController.maxJumpForce *= jumpMultiplierInWater;
         _playerController.acceleration *= accelerationMultiplierInWater;
+
+        // Apply camera effects
+        if (affectCamera && _cameraController != null)
+            _cameraController.EnterWater();
     }
 
     private void RemoveWaterEffects()
     {
+        // Remove movement effects
         _playerController.maxSpeed = _originalMaxSpeed;
         _playerController.minJumpForce = _originalMinJumpForce;
         _playerController.maxJumpForce = _originalMaxJumpForce;
         _playerController.acceleration = _originalAcceleration;
+
+        // Remove camera effects
+        if (affectCamera && _cameraController != null)
+            _cameraController.ExitWater();
     }
 
     private void StartWaterTintTransition(bool entering)
