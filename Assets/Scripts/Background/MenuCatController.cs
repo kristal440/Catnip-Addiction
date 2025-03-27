@@ -5,21 +5,23 @@ public class MenuCatController : MonoBehaviour
 {
     [Header("Cat Animation")]
     public GameObject catPrefab;
-    [Tooltip("Available skin variants (corresponds to the 'Skin' parameter on Animator)")]
-    public int[] skinVariants = { 0, 1, 2 };
     [Range(1f, 10f)]
     public float catSpawnInterval = 5f;
     public float catSpawnIntervalVariance = 1.5f;
     [Range(2f, 6f)]
-    public float slowCatSpeed = 3f;
+    public float slowCatSpeed = 3.5f;
     [Range(4f, 8f)]
-    public float fastCatSpeed = 6f;
+    public float fastCatSpeed = 7.8f;
     [Range(1f, 2f)]
     public float animationSpeedMultiplier = 1.5f;
     public float animationSpeedVariance = 0.2f;
     public float spawnYPosition = -2f;
     public float spawnYVariance = 0.5f;
     public float destroyXPosition = 12f;
+
+    [Header("Animation States")]
+    [Tooltip("Available skin variants (corresponds to the 'Skin' parameter on Animator)")]
+    public int[] skinAnimVariables = { 0, 1, 2 };
 
     [Header("Optimization")]
     public int poolSize = 10;
@@ -30,17 +32,15 @@ public class MenuCatController : MonoBehaviour
     private float _timeSinceLastSpawn;
     private float _nextSpawnTime;
     private Camera _camera;
-    private List<GameObject> _catPool;
-    private int _currentCatIndex;
+    private Queue<GameObject> _inactiveCats;
+    private float _spawnXPosition;
 
     private void Awake()
     {
         _camera = Camera.main;
 
         if (backgroundController == null)
-        {
             backgroundController = GetComponent<MenuBackgroundController>();
-        }
     }
 
     private void Start()
@@ -52,6 +52,7 @@ public class MenuCatController : MonoBehaviour
         }
 
         InitializeCatPool();
+        CalculateSpawnPosition();
 
         _nextSpawnTime = Random.Range(
             catSpawnInterval - catSpawnIntervalVariance,
@@ -60,14 +61,20 @@ public class MenuCatController : MonoBehaviour
 
     private void InitializeCatPool()
     {
-        _catPool = new List<GameObject>(poolSize);
+        _inactiveCats = new Queue<GameObject>(poolSize);
 
         for (var i = 0; i < poolSize; i++)
         {
             var cat = Instantiate(catPrefab, Vector3.one * -100f, Quaternion.identity, transform);
-            _catPool.Add(cat);
+            _inactiveCats.Enqueue(cat);
             cat.SetActive(false);
         }
+    }
+
+    private void CalculateSpawnPosition()
+    {
+        if (_camera != null)
+            _spawnXPosition = _camera.ViewportToWorldPoint(new Vector3(0, 0, 0)).x - 2f;
     }
 
     private void Update()
@@ -83,33 +90,14 @@ public class MenuCatController : MonoBehaviour
 
     private void SpawnCat()
     {
-        if (_catPool == null || _catPool.Count == 0)
+        if (_inactiveCats.Count == 0)
             return;
 
-        if (!_camera) return;
-
-        GameObject cat = null;
-        var attempts = 0;
-
-        while (attempts < _catPool.Count)
-        {
-            _currentCatIndex = (_currentCatIndex + 1) % _catPool.Count;
-            if (!_catPool[_currentCatIndex].activeInHierarchy)
-            {
-                cat = _catPool[_currentCatIndex];
-                break;
-            }
-            attempts++;
-        }
-
-        if (!cat)
-            return;
-
-        var spawnXPosition = _camera.ViewportToWorldPoint(new Vector3(0, 0, 0)).x - 2f;
-        var yPos = spawnYPosition + Random.Range(-spawnYVariance, spawnYVariance);
-        cat.transform.position = new Vector3(spawnXPosition, yPos, 0f);
-
+        var cat = _inactiveCats.Dequeue();
         cat.SetActive(true);
+
+        var yPos = spawnYPosition + Random.Range(-spawnYVariance, spawnYVariance);
+        cat.transform.position = new Vector3(_spawnXPosition, yPos, 0f);
 
         var moveSpeed = Random.value < 0.5f ? slowCatSpeed : fastCatSpeed;
 
@@ -117,15 +105,30 @@ public class MenuCatController : MonoBehaviour
         var minAnimSpeed = Mathf.Max(1f, baseAnimSpeed - animationSpeedVariance);
         var maxAnimSpeed = baseAnimSpeed + animationSpeedVariance;
 
-        var skinVariant = skinVariants[Random.Range(0, skinVariants.Length)];
-        cat.GetComponent<MenuCatRunner>().Initialize(moveSpeed, destroyXPosition, skinVariant, minAnimSpeed, maxAnimSpeed);
+        var skinIndex = Random.Range(0, skinAnimVariables.Length);
+        var skinVariant = skinAnimVariables[skinIndex];
+
+        var catRunner = cat.GetComponent<MenuCatRunner>();
+        catRunner.Initialize(
+            moveSpeed,
+            destroyXPosition,
+            skinVariant,
+            minAnimSpeed,
+            maxAnimSpeed
+        );
+
+        StartCoroutine(WaitForCatDeactivation(cat));
+    }
+
+    private System.Collections.IEnumerator WaitForCatDeactivation(GameObject cat)
+    {
+        yield return new WaitUntil(() => !cat.activeInHierarchy);
+        _inactiveCats.Enqueue(cat);
     }
 
     public void TransitionToMenu(string menuName)
     {
         if (backgroundController != null)
-        {
             backgroundController.TransitionToMenu(menuName);
-        }
     }
 }
