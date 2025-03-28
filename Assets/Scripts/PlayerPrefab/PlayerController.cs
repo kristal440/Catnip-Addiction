@@ -218,19 +218,30 @@ public class PlayerController : MonoBehaviourPunCallbacks
         if (movingIntoWall && !_isJumpQueued)
             return;
 
-        if (horizontalInput > 0)
+        if (!(horizontalInput > 0))
         {
-            transform.localScale = new Vector3(Abs(transform.localScale.y), transform.localScale.y, transform.localScale.z);
-            playerNameTag.transform.localScale = new Vector3(Abs(playerNameTag.transform.localScale.y), playerNameTag.transform.localScale.y, playerNameTag.transform.localScale.z);
-            jumpChargeBarGameObject.transform.localScale = new Vector3(Abs(jumpChargeBarGameObject.transform.localScale.y), jumpChargeBarGameObject.transform.localScale.y, jumpChargeBarGameObject.transform.localScale.z);
-            animator.SetBool(IsLaying, false);
-            _idleTimer = 0f;
+            if (horizontalInput < 0)
+            {
+                transform.localScale = new Vector3(-Abs(transform.localScale.y), transform.localScale.y,
+                    transform.localScale.z);
+                playerNameTag.transform.localScale = new Vector3(-Abs(playerNameTag.transform.localScale.y),
+                    playerNameTag.transform.localScale.y, playerNameTag.transform.localScale.z);
+                jumpChargeBarGameObject.transform.localScale = new Vector3(
+                    -Abs(jumpChargeBarGameObject.transform.localScale.y),
+                    jumpChargeBarGameObject.transform.localScale.y, jumpChargeBarGameObject.transform.localScale.z);
+                animator.SetBool(IsLaying, false);
+                _idleTimer = 0f;
+            }
         }
-        else if (horizontalInput < 0)
+        else
         {
-            transform.localScale = new Vector3(-Abs(transform.localScale.y), transform.localScale.y, transform.localScale.z);
-            playerNameTag.transform.localScale = new Vector3(-Abs(playerNameTag.transform.localScale.y), playerNameTag.transform.localScale.y, playerNameTag.transform.localScale.z);
-            jumpChargeBarGameObject.transform.localScale = new Vector3(-Abs(jumpChargeBarGameObject.transform.localScale.y), jumpChargeBarGameObject.transform.localScale.y, jumpChargeBarGameObject.transform.localScale.z);
+            transform.localScale =
+                new Vector3(Abs(transform.localScale.y), transform.localScale.y, transform.localScale.z);
+            playerNameTag.transform.localScale = new Vector3(Abs(playerNameTag.transform.localScale.y),
+                playerNameTag.transform.localScale.y, playerNameTag.transform.localScale.z);
+            jumpChargeBarGameObject.transform.localScale = new Vector3(
+                Abs(jumpChargeBarGameObject.transform.localScale.y), jumpChargeBarGameObject.transform.localScale.y,
+                jumpChargeBarGameObject.transform.localScale.z);
             animator.SetBool(IsLaying, false);
             _idleTimer = 0f;
         }
@@ -258,16 +269,19 @@ public class PlayerController : MonoBehaviourPunCallbacks
             _wallCollisionHandled = true;
         }
 
-        // Normal movement when not pushing into wall
-        if (Abs(horizontalInput) > 0.01f && !movingIntoWall)
+        switch (Abs(horizontalInput))
         {
-            currentSpeed = MoveTowards(currentSpeed, horizontalInput * _newMaxSpeed, acceleration * Time.deltaTime);
-        }
-        else if (Abs(horizontalInput) <= 0.01f)
-        {
-            currentSpeed = MoveTowards(currentSpeed, 0, _newDeceleration * Time.deltaTime);
-            if (Abs(currentSpeed) < 0.01f)
-                currentSpeed = 0;
+            // Normal movement when not pushing into wall
+            case > 0.01f when !movingIntoWall:
+                currentSpeed = MoveTowards(currentSpeed, horizontalInput * _newMaxSpeed, acceleration * Time.deltaTime);
+                break;
+            case <= 0.01f:
+            {
+                currentSpeed = MoveTowards(currentSpeed, 0, _newDeceleration * Time.deltaTime);
+                if (Abs(currentSpeed) < 0.01f)
+                    currentSpeed = 0;
+                break;
+            }
         }
 
         // Apply velocity
@@ -278,7 +292,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
     #region Jump
     private void HandleJumpInput()
     {
-        bool jumpOnCooldown = Time.time < _lastJumpTime + jumpCooldown;
+        var jumpOnCooldown = Time.time < _lastJumpTime + jumpCooldown;
 
         if (_playerInputActions.Player.Jump.WasPressedThisFrame() &&
             IsGrounded &&
