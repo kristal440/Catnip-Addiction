@@ -1,19 +1,23 @@
 using UnityEngine;
 using static UnityEngine.Vector2;
+using Photon.Pun;
 
 public class CheckpointManager : MonoBehaviour
 {
     [SerializeField] private string checkpointTag = "Checkpoint"; // tag checkpoint objects, add 2d collider
     public static Vector2 LastCheckpointPosition { get; private set; }
+    private PhotonView _photonView;
 
     private void Start()
     {
         LastCheckpointPosition = transform.position;
+        _photonView = GetComponent<PhotonView>();
     }
 
     private void OnTriggerEnter2D(Collider2D other)
     {
         if (!other.CompareTag(checkpointTag)) return;
+        if (!_photonView.IsMine) return;
 
         var newCheckpointPosition = other.transform.position;
 
