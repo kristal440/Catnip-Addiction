@@ -11,7 +11,7 @@ public class OnScreenControlsManager : MonoBehaviour
 
     private const string MultiplayerControlsKey = "ShowMultiplayerControls";
 
-    private void Start()
+    private void Awake()
     {
         if (PlayerPrefs.HasKey(MultiplayerControlsKey))
         {
@@ -21,10 +21,13 @@ public class OnScreenControlsManager : MonoBehaviour
         {
             ShowMultiplayerControls = Application.isMobilePlatform;
         }
+    }
 
+    private void Start()
+    {
         controlsToggle.SetIsOnWithoutNotify(ShowMultiplayerControls);
-        OnControlsVisibilityChanged?.Invoke(ShowMultiplayerControls);
         controlsToggle.onValueChanged.AddListener(OnToggleChanged);
+        OnControlsVisibilityChanged?.Invoke(ShowMultiplayerControls);
     }
 
     private static void OnToggleChanged(bool isOn)

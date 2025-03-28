@@ -7,6 +7,7 @@ using UnityEngine.UI;
 
 public class SpectatorModeManager : MonoBehaviourPunCallbacks
 {
+    public bool IsSpectating { get; private set; }
     private static SpectatorModeManager Instance { get; set; }
 
     [Header("UI Elements")]
@@ -86,6 +87,7 @@ public class SpectatorModeManager : MonoBehaviourPunCallbacks
         }
 
         _localPlayer.SetSpectatorMode(true);
+        IsSpectating = true;
 
         if (onScreenControlsParent != null)
             onScreenControlsParent.SetActive(false);
@@ -101,6 +103,7 @@ public class SpectatorModeManager : MonoBehaviourPunCallbacks
 
         spectatorModeUI.SetActive(false);
         _localPlayer.SetSpectatorMode(false);
+        IsSpectating = false;
 
         if (onScreenControlsParent != null)
             onScreenControlsParent.SetActive(true);

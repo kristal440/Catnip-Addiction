@@ -55,7 +55,6 @@ public class GameManager : MonoBehaviourPunCallbacks
 
         finishLine.GetComponent<BoxCollider2D>().enabled = false;
         gameTimerText.enabled = false;
-        countdownUI.SetActive(false);
 
         if (inGameLeaderboardParent != null)
             inGameLeaderboardParent.SetActive(false);
