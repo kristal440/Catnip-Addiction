@@ -87,13 +87,20 @@ public class WaterEffectsHandler : MonoBehaviour
     {
         if (!_isInWater) return;
 
-        if (!waterSplashPrefab ||
+        if (!_photonView.IsMine ||
+            !waterSplashPrefab ||
             !(Mathf.Abs(_playerController.currentSpeed) > minSpeedToShowParticles) ||
             !(Time.time > _lastParticleTime + particleSpawnInterval)) return;
+        _photonView.RPC("SpawnWaterSplash", RpcTarget.All);
+        _lastParticleTime = Time.time;
+    }
 
+    [PunRPC]
+    // ReSharper disable once UnusedMember.Local
+    private void SpawnWaterSplash()
+    {
         var splash = Instantiate(waterSplashPrefab, transform.position, Quaternion.identity);
         Destroy(splash, regularSplashLifetime);
-        _lastParticleTime = Time.time;
     }
 
     private void OnTriggerEnter2D(Collider2D other)
