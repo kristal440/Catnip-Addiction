@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class SetUnityProps : MonoBehaviour
+public class GameStartup : MonoBehaviour
 {
     private void Start()
     {
