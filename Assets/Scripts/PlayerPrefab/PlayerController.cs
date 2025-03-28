@@ -271,7 +271,6 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
         switch (Abs(horizontalInput))
         {
-            // Normal movement when not pushing into wall
             case > 0.01f when !movingIntoWall:
                 currentSpeed = MoveTowards(currentSpeed, horizontalInput * _newMaxSpeed, acceleration * Time.deltaTime);
                 break;
@@ -284,7 +283,6 @@ public class PlayerController : MonoBehaviourPunCallbacks
             }
         }
 
-        // Apply velocity
         _rb.linearVelocity = new Vector2(currentSpeed, _rb.linearVelocity.y);
     }
     #endregion
@@ -374,7 +372,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
         if (IsGrounded)
         {
             _rb.linearVelocity = new Vector2(_rb.linearVelocity.x, jumpMultiplier);
-            _lastJumpTime = Time.time; // Record when we jumped
+            _lastJumpTime = Time.time;
         }
 
         animator.SetBool(IsJumpQueued, false);
@@ -390,8 +388,8 @@ public class PlayerController : MonoBehaviourPunCallbacks
         if (HasCatnip)
             jumpForceToApply *= 1.1f;
 
-        _rb.linearVelocity = new Vector2(_rb.linearVelocity.x, jumpForceToApply);
-        _lastJumpTime = Time.time; // Record when we jumped
+        _rb.linearVelocity = new Vector2(0, jumpForceToApply);
+        _lastJumpTime = Time.time;
 
         animator.SetBool(IsJumpQueued, false);
         _isJumpQueued = false;
