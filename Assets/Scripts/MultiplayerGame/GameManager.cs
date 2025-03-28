@@ -79,7 +79,7 @@ public class GameManager : MonoBehaviourPunCallbacks
         if (PhotonNetwork.CurrentRoom == null ||
             PhotonNetwork.CurrentRoom.PlayerCount != PhotonNetwork.CurrentRoom.MaxPlayers) return;
         _countdownStarted = true;
-        photonView.RPC(nameof(StartCountdown), RpcTarget.All);
+        photonView.RPC(nameof(StartCountdown), RpcTarget.All, PhotonNetwork.ServerTimestamp);
     }
 
     #region UI Methods
@@ -193,18 +193,23 @@ public class GameManager : MonoBehaviourPunCallbacks
         photonView.RPC(nameof(UpdateLeaderboard), RpcTarget.All, playerId, finishTime);
     }
 
-    private IEnumerator CountdownCoroutine()
+    private IEnumerator CountdownCoroutine(int serverStartTime)
     {
         countdownUI.SetActive(true);
-        var remainingTime = countdownDuration;
 
-        while (remainingTime > 0)
+        while (true)
         {
+            var elapsedTime = (PhotonNetwork.ServerTimestamp - serverStartTime) / 1000f;
+            var remainingTime = countdownDuration - elapsedTime;
+
             countdownText.text = "game starts in: " + CeilToInt(remainingTime);
+
             if (CeilToInt(remainingTime) == 2 && photonView)
                 photonView.RPC(nameof(StandUp), RpcTarget.All);
 
-            remainingTime -= Time.deltaTime;
+            if (remainingTime <= 0)
+                break;
+
             yield return null;
         }
 
@@ -216,13 +221,13 @@ public class GameManager : MonoBehaviourPunCallbacks
 
     #region RPCs
     [PunRPC]
-    private void StartCountdown()
+    private void StartCountdown(int serverStartTime)
     {
         _countdownStarted = true;
         if (_countdownCoroutine != null)
             StopCoroutine(_countdownCoroutine);
 
-        _countdownCoroutine = StartCoroutine(CountdownCoroutine());
+        _countdownCoroutine = StartCoroutine(CountdownCoroutine(serverStartTime));
     }
 
     [PunRPC]
