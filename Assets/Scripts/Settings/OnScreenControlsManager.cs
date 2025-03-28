@@ -6,28 +6,21 @@ public class OnScreenControlsManager : MonoBehaviour
 {
     [SerializeField] private Toggle controlsToggle;
 
-    public static bool ShowMultiplayerControls { get; private set; }
+    public static bool ShowMultiplayerControls { get; set; }
     public static event Action<bool> OnControlsVisibilityChanged;
 
     private const string MultiplayerControlsKey = "ShowMultiplayerControls";
 
-    private void Awake()
+    public static void SetControlsVisibility(bool isVisible)
     {
-        if (PlayerPrefs.HasKey(MultiplayerControlsKey))
-        {
-            ShowMultiplayerControls = PlayerPrefs.GetInt(MultiplayerControlsKey) == 1;
-        }
-        else
-        {
-            ShowMultiplayerControls = Application.isMobilePlatform;
-        }
+        ShowMultiplayerControls = isVisible;
+        OnControlsVisibilityChanged?.Invoke(isVisible);
     }
 
     private void Start()
     {
         controlsToggle.SetIsOnWithoutNotify(ShowMultiplayerControls);
         controlsToggle.onValueChanged.AddListener(OnToggleChanged);
-        OnControlsVisibilityChanged?.Invoke(ShowMultiplayerControls);
     }
 
     private static void OnToggleChanged(bool isOn)

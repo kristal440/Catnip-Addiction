@@ -23,35 +23,15 @@ public class FPSSettingsController : MonoBehaviour
         _screenRefreshRate = Mathf.RoundToInt((float)Screen.currentResolution.refreshRateRatio.numerator /
                                               Screen.currentResolution.refreshRateRatio.denominator);
 
-        var isMobilePlatform = Application.platform == RuntimePlatform.Android ||
-                               Application.platform == RuntimePlatform.IPhonePlayer;
-
-        var vsyncSettingExists = PlayerPrefs.HasKey(VsyncEnabledKey);
-
-        if (isMobilePlatform && !vsyncSettingExists)
-        {
-            vsyncToggle.isOn = true;
-            QualitySettings.vSyncCount = 1;
-            PlayerPrefs.SetInt(VsyncEnabledKey, 1);
-            PlayerPrefs.Save();
-        }
-        else
-        {
-            var vsyncEnabled = PlayerPrefs.GetInt(VsyncEnabledKey, 0) == 1;
-            vsyncToggle.isOn = vsyncEnabled;
-            QualitySettings.vSyncCount = vsyncEnabled ? 1 : 0;
-        }
-
-        var savedTargetFPS = PlayerPrefs.GetInt(TargetFPSKey, 1000);
+        // Initialize UI based on current settings (set by GameStartup)
+        vsyncToggle.isOn = QualitySettings.vSyncCount > 0;
 
         fpsSlider.minValue = minFps;
-
         UpdateSliderMaxValue();
         fpsSlider.interactable = !vsyncToggle.isOn;
 
-        fpsSlider.value = Mathf.Clamp(savedTargetFPS, minFps, fpsSlider.maxValue);
-
-        ApplyFPSSetting();
+        fpsSlider.value = Mathf.Clamp(Application.targetFrameRate, minFps, fpsSlider.maxValue);
+        UpdateFPSText();
 
         vsyncToggle.onValueChanged.AddListener(OnVSyncToggleChanged);
         fpsSlider.onValueChanged.AddListener(OnFPSSliderChanged);
