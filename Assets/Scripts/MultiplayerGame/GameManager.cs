@@ -124,7 +124,7 @@ public class GameManager : MonoBehaviourPunCallbacks
             leaderboardData.Add(playerID, new PlayerResultData(playerName, finishTime));
         }
 
-        if (_finishTimes.Count > 0 && inGameLeaderboardParent != null && !inGameLeaderboardParent.activeSelf)
+        if (_finishTimes.Count > 0 && inGameLeaderboardParent && !inGameLeaderboardParent.activeSelf)
             inGameLeaderboardParent.SetActive(true);
 
         var sortedLeaderboard = leaderboardData.OrderBy(pair => pair.Value.finishTime).ToList();
@@ -139,7 +139,7 @@ public class GameManager : MonoBehaviourPunCallbacks
 
     private void ClearInGameLeaderboard()
     {
-        foreach (var entry in _leaderboardEntries.Values.Where(entry => entry != null))
+        foreach (var entry in _leaderboardEntries.Values.Where(entry => entry))
         {
             Destroy(entry);
         }
@@ -150,7 +150,7 @@ public class GameManager : MonoBehaviourPunCallbacks
     private void AddLeaderboardEntry(int position, string playerName, float finishTime, int playerId)
     {
         var entryInstance = Instantiate(inGameLeaderboardEntryPrefab, inGameLeaderboardContainer);
-        if (entryInstance == null) return;
+        if (!entryInstance) return;
 
         _leaderboardEntries[playerId] = entryInstance;
 
