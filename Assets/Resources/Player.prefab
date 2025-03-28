@@ -1102,7 +1102,6 @@ MonoBehaviour:
   hazardTag: Death
   respawnDelay: 1.5
   playerController: {fileID: 145821301250412423}
-  cameraController: {fileID: 0}
   deathBorderEffect: {fileID: 4536768457498509798}
   deathExplosionPrefab: {fileID: 3062182869956756065, guid: bbe3880071c5f65d6ab00e5c256d1ff0, type: 3}
   playerSpriteToHide: {fileID: 6563650613660426911}

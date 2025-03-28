@@ -428,7 +428,7 @@ MonoBehaviour:
   jumpFOVTransitionSpeed: 5
   deathZoomFOV: 23
   deathZoomSpeed: 4
-  waterZoomMultiplier: 0.5
+  waterZoomMultiplier: 0.8
 --- !u!1 &8073337522067690864
 GameObject:
   m_ObjectHideFlags: 0
