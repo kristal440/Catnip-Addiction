@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class HideOnCollision : MonoBehaviour
 {
+    private SpectatorModeManager _spectatorModeManager;
     public float timeHidden = 10f;
 
     private Renderer _renderer;
@@ -11,23 +12,40 @@ public class HideOnCollision : MonoBehaviour
     private void Start()
     {
         _renderer = GetComponent<SpriteRenderer>();
+        _spectatorModeManager = FindFirstObjectByType<SpectatorModeManager>();
     }
 
     private void OnTriggerEnter2D(Collider2D player)
     {
-        if (player.gameObject.GetComponent<PhotonView>().IsMine == false) return;
         var playerC = player.gameObject.GetComponent<PlayerController>();
 
-        _renderer.enabled = false;
-        playerC.HasCatnip = true;
+        if (player.gameObject.GetComponent<PhotonView>().IsMine)
+        {
+            _renderer.enabled = false;
+            playerC.HasCatnip = true;
 
-        StartCoroutine(ShowObjectAfterDelay(timeHidden, playerC));
+            StartCoroutine(ShowObjectAfterDelay(timeHidden, playerC));
+        }
+
+        if (!_spectatorModeManager.IsSpectating) return;
+        var color = _renderer.material.color;
+        color.a = 0.5f;
+        _renderer.material.color = color;
+        StartCoroutine(ResetOpacity(timeHidden, playerC));
     }
 
     private IEnumerator ShowObjectAfterDelay(float delay, PlayerController playerC)
     {
         yield return new WaitForSeconds(delay);
         _renderer.enabled = true;
+        playerC.HasCatnip = false;
+    }
+    private IEnumerator ResetOpacity(float delay, PlayerController playerC)
+    {
+        yield return new WaitForSeconds(delay);
+        var color = _renderer.material.color;
+        color.a = 1f;
+        _renderer.material.color = color;
         playerC.HasCatnip = false;
     }
 }
