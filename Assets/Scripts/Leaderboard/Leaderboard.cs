@@ -8,7 +8,6 @@ using Hashtable = ExitGames.Client.Photon.Hashtable;
 
 public class Leaderboard : MonoBehaviour
 {
-    #region Variables
     [Header("UI References")]
     public Transform leaderboardListContainer;
     public GameObject leaderboardEntryPrefab;
@@ -17,15 +16,12 @@ public class Leaderboard : MonoBehaviour
     private const float RetryInterval = 1f;
     private const float MaxWaitTime = 10f;
     private float _startTime;
-    #endregion
 
-    #region Lifecycle
     private void Start()
     {
         _startTime = Time.time;
         StartCoroutine(LoadLeaderboardWithRetry());
     }
-    #endregion
 
     #region Leaderboard Loading
     private IEnumerator LoadLeaderboardWithRetry()
