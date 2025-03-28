@@ -1,4 +1,3 @@
-using System;
 using UnityEngine;
 using System.Collections;
 using Photon.Pun;
@@ -29,7 +28,7 @@ public class WaterEffectsHandler : MonoBehaviour
 
     [Header("Water Tint Effect")]
     [SerializeField] private bool enableWaterTint = true;
-    [SerializeField] private Color waterTintColor = new Color(0.6f, 0.8f, 1.0f, 0.9f);
+    [SerializeField] private Color waterTintColor = new(0.6f, 0.8f, 1.0f, 0.9f);
     [SerializeField] private float colorTransitionDuration = 0.5f;
 
     [Header("Camera Effects")]
@@ -72,15 +71,11 @@ public class WaterEffectsHandler : MonoBehaviour
         _originalAcceleration = _playerController.acceleration;
 
         if (waterEntrySplashPrefab == null)
-        {
             waterEntrySplashPrefab = waterSplashPrefab;
-        }
 
         _spriteRenderer = GetComponentInChildren<SpriteRenderer>();
         if (_spriteRenderer != null)
-        {
             _originalColor = _spriteRenderer.color;
-        }
     }
 
     private void Start()
@@ -95,6 +90,7 @@ public class WaterEffectsHandler : MonoBehaviour
         if (!waterSplashPrefab ||
             !(Mathf.Abs(_playerController.currentSpeed) > minSpeedToShowParticles) ||
             !(Time.time > _lastParticleTime + particleSpawnInterval)) return;
+
         var splash = Instantiate(waterSplashPrefab, transform.position, Quaternion.identity);
         Destroy(splash, regularSplashLifetime);
         _lastParticleTime = Time.time;
@@ -140,23 +136,23 @@ public class WaterEffectsHandler : MonoBehaviour
         _originalMinJumpForce = _playerController.minJumpForce;
         _originalMaxJumpForce = _playerController.maxJumpForce;
         _originalAcceleration = _playerController.acceleration;
-    
+
         _playerController.maxSpeed *= speedMultiplierInWater;
         _playerController.minJumpForce *= jumpMultiplierInWater;
         _playerController.maxJumpForce *= jumpMultiplierInWater;
         _playerController.acceleration *= accelerationMultiplierInWater;
-    
+
         if (affectCamera && _cameraController != null && (_photonView.IsMine || _spectatorModeManager.IsSpectating))
             _cameraController.EnterWater();
     }
-    
+
     private void RemoveWaterEffects()
     {
         _playerController.maxSpeed = _originalMaxSpeed;
         _playerController.minJumpForce = _originalMinJumpForce;
         _playerController.maxJumpForce = _originalMaxJumpForce;
         _playerController.acceleration = _originalAcceleration;
-    
+
         if (affectCamera && _cameraController != null && (_photonView.IsMine || _spectatorModeManager.IsSpectating))
             _cameraController.ExitWater();
     }
