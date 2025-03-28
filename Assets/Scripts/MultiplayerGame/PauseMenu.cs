@@ -1,9 +1,10 @@
 using Photon.Pun;
+using Photon.Realtime;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public class PauseMenu : MonoBehaviour
+public class PauseMenu : MonoBehaviourPunCallbacks
 {
     public GameObject pauseMenuUI;
     private PlayerController _playerController;
@@ -35,10 +36,18 @@ public class PauseMenu : MonoBehaviour
     public void LeaveGame()
     {
         if (PhotonNetwork.IsConnected)
-        {
             PhotonNetwork.LeaveRoom();
-            PhotonNetwork.Disconnect();
-        }
+        else
+            SceneManager.LoadScene("MainMenu");
+    }
+
+    public override void OnLeftRoom()
+    {
+        PhotonNetwork.Disconnect();
+    }
+
+    public override void OnDisconnected(DisconnectCause cause)
+    {
         SceneManager.LoadScene("MainMenu");
     }
 }
