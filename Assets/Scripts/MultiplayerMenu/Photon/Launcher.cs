@@ -6,10 +6,10 @@ using Photon.Realtime;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using Hashtable = ExitGames.Client.Photon.Hashtable;
 
 public class Launcher : MonoBehaviourPunCallbacks
 {
-    #region Variables
     private bool _isConnecting;
     private List<string> _roomLst;
 
@@ -37,7 +37,6 @@ public class Launcher : MonoBehaviourPunCallbacks
     [SerializeField] private GameObject roomListPanel;
     [SerializeField] private GameObject roomPrefab;
     [SerializeField] private Transform roomsContainer;
-    #endregion
 
     #region Unity Lifecycle
     private void Awake()
@@ -88,7 +87,8 @@ public class Launcher : MonoBehaviourPunCallbacks
 
     public override void OnCreateRoomFailed(short returnCode, string message)
     {
-        Debug.LogError($"Room creation failed: {message} ({returnCode})");
+        errorText.text = $"Room creation failed ({returnCode}): {message}";
+        errorPanel.SetActive(true);
     }
 
     public override void OnJoinedRoom()
@@ -127,7 +127,13 @@ public class Launcher : MonoBehaviourPunCallbacks
             playerCountText.color = roomInfo.PlayerCount >= roomInfo.MaxPlayers ?
                 new Color(1f, 0.239f, 0.239f) : new Color(0.475f, 1f, 0.498f);
 
-            roomObject.GetComponent<Button>().onClick.AddListener(() => JoinRoom(roomInfo.Name));
+            var isGameInProgress = false;
+            if (roomInfo.CustomProperties.TryGetValue("gameStarted", out var gameStarted))
+                isGameInProgress = (bool)gameStarted;
+
+            var button = roomObject.GetComponent<Button>();
+            button.interactable = roomInfo.PlayerCount < roomInfo.MaxPlayers && !isGameInProgress;
+            button.onClick.AddListener(() => JoinRoom(roomInfo.Name));
         }
     }
     #endregion
@@ -171,9 +177,10 @@ public class Launcher : MonoBehaviourPunCallbacks
             return;
         }
 
-        var customRoomProperties = new ExitGames.Client.Photon.Hashtable
+        var customRoomProperties = new Hashtable
         {
-            { "map", _selectedMapName }
+            { "map", _selectedMapName },
+            { "gameStarted", false }
         };
 
         var roomOptions = new RoomOptions
@@ -182,7 +189,7 @@ public class Launcher : MonoBehaviourPunCallbacks
             IsVisible = true,
             IsOpen = true,
             CustomRoomProperties = customRoomProperties,
-            CustomRoomPropertiesForLobby = new[] { "map" }
+            CustomRoomPropertiesForLobby = new[] { "map", "gameStarted" }
         };
 
         SetNickname();
@@ -191,10 +198,8 @@ public class Launcher : MonoBehaviourPunCallbacks
 
     private static bool IsRoomNameValid(string roomName)
     {
-        if (roomName.Length < 3 || roomName.Length > 20)
-            return false;
-
-        return roomName.All(c => char.IsLetterOrDigit(c) || c == '_' || c == '-' || c == ' ');
+        return roomName.Length is >= 3 and <= 20 &&
+               roomName.All(c => char.IsLetterOrDigit(c) || c == '_' || c == '-' || c == ' ');
     }
 
     private void JoinRoom(string roomName)

@@ -183,6 +183,20 @@ public class GameManager : MonoBehaviourPunCallbacks
 
         while (true)
         {
+            if (PhotonNetwork.CurrentRoom == null ||
+                PhotonNetwork.CurrentRoom.PlayerCount < PhotonNetwork.CurrentRoom.MaxPlayers)
+            {
+                countdownText.text = "waiting for players...";
+                _countdownStarted = false;
+
+                while (PhotonNetwork.CurrentRoom == null ||
+                       PhotonNetwork.CurrentRoom.PlayerCount < PhotonNetwork.CurrentRoom.MaxPlayers)
+                    yield return null;
+
+                if (PhotonNetwork.IsMasterClient)
+                    yield break;
+            }
+
             var elapsedTime = (PhotonNetwork.ServerTimestamp - serverStartTime) / 1000f;
             var remainingTime = countdownDuration - elapsedTime;
 
@@ -247,6 +261,8 @@ public class GameManager : MonoBehaviourPunCallbacks
     private void StartGame()
     {
         gameStarted = true;
+        var gameProps = new Hashtable { { "gameStarted", true } };
+        PhotonNetwork.CurrentRoom.SetCustomProperties(gameProps);
 
         var players = FindObjectsByType<PlayerController>(sortMode: FindObjectsSortMode.None);
         foreach (var p in players)
