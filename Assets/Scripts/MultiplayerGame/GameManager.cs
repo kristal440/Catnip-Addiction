@@ -22,6 +22,7 @@ public class GameManager : MonoBehaviourPunCallbacks
 
     [Header("Game Settings")]
     public float countdownDuration = 5f;
+    public float leaderboardLoadDelay = 1.5f;
     public GameObject countdownUI;
     public TMP_Text countdownText;
     public GameObject finishLine;
@@ -176,23 +177,6 @@ public class GameManager : MonoBehaviourPunCallbacks
     #endregion
 
     #region Game State Management
-    public void PlayerFinished(int playerId, float finishTime)
-    {
-        if (playerId == PhotonNetwork.LocalPlayer.ActorNumber)
-        {
-            _localPlayerFinished = true;
-            DisplayTime(finishTime);
-
-            if (GetComponent<SpectatorModeManager>() != null)
-                GetComponent<SpectatorModeManager>().OnPlayerFinish();
-        }
-
-        if (_finishTimes.ContainsKey(playerId))
-            return;
-
-        photonView.RPC(nameof(UpdateLeaderboard), RpcTarget.All, playerId, finishTime);
-    }
-
     private IEnumerator CountdownCoroutine(int serverStartTime)
     {
         countdownUI.SetActive(true);
@@ -216,6 +200,35 @@ public class GameManager : MonoBehaviourPunCallbacks
         countdownUI.SetActive(false);
         if (photonView)
             photonView.RPC(nameof(StartGame), RpcTarget.All);
+    }
+
+    public void PlayerFinished(int playerId, float finishTime)
+    {
+        if (playerId == PhotonNetwork.LocalPlayer.ActorNumber)
+        {
+            _localPlayerFinished = true;
+            DisplayTime(finishTime);
+
+            if (GetComponent<SpectatorModeManager>() != null)
+                GetComponent<SpectatorModeManager>().OnPlayerFinish();
+        }
+
+        if (_finishTimes.ContainsKey(playerId))
+            return;
+
+        photonView.RPC(nameof(UpdateLeaderboard), RpcTarget.All, playerId, finishTime);
+    }
+
+    public override void OnPlayerLeftRoom(Photon.Realtime.Player otherPlayer)
+    {
+        base.OnPlayerLeftRoom(otherPlayer);
+
+        if (PhotonNetwork.CurrentRoom.PlayerCount != 1 || !gameStarted) return;
+        var localPlayerId = PhotonNetwork.LocalPlayer.ActorNumber;
+        if (!_finishTimes.ContainsKey(localPlayerId)) return;
+        if (_finishTimes[localPlayerId] is not Hashtable playerData) return;
+        if (playerData["finishTime"] is float finishTime)
+            UpdateLeaderboard(localPlayerId, finishTime);
     }
     #endregion
 
@@ -276,7 +289,7 @@ public class GameManager : MonoBehaviourPunCallbacks
         var roomProps = new Hashtable { { "LeaderboardData", _finishTimes } };
         PhotonNetwork.CurrentRoom.SetCustomProperties(roomProps);
 
-        StartCoroutine(LoadLeaderboardWithDelay(0.5f));
+        StartCoroutine(LoadLeaderboardWithDelay(leaderboardLoadDelay));
     }
 
     private static IEnumerator LoadLeaderboardWithDelay(float delay)
