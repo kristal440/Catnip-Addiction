@@ -1056,7 +1056,7 @@ MonoBehaviour:
   jumpChargeBar: {fileID: 1315758324830475671}
   minJumpForce: 8.5
   maxJumpForce: 14.2
-  quickJumpThreshold: 0.11
+  quickJumpThreshold: 0.2
   maxChargeTime: 1.1
   jumpCooldown: 0.25
   deathHeight: -100

@@ -316,14 +316,17 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
     private IEnumerator ChargeJump()
     {
-        yield return new WaitForSeconds(quickJumpThreshold);
+        var startTime = Time.time;
 
-        if (!_jumpButtonHeld)
+        while (Time.time - startTime < quickJumpThreshold)
         {
-            _isJumpQueued = true;
-            animator.SetBool(IsJumpQueued, true);
-            StartCoroutine(JumpAfterDelay(0f));
-            yield break;
+            if (!_jumpButtonHeld)
+            {
+                _isJumpQueued = true;
+                StartCoroutine(JumpAfterDelay(0f));
+                yield break;
+            }
+            yield return null;
         }
 
         _isChargingJump = true;

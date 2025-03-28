@@ -420,7 +420,7 @@ MonoBehaviour:
   fovSmoothTime: 0.5
   maxHorizontalOffset: 0.32
   positionSmoothTime: 0.6
-  maxVerticalOffset: 0.2
+  maxVerticalOffset: 0.25
   verticalSmoothTime: 0.3
   playerSearchTimeout: 5
   jumpFOV: 45
