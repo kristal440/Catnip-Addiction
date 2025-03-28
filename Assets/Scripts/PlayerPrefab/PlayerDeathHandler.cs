@@ -15,10 +15,12 @@ public class PlayerDeathHandler : MonoBehaviour
     [SerializeField] private float explosionDuration = 10f;
 
     private bool _isRespawning;
+    private Camera _mainCamera;
 
     private void Start()
     {
         cameraController = FindFirstObjectByType<DynamicCameraController>();
+        _mainCamera = Camera.main;
     }
 
     private void OnTriggerEnter2D(Collider2D other)
@@ -38,8 +40,13 @@ public class PlayerDeathHandler : MonoBehaviour
         playerCanvasToHide.enabled = false;
         var explosion = Instantiate(deathExplosionPrefab, transform.position, Quaternion.identity);
         Destroy(explosion, explosionDuration);
-        cameraController.OnPlayerDeath();
-        deathBorderEffect.ShowDeathBorder();
+
+        // Only apply camera effects if this is the local player or being spectated
+        if (ShouldApplyCameraEffects())
+        {
+            cameraController.OnPlayerDeath();
+            deathBorderEffect.ShowDeathBorder();
+        }
 
         playerController.OnPlayerDeath();
 
@@ -49,11 +56,22 @@ public class PlayerDeathHandler : MonoBehaviour
 
         playerSpriteToHide.enabled = true;
         playerCanvasToHide.enabled = true;
-        cameraController.OnPlayerRespawn();
-        deathBorderEffect.HideDeathBorder();
+
+        // Only apply camera effects if this is the local player or being spectated
+        if (ShouldApplyCameraEffects())
+        {
+            cameraController.OnPlayerRespawn();
+            deathBorderEffect.HideDeathBorder();
+        }
 
         SetPlayerMovementEnabled(true);
         _isRespawning = false;
+    }
+
+    private bool ShouldApplyCameraEffects()
+    {
+        if (_mainCamera == null) return false;
+        return playerController.photonView.IsMine || _mainCamera.transform.parent == transform;
     }
 
     private void SetPlayerMovementEnabled(bool movementEnabled)
