@@ -6,8 +6,6 @@ public class GameStartup : MonoBehaviour
 
     private const string VsyncEnabledKey = "VSyncEnabled";
     private const string TargetFPSKey = "TargetFPS";
-
-    // Controls visibility key
     private const string MultiplayerControlsKey = "ShowMultiplayerControls";
 
     private void Start()
@@ -55,10 +53,7 @@ public class GameStartup : MonoBehaviour
             PlayerPrefs.Save();
         }
 
-        // Set the static property used by other scripts
         OnScreenControlsManager.ShowMultiplayerControls = showMultiplayerControls;
-
-        // Use the utility method instead of trying to invoke the event directly
         OnScreenControlsManager.SetControlsVisibility(showMultiplayerControls);
     }
 }
