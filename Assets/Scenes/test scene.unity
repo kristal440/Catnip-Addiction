@@ -741,6 +741,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 160946275515705536, guid: 85cb1624dbdfe80878c496a58c5ede2a, type: 3}
+      propertyPath: waterZoomMultiplier
+      value: 0.75
+      objectReference: {fileID: 0}
     - target: {fileID: 5782928560390149961, guid: 85cb1624dbdfe80878c496a58c5ede2a, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
