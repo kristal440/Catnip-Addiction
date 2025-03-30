@@ -7,6 +7,8 @@ using static UnityEngine.Vector3;
 
 public class CatnipEffectParticles : MonoBehaviour
 {
+    private static readonly int color = Shader.PropertyToID("_Color");
+
     [Header("Player Reference")]
     [SerializeField] private GameObject playerObject;
 
@@ -78,8 +80,11 @@ public class CatnipEffectParticles : MonoBehaviour
     private Transform _playerTransform;
     private PhotonView _playerPhotonView;
     private bool _isRemotePlayer;
-    private Gradient _localPlayerGradient;
-    private Gradient _remotePlayerGradient;
+    private Gradient _baseGradient;
+    private Color _remoteStartColorMin;
+    private Color _remoteStartColorMax;
+    private Material _localPlayerMaterial;
+    private Material _remotePlayerMaterial;
 
     private void Awake()
     {
@@ -100,10 +105,7 @@ public class CatnipEffectParticles : MonoBehaviour
         }
 
         if (enableColorOverLifetime && colorOverLifetime != null)
-        {
-            _localPlayerGradient = colorOverLifetime;
-            _remotePlayerGradient = CreateRemotePlayerGradient(_localPlayerGradient);
-        }
+            _baseGradient = colorOverLifetime;
 
         SetupPlayerReferences();
 
@@ -112,6 +114,33 @@ public class CatnipEffectParticles : MonoBehaviour
             var o = gameObject;
             LogWarning($"CatnipEffectParticles: Particle Material is not assigned on {o.name}. Particles may not render correctly.", o);
         }
+        else if (particleMaterial != null)
+        {
+            _localPlayerMaterial = new Material(particleMaterial);
+            _remotePlayerMaterial = new Material(particleMaterial)
+            {
+                color = new Color(
+                    particleMaterial.color.r,
+                    particleMaterial.color.g,
+                    particleMaterial.color.b,
+                    particleMaterial.color.a * remotePlayerOpacityMultiplier
+                )
+            };
+        }
+
+        _remoteStartColorMin = new Color(
+            startColorMin.r,
+            startColorMin.g,
+            startColorMin.b,
+            startColorMin.a * remotePlayerOpacityMultiplier
+        );
+
+        _remoteStartColorMax = new Color(
+            startColorMax.r,
+            startColorMax.g,
+            startColorMax.b,
+            startColorMax.a * remotePlayerOpacityMultiplier
+        );
 
         SetupParticleSystem();
 
@@ -145,26 +174,6 @@ public class CatnipEffectParticles : MonoBehaviour
 
         _lastParentScale = _playerTransform.localScale;
         UpdateObjectScale();
-    }
-
-    private Gradient CreateRemotePlayerGradient(Gradient sourceGradient)
-    {
-        var remoteGradient = new Gradient();
-        remoteGradient.SetKeys(
-            sourceGradient.colorKeys,
-            new GradientAlphaKey[sourceGradient.alphaKeys.Length]
-        );
-
-        for (int i = 0; i < sourceGradient.alphaKeys.Length; i++)
-        {
-            var originalKey = sourceGradient.alphaKeys[i];
-            remoteGradient.alphaKeys[i] = new GradientAlphaKey(
-                originalKey.alpha * remotePlayerOpacityMultiplier,
-                originalKey.time
-            );
-        }
-
-        return remoteGradient;
     }
 
     private void UpdateObjectScale()
@@ -208,7 +217,9 @@ public class CatnipEffectParticles : MonoBehaviour
         main.startLifetime = new ParticleSystem.MinMaxCurve(startLifetime);
         main.startSpeed = new ParticleSystem.MinMaxCurve(startSpeedMin, startSpeedMax);
         main.startSize = new ParticleSystem.MinMaxCurve(startSizeMin, startSizeMax);
-        main.startColor = new ParticleSystem.MinMaxGradient(startColorMin, startColorMax);
+
+        main.startColor = _isRemotePlayer ? new ParticleSystem.MinMaxGradient(_remoteStartColorMin, _remoteStartColorMax) : new ParticleSystem.MinMaxGradient(startColorMin, startColorMax);
+
         main.gravityModifier = gravityModifier;
         main.playOnAwake = false;
         main.maxParticles = maxParticles;
@@ -235,12 +246,7 @@ public class CatnipEffectParticles : MonoBehaviour
         var col = _particleSystem.colorOverLifetime;
         col.enabled = enableColorOverLifetime;
         if (enableColorOverLifetime)
-        {
-            if (_isRemotePlayer)
-                col.color = new ParticleSystem.MinMaxGradient(_remotePlayerGradient);
-            else
-                col.color = new ParticleSystem.MinMaxGradient(_localPlayerGradient);
-        }
+            col.color = new ParticleSystem.MinMaxGradient(_baseGradient);
     }
 
     private void SetupSizeOverLifetimeModule()
@@ -293,7 +299,12 @@ public class CatnipEffectParticles : MonoBehaviour
 
     private void SetupRendererModule()
     {
-        if (particleMaterial != null) _particleSystemRenderer.material = particleMaterial;
+        if (_isRemotePlayer && _remotePlayerMaterial != null)
+            _particleSystemRenderer.material = _remotePlayerMaterial;
+        else if (_localPlayerMaterial != null)
+            _particleSystemRenderer.material = _localPlayerMaterial;
+        else if (particleMaterial != null)
+            _particleSystemRenderer.material = particleMaterial;
 
         _particleSystemRenderer.renderMode = renderMode;
         _particleSystemRenderer.sortMode = sortMode;
@@ -301,6 +312,13 @@ public class CatnipEffectParticles : MonoBehaviour
 
         _particleSystemRenderer.sortingLayerName = sortingLayerName;
         _particleSystemRenderer.sortingOrder = sortingOrder;
+
+        if (!_isRemotePlayer) return;
+
+        var materialPropertyBlock = new MaterialPropertyBlock();
+        _particleSystemRenderer.GetPropertyBlock(materialPropertyBlock);
+        materialPropertyBlock.SetColor(color, new Color(1, 1, 1, remotePlayerOpacityMultiplier));
+        _particleSystemRenderer.SetPropertyBlock(materialPropertyBlock);
     }
 
     private void Update()

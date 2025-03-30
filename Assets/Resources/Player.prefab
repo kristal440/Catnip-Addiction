@@ -1188,8 +1188,8 @@ MonoBehaviour:
   startSpeedMax: 0.25
   startSizeMin: 0.05
   startSizeMax: 0.08
-  startColorMin: {r: 0, g: 1, b: 0, a: 1}
-  startColorMax: {r: 0.5, g: 1, b: 0.5, a: 1}
+  startColorMin: {r: 0.14542542, g: 0.7169812, b: 0.14542542, a: 1}
+  startColorMax: {r: 0.3754005, g: 0.7169812, b: 0.3754005, a: 1}
   gravityModifier: 0
   maxParticles: 20
   simulationSpace: 1
@@ -1295,4 +1295,4 @@ MonoBehaviour:
   sortingLayerName: Foreground
   sortingOrder: 10
   showForRemotePlayers: 1
-  remotePlayerOpacityMultiplier: 0.5
+  remotePlayerOpacityMultiplier: 0.75
