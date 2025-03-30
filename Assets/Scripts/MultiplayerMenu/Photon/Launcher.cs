@@ -37,6 +37,8 @@ public class Launcher : MonoBehaviourPunCallbacks
     [SerializeField] private GameObject roomListPanel;
     [SerializeField] private GameObject roomPrefab;
     [SerializeField] private Transform roomsContainer;
+    [SerializeField] private Color fullRoomColor = new(1f, 0.239f, 0.239f); // Red by default
+    [SerializeField] private Color availableRoomColor = new(0.475f, 1f, 0.498f);
 
     #region Unity Lifecycle
     private void Awake()
@@ -125,7 +127,7 @@ public class Launcher : MonoBehaviourPunCallbacks
             var playerCountText = roomObject.transform.Find("playerCountGroup/RoomPlayerCountTxt").GetComponent<TextMeshProUGUI>();
             playerCountText.text = $"{roomInfo.PlayerCount}/{roomInfo.MaxPlayers}";
             playerCountText.color = roomInfo.PlayerCount >= roomInfo.MaxPlayers ?
-                new Color(1f, 0.239f, 0.239f) : new Color(0.475f, 1f, 0.498f);
+                fullRoomColor : availableRoomColor;
 
             var isGameInProgress = false;
             if (roomInfo.CustomProperties.TryGetValue("gameStarted", out var gameStarted))

@@ -12,9 +12,14 @@ public class RoomManager : MonoBehaviourPunCallbacks
     public TMP_Text pingText;
 
     [Header("Player List")]
-    public Transform playerListContainer; // Parent object for the list items
-    public GameObject playerListItemPrefab; // Prefab with TMP_Text for player name
-    private Dictionary<int, GameObject> _playerListItems = new();
+    public Transform playerListContainer;
+    public GameObject playerListItemPrefab;
+    private readonly Dictionary<int, GameObject> _playerListItems = new();
+
+    [Header("Player Count Display")]
+    public TMP_Text playerCountText;
+    public Color normalColor = Color.white;
+    public Color fullRoomColor = Color.green;
 
     private void Start()
     {
@@ -22,17 +27,31 @@ public class RoomManager : MonoBehaviourPunCallbacks
             InstantiatePlayer();
 
         UpdatePlayerList();
-    }
-
-    public void Update()
-    {
-        pingText.text = $"{PhotonNetwork.GetPing()}ms";
+        UpdatePlayerCountDisplay();
     }
 
     public override void OnJoinedRoom()
     {
         InstantiatePlayer();
         UpdatePlayerList();
+        UpdatePlayerCountDisplay();
+    }
+
+    public override void OnPlayerEnteredRoom(Player newPlayer)
+    {
+        UpdatePlayerList();
+        UpdatePlayerCountDisplay();
+    }
+
+    public override void OnPlayerLeftRoom(Player otherPlayer)
+    {
+        UpdatePlayerList();
+        UpdatePlayerCountDisplay();
+    }
+
+    public void Update()
+    {
+        pingText.text = $"{PhotonNetwork.GetPing()}ms";
     }
 
     private void InstantiatePlayer()
@@ -49,16 +68,6 @@ public class RoomManager : MonoBehaviourPunCallbacks
         }
         else
             Debug.LogError("Player prefab is null or not connected to Photon! Cannot instantiate player.");
-    }
-
-    public override void OnPlayerEnteredRoom(Player newPlayer)
-    {
-        UpdatePlayerList();
-    }
-
-    public override void OnPlayerLeftRoom(Player otherPlayer)
-    {
-        UpdatePlayerList();
     }
 
     private void ClearPlayerList()
@@ -80,6 +89,18 @@ public class RoomManager : MonoBehaviourPunCallbacks
             Debug.Log($"Adding player to list: {player.NickName} (Actor: {player.ActorNumber})");
             AddPlayerToList(player);
         }
+    }
+
+    private void UpdatePlayerCountDisplay()
+    {
+        if (!playerCountText || PhotonNetwork.CurrentRoom == null) return;
+
+        var currentPlayers = PhotonNetwork.CurrentRoom.PlayerCount;
+        var maxPlayers = PhotonNetwork.CurrentRoom.MaxPlayers;
+
+        playerCountText.text = $"{currentPlayers}/{maxPlayers}";
+
+        playerCountText.color = (currentPlayers == maxPlayers) ? fullRoomColor : normalColor;
     }
 
     private void AddPlayerToList(Player player)
