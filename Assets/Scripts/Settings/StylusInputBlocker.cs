@@ -37,13 +37,12 @@ public class StylusInputBlocker : MonoBehaviour
         if (change != InputDeviceChange.Added && change != InputDeviceChange.Reconnected)
         {
             if (change is InputDeviceChange.Removed or InputDeviceChange.Disconnected)
-            {
                 _identifiedStylusDevices.Remove(device);
-            }
         }
         else
         {
             if (!IsStylusDevice(device)) return;
+
             _identifiedStylusDevices.Add(device);
             if (logBlockedEvents)
                 Debug.Log($"Identified stylus device: {device.name}");
@@ -64,10 +63,7 @@ public class StylusInputBlocker : MonoBehaviour
         var productName = device.description.product?.ToLowerInvariant() ?? string.Empty;
 
         string[] stylusKeywords = { "pen", "stylus", "wacom", "bamboo", "digitizer" };
-        if (stylusKeywords.Any(keyword => deviceName.Contains(keyword) || productName.Contains(keyword)))
-        {
-            return true;
-        }
+        if (stylusKeywords.Any(keyword => deviceName.Contains(keyword) || productName.Contains(keyword))) return true;
 
         return device.description.interfaceName == "HID" &&
                !string.IsNullOrEmpty(device.description.capabilities) &&
@@ -81,6 +77,7 @@ public class StylusInputBlocker : MonoBehaviour
         if (device == null)
         {
             if (!logBlockedEvents || _loggedEventsCount >= maxLoggedEvents) return;
+
             Debug.Log("Received input event with null device");
             _loggedEventsCount++;
             return;
@@ -117,6 +114,7 @@ public class StylusInputBlocker : MonoBehaviour
 
         // Log blocked events if enabled
         if (!logBlockedEvents || _loggedEventsCount >= maxLoggedEvents) return;
+
         Debug.Log($"Blocked stylus input: {blockReason}, Device: {device.name}");
         _loggedEventsCount++;
 

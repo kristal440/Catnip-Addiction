@@ -1,11 +1,11 @@
 using UnityEngine;
 using UnityEngine.UI;
-using System;
 
 public class ScrollListSelectionHandler : MonoBehaviour
 {
     // Define a delegate that provides more context
     public delegate void ItemSelectedHandler(int index, GameObject item);
+
     public event ItemSelectedHandler OnItemSelected;
 
     private ScrollListController _visualController;
@@ -23,12 +23,12 @@ public class ScrollListSelectionHandler : MonoBehaviour
             _visualController.OnSelectionChanged -= HandleVisualSelectionChanged;
     }
 
-    public void Initialize()
+    internal void Initialize()
     {
         SetupButtons();
     }
 
-    public void SetupButtons()
+    private void SetupButtons()
     {
         var itemRects = _visualController.GetItemRects();
 
@@ -50,7 +50,8 @@ public class ScrollListSelectionHandler : MonoBehaviour
 
     private void HandleVisualSelectionChanged(int index)
     {
-        var itemGameObject = _visualController.GetItemAt(index)?.gameObject;
+        var itemGameObject = _visualController.GetItemAt(index) != null ? _visualController.GetItemAt(index).gameObject : null;
+
         if (itemGameObject != null)
             OnItemSelected?.Invoke(index, itemGameObject);
     }
@@ -63,10 +64,10 @@ public class ScrollListSelectionHandler : MonoBehaviour
     public GameObject GetSelectedItem()
     {
         var index = _visualController.CurrentIndex;
-        return _visualController.GetItemAt(index)?.gameObject;
+        return _visualController.GetItemAt(index) != null ? _visualController.GetItemAt(index).gameObject : null;
     }
 
-    public void SelectItemProgrammatically(int index)
+    internal void SelectItemProgrammatically(int index)
     {
         _visualController.SelectItem(index);
     }

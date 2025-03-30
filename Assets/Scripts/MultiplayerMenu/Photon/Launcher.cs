@@ -77,6 +77,7 @@ public class Launcher : MonoBehaviourPunCallbacks
     public override void OnConnectedToMaster()
     {
         if (!_isConnecting) return;
+
         PhotonNetwork.JoinLobby();
         _isConnecting = false;
         loadingText.text = "Connected to Server :3";
@@ -111,7 +112,7 @@ public class Launcher : MonoBehaviourPunCallbacks
 
     public override void OnRoomListUpdate(List<RoomInfo> roomList)
     {
-        _roomLst = roomList.ConvertAll(x => x.Name);
+        _roomLst = roomList.ConvertAll(static x => x.Name);
         foreach (Transform transform1 in roomsContainer)
             Destroy(transform1.gameObject);
 
@@ -144,6 +145,7 @@ public class Launcher : MonoBehaviourPunCallbacks
     private IEnumerator ShowRoomListWithDelay()
     {
         yield return new WaitForSeconds(1);
+
         loadingPanel.SetActive(false);
         mainPanel.SetActive(true);
         roomListPanel.SetActive(true);
@@ -201,7 +203,7 @@ public class Launcher : MonoBehaviourPunCallbacks
     private static bool IsRoomNameValid(string roomName)
     {
         return roomName.Length is >= 3 and <= 20 &&
-               roomName.All(c => char.IsLetterOrDigit(c) || c == '_' || c == '-' || c == ' ');
+               roomName.All(static c => char.IsLetterOrDigit(c) || c == '_' || c == '-' || c == ' ');
     }
 
     private void JoinRoom(string roomName)

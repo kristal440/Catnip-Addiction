@@ -8,6 +8,8 @@ public class ResizeToBottom : MonoBehaviour
     {
         var rectTransform = GetComponent<RectTransform>();
         rectTransform.offsetMin = new Vector2(rectTransform.offsetMin.x, spacing);
-        rectTransform.offsetMax = new Vector2(rectTransform.offsetMax.x, rectTransform.offsetMax.y);
+        var offsetMax = rectTransform.offsetMax;
+        offsetMax = new Vector2(offsetMax.x, offsetMax.y);
+        rectTransform.offsetMax = offsetMax;
     }
 }

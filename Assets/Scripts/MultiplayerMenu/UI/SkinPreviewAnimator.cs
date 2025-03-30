@@ -22,11 +22,12 @@ public class SkinPreviewAnimator : MonoBehaviour
 
         _baseLayerIndex = _animator.GetLayerIndex(BaseLayerName);
         if (_baseLayerIndex != -1) return;
+
         Debug.LogError($"Base layer '{BaseLayerName}' not found in Animator Controller!");
         enabled = false;
     }
 
-    public void SetSkinName(string skinName)
+    internal void SetSkinName(string skinName)
     {
         _currentSkinName = skinName;
         UpdateAnimation();

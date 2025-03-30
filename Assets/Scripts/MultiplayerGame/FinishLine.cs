@@ -14,6 +14,7 @@ public class FinishLine : MonoBehaviour
         var player = other.GetComponent<PlayerController>();
 
         if (player == null || !PhotonNetwork.IsConnected || !PhotonNetwork.LocalPlayer.IsLocal) return;
+
         var finishTime = Time.timeSinceLevelLoad - GameManager.Instance.startTime;
         var playerID = PhotonNetwork.LocalPlayer.ActorNumber;
 

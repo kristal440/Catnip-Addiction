@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using Photon.Pun;
 using TMPro;
 using UnityEngine;
@@ -7,7 +8,7 @@ using UnityEngine.UI;
 
 public class SpectatorModeManager : MonoBehaviourPunCallbacks
 {
-    public bool IsSpectating { get; private set; }
+    internal bool IsSpectating { get; private set; }
     private static SpectatorModeManager Instance { get; set; }
 
     [Header("UI Elements")]
@@ -51,17 +52,17 @@ public class SpectatorModeManager : MonoBehaviourPunCallbacks
     {
         var allPlayers = FindObjectsByType<PlayerController>(FindObjectsSortMode.None);
 
-        foreach (var player in allPlayers)
+        foreach (var player in allPlayers.Where(static player => player.photonView.IsMine))
         {
-            if (!player.photonView.IsMine) continue;
             _localPlayer = player;
             break;
         }
     }
 
-    public void OnPlayerFinish()
+    internal void OnPlayerFinish()
     {
         if (!PhotonNetwork.IsConnected) return;
+
         if (_localPlayer == null) FindLocalPlayer();
         if (_localPlayer == null) return;
 
@@ -74,6 +75,7 @@ public class SpectatorModeManager : MonoBehaviourPunCallbacks
     private IEnumerator EnterSpectatorModeAfterDelay()
     {
         yield return new WaitForSeconds(delayBeforeSpectating);
+
         EnterSpectatorMode();
     }
 
@@ -81,15 +83,12 @@ public class SpectatorModeManager : MonoBehaviourPunCallbacks
     {
         RefreshPlayerList();
 
-        if (_activePlayers.Count <= 1)
-        {
-            return;
-        }
+        if (_activePlayers.Count <= 1) return;
 
         _localPlayer.SetSpectatorMode(true);
         IsSpectating = true;
 
-        if (onScreenControlsParent != null)
+        if (onScreenControlsParent)
             onScreenControlsParent.SetActive(false);
 
         spectatorModeUI.SetActive(true);
@@ -109,8 +108,10 @@ public class SpectatorModeManager : MonoBehaviourPunCallbacks
             onScreenControlsParent.SetActive(true);
 
         if (_mainCamera == null) return;
-        _mainCamera.transform.SetParent(_localPlayer.transform);
-        _mainCamera.transform.localPosition = new Vector3(0, 0, -10);
+
+        Transform transform1;
+        (transform1 = _mainCamera.transform).SetParent(_localPlayer.transform);
+        transform1.localPosition = new Vector3(0, 0, -10);
     }
 
     private void RefreshPlayerList()
@@ -120,9 +121,7 @@ public class SpectatorModeManager : MonoBehaviourPunCallbacks
         var allPlayers = FindObjectsByType<PlayerController>(FindObjectsSortMode.None);
 
         foreach (var player in allPlayers)
-        {
             _activePlayers.Add(player);
-        }
     }
 
     private void SpectatorNextPlayer()
@@ -132,9 +131,7 @@ public class SpectatorModeManager : MonoBehaviourPunCallbacks
         _currentPlayerIndex = (_currentPlayerIndex + 1) % _activePlayers.Count;
 
         if (_activePlayers[_currentPlayerIndex] == _localPlayer)
-        {
             _currentPlayerIndex = (_currentPlayerIndex + 1) % _activePlayers.Count;
-        }
 
         SwitchToPlayer(_currentPlayerIndex);
     }
@@ -146,9 +143,7 @@ public class SpectatorModeManager : MonoBehaviourPunCallbacks
         _currentPlayerIndex = (_currentPlayerIndex - 1 + _activePlayers.Count) % _activePlayers.Count;
 
         if (_activePlayers[_currentPlayerIndex] == _localPlayer)
-        {
             _currentPlayerIndex = (_currentPlayerIndex - 1 + _activePlayers.Count) % _activePlayers.Count;
-        }
 
         SwitchToPlayer(_currentPlayerIndex);
     }
@@ -162,7 +157,8 @@ public class SpectatorModeManager : MonoBehaviourPunCallbacks
 
         spectatingPlayerText.text = $"Spectating: {targetPlayer.photonView.Owner.NickName}";
 
-        _mainCamera.transform.SetParent(targetPlayer.transform);
-        _mainCamera.transform.localPosition = new Vector3(0, 0, -10);
+        Transform transform1;
+        (transform1 = _mainCamera.transform).SetParent(targetPlayer.transform);
+        transform1.localPosition = new Vector3(0, 0, -10);
     }
 }

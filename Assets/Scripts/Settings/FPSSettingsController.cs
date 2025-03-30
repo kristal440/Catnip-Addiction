@@ -58,9 +58,7 @@ public class FPSSettingsController : MonoBehaviour
         fpsSlider.maxValue = vsyncToggle.isOn ? _screenRefreshRate : maxUnlimitedFps;
 
         if (fpsSlider.value > fpsSlider.maxValue)
-        {
             fpsSlider.value = fpsSlider.maxValue;
-        }
 
         UpdateFPSText();
     }

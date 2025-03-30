@@ -6,12 +6,12 @@ public class OnScreenControlsManager : MonoBehaviour
 {
     [SerializeField] private Toggle controlsToggle;
 
-    public static bool ShowMultiplayerControls { get; set; }
+    internal static bool ShowMultiplayerControls { get; set; }
     public static event Action<bool> OnControlsVisibilityChanged;
 
     private const string MultiplayerControlsKey = "ShowMultiplayerControls";
 
-    public static void SetControlsVisibility(bool isVisible)
+    internal static void SetControlsVisibility(bool isVisible)
     {
         ShowMultiplayerControls = isVisible;
         OnControlsVisibilityChanged?.Invoke(isVisible);
@@ -36,8 +36,6 @@ public class OnScreenControlsManager : MonoBehaviour
     private void OnDestroy()
     {
         if (controlsToggle != null)
-        {
             controlsToggle.onValueChanged.RemoveListener(OnToggleChanged);
-        }
     }
 }

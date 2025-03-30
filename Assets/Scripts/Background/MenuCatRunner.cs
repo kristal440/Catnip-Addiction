@@ -10,8 +10,8 @@ public class MenuCatRunner : MonoBehaviour
     private float _speed;
     private float _destroyXPosition;
 
-    public void Initialize(float speed, float destroyXPosition, int skinVariant,
-                          float minAnimSpeed, float maxAnimSpeed)
+    internal void Initialize(float speed, float destroyXPosition, int skinVariant,
+        float minAnimSpeed, float maxAnimSpeed)
     {
         _speed = speed;
         _destroyXPosition = destroyXPosition;
@@ -29,6 +29,7 @@ public class MenuCatRunner : MonoBehaviour
         transform.Translate(Vector3.right * (_speed * Time.deltaTime));
 
         if (!(transform.position.x > _destroyXPosition)) return;
+
         gameObject.SetActive(false);
     }
 

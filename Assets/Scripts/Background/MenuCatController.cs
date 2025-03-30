@@ -81,6 +81,7 @@ public class MenuCatController : MonoBehaviour
     {
         _timeSinceLastSpawn += Time.deltaTime;
         if (!(_timeSinceLastSpawn >= _nextSpawnTime)) return;
+
         SpawnCat();
         _timeSinceLastSpawn = 0f;
         _nextSpawnTime = Random.Range(
@@ -123,6 +124,7 @@ public class MenuCatController : MonoBehaviour
     private System.Collections.IEnumerator WaitForCatDeactivation(GameObject cat)
     {
         yield return new WaitUntil(() => !cat.activeInHierarchy);
+
         _inactiveCats.Enqueue(cat);
     }
 

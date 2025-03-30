@@ -1,3 +1,4 @@
+using System.Linq;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
@@ -29,16 +30,12 @@ public class BackgroundScrollController : MonoBehaviour
     {
         _camera = Camera.main;
         if (cameraTransform == null)
-            cameraTransform = Camera.main?.transform;
+            if (Camera.main != null)
+                cameraTransform = Camera.main.transform;
 
-        foreach (var layer in layers)
-        {
-            if (layer.transform == null) continue;
+        foreach (var layer in layers.Where(static layer => layer.transform != null))
             if (layer.isTilemap && layer.autoAdjustWidth && layer.transform.TryGetComponent<Tilemap>(out var tilemap))
-            {
                 layer.width = tilemap.localBounds.size.x;
-            }
-        }
     }
 
     private void Update()
@@ -65,17 +62,16 @@ public class BackgroundScrollController : MonoBehaviour
                     var tileRightEdge = position.x + layer.width;
 
                     if (tileRightEdge < viewportLeftEdge)
-                    {
                         position.x += layer.width;
-                    }
 
                     break;
                 }
                 case false when layer.transform.TryGetComponent<Renderer>(out var component):
                 {
-                    var offset = component.material.mainTextureOffset;
+                    var material = component.material;
+                    var offset = material.mainTextureOffset;
                     offset.x += layer.scrollSpeed * Time.deltaTime;
-                    component.material.mainTextureOffset = offset;
+                    material.mainTextureOffset = offset;
                     continue;
                 }
             }

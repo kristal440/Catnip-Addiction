@@ -114,9 +114,10 @@ public class SkinPicker : MonoBehaviour
     {
         if (_isSnapping)
         {
+            var anchoredPosition = content.anchoredPosition;
             content.anchoredPosition = Vector2.Lerp(
-                content.anchoredPosition,
-                new Vector2(_snapTargetPosition, content.anchoredPosition.y),
+                anchoredPosition,
+                new Vector2(_snapTargetPosition, anchoredPosition.y),
                 snapSpeed * Time.deltaTime
             );
 

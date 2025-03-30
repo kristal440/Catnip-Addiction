@@ -13,7 +13,6 @@ public class MapSelectionManager : MonoBehaviour
     [Header("Settings")]
     [SerializeField] private bool skipMapsNotInBuild = true;
     [Tooltip("When enabled, maps not included in the build settings will be skipped")]
-
     public delegate void MapSelectedHandler(string mapSceneName, string mapDisplayName);
     public event MapSelectedHandler OnMapSelected;
 
@@ -37,7 +36,7 @@ public class MapSelectionManager : MonoBehaviour
             selectionHandler.OnItemSelected -= HandleMapSelection;
     }
 
-    public void Initialize(string defaultMapName = "GameScene_Map1_Multi")
+    internal void Initialize(string defaultMapName = "GameScene_Map1_Multi")
     {
         _selectedMapName = defaultMapName;
         LoadAvailableMaps();
@@ -51,6 +50,7 @@ public class MapSelectionManager : MonoBehaviour
         foreach (Transform child in mapsContainer)
         {
             if (!child.gameObject.activeSelf) continue;
+
             var sceneName = child.gameObject.name;
 
             var sceneInBuild = false;
@@ -60,6 +60,7 @@ public class MapSelectionManager : MonoBehaviour
                 var sceneNameFromBuild = System.IO.Path.GetFileNameWithoutExtension(scenePath);
 
                 if (sceneNameFromBuild != sceneName) continue;
+
                 sceneInBuild = true;
                 break;
             }
@@ -114,6 +115,7 @@ public class MapSelectionManager : MonoBehaviour
     private void HandleMapSelection(int index, GameObject selectedObject)
     {
         if (index < 0 || index >= _availableMaps.Count) return;
+
         _selectedMapName = _availableMaps.Keys.ElementAt(index);
         OnMapSelected?.Invoke(_selectedMapName, _availableMaps[_selectedMapName]);
     }
@@ -127,5 +129,8 @@ public class MapSelectionManager : MonoBehaviour
             selectionHandler.SelectItemProgrammatically(index);
     }
 
-    public string GetSelectedMapName() => _selectedMapName;
+    public string GetSelectedMapName()
+    {
+        return _selectedMapName;
+    }
 }

@@ -62,7 +62,8 @@ public class WaterEffectsHandler : MonoBehaviour
                 _cameraController = playerCamera.GetComponent<DynamicCameraController>();
 
             if (_cameraController == null)
-                _cameraController = Camera.main?.GetComponent<DynamicCameraController>();
+                if (Camera.main != null)
+                    _cameraController = Camera.main.GetComponent<DynamicCameraController>();
         }
 
         _originalMaxSpeed = _playerController.maxSpeed;
@@ -91,6 +92,7 @@ public class WaterEffectsHandler : MonoBehaviour
             !waterSplashPrefab ||
             !(Mathf.Abs(_playerController.currentSpeed) > minSpeedToShowParticles) ||
             !(Time.time > _lastParticleTime + particleSpawnInterval)) return;
+
         _photonView.RPC("SpawnWaterSplash", RpcTarget.All);
         _lastParticleTime = Time.time;
     }
@@ -113,6 +115,7 @@ public class WaterEffectsHandler : MonoBehaviour
 
         // Initial splash
         if (waterEntrySplashPrefab == null) return;
+
         var splash = Instantiate(waterEntrySplashPrefab, transform.position, Quaternion.identity);
         Destroy(splash, entrySplashLifetime);
     }
@@ -127,6 +130,7 @@ public class WaterEffectsHandler : MonoBehaviour
 
         // Exit splash
         if (waterEntrySplashPrefab == null) return;
+
         var splash = Instantiate(waterEntrySplashPrefab, transform.position, Quaternion.identity);
         Destroy(splash, entrySplashLifetime);
     }
@@ -169,9 +173,7 @@ public class WaterEffectsHandler : MonoBehaviour
         if (!enableWaterTint || _spriteRenderer == null) return;
 
         if (_colorTransitionCoroutine != null)
-        {
             StopCoroutine(_colorTransitionCoroutine);
-        }
 
         _colorTransitionCoroutine = StartCoroutine(TransitionColor(entering ? waterTintColor : _originalColor));
     }

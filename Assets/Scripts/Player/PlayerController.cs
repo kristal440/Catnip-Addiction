@@ -77,11 +77,11 @@ public class PlayerController : MonoBehaviourPunCallbacks
     private float _newDeceleration;
 
     // Properties
-    public bool IsStanding { get; set; }
-    public bool IsGrounded { get; private set; }
-    public bool IsJumpPaused { get; set; }
-    public bool IsPaused { get; set; }
-    public bool HasCatnip { get; set; }
+    internal bool IsStanding { get; set; }
+    internal bool IsGrounded { get; private set; }
+    internal bool IsJumpPaused { get; set; }
+    internal bool IsPaused { get; set; }
+    internal bool HasCatnip { get; set; }
     #endregion
 
     #region Unity Lifecycle
@@ -113,13 +113,9 @@ public class PlayerController : MonoBehaviourPunCallbacks
         var nameTagText = GetComponentInChildren<TextMeshProUGUI>();
 
         if (!photonView.IsMine)
-        {
             SetupRemotePlayerVisuals(sr, nameTagText, playerCanvas);
-        }
         else
-        {
             SetupLocalPlayerCamera();
-        }
     }
 
     private void Update()
@@ -134,14 +130,12 @@ public class PlayerController : MonoBehaviourPunCallbacks
         HandleMovement();
 
         if (transform.position.y < deathHeight && !_isDead)
-        {
             playerDeathHandler.HandleOutOfBoundsDeath();
-        }
     }
     #endregion
 
     #region Player Setup
-    private static void SetupRemotePlayerVisuals(SpriteRenderer sr, TextMeshProUGUI nameTagText, Canvas playerCanvas)
+    private static void SetupRemotePlayerVisuals(SpriteRenderer sr, Graphic nameTagText, Canvas playerCanvas)
     {
         if (sr != null)
         {
@@ -151,7 +145,9 @@ public class PlayerController : MonoBehaviourPunCallbacks
             sr.sortingOrder = 0;
         }
         else
+        {
             Debug.LogWarning("No SpriteRenderer found on player GameObject!");
+        }
 
         if (nameTagText != null)
         {
@@ -160,7 +156,9 @@ public class PlayerController : MonoBehaviourPunCallbacks
             nameTagText.color = textColor;
         }
         else
+        {
             Debug.LogWarning("No TextMeshProUGUI found on player GameObject!");
+        }
 
         if (playerCanvas != null)
             playerCanvas.sortingOrder = 0;
@@ -173,9 +171,10 @@ public class PlayerController : MonoBehaviourPunCallbacks
         if (_mainCamera == null)
             return;
 
-        _mainCamera.transform.SetParent(transform);
-        _mainCamera.transform.localPosition = new Vector3(0, 0, -10);
-        _mainCamera.transform.localRotation = Quaternion.identity;
+        Transform transform1;
+        (transform1 = _mainCamera.transform).SetParent(transform);
+        transform1.localPosition = new Vector3(0, 0, -10);
+        transform1.localRotation = Quaternion.identity;
         _cameraController = GetComponentInChildren<DynamicCameraController>();
     }
     #endregion
@@ -222,32 +221,49 @@ public class PlayerController : MonoBehaviourPunCallbacks
         {
             if (horizontalInput < 0)
             {
-                transform.localScale = new Vector3(-Abs(transform.localScale.y), transform.localScale.y,
-                    transform.localScale.z);
-                playerNameTag.transform.localScale = new Vector3(-Abs(playerNameTag.transform.localScale.y),
-                    playerNameTag.transform.localScale.y, playerNameTag.transform.localScale.z);
-                jumpChargeBarGameObject.transform.localScale = new Vector3(
-                    -Abs(jumpChargeBarGameObject.transform.localScale.y),
-                    jumpChargeBarGameObject.transform.localScale.y, jumpChargeBarGameObject.transform.localScale.z);
+                var localScale = transform.localScale;
+                localScale = new Vector3(-Abs(localScale.y), localScale.y,
+                    localScale.z);
+                transform.localScale = localScale;
+                var scale = playerNameTag.transform.localScale;
+                scale = new Vector3(-Abs(scale.y),
+                    scale.y, scale.z);
+                playerNameTag.transform.localScale = scale;
+                var localScale1 = jumpChargeBarGameObject.transform.localScale;
+                localScale1 = new Vector3(
+                    -Abs(localScale1.y),
+                    localScale1.y, localScale1.z);
+                jumpChargeBarGameObject.transform.localScale = localScale1;
                 animator.SetBool(IsLaying, false);
                 _idleTimer = 0f;
             }
         }
         else
         {
-            transform.localScale =
-                new Vector3(Abs(transform.localScale.y), transform.localScale.y, transform.localScale.z);
-            playerNameTag.transform.localScale = new Vector3(Abs(playerNameTag.transform.localScale.y),
-                playerNameTag.transform.localScale.y, playerNameTag.transform.localScale.z);
-            jumpChargeBarGameObject.transform.localScale = new Vector3(
-                Abs(jumpChargeBarGameObject.transform.localScale.y), jumpChargeBarGameObject.transform.localScale.y,
-                jumpChargeBarGameObject.transform.localScale.z);
+            var localScale = transform.localScale;
+            localScale =
+                new Vector3(Abs(localScale.y), localScale.y, localScale.z);
+            transform.localScale = localScale;
+            var scale = playerNameTag.transform.localScale;
+            scale = new Vector3(Abs(scale.y),
+                scale.y, scale.z);
+            playerNameTag.transform.localScale = scale;
+            var localScale1 = jumpChargeBarGameObject.transform.localScale;
+            localScale1 = new Vector3(
+                Abs(localScale1.y), localScale1.y,
+                localScale1.z);
+            jumpChargeBarGameObject.transform.localScale = localScale1;
             animator.SetBool(IsLaying, false);
             _idleTimer = 0f;
         }
 
         if (transform.localScale != _previousPlayerScale)
-            _mainCamera.transform.localPosition = new Vector3(_mainCamera.transform.localPosition.x * -1, _mainCamera.transform.localPosition.y, _mainCamera.transform.localPosition.z);
+        {
+            var transform1 = _mainCamera.transform;
+            var cameraPosition = transform1.localPosition;
+            cameraPosition.x *= -1;
+            transform1.localPosition = cameraPosition;
+        }
 
         _previousPlayerScale = transform.localScale;
     }
@@ -417,11 +433,14 @@ public class PlayerController : MonoBehaviourPunCallbacks
         {
             _idleTimer += Time.deltaTime;
             if (!(_idleTimer >= 3f)) return;
+
             animator.SetBool(IsLaying, true);
             _idleTimer = 3f;
         }
         else
+        {
             _idleTimer = 0f;
+        }
     }
 
     private void UpdateAnimations()
@@ -429,9 +448,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
         IsGrounded = Physics2D.OverlapCircle(groundCheck.position, groundCheckRadius, groundLayerMask) || _isDead;
 
         if (!IsGrounded && (_isChargingJump || _isJumpQueued))
-        {
             CancelJumpCharge();
-        }
 
         if (IsGrounded && IsJumpPaused)
         {
@@ -462,22 +479,28 @@ public class PlayerController : MonoBehaviourPunCallbacks
         {
             // Handle remote player's UI elements orientation
             var scaleFactor = transform.localScale.x < 0 ? -1 : 1;
-            playerNameTag.transform.localScale = new Vector3(
-                scaleFactor * Abs(playerNameTag.transform.localScale.y),
-                playerNameTag.transform.localScale.y,
-                playerNameTag.transform.localScale.z);
+            var localScale = playerNameTag.transform.localScale;
+            localScale = new Vector3(
+                scaleFactor * Abs(localScale.y),
+                localScale.y,
+                localScale.z);
+            playerNameTag.transform.localScale = localScale;
 
-            if (jumpChargeBarGameObject)
-                jumpChargeBarGameObject.transform.localScale = new Vector3(
-                    scaleFactor * Abs(jumpChargeBarGameObject.transform.localScale.y),
-                    jumpChargeBarGameObject.transform.localScale.y,
-                    jumpChargeBarGameObject.transform.localScale.z);
+            if (!jumpChargeBarGameObject) return;
+
+            var scale = jumpChargeBarGameObject.transform.localScale;
+            scale = new Vector3(
+                scaleFactor * Abs(scale.y),
+                scale.y,
+                scale.z);
+            jumpChargeBarGameObject.transform.localScale = scale;
         }
     }
     #endregion
 
     #region Utility
-    public void Teleport(Vector3 position)
+
+    internal void Teleport(Vector3 position)
     {
         if (!photonView.IsMine)
             return;
@@ -486,12 +509,12 @@ public class PlayerController : MonoBehaviourPunCallbacks
         currentSpeed = 0f;
     }
 
-    public void SetMovement(bool isEnabled)
+    internal void SetMovement(bool isEnabled)
     {
         IsPaused = !isEnabled;
     }
 
-    public void SetSpectatorMode(bool isEnabled)
+    internal void SetSpectatorMode(bool isEnabled)
     {
         SetMovement(false);
         Debug.Log(isEnabled ? "Spectator mode enabled" : "Spectator mode disabled");
@@ -499,7 +522,8 @@ public class PlayerController : MonoBehaviourPunCallbacks
     #endregion
 
     #region Death and Respawn
-    public void OnPlayerDeath()
+
+    internal void OnPlayerDeath()
     {
         if (_isDead)
             return;
@@ -514,7 +538,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
             _cameraController.OnPlayerDeath();
     }
 
-    public void RespawnAtLastCheckpoint()
+    internal void RespawnAtLastCheckpoint()
     {
         Teleport(CheckpointManager.LastCheckpointPosition);
         OnPlayerRespawn();

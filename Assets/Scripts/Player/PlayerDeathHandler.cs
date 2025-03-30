@@ -12,7 +12,7 @@ public class PlayerDeathHandler : MonoBehaviour
     [SerializeField] private SpriteRenderer playerSpriteToHide;
     [SerializeField] private Canvas playerCanvasToHide;
     [SerializeField] private float explosionDuration = 10f;
-    
+
     private SpectatorModeManager _spectatorModeManager;
     private DynamicCameraController _cameraController;
 
@@ -74,6 +74,7 @@ public class PlayerDeathHandler : MonoBehaviour
     private bool ShouldApplyCameraEffects()
     {
         if (!_mainCamera) return false;
+
         return playerController.photonView.IsMine || _spectatorModeManager.IsSpectating;
     }
 
@@ -82,7 +83,7 @@ public class PlayerDeathHandler : MonoBehaviour
         playerController.SetMovement(movementEnabled);
     }
 
-    public void HandleOutOfBoundsDeath()
+    internal void HandleOutOfBoundsDeath()
     {
         if (_isRespawning)
             return;

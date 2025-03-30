@@ -36,12 +36,13 @@ public class MenuBackgroundController : MonoBehaviour
             main.startSpeedMultiplier *= particleIntensity;
 
             if (!system.TryGetComponent<ParticleSystemRenderer>(out var component)) continue;
+
             var screenAspect = (float)Screen.width / Screen.height;
             component.pivot = new Vector3(screenAspect * 0.5f, 0.5f, 0);
         }
     }
 
-    public void TransitionToMenu(string menuName)
+    internal void TransitionToMenu(string menuName)
     {
         if (menuCanvasGroup)
             StartCoroutine(FadeCanvasGroup(menuCanvasGroup, 0f, 1f, transitionSpeed));

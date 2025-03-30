@@ -18,6 +18,7 @@ public class AnimatorEvents : MonoBehaviour
     public void OnStandingAnimationComplete()
     {
         if (playerController == null) return;
+
         playerController.IsStanding = true;
     }
 
@@ -25,6 +26,7 @@ public class AnimatorEvents : MonoBehaviour
     public void OnLayingAnimationComplete()
     {
         if (playerController == null) return;
+
         playerController.IsStanding = false;
     }
 }

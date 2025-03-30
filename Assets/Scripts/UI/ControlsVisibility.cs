@@ -19,8 +19,6 @@ public class ControlsVisibility : MonoBehaviour
     private void UpdateVisibility(bool showControls)
     {
         if (controlsContainer != null)
-        {
             controlsContainer.SetActive(showControls);
-        }
     }
 }

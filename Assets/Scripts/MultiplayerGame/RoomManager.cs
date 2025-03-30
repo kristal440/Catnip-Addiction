@@ -61,21 +61,21 @@ public class RoomManager : MonoBehaviourPunCallbacks
             var spawnIndex = PhotonNetwork.LocalPlayer.ActorNumber % spawnPoints.Length;
             var spawn = spawnPoints.Length > 0 ? spawnPoints[spawnIndex] : null;
 
-            var spawnPosition = spawn?.position ?? Vector3.zero;
-            var spawnRotation = spawn?.rotation ?? Quaternion.identity;
+            var spawnPosition = spawn ? spawn.position : Vector3.zero;
+            var spawnRotation = spawn ? spawn.rotation : Quaternion.identity;
 
             PhotonNetwork.Instantiate(playerPrefab.name, spawnPosition, spawnRotation);
         }
         else
+        {
             Debug.LogError("Player prefab is null or not connected to Photon! Cannot instantiate player.");
+        }
     }
 
     private void ClearPlayerList()
     {
         foreach (var item in _playerListItems.Values)
-        {
             Destroy(item);
-        }
         _playerListItems.Clear();
     }
 
@@ -118,9 +118,7 @@ public class RoomManager : MonoBehaviourPunCallbacks
             Debug.Log($"Set name text to: {player.NickName}");
 
             if (player.IsLocal)
-            {
                 nameText.color = Color.green;
-            }
         }
         else
         {

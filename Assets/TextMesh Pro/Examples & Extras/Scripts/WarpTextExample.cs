@@ -61,6 +61,7 @@ namespace TMPro.Examples
                 if (!m_TextComponent.havePropertiesChanged && old_CurveScale == CurveScale && old_curve.keys[1].value == VertexCurve.keys[1].value)
                 {
                     yield return null;
+
                     continue;
                 }
 

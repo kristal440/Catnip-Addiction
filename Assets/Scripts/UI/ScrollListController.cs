@@ -27,7 +27,6 @@ public class ScrollListController : MonoBehaviour
     public float childHeightExpansionAmount = 45f;
     public float expansionSpeed = 20f;
 
-    private int _currentIndex = -1;
     private readonly List<RectTransform> _itemRects = new();
     private readonly List<float> _originalHeights = new();
     private readonly List<float> _originalChildHeights = new();
@@ -43,11 +42,11 @@ public class ScrollListController : MonoBehaviour
 
     public event Action<int> OnSelectionChanged;
 
-    public int CurrentIndex => _currentIndex;
+    internal int CurrentIndex { get; private set; } = -1;
 
     private void Start()
     {
-        scrollRect ??= GetComponentInParent<ScrollRect>();
+        scrollRect = scrollRect ? scrollRect : GetComponentInParent<ScrollRect>();
         if (scrollRect && !viewport) viewport = scrollRect.viewport;
         _verticalLayoutGroup = GetComponent<VerticalLayoutGroup>();
 
@@ -55,7 +54,7 @@ public class ScrollListController : MonoBehaviour
         UpdatePadding();
     }
 
-    public void InitializeItems()
+    internal void InitializeItems()
     {
         _itemRects.Clear();
         _originalHeights.Clear();
@@ -72,7 +71,7 @@ public class ScrollListController : MonoBehaviour
             _itemRects.Add(itemRect);
             _originalHeights.Add(itemRect.sizeDelta.y);
 
-            var visualChild = itemRect.Find("visual")?.GetComponent<RectTransform>();
+            var visualChild = itemRect.Find("visual") != null ? itemRect.Find("visual").GetComponent<RectTransform>() : null;
             _originalChildHeights.Add(visualChild != null ? visualChild.sizeDelta.y : 0f);
         }
 
@@ -88,9 +87,9 @@ public class ScrollListController : MonoBehaviour
         var halfViewport = viewportHeight / 2f;
         var paddingValue = halfViewport;
 
-        if (_currentIndex >= 0 && _currentIndex < _itemRects.Count)
+        if (CurrentIndex >= 0 && CurrentIndex < _itemRects.Count)
         {
-            var selectedItem = _itemRects[_currentIndex];
+            var selectedItem = _itemRects[CurrentIndex];
             paddingValue = halfViewport - selectedItem.rect.height / 2f;
         }
 
@@ -109,14 +108,14 @@ public class ScrollListController : MonoBehaviour
         LayoutRebuilder.ForceRebuildLayoutImmediate(transform as RectTransform);
     }
 
-    public void SelectItem(int index)
+    internal void SelectItem(int index)
     {
-        if (index < 0 || index >= _itemRects.Count || index == _currentIndex) return;
+        if (index < 0 || index >= _itemRects.Count || index == CurrentIndex) return;
 
-        _currentIndex = index;
+        CurrentIndex = index;
         _needsContentUpdate = true;
 
-        OnSelectionChanged?.Invoke(_currentIndex);
+        OnSelectionChanged?.Invoke(CurrentIndex);
 
         UpdatePadding();
         StartCoroutine(ScrollToSelectedItem());
@@ -126,11 +125,11 @@ public class ScrollListController : MonoBehaviour
     {
         yield return null;
 
-        if (_currentIndex < 0 || _currentIndex >= _itemRects.Count) yield break;
+        if (CurrentIndex < 0 || CurrentIndex >= _itemRects.Count) yield break;
 
         Canvas.ForceUpdateCanvases();
 
-        var itemRect = _itemRects[_currentIndex];
+        var itemRect = _itemRects[CurrentIndex];
         var contentHeight = ((RectTransform)transform).rect.height;
         var viewportHeight = viewport.rect.height;
 
@@ -149,6 +148,7 @@ public class ScrollListController : MonoBehaviour
         UpdateItemScalesAndHeights();
 
         if (!_needsContentUpdate) return;
+
         UpdatePadding();
         _needsContentUpdate = false;
     }
@@ -164,6 +164,7 @@ public class ScrollListController : MonoBehaviour
         );
 
         if (!(Mathf.Abs(scrollRect.verticalNormalizedPosition - _snapTargetPosition) < 0.001f)) return;
+
         scrollRect.verticalNormalizedPosition = _snapTargetPosition;
         _isSnapping = false;
     }
@@ -195,7 +196,7 @@ public class ScrollListController : MonoBehaviour
                 scaleSmoothing * Time.deltaTime
             );
 
-            var visualChild = item.Find("visual")?.GetComponent<RectTransform>();
+            var visualChild = item.Find("visual") ? item.Find("visual").GetComponent<RectTransform>() : null;
             if (visualChild)
             {
                 UpdateVisualChildAppearance(visualChild, i);
@@ -209,12 +210,12 @@ public class ScrollListController : MonoBehaviour
             _needsContentUpdate = true;
     }
 
-    private void UpdateVisualChildAppearance(RectTransform visualChild, int index)
+    private void UpdateVisualChildAppearance(Component visualChild, int index)
     {
         var image = visualChild.GetComponent<Image>();
         if (!image) return;
 
-        var targetAlpha = index == _currentIndex ? selectedAlpha : unselectedAlpha;
+        var targetAlpha = index == CurrentIndex ? selectedAlpha : unselectedAlpha;
         var color = image.color;
         var newAlpha = Mathf.Lerp(color.a, targetAlpha, alphaSmoothing * Time.deltaTime);
 
@@ -226,7 +227,7 @@ public class ScrollListController : MonoBehaviour
     private bool UpdateVisualChildHeight(RectTransform visualChild, int index)
     {
         var childTargetHeight = _originalChildHeights[index];
-        if (index == _currentIndex)
+        if (index == CurrentIndex)
             childTargetHeight += childHeightExpansionAmount;
 
         var childCurrentSize = visualChild.sizeDelta;
@@ -240,7 +241,7 @@ public class ScrollListController : MonoBehaviour
 
     private bool UpdateItemHeight(RectTransform item, int index)
     {
-        var targetHeight = _originalHeights[index] + (index == _currentIndex ? heightExpansionAmount : 0);
+        var targetHeight = _originalHeights[index] + (index == CurrentIndex ? heightExpansionAmount : 0);
         var currentSize = item.sizeDelta;
         var newHeight = Mathf.Lerp(currentSize.y, targetHeight, expansionSpeed * Time.deltaTime);
 
@@ -255,11 +256,12 @@ public class ScrollListController : MonoBehaviour
         UpdatePadding();
     }
 
-    public List<RectTransform> GetItemRects()
+    internal List<RectTransform> GetItemRects()
     {
         return _itemRects;
     }
-    public RectTransform GetItemAt(int index)
+
+    internal RectTransform GetItemAt(int index)
     {
         return index >= 0 && index < _itemRects.Count ? _itemRects[index] : null;
     }
@@ -272,6 +274,7 @@ public class ScrollListController : MonoBehaviour
     public T GetItemComponent<T>(int index) where T : Component
     {
         if (index < 0 || index >= _itemRects.Count) return null;
+
         return _itemRects[index].GetComponent<T>();
     }
 }

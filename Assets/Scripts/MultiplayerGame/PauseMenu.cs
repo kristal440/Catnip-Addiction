@@ -13,8 +13,8 @@ public class PauseMenu : MonoBehaviourPunCallbacks
     {
         if (PhotonNetwork.IsConnected && PhotonNetwork.LocalPlayer != null)
         {
-            var playerControllers = FindObjectsByType<PlayerController>(sortMode: FindObjectsSortMode.None);
-            _playerController = playerControllers.FirstOrDefault(controller => controller.photonView.IsMine);
+            var playerControllers = FindObjectsByType<PlayerController>(FindObjectsSortMode.None);
+            _playerController = playerControllers.FirstOrDefault(static controller => controller.photonView.IsMine);
         }
         pauseMenuUI.SetActive(false);
     }

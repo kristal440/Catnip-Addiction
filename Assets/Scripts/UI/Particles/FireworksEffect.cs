@@ -62,17 +62,14 @@ public class FireworksManager : MonoBehaviour
     public float sequencePositionVariance = 1.5f;
 
 
-    public void TriggerFireworksSequence(Vector3 basePosition)
+    internal void TriggerFireworksSequence(Vector3 basePosition)
     {
         if (particleMaterial == null)
         {
             Debug.LogError("FireworksManager: Particle Material is not assigned!", this);
             return;
         }
-        if (enableTrails && trailMaterial == null)
-        {
-             Debug.LogWarning("FireworksManager: Enable Trails is true, but Trail Material is not assigned! Disabling trails for this sequence.", this);
-        }
+        if (enableTrails && trailMaterial == null) Debug.LogWarning("FireworksManager: Enable Trails is true, but Trail Material is not assigned! Disabling trails for this sequence.", this);
 
         StartCoroutine(FireworkSequenceCoroutine(basePosition));
     }
@@ -151,7 +148,8 @@ public class FireworksManager : MonoBehaviour
         var emission = ps.emission;
         emission.enabled = true;
         emission.rateOverTime = 0;
-        emission.SetBursts(new[] {
+        emission.SetBursts(new[]
+        {
             new ParticleSystem.Burst(0.0f, (short)particleCountPerBurst)
         });
 
@@ -190,17 +188,15 @@ public class FireworksManager : MonoBehaviour
 
             var trailGradient = new Gradient();
             trailGradient.SetKeys(
-                 new[] { new GradientColorKey(Color.white, 0.0f), new GradientColorKey(Color.white, 1.0f) },
-                 new[] { new GradientAlphaKey(0.6f, 0.0f), new GradientAlphaKey(0.0f, 1.0f) }
-             );
+                new[] { new GradientColorKey(Color.white, 0.0f), new GradientColorKey(Color.white, 1.0f) },
+                new[] { new GradientAlphaKey(0.6f, 0.0f), new GradientAlphaKey(0.0f, 1.0f) }
+            );
             trails.colorOverLifetime = trailGradient;
         }
 
         psr.renderMode = ParticleSystemRenderMode.Billboard;
         psr.material = particleMaterial;
-        if (useTrails) {
-            psr.trailMaterial = trailMaterial;
-        }
+        if (useTrails) psr.trailMaterial = trailMaterial;
 
         ps.Play();
     }

@@ -89,7 +89,8 @@ public class DynamicCameraController : MonoBehaviour
         else
             _camera.fieldOfView = defaultFOV;
 
-        _defaultPosition = new Vector2(transform.localPosition.x, transform.localPosition.y);
+        var localPosition = transform.localPosition;
+        _defaultPosition = new Vector2(localPosition.x, localPosition.y);
         _lastPlayerPosition = _playerController.transform.position;
     }
     #endregion
@@ -115,7 +116,8 @@ public class DynamicCameraController : MonoBehaviour
     #endregion
 
     #region FOV Management
-    public void UpdateChargingJumpFOV(float chargeProgress)
+
+    internal void UpdateChargingJumpFOV(float chargeProgress)
     {
         if (_isInDeathZoom) return;
 
@@ -123,9 +125,10 @@ public class DynamicCameraController : MonoBehaviour
         _camera.fieldOfView = Lerp(_camera.fieldOfView, targetFOV, Time.deltaTime * jumpFOVTransitionSpeed);
     }
 
-    public void TriggerJumpFOV()
+    internal void TriggerJumpFOV()
     {
         if (_isInDeathZoom) return;
+
         _isInJumpTransition = true;
         _jumpTransitionTimer = 0f;
     }
@@ -161,29 +164,38 @@ public class DynamicCameraController : MonoBehaviour
     {
         // Horizontal position
         var targetX = _defaultPosition.x + (normalizedSpeed * maxHorizontalOffset);
-        var newX = SmoothDamp(transform.localPosition.x, targetX, ref _currentHorizontalVelocity, positionSmoothTime);
+        var localPosition = transform.localPosition;
+        var newX = SmoothDamp(localPosition.x, targetX, ref _currentHorizontalVelocity, positionSmoothTime);
 
         // Vertical position
         var normalizedVerticalSpeed = Clamp(_playerController.verticalSpeed / _playerController.maxSpeed, -1, 1);
         var targetY = _defaultPosition.y + (normalizedVerticalSpeed * maxVerticalOffset);
-        var newY = SmoothDamp(transform.localPosition.y, targetY, ref _currentVerticalVelocity, verticalSmoothTime);
+        var newY = SmoothDamp(localPosition.y, targetY, ref _currentVerticalVelocity, verticalSmoothTime);
 
         // Apply combined position
-        transform.localPosition = new Vector3(newX, newY, transform.localPosition.z);
+        localPosition = new Vector3(newX, newY, localPosition.z);
+        transform.localPosition = localPosition;
     }
     #endregion
 
     #region Player Events
-    public void OnPlayerDeath() => _isInDeathZoom = true;
 
-    public void OnPlayerRespawn() => _isInDeathZoom = false;
+    internal void OnPlayerDeath()
+    {
+        _isInDeathZoom = true;
+    }
 
-    public void EnterWater()
+    internal void OnPlayerRespawn()
+    {
+        _isInDeathZoom = false;
+    }
+
+    internal void EnterWater()
     {
         defaultFOV = _defaultFOVBackup * waterZoomMultiplier;
     }
 
-    public void ExitWater()
+    internal void ExitWater()
     {
         defaultFOV = _defaultFOVBackup;
     }

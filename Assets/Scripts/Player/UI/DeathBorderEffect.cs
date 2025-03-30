@@ -36,12 +36,12 @@ public class DeathBorderEffect : MonoBehaviour
         SetBorderAlpha(_currentAlpha);
     }
 
-    public void ShowDeathBorder()
+    internal void ShowDeathBorder()
     {
         _shouldShow = true;
     }
 
-    public void HideDeathBorder()
+    internal void HideDeathBorder()
     {
         _shouldShow = false;
     }
@@ -49,6 +49,7 @@ public class DeathBorderEffect : MonoBehaviour
     private void SetBorderAlpha(float alpha)
     {
         if (!borderImage) return;
+
         var color = borderImage.color;
         color.a = alpha;
         borderImage.color = color;

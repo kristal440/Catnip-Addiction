@@ -4,9 +4,9 @@ using UnityEngine;
 
 public class HideOnCollision : MonoBehaviour
 {
-    private SpectatorModeManager _spectatorModeManager;
     public float timeHidden = 10f;
 
+    private SpectatorModeManager _spectatorModeManager;
     private Renderer _renderer;
 
     private void Start()
@@ -28,24 +28,30 @@ public class HideOnCollision : MonoBehaviour
         }
 
         if (!_spectatorModeManager.IsSpectating) return;
-        var color = _renderer.material.color;
+
+        var material = _renderer.material;
+        var color = material.color;
         color.a = 0.5f;
-        _renderer.material.color = color;
+        material.color = color;
         StartCoroutine(ResetOpacity(timeHidden, playerC));
     }
 
     private IEnumerator ShowObjectAfterDelay(float delay, PlayerController playerC)
     {
         yield return new WaitForSeconds(delay);
+
         _renderer.enabled = true;
         playerC.HasCatnip = false;
     }
+
     private IEnumerator ResetOpacity(float delay, PlayerController playerC)
     {
         yield return new WaitForSeconds(delay);
-        var color = _renderer.material.color;
+
+        var material = _renderer.material;
+        var color = material.color;
         color.a = 1f;
-        _renderer.material.color = color;
+        material.color = color;
         playerC.HasCatnip = false;
     }
 }

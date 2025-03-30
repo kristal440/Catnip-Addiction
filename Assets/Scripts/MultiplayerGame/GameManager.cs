@@ -10,7 +10,7 @@ using Hashtable = ExitGames.Client.Photon.Hashtable;
 
 public class GameManager : MonoBehaviourPunCallbacks
 {
-    public static GameManager Instance { get; private set; }
+    internal static GameManager Instance { get; private set; }
     private static readonly int isLaying = Animator.StringToHash("IsLaying");
 
     [Header("Game State")]
@@ -79,6 +79,7 @@ public class GameManager : MonoBehaviourPunCallbacks
 
         if (PhotonNetwork.CurrentRoom == null ||
             PhotonNetwork.CurrentRoom.PlayerCount != PhotonNetwork.CurrentRoom.MaxPlayers) return;
+
         _countdownStarted = true;
         photonView.RPC(nameof(StartCountdown), RpcTarget.All, PhotonNetwork.ServerTimestamp);
     }
@@ -127,7 +128,7 @@ public class GameManager : MonoBehaviourPunCallbacks
         if (_finishTimes.Count > 0 && inGameLeaderboardParent && !inGameLeaderboardParent.activeSelf)
             inGameLeaderboardParent.SetActive(true);
 
-        var sortedLeaderboard = leaderboardData.OrderBy(pair => pair.Value.finishTime).ToList();
+        var sortedLeaderboard = leaderboardData.OrderBy(static pair => pair.Value.finishTime).ToList();
 
         var position = 1;
         foreach (var entry in sortedLeaderboard)
@@ -139,10 +140,8 @@ public class GameManager : MonoBehaviourPunCallbacks
 
     private void ClearInGameLeaderboard()
     {
-        foreach (var entry in _leaderboardEntries.Values.Where(entry => entry))
-        {
+        foreach (var entry in _leaderboardEntries.Values.Where(static entry => entry))
             Destroy(entry);
-        }
 
         _leaderboardEntries.Clear();
     }
@@ -216,7 +215,7 @@ public class GameManager : MonoBehaviourPunCallbacks
             photonView.RPC(nameof(StartGame), RpcTarget.All);
     }
 
-    public void PlayerFinished(int playerId, float finishTime)
+    internal void PlayerFinished(int playerId, float finishTime)
     {
         if (playerId == PhotonNetwork.LocalPlayer.ActorNumber)
         {
@@ -238,9 +237,11 @@ public class GameManager : MonoBehaviourPunCallbacks
         base.OnPlayerLeftRoom(otherPlayer);
 
         if (PhotonNetwork.CurrentRoom.PlayerCount != 1 || !gameStarted) return;
+
         var localPlayerId = PhotonNetwork.LocalPlayer.ActorNumber;
         if (!_finishTimes.ContainsKey(localPlayerId)) return;
         if (_finishTimes[localPlayerId] is not Hashtable playerData) return;
+
         if (playerData["finishTime"] is float finishTime)
             UpdateLeaderboard(localPlayerId, finishTime);
     }
@@ -264,7 +265,7 @@ public class GameManager : MonoBehaviourPunCallbacks
         var gameProps = new Hashtable { { "gameStarted", true } };
         PhotonNetwork.CurrentRoom.SetCustomProperties(gameProps);
 
-        var players = FindObjectsByType<PlayerController>(sortMode: FindObjectsSortMode.None);
+        var players = FindObjectsByType<PlayerController>(FindObjectsSortMode.None);
         foreach (var p in players)
         {
             if (p == null || p.photonView == null || p.photonView.Owner == null) continue;
@@ -302,6 +303,7 @@ public class GameManager : MonoBehaviourPunCallbacks
         UpdateInGameLeaderboard();
 
         if (_finishTimes.Count != PhotonNetwork.CurrentRoom.PlayerCount || !PhotonNetwork.IsMasterClient) return;
+
         var roomProps = new Hashtable { { "LeaderboardData", _finishTimes } };
         PhotonNetwork.CurrentRoom.SetCustomProperties(roomProps);
 
@@ -311,6 +313,7 @@ public class GameManager : MonoBehaviourPunCallbacks
     private static IEnumerator LoadLeaderboardWithDelay(float delay)
     {
         yield return new WaitForSeconds(delay);
+
         PhotonNetwork.LoadLevel("Leaderboard");
     }
 
@@ -318,11 +321,8 @@ public class GameManager : MonoBehaviourPunCallbacks
     private void StandUp()
     {
         var players = FindObjectsByType<PlayerController>(FindObjectsSortMode.None);
-        foreach (var player in players)
-        {
-            if (player != null && player.animator != null)
-                player.animator.SetBool(isLaying, false);
-        }
+        foreach (var player in players.Where(static player => player != null && player.animator != null))
+            player.animator.SetBool(isLaying, false);
     }
     #endregion
 }

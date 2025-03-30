@@ -13,6 +13,7 @@ public class FpsCounter : MonoBehaviour
     private void Start()
     {
         if (fpsText != null) return;
+
         enabled = false;
     }
 
@@ -22,6 +23,7 @@ public class FpsCounter : MonoBehaviour
         _frameCount++;
 
         if (!(_deltaTimeAccumulator > updateIntervalSeconds)) return;
+
         _currentFps = _frameCount / _deltaTimeAccumulator;
 
         if (fpsText)

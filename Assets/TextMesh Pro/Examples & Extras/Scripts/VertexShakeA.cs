@@ -86,6 +86,7 @@ namespace TMPro.Examples
                 if (characterCount == 0)
                 {
                     yield return new WaitForSeconds(0.25f);
+
                     continue;
                 }
 

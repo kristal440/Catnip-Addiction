@@ -31,6 +31,7 @@ public class Leaderboard : MonoBehaviour
             if (PhotonNetwork.CurrentRoom?.CustomProperties == null)
             {
                 yield return new WaitForSeconds(RetryInterval);
+
                 continue;
             }
 
@@ -38,6 +39,7 @@ public class Leaderboard : MonoBehaviour
                 || leaderboardDataObj is not Hashtable leaderboardHashtable)
             {
                 yield return new WaitForSeconds(RetryInterval);
+
                 continue;
             }
 
@@ -105,10 +107,10 @@ public class Leaderboard : MonoBehaviour
     private void PopulateLeaderboard(Dictionary<int, PlayerResultData> leaderboardData)
     {
         var sortedLeaderboard = new List<KeyValuePair<int, PlayerResultData>>(leaderboardData);
-        sortedLeaderboard.Sort((pair1, pair2) => pair1.Value.finishTime.CompareTo(pair2.Value.finishTime));
+        sortedLeaderboard.Sort(static (pair1, pair2) => pair1.Value.finishTime.CompareTo(pair2.Value.finishTime));
 
         var position = 1;
-        foreach (var playerData in sortedLeaderboard.Select(entry => entry.Value))
+        foreach (var playerData in sortedLeaderboard.Select(static entry => entry.Value))
         {
             var entryInstance = CreateLeaderboardEntry();
             if (!entryInstance)
@@ -122,7 +124,9 @@ public class Leaderboard : MonoBehaviour
                 texts[2].text = playerData.finishTime.ToString("F2") + "s";
             }
             else
+            {
                 Debug.LogError("Leaderboard Entry prefab/structure does not have 3 TextMeshPro Text objects!");
+            }
 
             entryInstance.SetActive(true);
             position++;
