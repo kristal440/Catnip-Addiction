@@ -235,7 +235,6 @@ GameObject:
   - component: {fileID: 13206806}
   - component: {fileID: 13206810}
   - component: {fileID: 13206809}
-  - component: {fileID: 13206808}
   - component: {fileID: 13206807}
   m_Layer: 0
   m_Name: LeaderboardContent
@@ -278,21 +277,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_HorizontalFit: 2
   m_VerticalFit: 2
---- !u!114 &13206808
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 13206805}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6320aa1b4700534b88256261b37d372d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  viewport: {fileID: 1536217624}
-  minScale: 0.95
-  normalScale: 0.95
 --- !u!114 &13206809
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -786,35 +770,35 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 2341608193727778899, guid: ca701c061213ef2029ff2bc1c2282c09, type: 3}
       propertyPath: m_AnchorMax.y
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2341608193727778899, guid: ca701c061213ef2029ff2bc1c2282c09, type: 3}
       propertyPath: m_AnchorMin.y
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2341608193727778899, guid: ca701c061213ef2029ff2bc1c2282c09, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 912.7516
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2341608193727778899, guid: ca701c061213ef2029ff2bc1c2282c09, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -85.61
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3333104260970245507, guid: ca701c061213ef2029ff2bc1c2282c09, type: 3}
       propertyPath: m_AnchorMax.y
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3333104260970245507, guid: ca701c061213ef2029ff2bc1c2282c09, type: 3}
       propertyPath: m_AnchorMin.y
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3333104260970245507, guid: ca701c061213ef2029ff2bc1c2282c09, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 46.58485
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3333104260970245507, guid: ca701c061213ef2029ff2bc1c2282c09, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -85.61
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3590802362079554118, guid: ca701c061213ef2029ff2bc1c2282c09, type: 3}
       propertyPath: m_Pivot.x
@@ -830,7 +814,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3590802362079554118, guid: ca701c061213ef2029ff2bc1c2282c09, type: 3}
       propertyPath: m_AnchorMax.y
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3590802362079554118, guid: ca701c061213ef2029ff2bc1c2282c09, type: 3}
       propertyPath: m_AnchorMin.x
@@ -838,15 +822,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3590802362079554118, guid: ca701c061213ef2029ff2bc1c2282c09, type: 3}
       propertyPath: m_AnchorMin.y
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3590802362079554118, guid: ca701c061213ef2029ff2bc1c2282c09, type: 3}
       propertyPath: m_SizeDelta.x
-      value: 1086.0166
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3590802362079554118, guid: ca701c061213ef2029ff2bc1c2282c09, type: 3}
       propertyPath: m_SizeDelta.y
-      value: 171.22
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3590802362079554118, guid: ca701c061213ef2029ff2bc1c2282c09, type: 3}
       propertyPath: m_LocalPosition.x
@@ -878,11 +862,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3590802362079554118, guid: ca701c061213ef2029ff2bc1c2282c09, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 543.0083
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3590802362079554118, guid: ca701c061213ef2029ff2bc1c2282c09, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -85.61
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3590802362079554118, guid: ca701c061213ef2029ff2bc1c2282c09, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -902,23 +886,23 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4388020510337954759, guid: ca701c061213ef2029ff2bc1c2282c09, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7317902970099170224, guid: ca701c061213ef2029ff2bc1c2282c09, type: 3}
       propertyPath: m_AnchorMax.y
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7317902970099170224, guid: ca701c061213ef2029ff2bc1c2282c09, type: 3}
       propertyPath: m_AnchorMin.y
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7317902970099170224, guid: ca701c061213ef2029ff2bc1c2282c09, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 416.32816
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7317902970099170224, guid: ca701c061213ef2029ff2bc1c2282c09, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -85.61
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -1090,7 +1074,6 @@ GameObject:
   m_Component:
   - component: {fileID: 1536217624}
   - component: {fileID: 1536217623}
-  - component: {fileID: 1536217622}
   m_Layer: 0
   m_Name: LeaderboardViewport
   m_TagString: Untagged
@@ -1098,19 +1081,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1536217622
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1536217621}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: bad91216cc74f5d84a433553fa9d196a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  spacing: 0
 --- !u!114 &1536217623
 MonoBehaviour:
   m_ObjectHideFlags: 0
