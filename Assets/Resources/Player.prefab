@@ -1296,3 +1296,5 @@ MonoBehaviour:
   sortingOrder: 10
   showForRemotePlayers: 1
   remotePlayerOpacityMultiplier: 0.75
+  forceCheckEveryFrame: 1
+  statusCheckInterval: 0.5

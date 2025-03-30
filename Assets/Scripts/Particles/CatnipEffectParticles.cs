@@ -7,7 +7,7 @@ using static UnityEngine.Vector3;
 
 public class CatnipEffectParticles : MonoBehaviour
 {
-    private static readonly int color = Shader.PropertyToID("_Color");
+    private static readonly int colorProperty = Shader.PropertyToID("_Color");
 
     [Header("Player Reference")]
     [SerializeField] private GameObject playerObject;
@@ -72,6 +72,10 @@ public class CatnipEffectParticles : MonoBehaviour
     [Range(0.0f, 1.0f)]
     [SerializeField] private float remotePlayerOpacityMultiplier = 0.7f;
 
+    [Header("Debug")]
+    [SerializeField] private bool forceCheckEveryFrame = true;
+    [SerializeField] private float statusCheckInterval = 0.5f;
+
     private ParticleSystem _particleSystem;
     private ParticleSystemRenderer _particleSystemRenderer;
     private PlayerController _playerController;
@@ -85,6 +89,8 @@ public class CatnipEffectParticles : MonoBehaviour
     private Color _remoteStartColorMax;
     private Material _localPlayerMaterial;
     private Material _remotePlayerMaterial;
+    private float _nextStatusCheckTime;
+    private bool _isInitialized;
 
     private void Awake()
     {
@@ -106,8 +112,6 @@ public class CatnipEffectParticles : MonoBehaviour
 
         if (enableColorOverLifetime && colorOverLifetime != null)
             _baseGradient = colorOverLifetime;
-
-        SetupPlayerReferences();
 
         if (particleMaterial == null && _particleSystemRenderer.sharedMaterial == null)
         {
@@ -141,13 +145,23 @@ public class CatnipEffectParticles : MonoBehaviour
             startColorMax.b,
             startColorMax.a * remotePlayerOpacityMultiplier
         );
+    }
+
+    private void Start()
+    {
+        // Move player setup to Start to ensure other components are fully initialized
+        SetupPlayerReferences();
+
+        if (_playerController == null)
+            return;
 
         SetupParticleSystem();
 
-        if (_playerController == null) return;
+        // Force initial state check
+        _wasActiveLastFrame = false;
+        ForceUpdateParticleState();
 
-        _wasActiveLastFrame = _playerController.HasCatnip;
-        UpdateParticleState(_wasActiveLastFrame, true);
+        _isInitialized = true;
     }
 
     private void SetupPlayerReferences()
@@ -192,7 +206,7 @@ public class CatnipEffectParticles : MonoBehaviour
     {
         if (_particleSystem == null || _particleSystemRenderer == null)
         {
-            LogError("SetupParticleSystem called but components are missing (this should not happen after Awake).", gameObject);
+            LogError("SetupParticleSystem called but components are missing.", gameObject);
             return;
         }
 
@@ -218,7 +232,9 @@ public class CatnipEffectParticles : MonoBehaviour
         main.startSpeed = new ParticleSystem.MinMaxCurve(startSpeedMin, startSpeedMax);
         main.startSize = new ParticleSystem.MinMaxCurve(startSizeMin, startSizeMax);
 
-        main.startColor = _isRemotePlayer ? new ParticleSystem.MinMaxGradient(_remoteStartColorMin, _remoteStartColorMax) : new ParticleSystem.MinMaxGradient(startColorMin, startColorMax);
+        main.startColor = _isRemotePlayer
+            ? new ParticleSystem.MinMaxGradient(_remoteStartColorMin, _remoteStartColorMax)
+            : new ParticleSystem.MinMaxGradient(startColorMin, startColorMax);
 
         main.gravityModifier = gravityModifier;
         main.playOnAwake = false;
@@ -230,7 +246,8 @@ public class CatnipEffectParticles : MonoBehaviour
     {
         var emission = _particleSystem.emission;
         emission.rateOverTime = rateOverTime;
-        emission.enabled = false;
+        // Initialize as enabled but control visibility through Play/Stop
+        emission.enabled = true;
     }
 
     private void SetupShapeModule()
@@ -263,7 +280,9 @@ public class CatnipEffectParticles : MonoBehaviour
         rot.enabled = enableRotationOverLifetime;
         if (!enableRotationOverLifetime) return;
 
-        rot.z = useRotationCurve ? new ParticleSystem.MinMaxCurve(1f, rotationOverLifetime) : new ParticleSystem.MinMaxCurve(rotationSpeedMin * Deg2Rad, rotationSpeedMax * Deg2Rad);
+        rot.z = useRotationCurve
+            ? new ParticleSystem.MinMaxCurve(1f, rotationOverLifetime)
+            : new ParticleSystem.MinMaxCurve(rotationSpeedMin * Deg2Rad, rotationSpeedMax * Deg2Rad);
     }
 
     private void SetupTextureSheetAnimationModule()
@@ -317,13 +336,14 @@ public class CatnipEffectParticles : MonoBehaviour
 
         var materialPropertyBlock = new MaterialPropertyBlock();
         _particleSystemRenderer.GetPropertyBlock(materialPropertyBlock);
-        materialPropertyBlock.SetColor(color, new Color(1, 1, 1, remotePlayerOpacityMultiplier));
+        materialPropertyBlock.SetColor(colorProperty, new Color(1, 1, 1, remotePlayerOpacityMultiplier));
         _particleSystemRenderer.SetPropertyBlock(materialPropertyBlock);
     }
 
     private void Update()
     {
-        if (!_playerController || !_particleSystem || !_playerTransform) return;
+        if (!_isInitialized || !_playerController || !_particleSystem || !_playerTransform)
+            return;
 
         if (!Approximately(_playerTransform.localScale.x, _lastParentScale.x) ||
             !Approximately(_playerTransform.localScale.y, _lastParentScale.y) ||
@@ -333,6 +353,15 @@ public class CatnipEffectParticles : MonoBehaviour
             UpdateObjectScale();
         }
 
+        // Periodically check catnip status regardless of change detection
+        if (!forceCheckEveryFrame && !(Time.time >= _nextStatusCheckTime)) return;
+
+        ForceUpdateParticleState();
+        _nextStatusCheckTime = Time.time + statusCheckInterval;
+    }
+
+    private void ForceUpdateParticleState()
+    {
         bool isCurrentlyActive;
 
         if (_isRemotePlayer)
@@ -342,31 +371,18 @@ public class CatnipEffectParticles : MonoBehaviour
 
         if (isCurrentlyActive == _wasActiveLastFrame) return;
 
-        UpdateParticleState(isCurrentlyActive, false);
+        UpdateParticleState(isCurrentlyActive);
         _wasActiveLastFrame = isCurrentlyActive;
     }
 
-    private void UpdateParticleState(bool isActive, bool isInitialSetup)
+    private void UpdateParticleState(bool isActive)
     {
         if (!_particleSystem) return;
 
-        var emission = _particleSystem.emission;
-
         if (isActive)
-        {
-            if (emission.enabled && _particleSystem.isPlaying) return;
-
-            emission.enabled = true;
-            _particleSystem.Play();
-        }
+            _particleSystem.Play(true);
         else
-        {
-            if (emission.enabled || _particleSystem.isPlaying)
-                _particleSystem.Stop(true, ParticleSystemStopBehavior.StopEmitting);
-
-            if (isInitialSetup)
-                _particleSystem.Clear(true);
-        }
+            _particleSystem.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
     }
 
     private static Gradient DefaultFadeOutGradient()
@@ -417,7 +433,7 @@ public class CatnipEffectParticles : MonoBehaviour
             SetupPlayerReferences();
 
         if (_playerController != null)
-            UpdateParticleState(_playerController.HasCatnip, false);
+            ForceUpdateParticleState();
     }
     #endif
 }
