@@ -1,4 +1,5 @@
 using UnityEngine;
+using Photon.Pun;
 using static UnityEngine.Color;
 using static UnityEngine.Debug;
 using static UnityEngine.Mathf;
@@ -7,7 +8,6 @@ using static UnityEngine.Vector3;
 public class CatnipEffectParticles : MonoBehaviour
 {
     [Header("Player Reference")]
-    [Tooltip("Drag the player GameObject here")]
     [SerializeField] private GameObject playerObject;
 
     [Header("Particle Main Module")]
@@ -65,12 +65,21 @@ public class CatnipEffectParticles : MonoBehaviour
     [SerializeField] private string sortingLayerName = "Foreground";
     [SerializeField] private int sortingOrder = 10;
 
+    [Header("Remote Player Settings")]
+    [SerializeField] private bool showForRemotePlayers = true;
+    [Range(0.0f, 1.0f)]
+    [SerializeField] private float remotePlayerOpacityMultiplier = 0.7f;
+
     private ParticleSystem _particleSystem;
     private ParticleSystemRenderer _particleSystemRenderer;
     private PlayerController _playerController;
     private bool _wasActiveLastFrame;
     private Vector3 _lastParentScale = one;
     private Transform _playerTransform;
+    private PhotonView _playerPhotonView;
+    private bool _isRemotePlayer;
+    private Gradient _localPlayerGradient;
+    private Gradient _remotePlayerGradient;
 
     private void Awake()
     {
@@ -90,6 +99,12 @@ public class CatnipEffectParticles : MonoBehaviour
             _particleSystemRenderer = gameObject.AddComponent<ParticleSystemRenderer>();
         }
 
+        if (enableColorOverLifetime && colorOverLifetime != null)
+        {
+            _localPlayerGradient = colorOverLifetime;
+            _remotePlayerGradient = CreateRemotePlayerGradient(_localPlayerGradient);
+        }
+
         SetupPlayerReferences();
 
         if (particleMaterial == null && _particleSystemRenderer.sharedMaterial == null)
@@ -100,11 +115,10 @@ public class CatnipEffectParticles : MonoBehaviour
 
         SetupParticleSystem();
 
-        if (_playerController != null)
-        {
-            _wasActiveLastFrame = _playerController.HasCatnip;
-            UpdateParticleState(_wasActiveLastFrame, true);
-        }
+        if (_playerController == null) return;
+
+        _wasActiveLastFrame = _playerController.HasCatnip;
+        UpdateParticleState(_wasActiveLastFrame, true);
     }
 
     private void SetupPlayerReferences()
@@ -126,22 +140,42 @@ public class CatnipEffectParticles : MonoBehaviour
             return;
         }
 
-        _lastParentScale = _playerTransform.localScale;
+        _playerPhotonView = playerObject.GetComponent<PhotonView>();
+        _isRemotePlayer = _playerPhotonView != null && !_playerPhotonView.IsMine;
 
-        // Apply initial absolute scale
+        _lastParentScale = _playerTransform.localScale;
         UpdateObjectScale();
+    }
+
+    private Gradient CreateRemotePlayerGradient(Gradient sourceGradient)
+    {
+        var remoteGradient = new Gradient();
+        remoteGradient.SetKeys(
+            sourceGradient.colorKeys,
+            new GradientAlphaKey[sourceGradient.alphaKeys.Length]
+        );
+
+        for (int i = 0; i < sourceGradient.alphaKeys.Length; i++)
+        {
+            var originalKey = sourceGradient.alphaKeys[i];
+            remoteGradient.alphaKeys[i] = new GradientAlphaKey(
+                originalKey.alpha * remotePlayerOpacityMultiplier,
+                originalKey.time
+            );
+        }
+
+        return remoteGradient;
     }
 
     private void UpdateObjectScale()
     {
-        if (_playerTransform == null) return;
+        if (!_playerTransform) return;
 
-        // Set this object's scale to the absolute value of the player's scale
-        // This maintains positive scale on the particle system regardless of player orientation
+        var localScale = _playerTransform.localScale;
         transform.localScale = new Vector3(
-            Abs(_playerTransform.localScale.x),
-            Abs(_playerTransform.localScale.y),
-            Abs(_playerTransform.localScale.z)
+            Abs(localScale.x),
+            Abs(localScale.y),
+            Abs(localScale.z)
         );
     }
 
@@ -201,7 +235,12 @@ public class CatnipEffectParticles : MonoBehaviour
         var col = _particleSystem.colorOverLifetime;
         col.enabled = enableColorOverLifetime;
         if (enableColorOverLifetime)
-            col.color = new ParticleSystem.MinMaxGradient(colorOverLifetime);
+        {
+            if (_isRemotePlayer)
+                col.color = new ParticleSystem.MinMaxGradient(_remotePlayerGradient);
+            else
+                col.color = new ParticleSystem.MinMaxGradient(_localPlayerGradient);
+        }
     }
 
     private void SetupSizeOverLifetimeModule()
@@ -268,7 +307,6 @@ public class CatnipEffectParticles : MonoBehaviour
     {
         if (!_playerController || !_particleSystem || !_playerTransform) return;
 
-        // Check if player's scale has changed
         if (!Approximately(_playerTransform.localScale.x, _lastParentScale.x) ||
             !Approximately(_playerTransform.localScale.y, _lastParentScale.y) ||
             !Approximately(_playerTransform.localScale.z, _lastParentScale.z))
@@ -277,7 +315,12 @@ public class CatnipEffectParticles : MonoBehaviour
             UpdateObjectScale();
         }
 
-        var isCurrentlyActive = _playerController.HasCatnip;
+        bool isCurrentlyActive;
+
+        if (_isRemotePlayer)
+            isCurrentlyActive = showForRemotePlayers && _playerController.HasCatnip;
+        else
+            isCurrentlyActive = _playerController.HasCatnip;
 
         if (isCurrentlyActive == _wasActiveLastFrame) return;
 
@@ -353,9 +396,7 @@ public class CatnipEffectParticles : MonoBehaviour
         SetupParticleSystem();
 
         if (_playerController == null && playerObject != null)
-        {
             SetupPlayerReferences();
-        }
 
         if (_playerController != null)
             UpdateParticleState(_playerController.HasCatnip, false);

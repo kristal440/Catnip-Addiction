@@ -519,6 +519,11 @@ public class PlayerController : MonoBehaviourPunCallbacks
         SetMovement(false);
         Debug.Log(isEnabled ? "Spectator mode enabled" : "Spectator mode disabled");
     }
+    [PunRPC]
+    internal void RPC_SetCatnipEffectActive(bool isActive)
+    {
+        HasCatnip = isActive;
+    }
     #endregion
 
     #region Death and Respawn

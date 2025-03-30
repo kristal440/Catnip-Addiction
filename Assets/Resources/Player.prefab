@@ -1294,3 +1294,5 @@ MonoBehaviour:
   normalDirection: 1
   sortingLayerName: Foreground
   sortingOrder: 10
+  showForRemotePlayers: 1
+  remotePlayerOpacityMultiplier: 0.5
