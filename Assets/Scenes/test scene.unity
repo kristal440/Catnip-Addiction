@@ -4081,10 +4081,6 @@ PrefabInstance:
       propertyPath: sceneViewId
       value: 1
       objectReference: {fileID: 0}
-    - target: {fileID: 6934162617730736680, guid: 156aa367c27c7a26ba64e71f0ae1b2cc, type: 3}
-      propertyPath: m_AnchoredPosition.x
-      value: 0.018
-      objectReference: {fileID: 0}
     - target: {fileID: 6966233725223629069, guid: 156aa367c27c7a26ba64e71f0ae1b2cc, type: 3}
       propertyPath: m_Name
       value: Player

@@ -1,7 +1,8 @@
 using Photon.Pun;
 using UnityEngine;
+using static UnityEngine.Mathf;
 
-public class DirtParticleController : MonoBehaviour
+public class PlayerDirtParticleSystem : MonoBehaviour
 {
     [Header("References")]
     [SerializeField] private GameObject playerObject;
@@ -48,14 +49,22 @@ public class DirtParticleController : MonoBehaviour
     private ParticleSystem.EmissionModule _emission;
     private ParticleSystem.MainModule _main;
     private PhotonView _photonView;
+    private Material _particleMaterial;
 
     private bool _wasGrounded;
-    private bool _isJumping;
     private float _lastFallingSpeed;
+    private float _inverseJumpForceRange;
+    private float _inverseLandingForceRange;
+    private float _inverseMaxSpeed;
 
     private void Awake()
     {
         _dirtParticleSystem = gameObject.AddComponent<ParticleSystem>();
+        _emission = _dirtParticleSystem.emission;
+        _main = _dirtParticleSystem.main;
+
+        _particleMaterial = new Material(Shader.Find("Particles/Standard Unlit"));
+
         SetupParticleSystem();
     }
 
@@ -64,6 +73,7 @@ public class DirtParticleController : MonoBehaviour
         if (playerObject == null)
         {
             Debug.LogError("Player object reference is missing!");
+            enabled = false;
             return;
         }
 
@@ -71,18 +81,25 @@ public class DirtParticleController : MonoBehaviour
         if (_playerController == null)
         {
             Debug.LogError("PlayerController component not found on player object!");
+            enabled = false;
             return;
         }
 
         _photonView = playerObject.GetComponent<PhotonView>();
+        _wasGrounded = _playerController.IsGrounded;
 
-        _emission = _dirtParticleSystem.emission;
-        _main = _dirtParticleSystem.main;
+        _inverseJumpForceRange = 1f / (_playerController.maxJumpForce - _playerController.minJumpForce);
+        _inverseLandingForceRange = 1f / (maximumLandingForce - minimumLandingForce);
+        _inverseMaxSpeed = 1f / _playerController.maxSpeed;
 
         if (_photonView && !_photonView.IsMine)
             AdjustForRemotePlayer();
+    }
 
-        _wasGrounded = _playerController.IsGrounded;
+    private void OnDestroy()
+    {
+        if (_particleMaterial != null)
+            Destroy(_particleMaterial);
     }
 
     private void Update()
@@ -91,50 +108,43 @@ public class DirtParticleController : MonoBehaviour
             return;
 
         var isGrounded = _playerController.IsGrounded;
-        var currentSpeed = Mathf.Abs(_playerController.currentSpeed);
         var verticalSpeed = _playerController.verticalSpeed;
 
-        // Store the falling speed to use for landing particles
         if (!isGrounded && verticalSpeed < 0)
-        {
-            _lastFallingSpeed = Mathf.Abs(verticalSpeed);
-        }
+            _lastFallingSpeed = Abs(verticalSpeed);
 
         if (_wasGrounded && !isGrounded && verticalSpeed > 0)
-        {
-            _isJumping = true;
             if (enableJumpParticles)
                 EmitJumpParticles(verticalSpeed);
-        }
 
         if (isGrounded && !_wasGrounded)
-        {
             if (enableLandingParticles)
                 EmitLandingParticles(_lastFallingSpeed);
-            _isJumping = false;
-        }
 
         if (isGrounded)
+        {
+            var currentSpeed = Abs(_playerController.currentSpeed);
             UpdateWalkingParticles(currentSpeed);
-        else
+        }
+        else if (_emission.rateOverTime.constant > 0)
+        {
             _emission.rateOverTime = 0;
+        }
 
         _wasGrounded = isGrounded;
     }
 
     private void SetupParticleSystem()
     {
-        var main = _dirtParticleSystem.main;
-        main.startColor = new ParticleSystem.MinMaxGradient(dirtColorMin, dirtColorMax);
-        main.startSize = new ParticleSystem.MinMaxCurve(particleSizeMin, particleSizeMax);
-        main.startLifetime = new ParticleSystem.MinMaxCurve(particleLifetimeMin, particleLifetimeMax);
-        main.startSpeed = new ParticleSystem.MinMaxCurve(0.2f, 1.0f);
-        main.simulationSpace = ParticleSystemSimulationSpace.World;
-        main.gravityModifier = gravityModifier;
-        main.maxParticles = maxParticles;
+        _main.startColor = new ParticleSystem.MinMaxGradient(dirtColorMin, dirtColorMax);
+        _main.startSize = new ParticleSystem.MinMaxCurve(particleSizeMin, particleSizeMax);
+        _main.startLifetime = new ParticleSystem.MinMaxCurve(particleLifetimeMin, particleLifetimeMax);
+        _main.startSpeed = new ParticleSystem.MinMaxCurve(0.2f, 1.0f);
+        _main.simulationSpace = ParticleSystemSimulationSpace.World;
+        _main.gravityModifier = gravityModifier;
+        _main.maxParticles = maxParticles;
 
-        var emission = _dirtParticleSystem.emission;
-        emission.rateOverTime = 0;
+        _emission.rateOverTime = 0;
 
         var shape = _dirtParticleSystem.shape;
         shape.shapeType = ParticleSystemShapeType.Circle;
@@ -149,7 +159,6 @@ public class DirtParticleController : MonoBehaviour
             new GradientColorKey[] { new(Color.white, 0.0f), new(Color.white, 1.0f) },
             new GradientAlphaKey[] { new(1.0f, 0.0f), new(0.0f, 1.0f) }
         );
-
         colorOverLifetime.color = new ParticleSystem.MinMaxGradient(gradient);
 
         var sizeOverLifetime = _dirtParticleSystem.sizeOverLifetime;
@@ -170,11 +179,10 @@ public class DirtParticleController : MonoBehaviour
         component.sortingLayerName = sortingLayerName;
         component.sortingOrder = sortingOrder;
 
-        var defaultParticleMaterial = new Material(Shader.Find("Particles/Standard Unlit"));
-        if (defaultParticleMaterial != null)
+        if (_particleMaterial != null)
         {
-            component.material = defaultParticleMaterial;
-            component.trailMaterial = defaultParticleMaterial;
+            component.material = _particleMaterial;
+            component.trailMaterial = _particleMaterial;
         }
         else
         {
@@ -189,10 +197,10 @@ public class DirtParticleController : MonoBehaviour
     {
         if (speed > 0.1f)
         {
-            var speedFactor = Mathf.Clamp01(speed / _playerController.maxSpeed);
+            var speedFactor = Clamp01(speed * _inverseMaxSpeed);
             _emission.rateOverTime = baseEmissionRate * speedFactor * walkingEmissionMultiplier;
         }
-        else
+        else if (_emission.rateOverTime.constant > 0)
         {
             _emission.rateOverTime = 0;
         }
@@ -200,54 +208,42 @@ public class DirtParticleController : MonoBehaviour
 
     private void EmitJumpParticles(float jumpForce)
     {
-        var jumpForceFactor = Mathf.Clamp01(
-            (jumpForce - _playerController.minJumpForce) /
-            (_playerController.maxJumpForce - _playerController.minJumpForce)
+        var jumpForceFactor = Clamp01(
+            (jumpForce - _playerController.minJumpForce) * _inverseJumpForceRange
         );
 
-        var burstCount = Mathf.RoundToInt(Mathf.Lerp(jumpBurstCountMin, jumpBurstCountMax, jumpForceFactor));
+        var burstCount = RoundToInt(Lerp(jumpBurstCountMin, jumpBurstCountMax, jumpForceFactor));
+        var burstSpeed = Lerp(jumpBurstSpeedMin, jumpBurstSpeedMax, jumpForceFactor);
 
-        var burstSpeed = Mathf.Lerp(jumpBurstSpeedMin, jumpBurstSpeedMax, jumpForceFactor);
-
-        var mainTemp = _main;
-        mainTemp.startSpeed = new ParticleSystem.MinMaxCurve(burstSpeed * 0.5f, burstSpeed);
-
+        _main.startSpeed = new ParticleSystem.MinMaxCurve(burstSpeed * 0.5f, burstSpeed);
         _dirtParticleSystem.Emit(burstCount);
     }
 
     private void EmitLandingParticles(float landingForce)
     {
-        Debug.Log($"Landing force: {landingForce}, Minimum: {minimumLandingForce}");
-
         if (landingForce < minimumLandingForce)
             return;
 
-        var landingForceFactor = Mathf.Clamp01(
-            (landingForce - minimumLandingForce) /
-            (maximumLandingForce - minimumLandingForce)
+        var landingForceFactor = Clamp01(
+            (landingForce - minimumLandingForce) * _inverseLandingForceRange
         );
 
-        var burstCount = Mathf.RoundToInt(Mathf.Lerp(landingBurstCountMin, landingBurstCountMax, landingForceFactor));
+        var burstCount = RoundToInt(Lerp(landingBurstCountMin, landingBurstCountMax, landingForceFactor));
+        var burstSpeed = Lerp(landingBurstSpeedMin, landingBurstSpeedMax, landingForceFactor);
 
-        var burstSpeed = Mathf.Lerp(landingBurstSpeedMin, landingBurstSpeedMax, landingForceFactor);
-
-        var mainTemp = _main;
-        mainTemp.startSpeed = new ParticleSystem.MinMaxCurve(burstSpeed * 0.3f, burstSpeed);
-
+        _main.startSpeed = new ParticleSystem.MinMaxCurve(burstSpeed * 0.3f, burstSpeed);
         _dirtParticleSystem.Emit(burstCount);
     }
 
     private void AdjustForRemotePlayer()
     {
-        var main = _dirtParticleSystem.main;
-        var startColor = main.startColor;
-
+        var startColor = _main.startColor;
         var minColor = startColor.colorMin;
         var maxColor = startColor.colorMax;
 
         minColor.a *= remotePlayerOpacityMultiplier;
         maxColor.a *= remotePlayerOpacityMultiplier;
 
-        main.startColor = new ParticleSystem.MinMaxGradient(minColor, maxColor);
+        _main.startColor = new ParticleSystem.MinMaxGradient(minColor, maxColor);
     }
 }

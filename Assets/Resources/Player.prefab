@@ -347,9 +347,9 @@ MonoBehaviour:
   particleLifetimeMin: 0.5
   particleLifetimeMax: 1
   particleSizeMin: 0.08
-  particleSizeMax: 0.2
+  particleSizeMax: 0.18
   gravityModifier: 0.45
-  dirtColorMin: {r: 0.5283019, g: 0.30776075, b: 0.08721964, a: 1}
+  dirtColorMin: {r: 0.509434, g: 0.33609968, b: 0.16580634, a: 1}
   dirtColorMax: {r: 0.7, g: 0.5, b: 0.3, a: 0.8666667}
   enableJumpParticles: 0
   jumpBurstCountMin: 5
@@ -358,7 +358,7 @@ MonoBehaviour:
   jumpBurstSpeedMax: 1
   enableLandingParticles: 1
   landingBurstCountMin: 5
-  landingBurstCountMax: 15
+  landingBurstCountMax: 12
   landingBurstSpeedMin: 0.7
   landingBurstSpeedMax: 2.1
   minimumLandingForce: 0
