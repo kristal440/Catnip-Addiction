@@ -802,6 +802,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1970870d61afae967956bf6d7b37210b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!4 &1183442703 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 7617576481928218717, guid: 156aa367c27c7a26ba64e71f0ae1b2cc, type: 3}
+  m_PrefabInstance: {fileID: 1479981656}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &1314201357 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 1040442392473280530, guid: f50470713d3dba5ea89ea5748f102ab7, type: 3}
@@ -3771,6 +3776,14 @@ PrefabInstance:
     - target: {fileID: -3793585111110181294, guid: 156aa367c27c7a26ba64e71f0ae1b2cc, type: 3}
       propertyPath: m_NormalDirection
       value: 0.33
+      objectReference: {fileID: 0}
+    - target: {fileID: 1062145971617284894, guid: 156aa367c27c7a26ba64e71f0ae1b2cc, type: 3}
+      propertyPath: playerTransform
+      value: 
+      objectReference: {fileID: 1183442703}
+    - target: {fileID: 1062145971617284894, guid: 156aa367c27c7a26ba64e71f0ae1b2cc, type: 3}
+      propertyPath: minimumJumpForceForLanding
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1559713159587425112, guid: 156aa367c27c7a26ba64e71f0ae1b2cc, type: 3}
       propertyPath: playOnAwake
