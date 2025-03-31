@@ -1,7 +1,6 @@
 using UnityEngine;
 using Photon.Pun;
 using static UnityEngine.Color;
-using static UnityEngine.Debug;
 using static UnityEngine.Mathf;
 using static UnityEngine.Vector3;
 
@@ -72,10 +71,6 @@ public class CatnipEffectParticles : MonoBehaviour
     [Range(0.0f, 1.0f)]
     [SerializeField] private float remotePlayerOpacityMultiplier = 0.7f;
 
-    [Header("Debug")]
-    [SerializeField] private bool forceCheckEveryFrame = true;
-    [SerializeField] private float statusCheckInterval = 0.5f;
-
     private ParticleSystem _particleSystem;
     private ParticleSystemRenderer _particleSystemRenderer;
     private PlayerController _playerController;
@@ -89,36 +84,22 @@ public class CatnipEffectParticles : MonoBehaviour
     private Color _remoteStartColorMax;
     private Material _localPlayerMaterial;
     private Material _remotePlayerMaterial;
-    private float _nextStatusCheckTime;
-    private bool _isInitialized;
+    private bool _hasCatnipLastFrame;
 
     private void Awake()
     {
-        TryGetComponent(out _particleSystem);
-        if (_particleSystem == null)
-        {
-            var o = gameObject;
-            LogWarning($"CatnipEffectParticles: Missing ParticleSystem component on {o.name}. Adding it automatically.", o);
-            _particleSystem = gameObject.AddComponent<ParticleSystem>();
-        }
-
-        TryGetComponent(out _particleSystemRenderer);
-        if (_particleSystemRenderer == null)
-        {
-            var o = gameObject;
-            LogWarning($"CatnipEffectParticles: Missing ParticleSystemRenderer component on {o.name}. Adding it automatically.", o);
-            _particleSystemRenderer = gameObject.AddComponent<ParticleSystemRenderer>();
-        }
+        _particleSystem = GetComponent<ParticleSystem>() ? GetComponent<ParticleSystem>() : gameObject.AddComponent<ParticleSystem>();
+        _particleSystemRenderer = GetComponent<ParticleSystemRenderer>() ? GetComponent<ParticleSystemRenderer>() : gameObject.AddComponent<ParticleSystemRenderer>();
 
         if (enableColorOverLifetime && colorOverLifetime != null)
             _baseGradient = colorOverLifetime;
 
-        if (particleMaterial == null && _particleSystemRenderer.sharedMaterial == null)
-        {
-            var o = gameObject;
-            LogWarning($"CatnipEffectParticles: Particle Material is not assigned on {o.name}. Particles may not render correctly.", o);
-        }
-        else if (particleMaterial != null)
+        PrepareParticleMaterials();
+    }
+
+    private void PrepareParticleMaterials()
+    {
+        if (particleMaterial != null)
         {
             _localPlayerMaterial = new Material(particleMaterial);
             _remotePlayerMaterial = new Material(particleMaterial)
@@ -149,28 +130,21 @@ public class CatnipEffectParticles : MonoBehaviour
 
     private void Start()
     {
-        // Move player setup to Start to ensure other components are fully initialized
-        SetupPlayerReferences();
-
-        if (_playerController == null)
+        if (!SetupPlayerReferences())
             return;
 
         SetupParticleSystem();
-
-        // Force initial state check
         _wasActiveLastFrame = false;
-        ForceUpdateParticleState();
-
-        _isInitialized = true;
+        UpdateParticleState(_playerController.HasCatnip);
+        _hasCatnipLastFrame = _playerController.HasCatnip;
     }
 
-    private void SetupPlayerReferences()
+    private bool SetupPlayerReferences()
     {
         if (playerObject == null)
         {
-            LogError("CatnipEffectParticles: Player GameObject reference is missing. Please assign it in the inspector.", gameObject);
             enabled = false;
-            return;
+            return false;
         }
 
         _playerTransform = playerObject.transform;
@@ -178,16 +152,15 @@ public class CatnipEffectParticles : MonoBehaviour
 
         if (_playerController == null)
         {
-            LogError($"CatnipEffectParticles: PlayerController component not found on {playerObject.name}. Disabling script.", gameObject);
             enabled = false;
-            return;
+            return false;
         }
 
         _playerPhotonView = playerObject.GetComponent<PhotonView>();
         _isRemotePlayer = _playerPhotonView != null && !_playerPhotonView.IsMine;
-
         _lastParentScale = _playerTransform.localScale;
         UpdateObjectScale();
+        return true;
     }
 
     private void UpdateObjectScale()
@@ -204,109 +177,69 @@ public class CatnipEffectParticles : MonoBehaviour
 
     private void SetupParticleSystem()
     {
-        if (_particleSystem == null || _particleSystemRenderer == null)
-        {
-            LogError("SetupParticleSystem called but components are missing.", gameObject);
-            return;
-        }
-
         _particleSystem.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
 
-        SetupMainModule();
-        SetupEmissionModule();
-        SetupShapeModule();
-        SetupColorOverLifetimeModule();
-        SetupSizeOverLifetimeModule();
-        SetupRotationOverLifetimeModule();
-        SetupTextureSheetAnimationModule();
-        SetupNoiseModule();
-        SetupRendererModule();
-    }
-
-    private void SetupMainModule()
-    {
         var main = _particleSystem.main;
         main.duration = duration;
         main.loop = true;
         main.startLifetime = new ParticleSystem.MinMaxCurve(startLifetime);
         main.startSpeed = new ParticleSystem.MinMaxCurve(startSpeedMin, startSpeedMax);
         main.startSize = new ParticleSystem.MinMaxCurve(startSizeMin, startSizeMax);
-
         main.startColor = _isRemotePlayer
             ? new ParticleSystem.MinMaxGradient(_remoteStartColorMin, _remoteStartColorMax)
             : new ParticleSystem.MinMaxGradient(startColorMin, startColorMax);
-
         main.gravityModifier = gravityModifier;
         main.playOnAwake = false;
         main.maxParticles = maxParticles;
         main.simulationSpace = simulationSpace;
-    }
 
-    private void SetupEmissionModule()
-    {
         var emission = _particleSystem.emission;
         emission.rateOverTime = rateOverTime;
-        // Initialize as enabled but control visibility through Play/Stop
         emission.enabled = true;
-    }
 
-    private void SetupShapeModule()
-    {
         var shape = _particleSystem.shape;
         shape.shapeType = shapeType;
         shape.radius = shapeRadius;
         shape.radiusThickness = radiusThickness;
+
+        SetupModules();
+        SetupRenderer();
     }
 
-    private void SetupColorOverLifetimeModule()
+    private void SetupModules()
     {
         var col = _particleSystem.colorOverLifetime;
         col.enabled = enableColorOverLifetime;
         if (enableColorOverLifetime)
             col.color = new ParticleSystem.MinMaxGradient(_baseGradient);
-    }
 
-    private void SetupSizeOverLifetimeModule()
-    {
         var sol = _particleSystem.sizeOverLifetime;
         sol.enabled = enableSizeOverLifetime;
         if (enableSizeOverLifetime)
             sol.size = new ParticleSystem.MinMaxCurve(1f, sizeOverLifetime);
-    }
 
-    private void SetupRotationOverLifetimeModule()
-    {
         var rot = _particleSystem.rotationOverLifetime;
         rot.enabled = enableRotationOverLifetime;
-        if (!enableRotationOverLifetime) return;
+        if (enableRotationOverLifetime)
+            rot.z = useRotationCurve
+                ? new ParticleSystem.MinMaxCurve(1f, rotationOverLifetime)
+                : new ParticleSystem.MinMaxCurve(rotationSpeedMin * Deg2Rad, rotationSpeedMax * Deg2Rad);
 
-        rot.z = useRotationCurve
-            ? new ParticleSystem.MinMaxCurve(1f, rotationOverLifetime)
-            : new ParticleSystem.MinMaxCurve(rotationSpeedMin * Deg2Rad, rotationSpeedMax * Deg2Rad);
-    }
-
-    private void SetupTextureSheetAnimationModule()
-    {
         var texSheetAnim = _particleSystem.textureSheetAnimation;
         texSheetAnim.enabled = enableTextureSheetAnimation;
-        if (!enableTextureSheetAnimation) return;
+        if (enableTextureSheetAnimation)
+        {
+            texSheetAnim.mode = ParticleSystemAnimationMode.Grid;
+            texSheetAnim.numTilesX = textureSheetTilesX;
+            texSheetAnim.numTilesY = textureSheetTilesY;
+            var maxFrameIndex = (textureSheetTilesX * textureSheetTilesY) - 1;
+            if (maxFrameIndex < 0) maxFrameIndex = 0;
+            texSheetAnim.startFrame = new ParticleSystem.MinMaxCurve(0f, maxFrameIndex);
+            texSheetAnim.animation = ParticleSystemAnimationType.SingleRow;
+            texSheetAnim.frameOverTime = new ParticleSystem.MinMaxCurve(0f);
+            texSheetAnim.cycleCount = 1;
+        }
 
-        texSheetAnim.mode = ParticleSystemAnimationMode.Grid;
-        texSheetAnim.numTilesX = textureSheetTilesX;
-        texSheetAnim.numTilesY = textureSheetTilesY;
-
-        var maxFrameIndex = (textureSheetTilesX * textureSheetTilesY) - 1;
-        if (maxFrameIndex < 0) maxFrameIndex = 0;
-
-        texSheetAnim.startFrame = new ParticleSystem.MinMaxCurve(0f, maxFrameIndex);
-
-        texSheetAnim.animation = ParticleSystemAnimationType.SingleRow;
-        texSheetAnim.frameOverTime = new ParticleSystem.MinMaxCurve(0f);
-        texSheetAnim.cycleCount = 1;
-    }
-
-    private void SetupNoiseModule()
-    {
         var noise = _particleSystem.noise;
         noise.enabled = enableNoise;
         if (!enableNoise) return;
@@ -316,7 +249,7 @@ public class CatnipEffectParticles : MonoBehaviour
         noise.scrollSpeed = noiseScrollSpeed;
     }
 
-    private void SetupRendererModule()
+    private void SetupRenderer()
     {
         if (_isRemotePlayer && _remotePlayerMaterial != null)
             _particleSystemRenderer.material = _remotePlayerMaterial;
@@ -328,7 +261,6 @@ public class CatnipEffectParticles : MonoBehaviour
         _particleSystemRenderer.renderMode = renderMode;
         _particleSystemRenderer.sortMode = sortMode;
         _particleSystemRenderer.normalDirection = normalDirection;
-
         _particleSystemRenderer.sortingLayerName = sortingLayerName;
         _particleSystemRenderer.sortingOrder = sortingOrder;
 
@@ -342,37 +274,31 @@ public class CatnipEffectParticles : MonoBehaviour
 
     private void Update()
     {
-        if (!_isInitialized || !_playerController || !_particleSystem || !_playerTransform)
+        if (!_playerController || !_particleSystem || !_playerTransform)
             return;
 
-        if (!Approximately(_playerTransform.localScale.x, _lastParentScale.x) ||
-            !Approximately(_playerTransform.localScale.y, _lastParentScale.y) ||
-            !Approximately(_playerTransform.localScale.z, _lastParentScale.z))
+        // Check for scale changes
+        if (_playerTransform.localScale != _lastParentScale)
         {
             _lastParentScale = _playerTransform.localScale;
             UpdateObjectScale();
         }
 
-        // Periodically check catnip status regardless of change detection
-        if (!forceCheckEveryFrame && !(Time.time >= _nextStatusCheckTime)) return;
+        // Check for catnip status change
+        var hasCatnip = _playerController.HasCatnip;
+        if (hasCatnip == _hasCatnipLastFrame) return;
 
-        ForceUpdateParticleState();
-        _nextStatusCheckTime = Time.time + statusCheckInterval;
-    }
+        var isCurrentlyActive = _isRemotePlayer
+            ? showForRemotePlayers && hasCatnip
+            : hasCatnip;
 
-    private void ForceUpdateParticleState()
-    {
-        bool isCurrentlyActive;
+        if (isCurrentlyActive != _wasActiveLastFrame)
+        {
+            UpdateParticleState(isCurrentlyActive);
+            _wasActiveLastFrame = isCurrentlyActive;
+        }
 
-        if (_isRemotePlayer)
-            isCurrentlyActive = showForRemotePlayers && _playerController.HasCatnip;
-        else
-            isCurrentlyActive = _playerController.HasCatnip;
-
-        if (isCurrentlyActive == _wasActiveLastFrame) return;
-
-        UpdateParticleState(isCurrentlyActive);
-        _wasActiveLastFrame = isCurrentlyActive;
+        _hasCatnipLastFrame = hasCatnip;
     }
 
     private void UpdateParticleState(bool isActive)
@@ -420,10 +346,8 @@ public class CatnipEffectParticles : MonoBehaviour
     {
         if (!gameObject.scene.isLoaded) return;
 
-        if (_particleSystem == null)
-            TryGetComponent(out _particleSystem);
-        if (_particleSystemRenderer == null)
-            TryGetComponent(out _particleSystemRenderer);
+        _particleSystem = GetComponent<ParticleSystem>();
+        _particleSystemRenderer = GetComponent<ParticleSystemRenderer>();
 
         if (_particleSystem == null || _particleSystemRenderer == null || !Application.isPlaying) return;
 
@@ -433,7 +357,7 @@ public class CatnipEffectParticles : MonoBehaviour
             SetupPlayerReferences();
 
         if (_playerController != null)
-            ForceUpdateParticleState();
+            UpdateParticleState(_playerController.HasCatnip && (!_isRemotePlayer || showForRemotePlayers));
     }
     #endif
 }
