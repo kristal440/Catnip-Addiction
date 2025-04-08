@@ -4,8 +4,13 @@ using static UnityEngine.Mathf;
 
 public class PlayerDirtParticleSystem : MonoBehaviour
 {
-    [Header("References")]
     [SerializeField] private GameObject playerObject;
+
+    [Header("Interaction Filters")]
+    [Tooltip("Particles won't spawn when player is colliding with objects on these layers")]
+    [SerializeField] private LayerMask excludedLayers;
+    [Tooltip("Radius to check for collisions with excluded objects")]
+    [SerializeField] private float collisionCheckRadius = 0.2f;
 
     [Header("Base Particle Settings")]
     [SerializeField] private float baseEmissionRate = 5f;
@@ -107,6 +112,13 @@ public class PlayerDirtParticleSystem : MonoBehaviour
         if (!_playerController)
             return;
 
+        if (IsCollidingWithExcludedObjects())
+        {
+            if (_emission.rateOverTime.constant > 0)
+                _emission.rateOverTime = 0;
+            return;
+        }
+
         var isGrounded = _playerController.IsGrounded;
         var verticalSpeed = _playerController.verticalSpeed;
 
@@ -132,6 +144,18 @@ public class PlayerDirtParticleSystem : MonoBehaviour
         }
 
         _wasGrounded = isGrounded;
+    }
+
+    private bool IsCollidingWithExcludedObjects()
+    {
+        if (excludedLayers.value == 0) return false;
+
+        var layerHit = Physics2D.OverlapCircle(
+            playerObject.transform.position,
+            collisionCheckRadius,
+            excludedLayers);
+
+        return layerHit && layerHit.gameObject != playerObject;
     }
 
     private void SetupParticleSystem()

@@ -8529,6 +8529,8 @@ MonoBehaviour:
   roomListPanel: {fileID: 1793596965}
   roomPrefab: {fileID: 304625506192927063, guid: 2d39ed7ae05dd545da43087755eb229b, type: 3}
   roomsContainer: {fileID: 1698616569}
+  fullRoomColor: {r: 1, g: 0.239, b: 0.239, a: 1}
+  availableRoomColor: {r: 0.475, g: 1, b: 0.498, a: 1}
 --- !u!114 &832149947
 MonoBehaviour:
   m_ObjectHideFlags: 0

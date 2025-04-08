@@ -456,7 +456,7 @@ TilemapCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0, y: 0}
+  m_Offset: {x: 0, y: -0.25}
   m_MaximumTileChangeCount: 1000
   m_ExtrusionFactor: 0
   m_UseDelaunayMesh: 0
@@ -3782,6 +3782,26 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 1183442703}
     - target: {fileID: 1062145971617284894, guid: 156aa367c27c7a26ba64e71f0ae1b2cc, type: 3}
+      propertyPath: collisionCheckRadius
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1062145971617284894, guid: 156aa367c27c7a26ba64e71f0ae1b2cc, type: 3}
+      propertyPath: excludedLayers.m_Bits
+      value: 16
+      objectReference: {fileID: 0}
+    - target: {fileID: 1062145971617284894, guid: 156aa367c27c7a26ba64e71f0ae1b2cc, type: 3}
+      propertyPath: excludedTags.Array.size
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 1062145971617284894, guid: 156aa367c27c7a26ba64e71f0ae1b2cc, type: 3}
+      propertyPath: 'excludedTags.Array.data[0]'
+      value: Water
+      objectReference: {fileID: 0}
+    - target: {fileID: 1062145971617284894, guid: 156aa367c27c7a26ba64e71f0ae1b2cc, type: 3}
+      propertyPath: 'excludedTags.Array.data[1]'
+      value: Death
+      objectReference: {fileID: 0}
+    - target: {fileID: 1062145971617284894, guid: 156aa367c27c7a26ba64e71f0ae1b2cc, type: 3}
       propertyPath: minimumJumpForceForLanding
       value: 0
       objectReference: {fileID: 0}
@@ -3972,6 +3992,10 @@ PrefabInstance:
     - target: {fileID: 1559713159587425112, guid: 156aa367c27c7a26ba64e71f0ae1b2cc, type: 3}
       propertyPath: SizeModule.curve.maxCurve.m_Curve.Array.data[1].outWeight
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2205497808290915757, guid: 156aa367c27c7a26ba64e71f0ae1b2cc, type: 3}
+      propertyPath: m_TagString
+      value: Untagged
       objectReference: {fileID: 0}
     - target: {fileID: 2438841443903050224, guid: 156aa367c27c7a26ba64e71f0ae1b2cc, type: 3}
       propertyPath: sortMode
