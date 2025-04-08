@@ -4,19 +4,21 @@ using UnityEngine.InputSystem;
 
 public class MeowController : MonoBehaviourPunCallbacks
 {
-    [Header("Meow Settings")]
+    [Header("References")]
     [SerializeField] private Animator meowAnimator;
     [SerializeField] private SpriteRenderer meowRenderer;
-    [SerializeField] private Key meowKey = Key.M;
+
+    [Header("Settings")]
     [SerializeField] private float meowCooldown = 2f;
+    [SerializeField] private Key meowKey = Key.M;
     [SerializeField] private string meowAnimationName = "Meow";
 
     private InputAction _meowAction;
     private float _nextMeowTime;
+    private PlayerController _playerController;
 
     private void Awake()
     {
-        // Setup input binding
         _meowAction = new InputAction("Meow", InputActionType.Button);
         _meowAction.AddBinding("<Keyboard>/" + meowKey.ToString().ToLower());
         _meowAction.performed += _ => TryMeow();
@@ -24,6 +26,8 @@ public class MeowController : MonoBehaviourPunCallbacks
 
         if (meowRenderer != null)
             meowRenderer.enabled = false;
+
+        _playerController = GetComponentInParent<PlayerController>();
     }
 
     private void OnDestroy()
@@ -34,8 +38,14 @@ public class MeowController : MonoBehaviourPunCallbacks
 
     private void TryMeow()
     {
-        if (!photonView.IsMine) return;
-        if (Time.time < _nextMeowTime) return;
+        if (!photonView.IsMine)
+            return;
+
+        if (Time.time < _nextMeowTime)
+            return;
+
+        if (!_playerController.IsStanding)
+            return;
 
         _nextMeowTime = Time.time + meowCooldown;
         photonView.RPC(nameof(RPC_PlayMeow), RpcTarget.All);
@@ -44,7 +54,8 @@ public class MeowController : MonoBehaviourPunCallbacks
     [PunRPC]
     private void RPC_PlayMeow()
     {
-        if (meowRenderer == null || meowAnimator == null) return;
+        if (meowRenderer == null || meowAnimator == null)
+            return;
 
         meowRenderer.enabled = true;
         meowAnimator.Play(meowAnimationName, 0, 0f);
