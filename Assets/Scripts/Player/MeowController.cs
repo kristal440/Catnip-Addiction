@@ -1,6 +1,7 @@
 using UnityEngine;
 using Photon.Pun;
 using UnityEngine.InputSystem;
+using UnityEngine.UI;
 
 public class MeowController : MonoBehaviourPunCallbacks
 {
@@ -16,6 +17,7 @@ public class MeowController : MonoBehaviourPunCallbacks
     private InputAction _meowAction;
     private float _nextMeowTime;
     private PlayerController _playerController;
+    private Button meowButton;
 
     private void Awake()
     {
@@ -28,12 +30,26 @@ public class MeowController : MonoBehaviourPunCallbacks
             meowRenderer.enabled = false;
 
         _playerController = GetComponentInParent<PlayerController>();
+
+        meowButton = GameObject.Find("MeowBtn").GetComponent<Button>();
+        meowButton.onClick.AddListener(TryMeow);
+    }
+
+    private void Update()
+    {
+        if (!photonView.IsMine)
+            return;
+
+        if (meowButton && !meowButton.interactable && Time.time >= _nextMeowTime)
+            meowButton.interactable = true;
     }
 
     private void OnDestroy()
     {
         _meowAction?.Disable();
         _meowAction?.Dispose();
+
+        meowButton.onClick.RemoveListener(TryMeow);
     }
 
     private void TryMeow()
@@ -48,6 +64,9 @@ public class MeowController : MonoBehaviourPunCallbacks
             return;
 
         _nextMeowTime = Time.time + meowCooldown;
+
+        meowButton.interactable = false;
+
         photonView.RPC(nameof(RPC_PlayMeow), RpcTarget.All);
     }
 

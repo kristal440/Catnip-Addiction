@@ -756,10 +756,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5c1d74639a6e44e9887edadd67a30402, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  meowRenderer: {fileID: 8427191832602566056}
   meowAnimator: {fileID: 2611358591427248315}
+  meowRenderer: {fileID: 8427191832602566056}
+  meowCooldown: 1
   meowKey: 27
-  meowCooldown: 2
   meowAnimationName: Meow
 --- !u!114 &2119001226482647906
 MonoBehaviour:
