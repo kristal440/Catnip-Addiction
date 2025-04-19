@@ -8714,7 +8714,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 304625506192927063, guid: bd3949afda80f61cc9e76170b09b8a04, type: 3}
       propertyPath: m_Name
-      value: mapEntryPrefab
+      value: GameScene_Map2_Multi
       objectReference: {fileID: 0}
     - target: {fileID: 344573408014063480, guid: bd3949afda80f61cc9e76170b09b8a04, type: 3}
       propertyPath: m_Pivot.x

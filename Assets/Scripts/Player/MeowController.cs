@@ -17,7 +17,7 @@ public class MeowController : MonoBehaviourPunCallbacks
     private InputAction _meowAction;
     private float _nextMeowTime;
     private PlayerController _playerController;
-    private Button meowButton;
+    private Button _meowButton;
 
     private void Awake()
     {
@@ -31,8 +31,8 @@ public class MeowController : MonoBehaviourPunCallbacks
 
         _playerController = GetComponentInParent<PlayerController>();
 
-        meowButton = GameObject.Find("MeowBtn").GetComponent<Button>();
-        meowButton.onClick.AddListener(TryMeow);
+        _meowButton = GameObject.Find("MeowBtn").GetComponent<Button>();
+        _meowButton.onClick.AddListener(TryMeow);
     }
 
     private void Update()
@@ -40,8 +40,8 @@ public class MeowController : MonoBehaviourPunCallbacks
         if (!photonView.IsMine)
             return;
 
-        if (meowButton && !meowButton.interactable && Time.time >= _nextMeowTime)
-            meowButton.interactable = true;
+        if (_meowButton && !_meowButton.interactable && Time.time >= _nextMeowTime)
+            _meowButton.interactable = true;
     }
 
     private void OnDestroy()
@@ -49,7 +49,7 @@ public class MeowController : MonoBehaviourPunCallbacks
         _meowAction?.Disable();
         _meowAction?.Dispose();
 
-        meowButton.onClick.RemoveListener(TryMeow);
+        _meowButton.onClick.RemoveListener(TryMeow);
     }
 
     private void TryMeow()
@@ -65,7 +65,7 @@ public class MeowController : MonoBehaviourPunCallbacks
 
         _nextMeowTime = Time.time + meowCooldown;
 
-        meowButton.interactable = false;
+        _meowButton.interactable = false;
 
         photonView.RPC(nameof(RPC_PlayMeow), RpcTarget.All);
     }

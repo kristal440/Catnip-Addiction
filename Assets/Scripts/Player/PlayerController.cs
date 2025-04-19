@@ -514,6 +514,18 @@ public class PlayerController : MonoBehaviourPunCallbacks
         IsPaused = !isEnabled;
     }
 
+    internal void DisableRigidbody()
+    {
+        if (_rb != null)
+            _rb.simulated = false;
+    }
+
+    internal void EnableRigidbody()
+    {
+        if (_rb != null)
+            _rb.simulated = true;
+    }
+
     internal void SetSpectatorMode(bool isEnabled)
     {
         SetMovement(false);
