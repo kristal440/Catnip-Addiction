@@ -8876,6 +8876,10 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: -51.5
       objectReference: {fileID: 0}
+    - target: {fileID: 7483161195402696563, guid: bd3949afda80f61cc9e76170b09b8a04, type: 3}
+      propertyPath: m_text
+      value: out in the open
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

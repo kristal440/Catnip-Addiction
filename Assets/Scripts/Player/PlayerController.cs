@@ -142,7 +142,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
             var c = sr.color;
             c.a = 0.7f;
             sr.color = c;
-            sr.sortingOrder = 0;
+            sr.sortingOrder = 2;
         }
         else
         {
@@ -161,7 +161,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
         }
 
         if (playerCanvas != null)
-            playerCanvas.sortingOrder = 0;
+            playerCanvas.sortingOrder = 3;
         else
             Debug.LogWarning("No Canvas found on player GameObject!");
     }
@@ -516,13 +516,13 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
     internal void DisableRigidbody()
     {
-        if (_rb != null)
+        if (_rb)
             _rb.simulated = false;
     }
 
     internal void EnableRigidbody()
     {
-        if (_rb != null)
+        if (_rb)
             _rb.simulated = true;
     }
 

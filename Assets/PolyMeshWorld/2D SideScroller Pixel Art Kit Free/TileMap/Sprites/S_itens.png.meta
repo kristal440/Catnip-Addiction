@@ -1634,7 +1634,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: S_itens 2_56
+      name: sign_blank
       rect:
         serializedVersion: 2
         x: 0
@@ -1656,7 +1656,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: S_itens 2_57
+      name: sign_right
       rect:
         serializedVersion: 2
         x: 18
@@ -1678,7 +1678,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: S_itens 2_58
+      name: sign_left
       rect:
         serializedVersion: 2
         x: 36
@@ -1700,7 +1700,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: S_itens 2_59
+      name: sign_danger
       rect:
         serializedVersion: 2
         x: 54
@@ -2601,10 +2601,6 @@ TextureImporter:
       S_itens 2_53: 7802876241939312766
       S_itens 2_54: -6839680747314931535
       S_itens 2_55: 4445536223064164958
-      S_itens 2_56: -2861674888303262115
-      S_itens 2_57: -6721876331622676835
-      S_itens 2_58: -7020249139787012698
-      S_itens 2_59: -920816198671826742
       S_itens 2_6: 8559312415210884267
       S_itens 2_60: 4400401715622258029
       S_itens 2_61: -2904171541335698931
@@ -2646,6 +2642,10 @@ TextureImporter:
       S_itens 2_94: 5154703675199173452
       green_flag_bot: -1357436162
       green_flag_top: 1086141181
+      sign_blank: -2861674888303262115
+      sign_danger: -920816198671826742
+      sign_left: -7020249139787012698
+      sign_right: -6721876331622676835
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
