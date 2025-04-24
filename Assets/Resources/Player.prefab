@@ -797,6 +797,8 @@ GameObject:
   - component: {fileID: 5859951783172496949}
   - component: {fileID: 4525294665113284104}
   - component: {fileID: 4824599580121043353}
+  - component: {fileID: 8758694824677296329}
+  - component: {fileID: 3137535627424019335}
   m_Layer: 6
   m_Name: Skin
   m_TagString: Untagged
@@ -955,6 +957,76 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   playerController: {fileID: 145821301250412423}
+--- !u!114 &8758694824677296329
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5740860746093048113}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 68335938af154845afaba1a74dddddb5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  castsShadows: 1
+  receivesShadows: 1
+  shadowShape: 0
+  customShadowOffset: {x: 0, y: 0}
+  customShadowSize: {x: 1, y: 1}
+--- !u!114 &3137535627424019335
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5740860746093048113}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7db70e0ea77f5ac47a8f4565a9406397, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_ShadowGroup: 0
+  m_Priority: 0
+  m_ComponentVersion: 5
+  m_HasRenderer: 0
+  m_UseRendererSilhouette: 1
+  m_CastsShadows: 1
+  m_SelfShadows: 0
+  m_AlphaCutoff: 0.1
+  m_ApplyToSortingLayers: 00000000
+  m_ShapePath:
+  - {x: -0.25000003, y: -0.25, z: 0}
+  - {x: -0.25000003, y: 0.25, z: 0}
+  - {x: 0.24999999, y: 0.25, z: 0}
+  - {x: 0.24999999, y: -0.25, z: 0}
+  m_ShapePathHash: 0
+  m_InstanceId: 0
+  m_ShadowShape2DComponent: {fileID: 6563650613660426911}
+  m_ShadowShape2DProvider:
+    rid: 4451496464497246513
+  m_ShadowCastingSource: 2
+  m_ShadowMesh:
+    m_Mesh: {fileID: 0}
+    m_LocalBounds:
+      m_Center: {x: 0, y: 0, z: 0}
+      m_Extent: {x: 0, y: 0, z: 0}
+    m_EdgeProcessing: 1
+    m_TrimEdge: 0.1
+    m_FlipX: 0
+    m_FlipY: 0
+    m_InitialTrim: 0.1
+  m_CastingOption: 1
+  m_PreviousTrimEdge: 0
+  m_PreviousEdgeProcessing: -1
+  m_PreviousShadowCastingSource: -1
+  m_PreviousShadowShape2DSource: {fileID: 0}
+  references:
+    version: 2
+    RefIds:
+    - rid: 4451496464497246513
+      type: {class: ShadowShape2DProvider_SpriteRenderer, ns: UnityEngine.Rendering.Universal, asm: Unity.RenderPipelines.Universal.2D.Runtime}
+      data: 
 --- !u!1 &6153447954027784435
 GameObject:
   m_ObjectHideFlags: 0
