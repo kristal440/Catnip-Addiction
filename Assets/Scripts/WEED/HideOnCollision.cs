@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Linq;
 using Photon.Pun;
 using UnityEngine;
 
@@ -11,11 +12,17 @@ public class HideOnCollision : MonoBehaviour
     private Renderer _renderer;
     private Collider2D _collider;
     private bool _isEffectActive;
+    private GameObject[] _childObjects;
 
     private void Awake()
     {
         _renderer = GetComponent<Renderer>();
         _collider = GetComponent<Collider2D>();
+
+        var childCount = transform.childCount;
+        _childObjects = new GameObject[childCount];
+        for (var i = 0; i < childCount; i++)
+            _childObjects[i] = transform.GetChild(i).gameObject;
 
         if (_collider.isTrigger) return;
 
@@ -38,6 +45,9 @@ public class HideOnCollision : MonoBehaviour
 
         _renderer.enabled = false;
         _collider.enabled = false;
+
+        foreach (var child in _childObjects.Where(static child => child != null))
+            child.SetActive(false);
 
         playerC.HasCatnip = true;
 
@@ -62,6 +72,10 @@ public class HideOnCollision : MonoBehaviour
 
         _renderer.enabled = true;
         _collider.enabled = true;
+
+        foreach (var child in _childObjects.Where(static child => child))
+            child.SetActive(true);
+
         _isEffectActive = false;
     }
 }

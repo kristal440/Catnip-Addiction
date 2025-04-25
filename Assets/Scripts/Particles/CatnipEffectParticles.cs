@@ -6,7 +6,7 @@ using static UnityEngine.Vector3;
 
 public class CatnipEffectParticles : MonoBehaviour
 {
-    private static readonly int colorProperty = Shader.PropertyToID("_Color");
+    private static readonly int ColorProperty = Shader.PropertyToID("_Color");
 
     [Header("Player Reference")]
     [SerializeField] private GameObject playerObject;
@@ -268,7 +268,7 @@ public class CatnipEffectParticles : MonoBehaviour
 
         var materialPropertyBlock = new MaterialPropertyBlock();
         _particleSystemRenderer.GetPropertyBlock(materialPropertyBlock);
-        materialPropertyBlock.SetColor(colorProperty, new Color(1, 1, 1, remotePlayerOpacityMultiplier));
+        materialPropertyBlock.SetColor(ColorProperty, new Color(1, 1, 1, remotePlayerOpacityMultiplier));
         _particleSystemRenderer.SetPropertyBlock(materialPropertyBlock);
     }
 
@@ -308,7 +308,16 @@ public class CatnipEffectParticles : MonoBehaviour
         if (isActive)
             _particleSystem.Play(true);
         else
-            _particleSystem.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+            _particleSystem.Stop(true, ParticleSystemStopBehavior.StopEmitting); // Changed from StopEmittingAndClear to StopEmitting
+    }
+
+    /// <summary>
+    /// Force clears all particles, use for teleporting or respawning
+    /// </summary>
+    public void ClearAllParticles()
+    {
+        if (!_particleSystem) return;
+        _particleSystem.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
     }
 
     private static Gradient DefaultFadeOutGradient()

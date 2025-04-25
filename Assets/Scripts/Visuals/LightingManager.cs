@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.Rendering.Universal;
 
@@ -10,7 +11,7 @@ public class LightingManager : MonoBehaviour
 
     [Header("Shadow Settings")]
     [SerializeField] [Range(0f, 1f)] private float shadowIntensity = 0.5f;
-    [SerializeField] [Range(0f, 1f)] private float shadowSmoothing; // Keep at 0 for pixel art
+    [SerializeField] [Range(0f, 1f)] private float shadowSmoothing;
 
     [Header("Performance")]
     [SerializeField] private LightQuality lightQuality = LightQuality.Medium;
@@ -43,15 +44,12 @@ public class LightingManager : MonoBehaviour
 
     private void ApplyLightSettings()
     {
-        // Configure global light
         globalLight.intensity = globalLightIntensity;
         globalLight.color = globalLightColor;
 
-        // Set shadow parameters
         globalLight.shadowIntensity = shadowIntensity;
         globalLight.shadowsEnabled = true;
 
-        // Apply quality settings
         ApplyQualitySettings();
     }
 
@@ -61,7 +59,6 @@ public class LightingManager : MonoBehaviour
         {
             case LightQuality.Low:
                 globalLight.shadowVolumeIntensity = 0.5f;
-                // Set quality based on available properties
                 globalLight.shadowsEnabled = true;
                 globalLight.shadowIntensity = 0.5f;
                 break;
@@ -75,18 +72,12 @@ public class LightingManager : MonoBehaviour
                 globalLight.shadowsEnabled = true;
                 globalLight.shadowIntensity = 0.9f;
                 break;
+            default:
+                throw new ArgumentOutOfRangeException();
         }
     }
 
-    // Call this when you need to synchronize lighting for new players over Photon
-    public void SyncLightingSettings()
-    {
-        // You can implement Photon RPC calls here to sync lighting settings
-        // For example, send globalLightIntensity, globalLightColor, etc.
-    }
-
     #if UNITY_EDITOR
-    // Helper method for adjusting lighting in real-time during development
     private void OnValidate()
     {
         if (globalLight != null)
