@@ -153,6 +153,7 @@ MonoBehaviour:
   defaultFOV: 37
   maxFOVOffset: 7
   fovSmoothTime: 0.5
+  catnipFOVIncrease: 3
   maxHorizontalOffset: 0.32
   positionSmoothTime: 0.6
   maxVerticalOffset: 0.25

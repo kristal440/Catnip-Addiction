@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Linq;
 using UnityEngine;
@@ -13,6 +14,11 @@ public class Portal : MonoBehaviour
 
     [Header("Visual Effects")]
     [SerializeField] private bool useParticleEffects = true;
+
+    [Header("Canvas Settings")]
+    [SerializeField] private string[] canvasExclusions = Array.Empty<string>();
+    [Tooltip("If true, use canvas names for exclusions; if false, use tags")]
+    [SerializeField] private bool useCanvasNames = true;
 
     [Header("Debug")]
     [SerializeField] private bool showDebugGizmos = true;
@@ -64,15 +70,22 @@ public class Portal : MonoBehaviour
         SetPlayerVisibility(player, true);
     }
 
-    private static void SetPlayerVisibility(Component player, bool isVisible)
+    private void SetPlayerVisibility(Component player, bool isVisible)
     {
         var renderers = player.GetComponentsInChildren<Renderer>();
-        foreach (var renderer1 in renderers.Where(static renderer1 => renderer1.GetComponentInParent<MeowController>() == null))
+        foreach (var renderer1 in renderers.Where(static renderer1 => !renderer1.GetComponentInParent<MeowController>()))
             renderer1.enabled = isVisible;
 
         var canvases = player.GetComponentsInChildren<Canvas>();
         foreach (var canvas in canvases)
-            canvas.enabled = isVisible;
+        {
+            var shouldExclude = false;
+            if (canvasExclusions.Length > 0)
+                shouldExclude = useCanvasNames ? Array.Exists(canvasExclusions, exclusion => canvas.name == exclusion) : Array.Exists(canvasExclusions, exclusion => canvas.CompareTag(exclusion));
+
+            if (!shouldExclude)
+                canvas.enabled = isVisible;
+        }
     }
 
     private void OnDrawGizmos()

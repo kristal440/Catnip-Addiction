@@ -8,6 +8,7 @@ TagManager:
   - Death
   - Checkpoint
   - Water
+  - ExcludedCanvas
   layers:
   - Default
   - TransparentFX

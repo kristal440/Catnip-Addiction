@@ -54,6 +54,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
     private Rigidbody2D _rb;
     private DynamicCameraController _cameraController;
     private InputSystem_Actions _playerInputActions;
+    private CatnipFx _catnipFx;
 
     // State tracking
     private bool _isChargingJump;
@@ -104,6 +105,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
     {
         _mainCamera = Camera.main;
         _rb = GetComponent<Rigidbody2D>();
+        _catnipFx = GetComponent<CatnipFx>();
 
         var playerCanvas = GetComponentInChildren<Canvas>();
         if (_mainCamera != null)
@@ -535,6 +537,13 @@ public class PlayerController : MonoBehaviourPunCallbacks
     internal void RPC_SetCatnipEffectActive(bool isActive)
     {
         HasCatnip = isActive;
+
+        if (!photonView.IsMine) return;
+
+        if (isActive)
+            _catnipFx.ActivateCatnipEffect();
+        else
+            _catnipFx.DeactivateCatnipEffect();
     }
     #endregion
 

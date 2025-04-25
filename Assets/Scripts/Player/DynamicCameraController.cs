@@ -9,6 +9,7 @@ public class DynamicCameraController : MonoBehaviour
     public float defaultFOV = 37f;
     public float maxFOVOffset = 10f;
     [Range(0.01f, 1f)] public float fovSmoothTime = 0.5f;
+    [SerializeField] private float catnipFOVIncrease = 5f;
 
     [Header("Camera Positioning")]
     public float maxHorizontalOffset = 0.25f;
@@ -153,7 +154,11 @@ public class DynamicCameraController : MonoBehaviour
         }
         else
         {
-            targetFOV = defaultFOV + (normalizedSpeed * maxFOVOffset);
+            var baseFOV = defaultFOV;
+            if (_playerController && _playerController.HasCatnip)
+                baseFOV += catnipFOVIncrease;
+
+            targetFOV = baseFOV + (normalizedSpeed * maxFOVOffset);
             _camera.fieldOfView = SmoothDamp(_camera.fieldOfView, targetFOV, ref _currentFOVVelocity, fovSmoothTime);
         }
     }
