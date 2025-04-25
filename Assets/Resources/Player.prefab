@@ -1511,7 +1511,7 @@ MonoBehaviour:
   maxJumpForce: 14.2
   quickJumpThreshold: 0.2
   maxChargeTime: 1.1
-  jumpCooldown: 0.25
+  jumpCooldown: 0.2
   deathHeight: -50
   playerDeathHandler: {fileID: 6099844445017409013}
 --- !u!114 &4098701528552782764

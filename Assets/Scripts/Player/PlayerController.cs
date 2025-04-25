@@ -72,6 +72,12 @@ public class PlayerController : MonoBehaviourPunCallbacks
     private bool _wallCollisionHandled;
     private float _lastJumpTime;
 
+    // Jump buffering
+    private bool _isBufferingJump;
+    private float _bufferedJumpChargeLevel;
+    private bool _bufferedJumpMaxCharged;
+    private float _bufferedJumpStartTime;
+
     // Catnip effects
     private float _newJumpForce;
     private float _newMaxSpeed;
@@ -130,6 +136,9 @@ public class PlayerController : MonoBehaviourPunCallbacks
         verticalSpeed = _rb.linearVelocity.y;
         CheckIdleState();
         HandleMovement();
+
+        // Update jump charging for both ground and air
+        UpdateJumpCharging();
 
         if (transform.position.y < deathHeight && !_isDead)
             playerDeathHandler.HandleOutOfBoundsDeath();
@@ -310,76 +319,138 @@ public class PlayerController : MonoBehaviourPunCallbacks
     {
         var jumpOnCooldown = Time.time < _lastJumpTime + jumpCooldown;
 
+        // Start jump charge (either grounded or buffered)
         if (_playerInputActions.Player.Jump.WasPressedThisFrame() &&
-            IsGrounded &&
             !_isJumpQueued &&
             IsStanding &&
             !jumpOnCooldown)
         {
             _jumpButtonHeld = true;
             _jumpChargeStartTime = Time.time;
-            StartCoroutine(ChargeJump());
+
+            if (IsGrounded)
+            {
+                // Regular ground jump - show animation
+                _isChargingJump = true;
+                _movementDisabledForJump = true;
+                animator.SetBool(IsJumpQueued, true);
+                jumpChargeBarGameObject.SetActive(true);
+            }
+            else
+            {
+                // Buffered jump - same behavior but without animation
+                _isBufferingJump = true;
+                jumpChargeBarGameObject.SetActive(true);
+                // Don't set animation or disable movement yet
+            }
         }
 
+        // Handle jump button release
         if (!_playerInputActions.Player.Jump.WasReleasedThisFrame() || !_jumpButtonHeld)
             return;
 
         _jumpButtonHeld = false;
-        if (!_isChargingJump)
-            return;
 
-        var chargeTime = Min(Time.time - _jumpChargeStartTime, maxChargeTime);
-        ExecuteJump(chargeTime);
+        // Execute jump if charging on ground
+        if (_isChargingJump)
+        {
+            var chargeTime = Min(Time.time - _jumpChargeStartTime, maxChargeTime);
+            ExecuteJump(chargeTime);
+            return;
+        }
+
+        // For buffered jump, save charge level for landing
+        if (_isBufferingJump)
+        {
+            var chargeTime = Min(Time.time - _jumpChargeStartTime, maxChargeTime);
+            _bufferedJumpChargeLevel = chargeTime;
+
+            if (chargeTime >= maxChargeTime)
+            {
+                _bufferedJumpMaxCharged = true;
+            }
+        }
     }
 
-    private IEnumerator ChargeJump()
+    // Update jump charging in Update method for better responsiveness
+    private void UpdateJumpCharging()
     {
-        var startTime = Time.time;
+        if (!_jumpButtonHeld) return;
 
-        while (Time.time - startTime < quickJumpThreshold)
+        bool isCharging = _isChargingJump || _isBufferingJump;
+        if (!isCharging) return;
+
+        // Calculate charge progress identically for both charging methods
+        var chargeTime = Min(Time.time - _jumpChargeStartTime, maxChargeTime);
+        var chargeProgress = Clamp01(chargeTime / maxChargeTime);
+
+        // Update UI
+        jumpChargeBar.fillAmount = chargeProgress;
+
+        // Update FOV
+        if (_cameraController)
+            _cameraController.UpdateChargingJumpFOV(chargeProgress);
+
+        // Check for max charge
+        if (chargeTime >= maxChargeTime)
         {
-            if (!_jumpButtonHeld)
+            if (_isBufferingJump)
             {
-                _isJumpQueued = true;
-                StartCoroutine(JumpAfterDelay(0f));
-                yield break;
+                _bufferedJumpMaxCharged = true;
+                _bufferedJumpChargeLevel = maxChargeTime;
             }
-            yield return null;
+            else if (_isChargingJump && IsGrounded)
+            {
+                // Auto-jump when max charged on ground
+                ExecuteJump(maxChargeTime);
+                _jumpButtonHeld = false;
+            }
         }
+    }
 
-        _isChargingJump = true;
-        _movementDisabledForJump = true;
-        animator.SetBool(IsJumpQueued, true);
-        jumpChargeBarGameObject.SetActive(true);
-
-        while (_jumpButtonHeld && (Time.time - _jumpChargeStartTime) < maxChargeTime)
+    // Handle transition from buffered to normal jumping on landing
+    private void CheckBufferedJumpLanding(bool wasGrounded, bool isGroundedNow)
+    {
+        // If just landed and have a buffered jump
+        if (!wasGrounded && isGroundedNow && _isBufferingJump)
         {
-            if (!IsGrounded)
+            // Clear buffering state
+            _isBufferingJump = false;
+
+            if (!_jumpButtonHeld && _bufferedJumpChargeLevel > 0)
             {
-                CancelJumpCharge();
-                yield break;
+                // Button already released - execute immediately
+                var chargeToUse = _bufferedJumpMaxCharged ? maxChargeTime : _bufferedJumpChargeLevel;
+
+                // Set animation state just before jumping
+                animator.SetBool(IsJumpQueued, true);
+
+                // Execute jump immediately without delay
+                ExecuteJump(chargeToUse);
             }
+            else if (_jumpButtonHeld)
+            {
+                // Button still held - transition to normal charging with animation
+                _isChargingJump = true;
+                _movementDisabledForJump = true;
+                animator.SetBool(IsJumpQueued, true);
 
-            var chargeProgress = (Time.time - _jumpChargeStartTime) / maxChargeTime;
-            jumpChargeBar.fillAmount = chargeProgress;
-
-            if (_cameraController)
-                _cameraController.UpdateChargingJumpFOV(chargeProgress);
-
-            yield return null;
+                // Continue charging from where buffer left off - no need to adjust time
+            }
+            else
+            {
+                // No valid jump
+                jumpChargeBarGameObject.SetActive(false);
+            }
         }
-
-        if (!_jumpButtonHeld)
-            yield break;
-
-        ExecuteJump(maxChargeTime);
-        _jumpButtonHeld = false;
     }
 
     private void ExecuteJump(float chargeTime)
     {
+        // Reset all jump states
         _isChargingJump = false;
         _movementDisabledForJump = false;
+        _isBufferingJump = false;
         jumpChargeBarGameObject.SetActive(false);
 
         var chargeProgress = Clamp01(chargeTime / maxChargeTime);
@@ -388,7 +459,8 @@ public class PlayerController : MonoBehaviourPunCallbacks
         if (HasCatnip)
             jumpMultiplier *= 1.1f;
 
-        _cameraController.TriggerJumpFOV();
+        if (_cameraController)
+            _cameraController.TriggerJumpFOV();
 
         if (IsGrounded)
         {
@@ -400,21 +472,38 @@ public class PlayerController : MonoBehaviourPunCallbacks
         _isJumpQueued = false;
     }
 
-    private IEnumerator JumpAfterDelay(float delay)
+    private IEnumerator JumpAfterDelay(float delay, float chargeLevel = 0f)
     {
         animator.speed = 0f;
         yield return new WaitForSeconds(delay);
 
-        var jumpForceToApply = minJumpForce;
+        float jumpForceToApply;
+
+        if (chargeLevel > 0)
+        {
+            // Use the buffered charge level
+            var chargeProgress = Clamp01(chargeLevel / maxChargeTime);
+            jumpForceToApply = Lerp(minJumpForce, maxJumpForce, chargeProgress);
+        }
+        else
+        {
+            // Use default quick jump force
+            jumpForceToApply = minJumpForce;
+        }
+
         if (HasCatnip)
             jumpForceToApply *= 1.1f;
 
-        _rb.linearVelocity = new Vector2(0, jumpForceToApply);
+        _rb.linearVelocity = new Vector2(_rb.linearVelocity.x, jumpForceToApply);
         _lastJumpTime = Time.time;
 
         animator.SetBool(IsJumpQueued, false);
         _isJumpQueued = false;
         animator.speed = 1f;
+
+        // Trigger jump FOV effect
+        if (_cameraController)
+            _cameraController.TriggerJumpFOV();
     }
 
     private void CancelJumpCharge()
@@ -422,7 +511,13 @@ public class PlayerController : MonoBehaviourPunCallbacks
         _isChargingJump = false;
         _movementDisabledForJump = false;
         _jumpButtonHeld = false;
-        jumpChargeBarGameObject.SetActive(false);
+
+        // Don't cancel buffered jump UI when cancelling a ground charge
+        if (!_isBufferingJump)
+        {
+            jumpChargeBarGameObject.SetActive(false);
+        }
+
         animator.SetBool(IsJumpQueued, false);
         _isJumpQueued = false;
     }
@@ -447,8 +542,16 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
     private void UpdateAnimations()
     {
+        bool wasGrounded = IsGrounded;
         IsGrounded = Physics2D.OverlapCircle(groundCheck.position, groundCheckRadius, groundLayerMask) || _isDead;
 
+        // Check if we just landed with a buffered jump
+        if (wasGrounded != IsGrounded)
+        {
+            CheckBufferedJumpLanding(wasGrounded, IsGrounded);
+        }
+
+        // Cancel ground charging if in air
         if (!IsGrounded && (_isChargingJump || _isJumpQueued))
             CancelJumpCharge();
 
