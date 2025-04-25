@@ -876,9 +876,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   meowAnimator: {fileID: 2611358591427248315}
   meowRenderer: {fileID: 8427191832602566056}
+  audioSource: {fileID: 0}
   meowCooldown: 1
   meowKey: 27
   meowAnimationName: Meow
+  meowSounds:
+  - {fileID: 8300000, guid: 4bda1812cb10e5c41b2f1c300bbc238a, type: 3}
+  - {fileID: 8300000, guid: f0f32f48ccd9d183482b34437b0921a0, type: 3}
+  - {fileID: 8300000, guid: dbcdd0f1d61da2bce9f86d2eb9c2fdc7, type: 3}
+  - {fileID: 8300000, guid: 98ff64d05f6ea709b972086c4607eb34, type: 3}
 --- !u!114 &2119001226482647906
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -8,11 +8,15 @@ public class MeowController : MonoBehaviourPunCallbacks
     [Header("References")]
     [SerializeField] private Animator meowAnimator;
     [SerializeField] private SpriteRenderer meowRenderer;
+    [SerializeField] private AudioSource audioSource;
 
     [Header("Settings")]
     [SerializeField] private float meowCooldown = 2f;
     [SerializeField] private Key meowKey = Key.M;
     [SerializeField] private string meowAnimationName = "Meow";
+
+    [Header("Sounds")]
+    [SerializeField] private AudioClip[] meowSounds;
 
     private InputAction _meowAction;
     private float _nextMeowTime;
@@ -33,6 +37,12 @@ public class MeowController : MonoBehaviourPunCallbacks
 
         _meowButton = GameObject.Find("MeowBtn").GetComponent<Button>();
         _meowButton.onClick.AddListener(TryMeow);
+
+        if (audioSource == null)
+            audioSource = GetComponent<AudioSource>();
+
+        if (audioSource == null)
+            audioSource = gameObject.AddComponent<AudioSource>();
     }
 
     private void Update()
@@ -54,6 +64,9 @@ public class MeowController : MonoBehaviourPunCallbacks
 
     private void TryMeow()
     {
+        if (_playerController.IsPaused)
+            return;
+
         if (!photonView.IsMine)
             return;
 
@@ -73,11 +86,16 @@ public class MeowController : MonoBehaviourPunCallbacks
     [PunRPC]
     private void RPC_PlayMeow()
     {
-        if (meowRenderer == null || meowAnimator == null)
-            return;
+        if (meowRenderer != null && meowAnimator != null)
+        {
+            meowRenderer.enabled = true;
+            meowAnimator.Play(meowAnimationName, 0, 0f);
+        }
 
-        meowRenderer.enabled = true;
-        meowAnimator.Play(meowAnimationName, 0, 0f);
+        if (meowSounds is not { Length: > 0 } || audioSource == null) return;
+
+        var randomMeow = meowSounds[Random.Range(0, meowSounds.Length)];
+        audioSource.PlayOneShot(randomMeow);
     }
 
     public void OnMeowAnimationComplete()
