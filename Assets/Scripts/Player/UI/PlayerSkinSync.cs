@@ -28,7 +28,7 @@ public class PlayerSkinSync : MonoBehaviourPunCallbacks
         animator.SetInteger(Skin, GetSkinIndex(skinName));
     }
 
-    private static int GetSkinIndex(string skinName)
+    public static int GetSkinIndex(string skinName)
     {
         return skinName switch
         {

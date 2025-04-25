@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 using Photon.Pun;
 using static UnityEngine.Color;
@@ -177,7 +178,15 @@ public class CatnipEffectParticles : MonoBehaviour
 
     private void SetupParticleSystem()
     {
-        _particleSystem.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+        if (_particleSystem.isPlaying)
+            _particleSystem.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+
+        StartCoroutine(SetupParticleSystemDelayed());
+    }
+
+    private IEnumerator SetupParticleSystemDelayed()
+    {
+        yield return null;
 
         var main = _particleSystem.main;
         main.duration = duration;
@@ -204,6 +213,9 @@ public class CatnipEffectParticles : MonoBehaviour
 
         SetupModules();
         SetupRenderer();
+
+        if (_wasActiveLastFrame && _playerController && _playerController.HasCatnip)
+            _particleSystem.Play(true);
     }
 
     private void SetupModules()
@@ -251,11 +263,11 @@ public class CatnipEffectParticles : MonoBehaviour
 
     private void SetupRenderer()
     {
-        if (_isRemotePlayer && _remotePlayerMaterial != null)
+        if (_isRemotePlayer && _remotePlayerMaterial)
             _particleSystemRenderer.material = _remotePlayerMaterial;
-        else if (_localPlayerMaterial != null)
+        else if (_localPlayerMaterial)
             _particleSystemRenderer.material = _localPlayerMaterial;
-        else if (particleMaterial != null)
+        else if (particleMaterial)
             _particleSystemRenderer.material = particleMaterial;
 
         _particleSystemRenderer.renderMode = renderMode;
@@ -277,14 +289,12 @@ public class CatnipEffectParticles : MonoBehaviour
         if (!_playerController || !_particleSystem || !_playerTransform)
             return;
 
-        // Check for scale changes
         if (_playerTransform.localScale != _lastParentScale)
         {
             _lastParentScale = _playerTransform.localScale;
             UpdateObjectScale();
         }
 
-        // Check for catnip status change
         var hasCatnip = _playerController.HasCatnip;
         if (hasCatnip == _hasCatnipLastFrame) return;
 
@@ -308,7 +318,7 @@ public class CatnipEffectParticles : MonoBehaviour
         if (isActive)
             _particleSystem.Play(true);
         else
-            _particleSystem.Stop(true, ParticleSystemStopBehavior.StopEmitting); // Changed from StopEmittingAndClear to StopEmitting
+            _particleSystem.Stop(true, ParticleSystemStopBehavior.StopEmitting);
     }
 
     /// <summary>
@@ -317,6 +327,7 @@ public class CatnipEffectParticles : MonoBehaviour
     public void ClearAllParticles()
     {
         if (!_particleSystem) return;
+
         _particleSystem.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
     }
 
@@ -360,13 +371,20 @@ public class CatnipEffectParticles : MonoBehaviour
 
         if (_particleSystem == null || _particleSystemRenderer == null || !Application.isPlaying) return;
 
+        var wasPlaying = false;
+        if (_particleSystem.isPlaying)
+        {
+            wasPlaying = true;
+            _particleSystem.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+        }
+
         SetupParticleSystem();
 
         if (_playerController == null && playerObject != null)
             SetupPlayerReferences();
 
-        if (_playerController != null)
-            UpdateParticleState(_playerController.HasCatnip && (!_isRemotePlayer || showForRemotePlayers));
+        if (wasPlaying && _playerController != null && _playerController.HasCatnip && (!_isRemotePlayer || showForRemotePlayers))
+            _particleSystem.Play(true);
     }
     #endif
 }

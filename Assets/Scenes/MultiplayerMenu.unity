@@ -8578,7 +8578,7 @@ MonoBehaviour:
   visualController: {fileID: 480557256}
   selectionHandler: {fileID: 480557257}
   mapsContainer: {fileID: 480557251}
-  skipMapsNotInBuild: 0
+  skipMapsNotInBuild: 1
 --- !u!1 &853344903
 GameObject:
   m_ObjectHideFlags: 0

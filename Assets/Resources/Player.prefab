@@ -462,7 +462,7 @@ MonoBehaviour:
   playerObject: {fileID: 6966233725223629069}
   excludedLayers:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 16
   collisionCheckRadius: 0.2
   baseEmissionRate: 5
   walkingEmissionMultiplier: 2.5
@@ -1509,7 +1509,6 @@ MonoBehaviour:
   jumpChargeBar: {fileID: 1315758324830475671}
   minJumpForce: 8.5
   maxJumpForce: 14.2
-  quickJumpThreshold: 0.2
   maxChargeTime: 1.1
   jumpCooldown: 0.2
   deathHeight: -50

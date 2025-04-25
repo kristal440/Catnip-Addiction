@@ -112,7 +112,7 @@ public class PlayerDirtParticleSystem : MonoBehaviour
         if (!_playerController)
             return;
 
-        if (IsCollidingWithExcludedObjects())
+        if (_playerController.IsDead || IsCollidingWithExcludedObjects())
         {
             if (_emission.rateOverTime.constant > 0)
                 _emission.rateOverTime = 0;

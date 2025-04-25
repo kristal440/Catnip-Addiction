@@ -1,4 +1,3 @@
-using System.Collections;
 using Photon.Pun;
 using TMPro;
 using UnityEngine;
@@ -41,7 +40,6 @@ public class PlayerController : MonoBehaviourPunCallbacks
     [Header("Charged Jump")]
     public float minJumpForce = 8.5f;
     public float maxJumpForce = 14.5f;
-    public float quickJumpThreshold = 0.2f;
     public float maxChargeTime = 2f;
     public float jumpCooldown = 0.1f;
 
@@ -63,16 +61,14 @@ public class PlayerController : MonoBehaviourPunCallbacks
     private bool _movementDisabledForJump;
     private bool _isTouchingWall;
     private bool _isJumpQueued;
-    private bool _isFalling;
     private bool _jump1;
     private float _idleTimer;
     private Vector3 _previousPlayerScale;
     private float _originalGravityScale;
-    private bool _isDead;
     private bool _wallCollisionHandled;
     private float _lastJumpTime;
 
-    // Jump buffering
+    // Jump buffer
     private bool _isBufferingJump;
     private float _bufferedJumpChargeLevel;
     private bool _bufferedJumpMaxCharged;
@@ -89,6 +85,8 @@ public class PlayerController : MonoBehaviourPunCallbacks
     internal bool IsJumpPaused { get; set; }
     internal bool IsPaused { get; set; }
     internal bool HasCatnip { get; set; }
+    internal bool IsDead { get; private set; }
+
     #endregion
 
     #region Unity Lifecycle
@@ -137,10 +135,9 @@ public class PlayerController : MonoBehaviourPunCallbacks
         CheckIdleState();
         HandleMovement();
 
-        // Update jump charging for both ground and air
         UpdateJumpCharging();
 
-        if (transform.position.y < deathHeight && !_isDead)
+        if (transform.position.y < deathHeight && !IsDead)
             playerDeathHandler.HandleOutOfBoundsDeath();
     }
     #endregion
@@ -196,10 +193,8 @@ public class PlayerController : MonoBehaviourPunCallbacks
         if (IsPaused)
             return;
 
-        // Update wall contact state
         _isTouchingWall = Physics2D.OverlapCircle(wallCheck.position, wallCheckRadius, wallLayerMask);
 
-        // Reset wall handling flag when not touching wall
         if (!_isTouchingWall)
             _wallCollisionHandled = false;
 
@@ -224,7 +219,6 @@ public class PlayerController : MonoBehaviourPunCallbacks
                              ((facingRight && horizontalInput > 0) ||
                               (!facingRight && horizontalInput < 0));
 
-        // Skip direction change if pushing into wall (unless jumping)
         if (movingIntoWall && !_isJumpQueued)
             return;
 
@@ -289,7 +283,6 @@ public class PlayerController : MonoBehaviourPunCallbacks
                              ((facingRight && horizontalInput > 0) ||
                               (!facingRight && horizontalInput < 0));
 
-        // Stop momentum on first wall contact
         if (movingIntoWall && !_wallCollisionHandled)
         {
             currentSpeed = 0;
@@ -319,7 +312,6 @@ public class PlayerController : MonoBehaviourPunCallbacks
     {
         var jumpOnCooldown = Time.time < _lastJumpTime + jumpCooldown;
 
-        // Start jump charge (either grounded or buffered)
         if (_playerInputActions.Player.Jump.WasPressedThisFrame() &&
             !_isJumpQueued &&
             IsStanding &&
@@ -330,28 +322,23 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
             if (IsGrounded)
             {
-                // Regular ground jump - show animation
                 _isChargingJump = true;
                 _movementDisabledForJump = true;
                 animator.SetBool(IsJumpQueued, true);
-                jumpChargeBarGameObject.SetActive(true);
             }
             else
             {
-                // Buffered jump - same behavior but without animation
                 _isBufferingJump = true;
-                jumpChargeBarGameObject.SetActive(true);
-                // Don't set animation or disable movement yet
             }
+
+            jumpChargeBarGameObject.SetActive(true);
         }
 
-        // Handle jump button release
         if (!_playerInputActions.Player.Jump.WasReleasedThisFrame() || !_jumpButtonHeld)
             return;
 
         _jumpButtonHeld = false;
 
-        // Execute jump if charging on ground
         if (_isChargingJump)
         {
             var chargeTime = Min(Time.time - _jumpChargeStartTime, maxChargeTime);
@@ -359,95 +346,77 @@ public class PlayerController : MonoBehaviourPunCallbacks
             return;
         }
 
-        // For buffered jump, save charge level for landing
-        if (_isBufferingJump)
+        if (!_isBufferingJump) return;
+
         {
             var chargeTime = Min(Time.time - _jumpChargeStartTime, maxChargeTime);
             _bufferedJumpChargeLevel = chargeTime;
 
             if (chargeTime >= maxChargeTime)
-            {
                 _bufferedJumpMaxCharged = true;
-            }
         }
     }
 
-    // Update jump charging in Update method for better responsiveness
     private void UpdateJumpCharging()
     {
         if (!_jumpButtonHeld) return;
 
-        bool isCharging = _isChargingJump || _isBufferingJump;
+        var isCharging = _isChargingJump || _isBufferingJump;
         if (!isCharging) return;
 
-        // Calculate charge progress identically for both charging methods
         var chargeTime = Min(Time.time - _jumpChargeStartTime, maxChargeTime);
         var chargeProgress = Clamp01(chargeTime / maxChargeTime);
 
-        // Update UI
         jumpChargeBar.fillAmount = chargeProgress;
 
-        // Update FOV
         if (_cameraController)
             _cameraController.UpdateChargingJumpFOV(chargeProgress);
 
-        // Check for max charge
-        if (chargeTime >= maxChargeTime)
+        if (!(chargeTime >= maxChargeTime)) return;
+
+        if (_isBufferingJump)
         {
-            if (_isBufferingJump)
-            {
-                _bufferedJumpMaxCharged = true;
-                _bufferedJumpChargeLevel = maxChargeTime;
-            }
-            else if (_isChargingJump && IsGrounded)
-            {
-                // Auto-jump when max charged on ground
-                ExecuteJump(maxChargeTime);
-                _jumpButtonHeld = false;
-            }
+            _bufferedJumpMaxCharged = true;
+            _bufferedJumpChargeLevel = maxChargeTime;
+        }
+        else if (_isChargingJump && IsGrounded)
+        {
+            ExecuteJump(maxChargeTime);
+            _jumpButtonHeld = false;
         }
     }
 
-    // Handle transition from buffered to normal jumping on landing
     private void CheckBufferedJumpLanding(bool wasGrounded, bool isGroundedNow)
     {
-        // If just landed and have a buffered jump
-        if (!wasGrounded && isGroundedNow && _isBufferingJump)
-        {
-            // Clear buffering state
-            _isBufferingJump = false;
+        if (wasGrounded || !isGroundedNow || !_isBufferingJump) return;
 
-            if (!_jumpButtonHeld && _bufferedJumpChargeLevel > 0)
+        _isBufferingJump = false;
+
+        switch (_jumpButtonHeld)
+        {
+            case false when _bufferedJumpChargeLevel > 0:
             {
-                // Button already released - execute immediately
                 var chargeToUse = _bufferedJumpMaxCharged ? maxChargeTime : _bufferedJumpChargeLevel;
 
-                // Set animation state just before jumping
                 animator.SetBool(IsJumpQueued, true);
 
-                // Execute jump immediately without delay
                 ExecuteJump(chargeToUse);
+                break;
             }
-            else if (_jumpButtonHeld)
-            {
-                // Button still held - transition to normal charging with animation
+            case true:
                 _isChargingJump = true;
                 _movementDisabledForJump = true;
                 animator.SetBool(IsJumpQueued, true);
 
-                // Continue charging from where buffer left off - no need to adjust time
-            }
-            else
-            {
-                // No valid jump
+                break;
+            default:
                 jumpChargeBarGameObject.SetActive(false);
-            }
+                break;
         }
     }
 
     private void ExecuteJump(float chargeTime)
     {
-        // Reset all jump states
         _isChargingJump = false;
         _movementDisabledForJump = false;
         _isBufferingJump = false;
@@ -464,46 +433,12 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
         if (IsGrounded)
         {
-            _rb.linearVelocity = new Vector2(_rb.linearVelocity.x, jumpMultiplier);
+            _rb.linearVelocity = new Vector2(0f, jumpMultiplier);
             _lastJumpTime = Time.time;
         }
 
         animator.SetBool(IsJumpQueued, false);
         _isJumpQueued = false;
-    }
-
-    private IEnumerator JumpAfterDelay(float delay, float chargeLevel = 0f)
-    {
-        animator.speed = 0f;
-        yield return new WaitForSeconds(delay);
-
-        float jumpForceToApply;
-
-        if (chargeLevel > 0)
-        {
-            // Use the buffered charge level
-            var chargeProgress = Clamp01(chargeLevel / maxChargeTime);
-            jumpForceToApply = Lerp(minJumpForce, maxJumpForce, chargeProgress);
-        }
-        else
-        {
-            // Use default quick jump force
-            jumpForceToApply = minJumpForce;
-        }
-
-        if (HasCatnip)
-            jumpForceToApply *= 1.1f;
-
-        _rb.linearVelocity = new Vector2(_rb.linearVelocity.x, jumpForceToApply);
-        _lastJumpTime = Time.time;
-
-        animator.SetBool(IsJumpQueued, false);
-        _isJumpQueued = false;
-        animator.speed = 1f;
-
-        // Trigger jump FOV effect
-        if (_cameraController)
-            _cameraController.TriggerJumpFOV();
     }
 
     private void CancelJumpCharge()
@@ -512,11 +447,8 @@ public class PlayerController : MonoBehaviourPunCallbacks
         _movementDisabledForJump = false;
         _jumpButtonHeld = false;
 
-        // Don't cancel buffered jump UI when cancelling a ground charge
         if (!_isBufferingJump)
-        {
             jumpChargeBarGameObject.SetActive(false);
-        }
 
         animator.SetBool(IsJumpQueued, false);
         _isJumpQueued = false;
@@ -542,16 +474,12 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
     private void UpdateAnimations()
     {
-        bool wasGrounded = IsGrounded;
-        IsGrounded = Physics2D.OverlapCircle(groundCheck.position, groundCheckRadius, groundLayerMask) || _isDead;
+        var wasGrounded = IsGrounded;
+        IsGrounded = Physics2D.OverlapCircle(groundCheck.position, groundCheckRadius, groundLayerMask) || IsDead;
 
-        // Check if we just landed with a buffered jump
         if (wasGrounded != IsGrounded)
-        {
             CheckBufferedJumpLanding(wasGrounded, IsGrounded);
-        }
 
-        // Cancel ground charging if in air
         if (!IsGrounded && (_isChargingJump || _isJumpQueued))
             CancelJumpCharge();
 
@@ -559,7 +487,6 @@ public class PlayerController : MonoBehaviourPunCallbacks
         {
             animator.speed = 1f;
             IsJumpPaused = false;
-            _isFalling = false;
             _jump1 = false;
         }
 
@@ -569,12 +496,6 @@ public class PlayerController : MonoBehaviourPunCallbacks
             _jump1 = true;
         }
 
-        if (_jump1 && !_isFalling && _rb.linearVelocity.y < -0.5f)
-        {
-            animator.speed = 1f;
-            _isFalling = true;
-        }
-
         if (photonView.IsMine)
         {
             animator.SetBool(InAir, !IsGrounded);
@@ -582,7 +503,6 @@ public class PlayerController : MonoBehaviourPunCallbacks
         }
         else
         {
-            // Handle remote player's UI elements orientation
             var scaleFactor = transform.localScale.x < 0 ? -1 : 1;
             var localScale = playerNameTag.transform.localScale;
             localScale = new Vector3(
@@ -654,10 +574,10 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
     internal void OnPlayerDeath()
     {
-        if (_isDead)
+        if (IsDead)
             return;
 
-        _isDead = true;
+        IsDead = true;
         _originalGravityScale = _rb.gravityScale;
         _rb.gravityScale = 0;
         _rb.linearVelocity = zero;
@@ -675,10 +595,10 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
     private void OnPlayerRespawn()
     {
-        if (!_isDead)
+        if (!IsDead)
             return;
 
-        _isDead = false;
+        IsDead = false;
         _rb.gravityScale = _originalGravityScale;
         _rb.constraints = RigidbodyConstraints2D.FreezeRotation;
 

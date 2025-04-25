@@ -3,17 +3,31 @@ using UnityEngine;
 
 public class TeleportParticles : MonoBehaviour
 {
+    private static readonly int EmissionColor = Shader.PropertyToID("_EmissionColor");
+    private static readonly int Mode = Shader.PropertyToID("_Mode");
+    private static readonly int SrcBlend = Shader.PropertyToID("_SrcBlend");
+    private static readonly int DstBlend = Shader.PropertyToID("_DstBlend");
+    private static readonly int ZWrite = Shader.PropertyToID("_ZWrite");
+
     [Header("Particle Settings")]
     [SerializeField] private Color startColor = new(0.7f, 0.9f, 0.7f, 0.8f);
     [SerializeField] private Color endColor = new(0.5f, 0.8f, 0.5f, 0f);
-    [SerializeField] private float particleSize = 0.225f;
-    [SerializeField] private float particleLifetime = 1f;
-    [SerializeField] private int emissionRate = 30;
+    [SerializeField] private float particleSize = 0.2f;
+    [SerializeField] private float particleLifetime = 1.5f;
+    [SerializeField] private int emissionRate = 40;
 
     [Header("Spread Settings")]
     [SerializeField] private float emissionRadius = 0.1f;
     [SerializeField] private float spreadForce = 1.0f;
     [SerializeField] private float directionVariance = 0.3f;
+
+    [Header("Light Settings")]
+    [SerializeField] private bool emitLight = true;
+    [SerializeField] private float lightIntensity = 2f;
+    [SerializeField] private float lightRange = 2.0f;
+    [SerializeField] [Range(0.0f, 1.0f)] private float lightRatio = 0.5f;
+    [SerializeField] private Color lightColor = Color.green;
+    [SerializeField] private float emissionMultiplier = 2.0f;
 
     private ParticleSystem _particleSystem;
     private ParticleSystem.EmissionModule _emission;
@@ -94,15 +108,53 @@ public class TeleportParticles : MonoBehaviour
         sizeOverLifetime.size = new ParticleSystem.MinMaxCurve(1.0f, sizeOverLifetimeCurve);
 
         var particleSystemRenderer = _particleSystem.GetComponent<ParticleSystemRenderer>();
-        particleSystemRenderer.material = new Material(Shader.Find("Particles/Standard Unlit"));
+
+        var particleMaterial = new Material(Shader.Find("Particles/Standard Unlit"));
+        particleMaterial.EnableKeyword("_EMISSION");
+        particleMaterial.SetColor(EmissionColor, startColor * emissionMultiplier);
+
+        particleMaterial.SetFloat(Mode, 2);
+        particleMaterial.SetInt(SrcBlend, (int)UnityEngine.Rendering.BlendMode.SrcAlpha);
+        particleMaterial.SetInt(DstBlend, (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
+        particleMaterial.SetInt(ZWrite, 0);
+        particleMaterial.DisableKeyword("_ALPHATEST_ON");
+        particleMaterial.EnableKeyword("_ALPHABLEND_ON");
+        particleMaterial.DisableKeyword("_ALPHAPREMULTIPLY_ON");
+        particleMaterial.renderQueue = 3000;
+
+        particleSystemRenderer.material = particleMaterial;
         particleSystemRenderer.renderMode = ParticleSystemRenderMode.Billboard;
         particleSystemRenderer.sortingOrder = 10;
 
-        _particleSystem.Stop();
+        main.startSize = particleSize;
+        main.startSizeMultiplier = particleSize;
+
+        if (!emitLight) return;
+
+        var lightsModule = _particleSystem.lights;
+        lightsModule.enabled = true;
+        lightsModule.ratio = lightRatio;
+        lightsModule.useParticleColor = true;
+        lightsModule.intensityMultiplier = lightIntensity;
+        lightsModule.rangeMultiplier = lightRange;
+
+        var tempLightObj = new GameObject("TempLight");
+        var tempLight = tempLightObj.AddComponent<Light>();
+        tempLight.color = lightColor;
+        tempLight.intensity = lightIntensity;
+        tempLight.range = lightRange;
+        tempLight.type = LightType.Point;
+
+        lightsModule.light = tempLight;
+
+        Destroy(tempLightObj);
     }
 
     internal void AnimateTeleport(Vector3 startPos, Vector3 endPos, float duration, AnimationCurve movementCurve = null)
     {
+        gameObject.SetActive(true);
+        _particleSystem.Clear();
+
         StartCoroutine(TeleportAnimation(startPos, endPos, duration, movementCurve));
     }
 
@@ -130,12 +182,8 @@ public class TeleportParticles : MonoBehaviour
         }
 
         transform.position = endPos;
-
-        var burst = new ParticleSystem.Burst(0, 20);
-        _emission.SetBurst(0, burst);
-
         _emission.rateOverTime = 0;
-        yield return new WaitForSeconds(particleLifetime);
+        yield return new WaitForSeconds(3);
 
         Destroy(gameObject);
     }
