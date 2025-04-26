@@ -66,15 +66,15 @@ namespace Photon.Pun.UtilityScripts
                 yield break;
             }
 
-            bool wasEmissive = this.originalMaterial.IsKeywordEnabled("_EMISSION");
+            var wasEmissive = this.originalMaterial.IsKeywordEnabled("_EMISSION");
             this.originalMaterial.EnableKeyword("_EMISSION");
 
             this.originalColor = this.originalMaterial.GetColor("_EmissionColor");
             this.originalMaterial.SetColor("_EmissionColor", Color.white);
 
-            for (float f = 0.0f; f <= 1.0f; f += 0.08f)
+            for (var f = 0.0f; f <= 1.0f; f += 0.08f)
             {
-                Color lerped = Color.Lerp(Color.white, this.originalColor, f);
+                var lerped = Color.Lerp(Color.white, this.originalColor, f);
                 this.originalMaterial.SetColor("_EmissionColor", lerped);
                 yield return null;
             }

@@ -171,7 +171,7 @@ namespace Photon.Realtime
                 this.startStopwatch.Start();
             }
 
-            TimeSpan span = this.startStopwatch.Elapsed;
+            var span = this.startStopwatch.Elapsed;
             if (span.Minutes > 0)
             {
                 return string.Format("[{0}:{1}.{1}]", span.Minutes, span.Seconds, span.Milliseconds);
@@ -186,7 +186,7 @@ namespace Photon.Realtime
         {
             if (this.client != null)
             {
-                int currentRtt = this.client.LoadBalancingPeer.RoundTripTime;
+                var currentRtt = this.client.LoadBalancingPeer.RoundTripTime;
                 if (currentRtt > this.pingMax)
                 {
                     this.pingMax = currentRtt;
@@ -222,7 +222,7 @@ namespace Photon.Realtime
         {
             if (this.client != null)
             {
-                List<string> buildProperties = new List<string>(10);
+                var buildProperties = new List<string>(10);
                 #if SUPPORTED_UNITY
                 buildProperties.Add(Application.unityVersion);
                 buildProperties.Add(Application.platform.ToString());
@@ -259,9 +259,9 @@ namespace Photon.Realtime
                 #endif
 
 
-                StringBuilder sb = new StringBuilder();
+                var sb = new StringBuilder();
 
-                string appIdShort = string.IsNullOrEmpty(this.client.AppId) || this.client.AppId.Length < 8 ? this.client.AppId : string.Concat(this.client.AppId.Substring(0, 8), "***");
+                var appIdShort = string.IsNullOrEmpty(this.client.AppId) || this.client.AppId.Length < 8 ? this.client.AppId : string.Concat(this.client.AppId.Substring(0, 8), "***");
 
                 sb.AppendFormat("{0} SupportLogger Info: ", this.GetFormattedTimestamp());
                 sb.AppendFormat("AppID: \"{0}\" AppVersion: \"{1}\" Client: v{2} ({4}) Build: {3} ", appIdShort, this.client.AppVersion, PhotonPeer.Version, string.Join(", ", buildProperties.ToArray()), this.client.LoadBalancingPeer.TargetFramework);

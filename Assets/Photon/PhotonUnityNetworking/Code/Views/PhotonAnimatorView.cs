@@ -159,9 +159,9 @@ namespace Photon.Pun
         /// </summary>
         public void CacheDiscreteTriggers()
         {
-            for (int i = 0; i < this.m_SynchronizeParameters.Count; ++i)
+            for (var i = 0; i < this.m_SynchronizeParameters.Count; ++i)
             {
-                SynchronizedParameter parameter = this.m_SynchronizeParameters[i];
+                var parameter = this.m_SynchronizeParameters[i];
 
                 if (parameter.SynchronizeType == SynchronizeType.Discrete && parameter.Type == ParameterType.Trigger && this.m_Animator.GetBool(parameter.Name))
                 {
@@ -219,7 +219,7 @@ namespace Photon.Pun
         /// <returns>Disabled/Discrete/Continuous</returns>
         public SynchronizeType GetLayerSynchronizeType(int layerIndex)
         {
-            int index = this.m_SynchronizeLayers.FindIndex(item => item.LayerIndex == layerIndex);
+            var index = this.m_SynchronizeLayers.FindIndex(item => item.LayerIndex == layerIndex);
 
             if (index == -1)
             {
@@ -236,7 +236,7 @@ namespace Photon.Pun
         /// <returns>Disabled/Discrete/Continuous</returns>
         public SynchronizeType GetParameterSynchronizeType(string name)
         {
-            int index = this.m_SynchronizeParameters.FindIndex(item => item.Name == name);
+            var index = this.m_SynchronizeParameters.FindIndex(item => item.Name == name);
 
             if (index == -1)
             {
@@ -258,7 +258,7 @@ namespace Photon.Pun
                 this.m_WasSynchronizeTypeChanged = true;
             }
 
-            int index = this.m_SynchronizeLayers.FindIndex(item => item.LayerIndex == layerIndex);
+            var index = this.m_SynchronizeLayers.FindIndex(item => item.LayerIndex == layerIndex);
 
             if (index == -1)
             {
@@ -283,7 +283,7 @@ namespace Photon.Pun
                 this.m_WasSynchronizeTypeChanged = true;
             }
 
-            int index = this.m_SynchronizeParameters.FindIndex(item => item.Name == name);
+            var index = this.m_SynchronizeParameters.FindIndex(item => item.Name == name);
 
             if (index == -1)
             {
@@ -307,7 +307,7 @@ namespace Photon.Pun
                 return;
             }
 
-            for (int i = 0; i < this.m_SynchronizeLayers.Count; ++i)
+            for (var i = 0; i < this.m_SynchronizeLayers.Count; ++i)
             {
                 if (this.m_SynchronizeLayers[i].SynchronizeType == SynchronizeType.Continuous)
                 {
@@ -315,9 +315,9 @@ namespace Photon.Pun
                 }
             }
 
-            for (int i = 0; i < this.m_SynchronizeParameters.Count; ++i)
+            for (var i = 0; i < this.m_SynchronizeParameters.Count; ++i)
             {
-                SynchronizedParameter parameter = this.m_SynchronizeParameters[i];
+                var parameter = this.m_SynchronizeParameters[i];
 
                 if (parameter.SynchronizeType == SynchronizeType.Continuous)
                 {
@@ -356,7 +356,7 @@ namespace Photon.Pun
                 return;
             }
 
-            for (int i = 0; i < this.m_SynchronizeLayers.Count; ++i)
+            for (var i = 0; i < this.m_SynchronizeLayers.Count; ++i)
             {
                 if (this.m_SynchronizeLayers[i].SynchronizeType == SynchronizeType.Continuous)
                 {
@@ -364,9 +364,9 @@ namespace Photon.Pun
                 }
             }
 
-            for (int i = 0; i < this.m_SynchronizeParameters.Count; ++i)
+            for (var i = 0; i < this.m_SynchronizeParameters.Count; ++i)
             {
-                SynchronizedParameter parameter = this.m_SynchronizeParameters[i];
+                var parameter = this.m_SynchronizeParameters[i];
 
                 if (parameter.SynchronizeType == SynchronizeType.Continuous)
                 {
@@ -391,7 +391,7 @@ namespace Photon.Pun
 
         private void SerializeDataDiscretly(PhotonStream stream)
         {
-            for (int i = 0; i < this.m_SynchronizeLayers.Count; ++i)
+            for (var i = 0; i < this.m_SynchronizeLayers.Count; ++i)
             {
                 if (this.m_SynchronizeLayers[i].SynchronizeType == SynchronizeType.Discrete)
                 {
@@ -399,10 +399,10 @@ namespace Photon.Pun
                 }
             }
 
-            for (int i = 0; i < this.m_SynchronizeParameters.Count; ++i)
+            for (var i = 0; i < this.m_SynchronizeParameters.Count; ++i)
             {
                
-                SynchronizedParameter parameter = this.m_SynchronizeParameters[i];
+                var parameter = this.m_SynchronizeParameters[i];
        
                 if (parameter.SynchronizeType == SynchronizeType.Discrete)
                 {
@@ -439,7 +439,7 @@ namespace Photon.Pun
 
         private void DeserializeDataDiscretly(PhotonStream stream)
         {
-            for (int i = 0; i < this.m_SynchronizeLayers.Count; ++i)
+            for (var i = 0; i < this.m_SynchronizeLayers.Count; ++i)
             {
                 if (this.m_SynchronizeLayers[i].SynchronizeType == SynchronizeType.Discrete)
                 {
@@ -447,9 +447,9 @@ namespace Photon.Pun
                 }
             }
 
-            for (int i = 0; i < this.m_SynchronizeParameters.Count; ++i)
+            for (var i = 0; i < this.m_SynchronizeParameters.Count; ++i)
             {
-                SynchronizedParameter parameter = this.m_SynchronizeParameters[i];
+                var parameter = this.m_SynchronizeParameters[i];
 
                 if (parameter.SynchronizeType == SynchronizeType.Discrete)
                 {
@@ -496,14 +496,14 @@ namespace Photon.Pun
 
         private void SerializeSynchronizationTypeState(PhotonStream stream)
         {
-            byte[] states = new byte[this.m_SynchronizeLayers.Count + this.m_SynchronizeParameters.Count];
+            var states = new byte[this.m_SynchronizeLayers.Count + this.m_SynchronizeParameters.Count];
 
-            for (int i = 0; i < this.m_SynchronizeLayers.Count; ++i)
+            for (var i = 0; i < this.m_SynchronizeLayers.Count; ++i)
             {
                 states[i] = (byte) this.m_SynchronizeLayers[i].SynchronizeType;
             }
 
-            for (int i = 0; i < this.m_SynchronizeParameters.Count; ++i)
+            for (var i = 0; i < this.m_SynchronizeParameters.Count; ++i)
             {
                 states[this.m_SynchronizeLayers.Count + i] = (byte) this.m_SynchronizeParameters[i].SynchronizeType;
             }
@@ -513,14 +513,14 @@ namespace Photon.Pun
 
         private void DeserializeSynchronizationTypeState(PhotonStream stream)
         {
-            byte[] state = (byte[]) stream.ReceiveNext();
+            var state = (byte[]) stream.ReceiveNext();
 
-            for (int i = 0; i < this.m_SynchronizeLayers.Count; ++i)
+            for (var i = 0; i < this.m_SynchronizeLayers.Count; ++i)
             {
                 this.m_SynchronizeLayers[i].SynchronizeType = (SynchronizeType) state[i];
             }
 
-            for (int i = 0; i < this.m_SynchronizeParameters.Count; ++i)
+            for (var i = 0; i < this.m_SynchronizeParameters.Count; ++i)
             {
                 this.m_SynchronizeParameters[i].SynchronizeType = (SynchronizeType) state[this.m_SynchronizeLayers.Count + i];
             }

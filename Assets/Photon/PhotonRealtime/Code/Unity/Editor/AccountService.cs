@@ -82,14 +82,14 @@ namespace Photon.Realtime
                 return false;
             }
 
-            string serviceTypeString = GetServiceTypesFromList(serviceTypes);
+            var serviceTypeString = GetServiceTypesFromList(serviceTypes);
             if (string.IsNullOrEmpty(serviceTypeString))
             {
                 Debug.LogError("serviceTypes string is null or empty");
                 return false;
             }
 
-            string fullUrl = GetUrlWithQueryStringEscaped(email, serviceTypeString, origin);
+            var fullUrl = GetUrlWithQueryStringEscaped(email, serviceTypeString, origin);
 
             RequestHeaders["x-functions-key"] = string.IsNullOrEmpty(CustomToken) ? DefaultToken : CustomToken;
 
@@ -113,7 +113,7 @@ namespace Photon.Realtime
                         }
                         else
                         {
-                            AccountServiceResponse ase = this.ParseResult(s);
+                            var ase = this.ParseResult(s);
                             if (ase == null)
                             {
                                 if (errorCallback != null)
@@ -142,10 +142,10 @@ namespace Photon.Realtime
 
         private string GetUrlWithQueryStringEscaped(string email, string serviceTypes, string originAv)
         {
-            string emailEscaped = UnityEngine.Networking.UnityWebRequest.EscapeURL(email);
-            string st = UnityEngine.Networking.UnityWebRequest.EscapeURL(serviceTypes);
-            string uv = UnityEngine.Networking.UnityWebRequest.EscapeURL(Application.unityVersion);
-            string serviceUrl = string.Format(ServiceUrl, string.IsNullOrEmpty(CustomContext) ? DefaultContext : CustomContext );
+            var emailEscaped = UnityEngine.Networking.UnityWebRequest.EscapeURL(email);
+            var st = UnityEngine.Networking.UnityWebRequest.EscapeURL(serviceTypes);
+            var uv = UnityEngine.Networking.UnityWebRequest.EscapeURL(Application.unityVersion);
+            var serviceUrl = string.Format(ServiceUrl, string.IsNullOrEmpty(CustomContext) ? DefaultContext : CustomContext );
 
             return string.Format("{0}?email={1}&st={2}&uv={3}&av={4}", serviceUrl, emailEscaped, st, uv, originAv);
         }
@@ -158,18 +158,18 @@ namespace Photon.Realtime
         {
             try
             {
-                AccountServiceResponse res = JsonUtility.FromJson<AccountServiceResponse>(result);
+                var res = JsonUtility.FromJson<AccountServiceResponse>(result);
                 // Unity's JsonUtility does not support deserializing Dictionary, we manually parse it, dirty & ugly af, better then using a 3rd party lib
                 if (res.ReturnCode == AccountServiceReturnCodes.Success)
                 {
-                    string[] parts = result.Split(new[] { "\"ApplicationIds\":{" }, StringSplitOptions.RemoveEmptyEntries);
+                    var parts = result.Split(new[] { "\"ApplicationIds\":{" }, StringSplitOptions.RemoveEmptyEntries);
                     parts = parts[1].Split('}');
-                    string applicationIds = parts[0];
+                    var applicationIds = parts[0];
                     if (!string.IsNullOrEmpty(applicationIds))
                     {
                         parts = applicationIds.Split(new[] { ',', '"', ':' }, StringSplitOptions.RemoveEmptyEntries);
                         res.ApplicationIds = new Dictionary<string, string>(parts.Length / 2);
-                        for (int i = 0; i < parts.Length; i = i + 2)
+                        for (var i = 0; i < parts.Length; i = i + 2)
                         {
                             res.ApplicationIds.Add(parts[i], parts[i + 1]);
                         }
@@ -201,10 +201,10 @@ namespace Photon.Realtime
                 return null;
             }
 
-            string serviceTypes = ((int)appTypes[0]).ToString();
-            for (int i = 1; i < appTypes.Count; i++)
+            var serviceTypes = ((int)appTypes[0]).ToString();
+            for (var i = 1; i < appTypes.Count; i++)
             {
-                int appType = (int)appTypes[i];
+                var appType = (int)appTypes[i];
                 serviceTypes = string.Format("{0},{1}", serviceTypes, appType);
             }
 

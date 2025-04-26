@@ -89,9 +89,9 @@ namespace Photon.Pun.UtilityScripts
 
         public void TrafficStatsWindow(int windowID)
         {
-            bool statsToLog = false;
-            TrafficStatsGameLevel gls = PhotonNetwork.NetworkingClient.LoadBalancingPeer.TrafficStatsGameLevel;
-            long elapsedMs = PhotonNetwork.NetworkingClient.LoadBalancingPeer.TrafficStatsElapsedMs / 1000;
+            var statsToLog = false;
+            var gls = PhotonNetwork.NetworkingClient.LoadBalancingPeer.TrafficStatsGameLevel;
+            var elapsedMs = PhotonNetwork.NetworkingClient.LoadBalancingPeer.TrafficStatsElapsedMs / 1000;
             if (elapsedMs == 0)
             {
                 elapsedMs = 1;
@@ -103,9 +103,9 @@ namespace Photon.Pun.UtilityScripts
             this.trafficStatsOn = GUILayout.Toggle(this.trafficStatsOn, "traffic");
             GUILayout.EndHorizontal();
 
-            string total = string.Format("Out {0,4} | In {1,4} | Sum {2,4}", gls.TotalOutgoingMessageCount, gls.TotalIncomingMessageCount, gls.TotalMessageCount);
-            string elapsedTime = string.Format("{0}sec average:", elapsedMs);
-            string average = string.Format("Out {0,4} | In {1,4} | Sum {2,4}", gls.TotalOutgoingMessageCount / elapsedMs, gls.TotalIncomingMessageCount / elapsedMs, gls.TotalMessageCount / elapsedMs);
+            var total = string.Format("Out {0,4} | In {1,4} | Sum {2,4}", gls.TotalOutgoingMessageCount, gls.TotalIncomingMessageCount, gls.TotalMessageCount);
+            var elapsedTime = string.Format("{0}sec average:", elapsedMs);
+            var average = string.Format("Out {0,4} | In {1,4} | Sum {2,4}", gls.TotalOutgoingMessageCount / elapsedMs, gls.TotalIncomingMessageCount / elapsedMs, gls.TotalMessageCount / elapsedMs);
             GUILayout.Label(total);
             GUILayout.Label(elapsedTime);
             GUILayout.Label(average);
@@ -123,8 +123,8 @@ namespace Photon.Pun.UtilityScripts
                 GUILayout.EndHorizontal();
             }
 
-            string trafficStatsIn = string.Empty;
-            string trafficStatsOut = string.Empty;
+            var trafficStatsIn = string.Empty;
+            var trafficStatsOut = string.Empty;
             if (this.trafficStatsOn)
             {
                 GUILayout.Box("Traffic Stats");
@@ -134,7 +134,7 @@ namespace Photon.Pun.UtilityScripts
                 GUILayout.Label(trafficStatsOut);
             }
 
-            string healthStats = string.Empty;
+            var healthStats = string.Empty;
             if (this.healthStatsVisible)
             {
                 GUILayout.Box("Health Stats");
@@ -154,7 +154,7 @@ namespace Photon.Pun.UtilityScripts
 
             if (statsToLog)
             {
-                string complete = string.Format("{0}\n{1}\n{2}\n{3}\n{4}\n{5}", total, elapsedTime, average, trafficStatsIn, trafficStatsOut, healthStats);
+                var complete = string.Format("{0}\n{1}\n{2}\n{3}\n{4}\n{5}", total, elapsedTime, average, trafficStatsIn, trafficStatsOut, healthStats);
                 Debug.Log(complete);
             }
 

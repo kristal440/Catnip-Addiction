@@ -38,7 +38,7 @@ namespace Photon.Pun
                 return;
             }
 
-            PhotonTransformView view = (PhotonTransformView)target;
+            var view = (PhotonTransformView)target;
 
 
             EditorGUILayout.LabelField("Synchronize Options");

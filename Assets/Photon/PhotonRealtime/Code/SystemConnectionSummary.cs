@@ -152,7 +152,7 @@ namespace Photon.Realtime
         /// <returns>Compact representation of the context for a disconnect issue.</returns>
         public int ToInt()
         {
-            int result = 0;
+            var result = 0;
             SetBits(ref result, this.Version, SCSBitPos.Version);
             SetBits(ref result, this.UsedProtocol, SCSBitPos.UsedProtocol);
             // 1 empty bit
@@ -169,7 +169,7 @@ namespace Photon.Realtime
 
 
             // insert socket error code as lower 2 bytes
-            int socketErrorCode = this.SocketErrorCode & 0xFFFF;
+            var socketErrorCode = this.SocketErrorCode & 0xFFFF;
             result |= socketErrorCode;
 
             return result;
@@ -181,8 +181,8 @@ namespace Photon.Realtime
         /// <returns>SystemConnectionSummary as readable string.</returns>
         public override string ToString()
         {
-            StringBuilder sb = new StringBuilder();
-            string transportProtocol = ProtocolIdToName[this.UsedProtocol];
+            var sb = new StringBuilder();
+            var transportProtocol = ProtocolIdToName[this.UsedProtocol];
 
             sb.Append($"SCS v{this.Version} {transportProtocol} SocketErrorCode: {this.SocketErrorCode} ");
 
@@ -197,20 +197,20 @@ namespace Photon.Realtime
             if (this.ErrorCodeWinSock) sb.Append("WinSock");
             else sb.Append("BSDSock");
 
-            string result = sb.ToString();
+            var result = sb.ToString();
             return result;
         }
 
 
         public static bool GetBit(ref int value, int bitpos)
         {
-            int result = (value >> bitpos) & 1;
+            var result = (value >> bitpos) & 1;
             return result != 0;
         }
 
         public static byte GetBits(ref int value, int bitpos, byte mask)
         {
-            int result = (value >> bitpos) & mask;
+            var result = (value >> bitpos) & mask;
             return (byte)result;
         }
 

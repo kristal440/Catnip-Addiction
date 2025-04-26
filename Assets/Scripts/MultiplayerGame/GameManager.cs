@@ -11,7 +11,7 @@ using Hashtable = ExitGames.Client.Photon.Hashtable;
 public class GameManager : MonoBehaviourPunCallbacks
 {
     internal static GameManager Instance { get; private set; }
-    private static readonly int isLaying = Animator.StringToHash("IsLaying");
+    private static readonly int IsLaying = Animator.StringToHash("IsLaying");
 
     [Header("Game State")]
     public bool gameStarted;
@@ -322,7 +322,7 @@ public class GameManager : MonoBehaviourPunCallbacks
     {
         var players = FindObjectsByType<PlayerController>(FindObjectsSortMode.None);
         foreach (var player in players.Where(static player => player != null && player.animator != null))
-            player.animator.SetBool(isLaying, false);
+            player.animator.SetBool(IsLaying, false);
     }
     #endregion
 }

@@ -65,9 +65,9 @@ namespace Photon.Pun.UtilityScripts
 
         private Texture LoadTexture(string textureName, string proSkin, string lightSkin)
         {
-            string skin = EditorGUIUtility.isProSkin ? proSkin : lightSkin;
+            var skin = EditorGUIUtility.isProSkin ? proSkin : lightSkin;
             // Get image data (PNG) from base64 encoded strings.
-            byte[] imageData = Convert.FromBase64String( skin );
+            var imageData = Convert.FromBase64String( skin );
             // Gather image size from image data.
             int texWidth, texHeight;
             GetImageSize( imageData, out texWidth, out texHeight );
@@ -87,7 +87,7 @@ namespace Photon.Pun.UtilityScripts
                 DrawTeamsList();
                 return;
             }
-            PhotonTeam[] availableTeams = photonTeams.GetAvailableTeams();
+            var availableTeams = photonTeams.GetAvailableTeams();
             if (availableTeams != null)
             {
                 EditorGUI.indentLevel++;
@@ -125,13 +125,13 @@ namespace Photon.Pun.UtilityScripts
         private void DrawTeamsList()
         {
             GUILayout.Space(5);
-            HashSet<byte> codes = new HashSet<byte>();
-            HashSet<string> names = new HashSet<string>();
-            for (int i = 0; i < teamsListSp.arraySize; i++)
+            var codes = new HashSet<byte>();
+            var names = new HashSet<string>();
+            for (var i = 0; i < teamsListSp.arraySize; i++)
             {
-                SerializedProperty e = teamsListSp.GetArrayElementAtIndex(i);
-                string name = e.FindPropertyRelative("Name").stringValue;
-                byte code = (byte)e.FindPropertyRelative("Code").intValue;
+                var e = teamsListSp.GetArrayElementAtIndex(i);
+                var name = e.FindPropertyRelative("Name").stringValue;
+                var code = (byte)e.FindPropertyRelative("Code").intValue;
                 codes.Add(code);
                 names.Add(name);
             }
@@ -149,35 +149,35 @@ namespace Photon.Pun.UtilityScripts
                 const float paddingRight = 29;
                 const float paddingLeft = 5;
                 const float spacingY = 3;
-                float containerHeight = (teamsListSp.arraySize + 1) * containerElementHeight;
-                Rect containerRect = PhotonGUI.ContainerBody(containerHeight);
-                float propertyWidth = containerRect.width - paddingRight;
-                float codePropertyWidth = propertyWidth / 5;
-                float namePropertyWidth = 4 * propertyWidth / 5;
-                Rect elementRect = new Rect(containerRect.xMin, containerRect.yMin,
+                var containerHeight = (teamsListSp.arraySize + 1) * containerElementHeight;
+                var containerRect = PhotonGUI.ContainerBody(containerHeight);
+                var propertyWidth = containerRect.width - paddingRight;
+                var codePropertyWidth = propertyWidth / 5;
+                var namePropertyWidth = 4 * propertyWidth / 5;
+                var elementRect = new Rect(containerRect.xMin, containerRect.yMin,
                     containerRect.width, containerElementHeight);
-                Rect propertyPosition = new Rect(elementRect.xMin + paddingLeft, elementRect.yMin + spacingY,
+                var propertyPosition = new Rect(elementRect.xMin + paddingLeft, elementRect.yMin + spacingY,
                     codePropertyWidth, propertyHeight);
                 EditorGUI.LabelField(propertyPosition, "Code");
-                Rect secondPropertyPosition = new Rect(elementRect.xMin + paddingLeft + codePropertyWidth, elementRect.yMin + spacingY, 
+                var secondPropertyPosition = new Rect(elementRect.xMin + paddingLeft + codePropertyWidth, elementRect.yMin + spacingY, 
                     namePropertyWidth, propertyHeight);
                 EditorGUI.LabelField(secondPropertyPosition, "Name");
-                for (int i = 0; i < teamsListSp.arraySize; ++i)
+                for (var i = 0; i < teamsListSp.arraySize; ++i)
                 {
                     elementRect = new Rect(containerRect.xMin, containerRect.yMin + containerElementHeight * (i + 1),
                         containerRect.width, containerElementHeight);
                     propertyPosition = new Rect(elementRect.xMin + paddingLeft, elementRect.yMin + spacingY,
                         codePropertyWidth, propertyHeight);
-                    SerializedProperty teamElementSp = teamsListSp.GetArrayElementAtIndex(i);
-                    SerializedProperty teamNameSp = teamElementSp.FindPropertyRelative("Name");
-                    SerializedProperty teamCodeSp = teamElementSp.FindPropertyRelative("Code");
-                    string oldName = teamNameSp.stringValue;
-                    byte oldCode = (byte)teamCodeSp.intValue;
+                    var teamElementSp = teamsListSp.GetArrayElementAtIndex(i);
+                    var teamNameSp = teamElementSp.FindPropertyRelative("Name");
+                    var teamCodeSp = teamElementSp.FindPropertyRelative("Code");
+                    var oldName = teamNameSp.stringValue;
+                    var oldCode = (byte)teamCodeSp.intValue;
                     EditorGUI.BeginChangeCheck();
                     EditorGUI.PropertyField(propertyPosition, teamCodeSp, GUIContent.none);
                     if (EditorGUI.EndChangeCheck())
                     {
-                        byte newCode = (byte)teamCodeSp.intValue;
+                        var newCode = (byte)teamCodeSp.intValue;
                         if (codes.Contains(newCode))
                         {
                             Debug.LogWarningFormat("Team with the same code {0} already exists", newCode);
@@ -190,7 +190,7 @@ namespace Photon.Pun.UtilityScripts
                     EditorGUI.PropertyField(secondPropertyPosition, teamNameSp, GUIContent.none);
                     if (EditorGUI.EndChangeCheck())
                     {
-                        string newName = teamNameSp.stringValue;
+                        var newName = teamNameSp.stringValue;
                         if (string.IsNullOrEmpty(newName))
                         {
                             Debug.LogWarning("Team name cannot be null or empty");
@@ -202,7 +202,7 @@ namespace Photon.Pun.UtilityScripts
                             teamNameSp.stringValue = oldName;
                         }
                     }
-                    Rect removeButtonRect = new Rect(
+                    var removeButtonRect = new Rect(
                         elementRect.xMax - PhotonGUI.DefaultRemoveButtonStyle.fixedWidth,
                         elementRect.yMin + 2,
                         PhotonGUI.DefaultRemoveButtonStyle.fixedWidth,
@@ -213,7 +213,7 @@ namespace Photon.Pun.UtilityScripts
                     }
                     if (i < teamsListSp.arraySize - 1)
                     {
-                        Rect texturePosition = new Rect(elementRect.xMin + 2, elementRect.yMax, elementRect.width - 4,
+                        var texturePosition = new Rect(elementRect.xMin + 2, elementRect.yMax, elementRect.width - 4,
                             1);
                         PhotonGUI.DrawSplitter(texturePosition);
                     }
@@ -227,12 +227,12 @@ namespace Photon.Pun.UtilityScripts
                     c++;
                 }
                 this.teamsListSp.arraySize++;
-                SerializedProperty teamElementSp = this.teamsListSp.GetArrayElementAtIndex(teamsListSp.arraySize - 1);
-                SerializedProperty teamNameSp = teamElementSp.FindPropertyRelative("Name");
-                SerializedProperty teamCodeSp = teamElementSp.FindPropertyRelative("Code");
+                var teamElementSp = this.teamsListSp.GetArrayElementAtIndex(teamsListSp.arraySize - 1);
+                var teamNameSp = teamElementSp.FindPropertyRelative("Name");
+                var teamCodeSp = teamElementSp.FindPropertyRelative("Code");
                 teamCodeSp.intValue = c;
-                string n = "New Team";
-                int o = 1;
+                var n = "New Team";
+                var o = 1;
                 while (names.Contains(n))
                 {
                     n = string.Format("New Team {0}", o);

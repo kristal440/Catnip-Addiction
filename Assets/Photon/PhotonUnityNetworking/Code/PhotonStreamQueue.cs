@@ -155,7 +155,7 @@ namespace Photon.Pun
             stream.SendNext(this.m_SampleCount);
             stream.SendNext(this.m_ObjectsPerSample);
 
-            for (int i = 0; i < this.m_Objects.Count; ++i)
+            for (var i = 0; i < this.m_Objects.Count; ++i)
             {
                 stream.SendNext(this.m_Objects[i]);
             }
@@ -177,7 +177,7 @@ namespace Photon.Pun
             this.m_SampleCount = (int) stream.ReceiveNext();
             this.m_ObjectsPerSample = (int) stream.ReceiveNext();
 
-            for (int i = 0; i < this.m_SampleCount * this.m_ObjectsPerSample; ++i)
+            for (var i = 0; i < this.m_SampleCount * this.m_ObjectsPerSample; ++i)
             {
                 this.m_Objects.Add(stream.ReceiveNext());
             }

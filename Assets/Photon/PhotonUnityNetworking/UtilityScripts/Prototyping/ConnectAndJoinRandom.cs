@@ -78,7 +78,7 @@ namespace Photon.Pun.UtilityScripts
         {
             Debug.Log("OnJoinRandomFailed() was called by PUN. No random room available in region [" + PhotonNetwork.CloudRegion + "], so we create one. Calling: PhotonNetwork.CreateRoom(null, new RoomOptions() {maxPlayers = 4}, null);");
 
-            RoomOptions roomOptions = new RoomOptions() { MaxPlayers = this.MaxPlayers };
+            var roomOptions = new RoomOptions() { MaxPlayers = this.MaxPlayers };
             if (playerTTL >= 0)
                 roomOptions.PlayerTtl = playerTTL;
 

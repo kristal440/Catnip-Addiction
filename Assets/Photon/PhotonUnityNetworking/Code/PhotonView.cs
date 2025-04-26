@@ -32,10 +32,10 @@ namespace Photon.Pun
         [UnityEditor.InitializeOnLoadMethod]
         private static void SetPhotonViewExecutionOrder()
         {
-            int photonViewExecutionOrder = -16000;
-            GameObject go = new GameObject();
-            PhotonView pv = go.AddComponent<PhotonView>();
-            MonoScript monoScript = MonoScript.FromMonoBehaviour(pv);
+            var photonViewExecutionOrder = -16000;
+            var go = new GameObject();
+            var pv = go.AddComponent<PhotonView>();
+            var monoScript = MonoScript.FromMonoBehaviour(pv);
 
             if (photonViewExecutionOrder != MonoImporter.GetExecutionOrder(monoScript))
             {
@@ -217,7 +217,7 @@ namespace Photon.Pun
                     return;
                 }
 
-                Player prevOwner = this.Owner;
+                var prevOwner = this.Owner;
 
                 this.Owner = PhotonNetwork.CurrentRoom == null ? null : PhotonNetwork.CurrentRoom.GetPlayer(value, true);
                 this.ownerActorNr = this.Owner != null ? this.Owner.ActorNumber : value;
@@ -244,7 +244,7 @@ namespace Photon.Pun
             get { return this.controllerActorNr; }
             set
             {
-                Player prevController = this.Controller;
+                var prevController = this.Controller;
 
                 this.Controller = PhotonNetwork.CurrentRoom == null ? null : PhotonNetwork.CurrentRoom.GetPlayer(value, true);
                 if (this.Controller != null && this.Controller.IsInactive)
@@ -399,7 +399,7 @@ namespace Photon.Pun
         {
             if (!this.removedFromLocalViewList)
             {
-                bool wasInList = PhotonNetwork.LocalCleanPhotonView(this);
+                var wasInList = PhotonNetwork.LocalCleanPhotonView(this);
 
                 if (wasInList && this.InstantiationId > 0 && !PhotonHandler.AppQuits && PhotonNetwork.LogLevel >= PunLogLevel.Informational)
                 {
@@ -514,7 +514,7 @@ namespace Photon.Pun
         {
             if (this.ObservedComponents != null && this.ObservedComponents.Count > 0)
             {
-                for (int i = 0; i < this.ObservedComponents.Count; ++i)
+                for (var i = 0; i < this.ObservedComponents.Count; ++i)
                 {
                     var component = this.ObservedComponents[i];
                     if (component != null)
@@ -527,7 +527,7 @@ namespace Photon.Pun
         {
             if (this.ObservedComponents != null && this.ObservedComponents.Count > 0)
             {
-                for (int i = 0; i < this.ObservedComponents.Count; ++i)
+                for (var i = 0; i < this.ObservedComponents.Count; ++i)
                 {
                     var component = this.ObservedComponents[i];
                     if (component != null)
@@ -538,7 +538,7 @@ namespace Photon.Pun
 
         protected internal void DeserializeComponent(Component component, PhotonStream stream, PhotonMessageInfo info)
         {
-            IPunObservable observable = component as IPunObservable;
+            var observable = component as IPunObservable;
             if (observable != null)
             {
                 observable.OnPhotonSerializeView(stream, info);
@@ -551,7 +551,7 @@ namespace Photon.Pun
 
         protected internal void SerializeComponent(Component component, PhotonStream stream, PhotonMessageInfo info)
         {
-            IPunObservable observable = component as IPunObservable;
+            var observable = component as IPunObservable;
             if (observable != null)
             {
                 observable.OnPhotonSerializeView(stream, info);
@@ -790,7 +790,7 @@ namespace Photon.Pun
 
         private void TryRegisterCallback<T>(IPhotonViewCallback obj, ref List<T> list, bool add) where T : class, IPhotonViewCallback
         {
-            T iobj = obj as T;
+            var iobj = obj as T;
             if (iobj != null)
             {
                 RegisterCallback(iobj, ref list, add);

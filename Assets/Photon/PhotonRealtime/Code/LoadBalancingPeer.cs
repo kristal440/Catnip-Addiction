@@ -131,7 +131,7 @@ namespace Photon.Realtime
 
         public virtual bool OpGetRegions(string appId)
         {
-            Dictionary<byte, object> parameters = new Dictionary<byte, object>(1);
+            var parameters = new Dictionary<byte, object>(1);
             parameters[(byte)ParameterCode.ApplicationId] = appId;
 
             return this.SendOperation(OperationCode.GetRegions, parameters, new SendOptions() { Reliability = true, Encrypt = true });
@@ -186,7 +186,7 @@ namespace Photon.Realtime
                 roomOptions = new RoomOptions();
             }
 
-            Hashtable gameProperties = new Hashtable();
+            var gameProperties = new Hashtable();
             gameProperties[GamePropertyKey.IsOpen] = roomOptions.IsOpen;
             gameProperties[GamePropertyKey.IsVisible] = roomOptions.IsVisible;
             gameProperties[GamePropertyKey.PropsListedInLobby] = (roomOptions.CustomRoomPropertiesForLobby == null) ? new string[0] : roomOptions.CustomRoomPropertiesForLobby;
@@ -197,7 +197,7 @@ namespace Photon.Realtime
             {
                 // the following code is for compatibility with old and new servers. old use MaxPlayers, which has to be byte typed. MaxPlayersInt is available on new servers to allow int typed MaxPlayer values.
                 // added to server 5.0.19.xyz / 6.0.19.xyz respectively
-                byte maxPlayersAsByte = roomOptions.MaxPlayers <= byte.MaxValue ? (byte)roomOptions.MaxPlayers : (byte)0;
+                var maxPlayersAsByte = roomOptions.MaxPlayers <= byte.MaxValue ? (byte)roomOptions.MaxPlayers : (byte)0;
 
                 gameProperties[GamePropertyKey.MaxPlayers] = maxPlayersAsByte;
                 gameProperties[GamePropertyKey.MaxPlayersInt] = roomOptions.MaxPlayers;
@@ -213,7 +213,7 @@ namespace Photon.Realtime
             }
 
 
-            int flags = 0;  // a new way to send the room options as bitwise-flags
+            var flags = 0;  // a new way to send the room options as bitwise-flags
 
             if (roomOptions.CleanupCacheOnLeave)
             {
@@ -297,8 +297,8 @@ namespace Photon.Realtime
                 this.Listener.DebugReturn(DebugLevel.INFO, "OpCreateRoom()");
             }
 
-            Dictionary<byte, object> op = new Dictionary<byte, object>();
-            SendOptions sendOptions = new SendOptions() { Reliability = true };
+            var op = new Dictionary<byte, object>();
+            var sendOptions = new SendOptions() { Reliability = true };
 
             if (!string.IsNullOrEmpty(opParams.RoomName))
             {
@@ -353,8 +353,8 @@ namespace Photon.Realtime
             {
                 this.Listener.DebugReturn(DebugLevel.INFO, "OpJoinRoom()");
             }
-            Dictionary<byte, object> op = new Dictionary<byte, object>();
-            SendOptions sendOptions = new SendOptions() { Reliability = true };
+            var op = new Dictionary<byte, object>();
+            var sendOptions = new SendOptions() { Reliability = true };
 
             if (!string.IsNullOrEmpty(opParams.RoomName))
             {
@@ -415,14 +415,14 @@ namespace Photon.Realtime
                 this.Listener.DebugReturn(DebugLevel.INFO, "OpJoinRandomRoom()");
             }
 
-            Hashtable expectedRoomProperties = new Hashtable();
+            var expectedRoomProperties = new Hashtable();
             expectedRoomProperties.MergeStringKeys(opJoinRandomRoomParams.ExpectedCustomRoomProperties);
 
             if (opJoinRandomRoomParams.ExpectedMaxPlayers > 0)
             {
                 // the following code is for compatibility with old and new servers. old use MaxPlayers, which has to be byte typed. MaxPlayersInt is available on new servers to allow int typed MaxPlayer values.
                 // added to server 5.0.19.xyz / 6.0.19.xyz respectively
-                byte maxPlayersAsByte = opJoinRandomRoomParams.ExpectedMaxPlayers <= byte.MaxValue ? (byte)opJoinRandomRoomParams.ExpectedMaxPlayers : (byte)0;
+                var maxPlayersAsByte = opJoinRandomRoomParams.ExpectedMaxPlayers <= byte.MaxValue ? (byte)opJoinRandomRoomParams.ExpectedMaxPlayers : (byte)0;
 
                 expectedRoomProperties[GamePropertyKey.MaxPlayers] = maxPlayersAsByte;
                 if (opJoinRandomRoomParams.ExpectedMaxPlayers > byte.MaxValue)
@@ -431,8 +431,8 @@ namespace Photon.Realtime
                 }
             }
 
-            Dictionary<byte, object> opParameters = new Dictionary<byte, object>();
-            SendOptions sendOptions = new SendOptions() { Reliability = true };
+            var opParameters = new Dictionary<byte, object>();
+            var sendOptions = new SendOptions() { Reliability = true };
             if (expectedRoomProperties.Count > 0)
             {
                 opParameters[ParameterCode.GameProperties] = expectedRoomProperties;
@@ -484,13 +484,13 @@ namespace Photon.Realtime
 
             // join random room parameters:
 
-            Hashtable expectedRoomProperties = new Hashtable();
+            var expectedRoomProperties = new Hashtable();
             expectedRoomProperties.MergeStringKeys(opJoinRandomRoomParams.ExpectedCustomRoomProperties);
             if (opJoinRandomRoomParams.ExpectedMaxPlayers > 0)
             {
                 // the following code is for compatibility with old and new servers. old use MaxPlayers, which has to be byte typed. MaxPlayersInt is available on new servers to allow int typed MaxPlayer values.
                 // added to server 5.0.19.xyz / 6.0.19.xyz respectively
-                byte maxPlayersAsByte = opJoinRandomRoomParams.ExpectedMaxPlayers <= byte.MaxValue ? (byte)opJoinRandomRoomParams.ExpectedMaxPlayers : (byte)0;
+                var maxPlayersAsByte = opJoinRandomRoomParams.ExpectedMaxPlayers <= byte.MaxValue ? (byte)opJoinRandomRoomParams.ExpectedMaxPlayers : (byte)0;
 
                 expectedRoomProperties[GamePropertyKey.MaxPlayers] = maxPlayersAsByte;
                 if (opJoinRandomRoomParams.ExpectedMaxPlayers > byte.MaxValue)
@@ -499,8 +499,8 @@ namespace Photon.Realtime
                 }
             }
 
-            Dictionary<byte, object> opParameters = new Dictionary<byte, object>();
-            SendOptions sendOptions = new SendOptions() { Reliability = true };
+            var opParameters = new Dictionary<byte, object>();
+            var sendOptions = new SendOptions() { Reliability = true };
             if (expectedRoomProperties.Count > 0)
             {
                 opParameters[ParameterCode.GameProperties] = expectedRoomProperties;    // used as filter. below, RoomOptionsToOpParameters has usePropertiesKey = true
@@ -563,7 +563,7 @@ namespace Photon.Realtime
         /// <returns>If the operation can be sent currently.</returns>
         public virtual bool OpLeaveRoom(bool becomeInactive, bool sendAuthCookie = false)
         {
-            Dictionary<byte, object> opParameters = new Dictionary<byte, object>();
+            var opParameters = new Dictionary<byte, object>();
             if (becomeInactive)
             {
                 opParameters[ParameterCode.IsInactive] = true;
@@ -628,7 +628,7 @@ namespace Photon.Realtime
                 return false;
             }
 
-            Dictionary<byte, object> opParameters = new Dictionary<byte, object>();
+            var opParameters = new Dictionary<byte, object>();
             opParameters[(byte)ParameterCode.LobbyName] = lobby.Name;
             opParameters[(byte)ParameterCode.LobbyType] = (byte)lobby.Type;
             opParameters[(byte)ParameterCode.Data] = queryData;
@@ -655,7 +655,7 @@ namespace Photon.Realtime
         /// <returns>If the operation could be sent (requires connection).</returns>
         public virtual bool OpFindFriends(string[] friendsToFind, FindFriendsOptions options = null)
         {
-            Dictionary<byte, object> opParameters = new Dictionary<byte, object>();
+            var opParameters = new Dictionary<byte, object>();
             if (friendsToFind != null && friendsToFind.Length > 0)
             {
                 opParameters[ParameterCode.FindFriendsRequestList] = friendsToFind;
@@ -666,7 +666,7 @@ namespace Photon.Realtime
                 opParameters[ParameterCode.FindFriendsOptions] = options.ToIntFlags();
             }
 
-            SendOptions sendOptions = new SendOptions() { Reliability = true, Encrypt = true };
+            var sendOptions = new SendOptions() { Reliability = true, Encrypt = true };
             return this.SendOperation(OperationCode.FindFriends, opParameters, sendOptions);
         }
 
@@ -700,7 +700,7 @@ namespace Photon.Realtime
                 return false;
             }
 
-            Dictionary<byte, object> opParameters = new Dictionary<byte, object>();
+            var opParameters = new Dictionary<byte, object>();
             opParameters.Add(ParameterCode.Properties, actorProperties);
             opParameters.Add(ParameterCode.ActorNr, actorNr);
             opParameters.Add(ParameterCode.Broadcast, true);
@@ -720,7 +720,7 @@ namespace Photon.Realtime
 
         protected bool OpSetPropertyOfRoom(byte propCode, object value)
         {
-            Hashtable properties = new Hashtable();
+            var properties = new Hashtable();
             properties[propCode] = value;
             return this.OpSetPropertiesOfRoom(properties);
         }
@@ -753,7 +753,7 @@ namespace Photon.Realtime
                 return false;
             }
 
-            Dictionary<byte, object> opParameters = new Dictionary<byte, object>();
+            var opParameters = new Dictionary<byte, object>();
             opParameters.Add(ParameterCode.Properties, gameProperties);
             opParameters.Add(ParameterCode.Broadcast, true);
             if (expectedProperties != null && expectedProperties.Count != 0)
@@ -791,7 +791,7 @@ namespace Photon.Realtime
                 this.Listener.DebugReturn(DebugLevel.INFO, "OpAuthenticate()");
             }
 
-            Dictionary<byte, object> opParameters = new Dictionary<byte, object>();
+            var opParameters = new Dictionary<byte, object>();
             if (getLobbyStatistics)
             {
                 // must be sent in operation, even if a Token is available
@@ -945,7 +945,7 @@ namespace Photon.Realtime
                 this.Listener.DebugReturn(DebugLevel.ALL, "OpChangeGroups()");
             }
 
-            Dictionary<byte, object> opParameters = new Dictionary<byte, object>();
+            var opParameters = new Dictionary<byte, object>();
             if (groupsToRemove != null)
             {
                 opParameters[(byte)ParameterCode.Remove] = groupsToRemove;
@@ -1042,7 +1042,7 @@ namespace Photon.Realtime
                 this.Listener.DebugReturn(DebugLevel.ALL, "OpSettings()");
             }
 
-            Dictionary<byte, object> opParameters = new Dictionary<byte, object>();
+            var opParameters = new Dictionary<byte, object>();
 
             // implementation for Master Server:
             if (receiveLobbyStats)
@@ -1088,7 +1088,7 @@ namespace Photon.Realtime
         /// <returns>The options applied to bits of an integer.</returns>
         internal int ToIntFlags()
         {
-            int optionFlags = 0;
+            var optionFlags = 0;
             if (this.CreatedOnGs)
             {
                 optionFlags = optionFlags | 0x1;
@@ -2283,7 +2283,7 @@ namespace Photon.Realtime
         /// <param name="value">Some value relevant for Custom Authentication.</param>
         public virtual void AddAuthParameter(string key, string value)
         {
-            string ampersand = string.IsNullOrEmpty(this.AuthGetParameters) ? "" : "&";
+            var ampersand = string.IsNullOrEmpty(this.AuthGetParameters) ? "" : "&";
             this.AuthGetParameters = string.Format("{0}{1}{2}={3}", this.AuthGetParameters, ampersand, System.Uri.EscapeDataString(key), System.Uri.EscapeDataString(value));
         }
 

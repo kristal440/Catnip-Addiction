@@ -67,7 +67,7 @@ namespace Photon.Pun.UtilityScripts
         {
             /// Check the prefab to make sure it is the actual resource, and not a scene object or other instance.
             if (PrefabsToInstantiate != null)
-                for (int i = 0; i < PrefabsToInstantiate.Count; ++i)
+                for (var i = 0; i < PrefabsToInstantiate.Count; ++i)
                 {
                     var prefab = PrefabsToInstantiate[i];
                     if (prefab)
@@ -186,7 +186,7 @@ namespace Photon.Pun.UtilityScripts
         {
             if (this.PrefabsToInstantiate != null)
             {
-                foreach (GameObject o in this.PrefabsToInstantiate)
+                foreach (var o in this.PrefabsToInstantiate)
                 {
                     if (o == null)
                         continue;
@@ -241,7 +241,7 @@ namespace Photon.Pun.UtilityScripts
         {
 
             // Fetch a point using the Sequence method indicated
-            Transform point = GetSpawnPoint();
+            var point = GetSpawnPoint();
 
             if (point != null)
             {
@@ -281,7 +281,7 @@ namespace Photon.Pun.UtilityScripts
                 {
                     case SpawnSequence.Connection:
                         {
-                            int id = PhotonNetwork.LocalPlayer.ActorNumber;
+                            var id = PhotonNetwork.LocalPlayer.ActorNumber;
                             return SpawnPoints[(id == -1) ? 0 : id % SpawnPoints.Count];
                         }
 
@@ -311,7 +311,7 @@ namespace Photon.Pun.UtilityScripts
         /// </summary>
         protected virtual Vector3 GetRandomOffset()
         {
-            Vector3 random = Random.insideUnitSphere;
+            var random = Random.insideUnitSphere;
             if (ClampY)
                 random.y = 0;
             return RandomOffset * random.normalized;
@@ -392,13 +392,13 @@ namespace Photon.Pun.UtilityScripts
 
             EditorGUILayout.BeginVertical(style);
 
-            int count = list.arraySize;
+            var count = list.arraySize;
 
             if (count == 0)
             {
                 if (GUI.Button(EditorGUILayout.GetControlRect(GUILayout.MaxWidth(20)), "+", (GUIStyle)"minibutton"))
                 {
-                    int newindex = list.arraySize;
+                    var newindex = list.arraySize;
                     list.InsertArrayElementAtIndex(0);
                     list.GetArrayElementAtIndex(0).objectReferenceValue = null;
                 }
@@ -406,12 +406,12 @@ namespace Photon.Pun.UtilityScripts
             else
             {
                 // List Elements and Delete buttons
-                for (int i = 0; i < count; ++i)
+                for (var i = 0; i < count; ++i)
                 {
                     EditorGUILayout.BeginHorizontal();
-                    bool add = (GUI.Button(EditorGUILayout.GetControlRect(GUILayout.MaxWidth(20)), "+", (GUIStyle)"minibutton"));
+                    var add = (GUI.Button(EditorGUILayout.GetControlRect(GUILayout.MaxWidth(20)), "+", (GUIStyle)"minibutton"));
                     EditorGUILayout.PropertyField(list.GetArrayElementAtIndex(i), GUIContent.none);
-                    bool remove = (GUI.Button(EditorGUILayout.GetControlRect(GUILayout.MaxWidth(20)), "x", (GUIStyle)"minibutton"));
+                    var remove = (GUI.Button(EditorGUILayout.GetControlRect(GUILayout.MaxWidth(20)), "x", (GUIStyle)"minibutton"));
 
                     EditorGUILayout.EndHorizontal();
 
@@ -443,7 +443,7 @@ namespace Photon.Pun.UtilityScripts
         private void Add(SerializedProperty list, int i)
         {
             {
-                int newindex = list.arraySize;
+                var newindex = list.arraySize;
                 list.InsertArrayElementAtIndex(i);
                 list.GetArrayElementAtIndex(i).objectReferenceValue = null;
             }

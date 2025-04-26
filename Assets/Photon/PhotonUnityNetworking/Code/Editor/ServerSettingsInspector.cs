@@ -47,8 +47,8 @@ namespace Photon.Pun
             if (vertboxStyle == null)
                 vertboxStyle = new GUIStyle("HelpBox") { padding = new RectOffset(6, 6, 6, 6) };
 
-            SerializedObject sObj = new SerializedObject(this.target);
-            ServerSettings settings = this.target as ServerSettings;
+            var sObj = new SerializedObject(this.target);
+            var settings = this.target as ServerSettings;
 
 
             EditorGUI.BeginChangeCheck();
@@ -72,8 +72,8 @@ namespace Photon.Pun
             #endregion Version Vertical Box
 
             EditorGUI.indentLevel--;
-            SerializedProperty showSettingsProp = this.serializedObject.FindProperty("ShowSettings");
-            bool showSettings = showSettingsProp.Foldout(new GUIContent("Server/Cloud Settings", "Core Photon Server/Cloud settings."));
+            var showSettingsProp = this.serializedObject.FindProperty("ShowSettings");
+            var showSettings = showSettingsProp.Foldout(new GUIContent("Server/Cloud Settings", "Core Photon Server/Cloud settings."));
             EditorGUI.indentLevel++;
 
 
@@ -84,7 +84,7 @@ namespace Photon.Pun
 
             if (showSettingsProp.boolValue)
             {
-                SerializedProperty settingsSp = this.serializedObject.FindProperty("AppSettings");
+                var settingsSp = this.serializedObject.FindProperty("AppSettings");
 
                 EditorGUI.indentLevel++;
 
@@ -226,7 +226,7 @@ namespace Photon.Pun
 
                 EditorGUI.indentLevel++;
 
-                SerializedProperty sRpcs = sObj.FindProperty("RpcList");
+                var sRpcs = sObj.FindProperty("RpcList");
                 EditorGUILayout.PropertyField(sRpcs, true);
 
                 EditorGUI.indentLevel--;
@@ -255,7 +255,7 @@ namespace Photon.Pun
 
                 if (drawAllMethod != null && this != null)
                 {
-                    bool initializeAsOpen = false;
+                    var initializeAsOpen = false;
                     drawAllMethod.Invoke(null, new object[2] { this, initializeAsOpen });
 
                 }
@@ -281,10 +281,10 @@ namespace Photon.Pun
         private int RpcListHashCode()
         {
             // this is a hashcode generated to (more) easily compare this Editor's RPC List with some other
-            int hashCode = PhotonNetwork.PhotonServerSettings.RpcList.Count + 1;
-            foreach (string s in PhotonNetwork.PhotonServerSettings.RpcList)
+            var hashCode = PhotonNetwork.PhotonServerSettings.RpcList.Count + 1;
+            foreach (var s in PhotonNetwork.PhotonServerSettings.RpcList)
             {
-                int h1 = s.GetHashCode();
+                var h1 = s.GetHashCode();
                 hashCode = ((h1 << 5) + h1) ^ hashCode;
             }
             return hashCode;
@@ -304,9 +304,9 @@ namespace Photon.Pun
             }
 
             property.stringValue = property.stringValue.Trim();
-            string appId = property.stringValue;
+            var appId = property.stringValue;
 
-            string url = "https://dashboard.photonengine.com/en-US/PublicCloud";
+            var url = "https://dashboard.photonengine.com/en-US/PublicCloud";
 
             if (!string.IsNullOrEmpty(appId))
             {

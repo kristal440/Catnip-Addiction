@@ -63,7 +63,7 @@ namespace Photon.Pun.UtilityScripts
 
             Tab_lut = new Dictionary<Toggle, Tab>();
 
-            foreach (Tab _tab in this.Tabs)
+            foreach (var _tab in this.Tabs)
             {
 
                 Tab_lut[_tab.Toggle] = _tab;
@@ -93,7 +93,7 @@ namespace Photon.Pun.UtilityScripts
         /// <param name="id">Tab Id</param>
         public void SelectTab(string id)
         {
-            foreach (Tab _t in Tabs)
+            foreach (var _t in Tabs)
             {
                 if (_t.ID == id)
                 {

@@ -294,7 +294,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
     {
         _newMaxSpeed = HasCatnip ? maxSpeed * 1.1f : maxSpeed;
         _newDeceleration = HasCatnip ? deceleration * 0.9f : deceleration;
-        float currentTurboSpeed = HasCatnip ? turboSpeed * 1.1f : turboSpeed;
+        var currentTurboSpeed = HasCatnip ? turboSpeed * 1.1f : turboSpeed;
 
         var facingRight = transform.localScale.x > 0;
         var movingIntoWall = _isTouchingWall &&
@@ -310,11 +310,10 @@ public class PlayerController : MonoBehaviourPunCallbacks
             _isTurboActive = false;
         }
 
-        int moveDirection = (int)Sign(horizontalInput);
+        var moveDirection = (int)Sign(horizontalInput);
         switch (Abs(horizontalInput))
         {
             case > 0.01f when !movingIntoWall:
-                // If changing direction, reset acceleration
                 if (moveDirection != _lastMoveDirection && _lastMoveDirection != 0)
                 {
                     _currentAccelTime = 0f;
@@ -322,56 +321,45 @@ public class PlayerController : MonoBehaviourPunCallbacks
                     _isTurboActive = false;
                 }
 
-                // Track current direction for next frame
                 _lastMoveDirection = moveDirection;
 
-                // Gradually increase acceleration based on time
                 _currentAccelTime = Min(_currentAccelTime + Time.deltaTime, accelerationTime);
 
-                // Evaluate acceleration from curve (normalized 0-1 time)
-                float accelMultiplier = accelerationCurve.Evaluate(_currentAccelTime / accelerationTime);
-                float currentAccel = baseAcceleration * accelMultiplier;
+                var accelMultiplier = accelerationCurve.Evaluate(_currentAccelTime / accelerationTime);
+                var currentAccel = baseAcceleration * accelMultiplier;
 
-                // Target speed calculation
-                float targetSpeed = _newMaxSpeed;
+                var targetSpeed = _newMaxSpeed;
 
-                // Check if player is at max speed
-                if (Abs(currentSpeed) >= _newMaxSpeed * 0.98f && Sign(currentSpeed) == moveDirection)
+                if (Abs(currentSpeed) >= _newMaxSpeed * 0.98f && Approximately(Sign(currentSpeed), moveDirection))
                 {
                     _timeAtMaxSpeed += Time.deltaTime;
 
-                    // Check if we should activate turbo
                     if (_timeAtMaxSpeed >= timeToTurboSpeed)
-                    {
                         _isTurboActive = true;
-                    }
                 }
                 else
                 {
                     _timeAtMaxSpeed = 0f;
                 }
 
-                // If turbo is active, target the turbo speed
                 if (_isTurboActive)
-                {
                     targetSpeed = currentTurboSpeed;
-                }
 
                 currentSpeed = MoveTowards(currentSpeed, horizontalInput * targetSpeed, currentAccel * Time.deltaTime);
                 break;
 
             case <= 0.01f:
-                {
-                    _currentAccelTime = 0f;
-                    _timeAtMaxSpeed = 0f;
-                    _isTurboActive = false;
-                    _lastMoveDirection = 0;
+            {
+                _currentAccelTime = 0f;
+                _timeAtMaxSpeed = 0f;
+                _isTurboActive = false;
+                _lastMoveDirection = 0;
 
-                    currentSpeed = MoveTowards(currentSpeed, 0, _newDeceleration * Time.deltaTime);
-                    if (Abs(currentSpeed) < 0.01f)
-                        currentSpeed = 0;
-                    break;
-                }
+                currentSpeed = MoveTowards(currentSpeed, 0, _newDeceleration * Time.deltaTime);
+                if (Abs(currentSpeed) < 0.01f)
+                    currentSpeed = 0;
+                break;
+            }
         }
 
         _rb.linearVelocity = new Vector2(currentSpeed, _rb.linearVelocity.y);
@@ -590,10 +578,10 @@ public class PlayerController : MonoBehaviourPunCallbacks
     #region Utility
 
     // For compatibility with existing code that referenced acceleration
-    public float acceleration
+    internal float Acceleration
     {
-        get { return baseAcceleration * accelerationCurve.Evaluate(_currentAccelTime / accelerationTime); }
-        set { baseAcceleration = value; }
+        get => baseAcceleration * accelerationCurve.Evaluate(_currentAccelTime / accelerationTime);
+        set => baseAcceleration = value;
     }
 
     internal void Teleport(Vector3 position)

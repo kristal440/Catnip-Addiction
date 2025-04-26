@@ -120,7 +120,7 @@ namespace Photon.Realtime
                     }
 
                     this.sock.ReceiveTimeout = 5000;
-                    int port = (RegionHandler.PortToPingOverride != 0) ? RegionHandler.PortToPingOverride : 5055;
+                    var port = (RegionHandler.PortToPingOverride != 0) ? RegionHandler.PortToPingOverride : 5055;
                     this.sock.Connect(ip, port);
                 }
 
@@ -149,7 +149,7 @@ namespace Photon.Realtime
                 return true;    // this just indicates the ping is no longer waiting. this.Successful value defines if the roundtrip completed
             }
 
-            int read = 0;
+            var read = 0;
             try
             {
                 if (!this.sock.Poll(0, SelectMode.SelectRead))
@@ -170,7 +170,7 @@ namespace Photon.Realtime
                 return true;    // this just indicates the ping is no longer waiting. this.Successful value defines if the roundtrip completed
             }
 
-            bool replyMatch = this.PingBytes[this.PingBytes.Length - 1] == this.PingId && read == this.PingLength;
+            var replyMatch = this.PingBytes[this.PingBytes.Length - 1] == this.PingId && read == this.PingLength;
             if (!replyMatch)
             {
                 this.DebugString += " ReplyMatch is false! ";

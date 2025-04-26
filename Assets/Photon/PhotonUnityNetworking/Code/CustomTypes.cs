@@ -34,12 +34,12 @@ namespace Photon.Pun
 
         private static short SerializePhotonPlayer(StreamBuffer outStream, object customobject)
         {
-            int ID = ((Player) customobject).ActorNumber;
+            var ID = ((Player) customobject).ActorNumber;
 
             lock (memPlayer)
             {
-                byte[] bytes = memPlayer;
-                int off = 0;
+                var bytes = memPlayer;
+                var off = 0;
                 Protocol.Serialize(ID, bytes, ref off);
                 outStream.Write(bytes, 0, 4);
                 return 4;
@@ -57,13 +57,13 @@ namespace Photon.Pun
             lock (memPlayer)
             {
                 inStream.Read(memPlayer, 0, length);
-                int off = 0;
+                var off = 0;
                 Protocol.Deserialize(out ID, memPlayer, ref off);
             }
 
             if (PhotonNetwork.CurrentRoom != null)
             {
-                Player player = PhotonNetwork.CurrentRoom.GetPlayer(ID);
+                var player = PhotonNetwork.CurrentRoom.GetPlayer(ID);
                 return player;
             }
             return null;

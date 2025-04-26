@@ -46,7 +46,7 @@ namespace Photon.Realtime
                 return;
             }
 
-            foreach (object key in addHash.Keys)
+            foreach (var key in addHash.Keys)
             {
                 target[key] = addHash[key];
             }
@@ -67,7 +67,7 @@ namespace Photon.Realtime
                 return;
             }
 
-            foreach (object key in addHash.Keys)
+            foreach (var key in addHash.Keys)
             {
                 // only merge keys of type string
                 if (key is string)
@@ -94,8 +94,8 @@ namespace Photon.Realtime
 		{
 			if (data == null) return "null";
 
-			string[] sb = new string[data.Count];
-			for (int i = 0; i < data.Count; i++)
+			var sb = new string[data.Count];
+			for (var i = 0; i < data.Count; i++)
 			{
 				object o = data[i];
 				sb[i] = (o != null) ? o.ToString() : "null";
@@ -112,10 +112,10 @@ namespace Photon.Realtime
         {
             if (data == null) return "null";
 
-            string[] sb = new string[data.Length];
-            for (int i = 0; i < data.Length; i++)
+            var sb = new string[data.Length];
+            for (var i = 0; i < data.Length; i++)
             {
-                object o = data[i];
+                var o = data[i];
                 sb[i] = (o != null) ? o.ToString() : "null";
             }
 
@@ -134,10 +134,10 @@ namespace Photon.Realtime
         /// <returns>New Hashtable containing only string-typed keys of the original.</returns>
         public static Hashtable StripToStringKeys(this IDictionary original)
         {
-            Hashtable target = new Hashtable();
+            var target = new Hashtable();
             if (original != null)
             {
-                foreach (object key in original.Keys)
+                foreach (var key in original.Keys)
                 {
                     if (key is string)
                     {
@@ -160,10 +160,10 @@ namespace Photon.Realtime
         /// <returns>New Hashtable containing only string-typed keys of the original.</returns>
         public static Hashtable StripToStringKeys(this Hashtable original)
         {
-            Hashtable target = new Hashtable();
+            var target = new Hashtable();
             if (original != null)
             {
-                foreach (DictionaryEntry entry in original)
+                foreach (var entry in original)
                 {
                     if (entry.Key is string)
                     {
@@ -203,7 +203,7 @@ namespace Photon.Realtime
                     }
                 }
 
-                for (int i = 0; i < keysWithNullValue.Count; i++)
+                for (var i = 0; i < keysWithNullValue.Count; i++)
                 {
                     var key = keysWithNullValue[i];
                     original.Remove(key);
@@ -223,7 +223,7 @@ namespace Photon.Realtime
             {
                 keysWithNullValue.Clear();
 
-                foreach (DictionaryEntry entry in original)
+                foreach (var entry in original)
                 {
                     if (entry.Value == null)
                     {
@@ -231,7 +231,7 @@ namespace Photon.Realtime
                     }
                 }
 
-                for (int i = 0; i < keysWithNullValue.Count; i++)
+                for (var i = 0; i < keysWithNullValue.Count; i++)
                 {
                     var key = keysWithNullValue[i];
                     original.Remove(key);
@@ -254,7 +254,7 @@ namespace Photon.Realtime
                 return false;
             }
 
-            for (int index = 0; index < target.Length; index++)
+            for (var index = 0; index < target.Length; index++)
             {
                 if (target[index] == nr)
                 {

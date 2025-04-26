@@ -168,7 +168,7 @@ namespace Photon.Realtime
         /// </summary>
         public override bool Equals(object other)
         {
-            RoomInfo otherRoomInfo = other as RoomInfo;
+            var otherRoomInfo = other as RoomInfo;
             return (otherRoomInfo != null && this.Name.Equals(otherRoomInfo.name));
         }
 

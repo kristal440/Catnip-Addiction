@@ -24,8 +24,8 @@ namespace Photon.Pun.UtilityScripts
         public float SmoothingDelay = 5;
         public void Awake()
         {
-            bool observed = false;
-            foreach (Component observedComponent in this.photonView.ObservedComponents)
+            var observed = false;
+            foreach (var observedComponent in this.photonView.ObservedComponents)
             {
                 if (observedComponent == this)
                 {

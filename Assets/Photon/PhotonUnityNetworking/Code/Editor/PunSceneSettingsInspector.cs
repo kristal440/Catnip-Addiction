@@ -51,13 +51,13 @@ namespace Photon.Pun
             
             DrawSceneSettingsList();
 
-            foreach (string dup in _duplicateScenesDefinition)
+            foreach (var dup in _duplicateScenesDefinition)
             {
                 EditorGUILayout.LabelField("Found duplicates for scene",dup);
             }
             
             
-            foreach (SceneSetting sceneSettings in m_Target.MinViewIdPerScene)
+            foreach (var sceneSettings in m_Target.MinViewIdPerScene)
             {
                 if (_duplicateViewIdDefinition.Contains(sceneSettings.minViewId))
                 {
@@ -103,7 +103,7 @@ namespace Photon.Pun
             }
             
             float containerElementHeight = 44;
-            float containerHeight = listProperty.arraySize * containerElementHeight;
+            var containerHeight = listProperty.arraySize * containerElementHeight;
 
             isOpen = PhotonGUI.ContainerHeaderFoldout("Scene Settings (" + listProperty.arraySize + ")", this.serializedObject.FindProperty("SceneSettingsListFoldoutOpen").boolValue);
             this.serializedObject.FindProperty("SceneSettingsListFoldoutOpen").boolValue = isOpen;
@@ -113,19 +113,19 @@ namespace Photon.Pun
                 containerHeight = 0;
             }
             
-            Rect containerRect = PhotonGUI.ContainerBody(containerHeight);
+            var containerRect = PhotonGUI.ContainerBody(containerHeight);
             if (isOpen == true)
             {
-                for (int i = 0; i < listProperty.arraySize; ++i)
+                for (var i = 0; i < listProperty.arraySize; ++i)
                 {
-                    Rect elementRect = new Rect(containerRect.xMin, containerRect.yMin + containerElementHeight * i,
+                    var elementRect = new Rect(containerRect.xMin, containerRect.yMin + containerElementHeight * i,
                         containerRect.width, containerElementHeight);
                     {
-                        Rect texturePosition = new Rect(elementRect.xMin + 6,
+                        var texturePosition = new Rect(elementRect.xMin + 6,
                             elementRect.yMin + elementRect.height / 2f - 1, 9, 5);
                         ReorderableListResources.DrawTexture(texturePosition, ReorderableListResources.texGrabHandle);
 
-                        Rect propertyPosition = new Rect(elementRect.xMin + 20, elementRect.yMin + 3,
+                        var propertyPosition = new Rect(elementRect.xMin + 20, elementRect.yMin + 3,
                             elementRect.width - 45, 16);
 
                         _sceneSettings_i = listProperty.GetArrayElementAtIndex(i);
@@ -134,19 +134,19 @@ namespace Photon.Pun
                         sceneAssetProperty = _sceneSettings_i.FindPropertyRelative("sceneAsset");
                         minViewIdProperty = _sceneSettings_i.FindPropertyRelative("minViewId");
                         
-                        string _sceneName = sceneNameProperty.stringValue;
-                        SceneAsset _sceneAsset = m_Target.MinViewIdPerScene[i].sceneAsset;
+                        var _sceneName = sceneNameProperty.stringValue;
+                        var _sceneAsset = m_Target.MinViewIdPerScene[i].sceneAsset;
 
                         // check if we need to find the scene asset based on the scene name. This is for backward compatibility or when the scene asset was deleted
                         if (_firstTime)
                         {
                             if (_sceneAsset == null && !string.IsNullOrEmpty(_sceneName))
                             {
-                                string[] guids = AssetDatabase.FindAssets(_sceneName + " t:SceneAsset");
+                                var guids = AssetDatabase.FindAssets(_sceneName + " t:SceneAsset");
 
-                                foreach (string guid in guids)
+                                foreach (var guid in guids)
                                 {
-                                    string path = AssetDatabase.GUIDToAssetPath(guid);
+                                    var path = AssetDatabase.GUIDToAssetPath(guid);
                                     if (Path.GetFileNameWithoutExtension(path) == _sceneName)
                                     {
                                         sceneAssetProperty.objectReferenceValue =
@@ -158,7 +158,7 @@ namespace Photon.Pun
                             }
                         }
 
-                        bool _missingSceneAsset = _sceneAsset == null && !string.IsNullOrEmpty(_sceneName);
+                        var _missingSceneAsset = _sceneAsset == null && !string.IsNullOrEmpty(_sceneName);
                         // if we don't have a scene asset for the serialized scene named, we show an error.
                         if (_missingSceneAsset || 
                             (sceneNameProperty!=null && _duplicateScenesDefinition!=null && _duplicateScenesDefinition.Contains(sceneNameProperty.stringValue))
@@ -168,7 +168,7 @@ namespace Photon.Pun
                         }
                         
                         EditorGUI.BeginChangeCheck();
-                        string _label = _missingSceneAsset
+                        var _label = _missingSceneAsset
                             ? "Scene Asset: Missing '" + _sceneName + "'"
                             : "Scene Asset";
                          
@@ -197,7 +197,7 @@ namespace Photon.Pun
                         {
                             GUI.color = Color.red;
                         }
-                        Rect secondPropertyPosition = new Rect(elementRect.xMin + 20, elementRect.yMin + containerElementHeight/2,
+                        var secondPropertyPosition = new Rect(elementRect.xMin + 20, elementRect.yMin + containerElementHeight/2,
                             elementRect.width - 45, 16);
 
                         EditorGUI.PropertyField(secondPropertyPosition,  _sceneSettings_i.FindPropertyRelative("minViewId"),
@@ -210,7 +210,7 @@ namespace Photon.Pun
                         //ReorderableListResources.DrawTexture( statsPosition, statsIcon );
 
                         
-                        Rect removeButtonRect = new Rect(
+                        var removeButtonRect = new Rect(
                             elementRect.xMax - PhotonGUI.DefaultRemoveButtonStyle.fixedWidth,
                             elementRect.yMin + 2,
                             PhotonGUI.DefaultRemoveButtonStyle.fixedWidth,

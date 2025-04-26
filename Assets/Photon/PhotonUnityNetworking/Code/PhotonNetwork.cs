@@ -371,7 +371,7 @@ namespace Photon.Pun
         {
             get
             {
-                Room room = CurrentRoom;
+                var room = CurrentRoom;
                 if (room != null)
                 {
                     // TODO: implement more effectively. maybe cache?!
@@ -388,7 +388,7 @@ namespace Photon.Pun
         {
             get
             {
-                Room room = CurrentRoom;
+                var room = CurrentRoom;
                 if (room != null)
                 {
                     // TODO: implement more effectively. maybe cache?!
@@ -467,7 +467,7 @@ namespace Photon.Pun
                 }
                 else
                 {
-                    bool wasInOfflineRoom = offlineModeRoom != null;
+                    var wasInOfflineRoom = offlineModeRoom != null;
 
                     if (wasInOfflineRoom)
                     {
@@ -699,7 +699,7 @@ namespace Photon.Pun
                     return frametime;
                 }
 
-                uint u = (uint)ServerTimestamp;
+                var u = (uint)ServerTimestamp;
                 double t = u;
                 frametime =  t / 1000.0d;
                 frame = UnityEngine.Time.frameCount;
@@ -1057,7 +1057,7 @@ namespace Photon.Pun
 
             // set up the NetworkingClient, protocol, etc
             OfflineMode = false;
-            ConnectionProtocol protocol = PhotonNetwork.PhotonServerSettings.AppSettings.Protocol;
+            var protocol = PhotonNetwork.PhotonServerSettings.AppSettings.Protocol;
             NetworkingClient = new LoadBalancingClient(protocol);
             NetworkingClient.LoadBalancingPeer.QuickResendAttempts = 2;
             NetworkingClient.LoadBalancingPeer.SentCountAllowance = 9;
@@ -1081,7 +1081,7 @@ namespace Photon.Pun
 
             // RPC shortcut lookup creation (from list of RPCs, which is updated by Editor scripts)
             rpcShortcuts = new Dictionary<string, int>(PhotonNetwork.PhotonServerSettings.RpcList.Count);
-            for (int index = 0; index < PhotonNetwork.PhotonServerSettings.RpcList.Count; index++)
+            for (var index = 0; index < PhotonNetwork.PhotonServerSettings.RpcList.Count; index++)
             {
                 var name = PhotonNetwork.PhotonServerSettings.RpcList[index];
                 rpcShortcuts[name] = index;
@@ -1303,7 +1303,7 @@ namespace Photon.Pun
             ConnectMethod = ConnectMethod.ConnectToBest;
 
             // Connecting to "Best Region" begins with connecting to the Name Server.
-            bool couldConnect = PhotonNetwork.NetworkingClient.ConnectToNameServer();
+            var couldConnect = PhotonNetwork.NetworkingClient.ConnectToNameServer();
             return couldConnect;
         }
 
@@ -1522,7 +1522,7 @@ namespace Photon.Pun
                 return false;
             }
 
-            RaiseEventOptions options = new RaiseEventOptions() { TargetActors = new int[] { kickPlayer.ActorNumber } };
+            var options = new RaiseEventOptions() { TargetActors = new int[] { kickPlayer.ActorNumber } };
             return NetworkingClient.OpRaiseEvent(PunEvent.CloseConnection, null, options, SendOptions.SendReliable);
         }
 
@@ -1665,7 +1665,7 @@ namespace Photon.Pun
 
             typedLobby = typedLobby ?? ((NetworkingClient.InLobby) ? NetworkingClient.CurrentLobby : null);  // use given lobby, or active lobby (if any active) or none
 
-            OpJoinRandomRoomParams opParams = new OpJoinRandomRoomParams();
+            var opParams = new OpJoinRandomRoomParams();
             opParams.ExpectedCustomRoomProperties = expectedCustomRoomProperties;
             opParams.ExpectedMaxPlayers = expectedMaxPlayers;
             opParams.MatchingType = matchingType;
@@ -1721,7 +1721,7 @@ namespace Photon.Pun
 
             typedLobby = typedLobby ?? ((NetworkingClient.InLobby) ? NetworkingClient.CurrentLobby : null); // use given lobby, or active lobby (if any active) or none
 
-            OpJoinRandomRoomParams opParams = new OpJoinRandomRoomParams();
+            var opParams = new OpJoinRandomRoomParams();
             opParams.ExpectedCustomRoomProperties = expectedCustomRoomProperties;
             opParams.ExpectedMaxPlayers = expectedMaxPlayers;
             opParams.MatchingType = matchingType;
@@ -1729,7 +1729,7 @@ namespace Photon.Pun
             opParams.SqlLobbyFilter = sqlLobbyFilter;
             opParams.ExpectedUsers = expectedUsers;
 
-            EnterRoomParams enterRoomParams = new EnterRoomParams();
+            var enterRoomParams = new EnterRoomParams();
             enterRoomParams.RoomName = roomName;
             enterRoomParams.RoomOptions = roomOptions;
             enterRoomParams.Lobby = typedLobby;
@@ -1784,7 +1784,7 @@ namespace Photon.Pun
 
             typedLobby = typedLobby ?? ((NetworkingClient.InLobby) ? NetworkingClient.CurrentLobby : null);  // use given lobby, or active lobby (if any active) or none
 
-            EnterRoomParams opParams = new EnterRoomParams();
+            var opParams = new EnterRoomParams();
             opParams.RoomName = roomName;
             opParams.RoomOptions = roomOptions;
             opParams.Lobby = typedLobby;
@@ -1857,7 +1857,7 @@ namespace Photon.Pun
 
             typedLobby = typedLobby ?? ((NetworkingClient.InLobby) ? NetworkingClient.CurrentLobby : null);  // use given lobby, or active lobby (if any active) or none
 
-            EnterRoomParams opParams = new EnterRoomParams();
+            var opParams = new EnterRoomParams();
             opParams.RoomName = roomName;
             opParams.RoomOptions = roomOptions;
             opParams.Lobby = typedLobby;
@@ -1921,7 +1921,7 @@ namespace Photon.Pun
             }
 
 
-            EnterRoomParams opParams = new EnterRoomParams();
+            var opParams = new EnterRoomParams();
             opParams.RoomName = roomName;
             opParams.ExpectedUsers = expectedUsers;
 
@@ -2234,7 +2234,7 @@ namespace Photon.Pun
             if (customProperties == null)
             {
                 customProperties = new Hashtable();
-                foreach (object k in LocalPlayer.CustomProperties.Keys)
+                foreach (var k in LocalPlayer.CustomProperties.Keys)
                 {
                     customProperties[(string)k] = null;
                 }
@@ -2269,9 +2269,9 @@ namespace Photon.Pun
             }
 
             // if a specific list of props should be deleted, we do that here
-            for (int i = 0; i < customPropertiesToDelete.Length; i++)
+            for (var i = 0; i < customPropertiesToDelete.Length; i++)
             {
-                string key = customPropertiesToDelete[i];
+                var key = customPropertiesToDelete[i];
                 if (LocalPlayer.CustomProperties.ContainsKey(key))
                 {
                     LocalPlayer.CustomProperties.Remove(key);
@@ -2311,7 +2311,7 @@ namespace Photon.Pun
                     return true;
                 }
 
-                EventData evData = new EventData { Code = eventCode };  // creates the equivalent of a received event
+                var evData = new EventData { Code = eventCode };  // creates the equivalent of a received event
                 evData.Parameters[ParameterCode.Data] = eventContent;
                 evData.Parameters[ParameterCode.ActorNr] = 1;
 
@@ -2363,7 +2363,7 @@ namespace Photon.Pun
                 return false;
             }
 
-            int manualId = AllocateViewID(LocalPlayer.ActorNumber);
+            var manualId = AllocateViewID(LocalPlayer.ActorNumber);
             view.ViewID = manualId;
             return true;
         }
@@ -2392,7 +2392,7 @@ namespace Photon.Pun
                 return false;
             }
 
-            int manualId = AllocateViewID(0);
+            var manualId = AllocateViewID(0);
             view.ViewID = manualId;
             return true;
         }
@@ -2408,7 +2408,7 @@ namespace Photon.Pun
                 return 0;
             }
 
-            int ownerActorNumber = roomObject ? 0 : LocalPlayer.ActorNumber;
+            var ownerActorNumber = roomObject ? 0 : LocalPlayer.ActorNumber;
             return AllocateViewID(ownerActorNumber);
         }
 
@@ -2420,10 +2420,10 @@ namespace Photon.Pun
             if (ownerId == 0)
             {
                 // we look up a fresh subId for the owner "room" (mind the "sub" in subId)
-                int newSubId = lastUsedViewSubIdStatic;
+                var newSubId = lastUsedViewSubIdStatic;
                 int newViewId;
-                int ownerIdOffset = ownerId * MAX_VIEW_IDS;
-                for (int i = 1; i < MAX_VIEW_IDS; i++)
+                var ownerIdOffset = ownerId * MAX_VIEW_IDS;
+                for (var i = 1; i < MAX_VIEW_IDS; i++)
                 {
                     newSubId = (newSubId + 1) % MAX_VIEW_IDS;
                     if (newSubId == 0)
@@ -2445,10 +2445,10 @@ namespace Photon.Pun
             else
             {
                 // we look up a fresh SUBid for the owner
-                int newSubId = lastUsedViewSubId;
+                var newSubId = lastUsedViewSubId;
                 int newViewId;
-                int ownerIdOffset = ownerId * MAX_VIEW_IDS;
-                for (int i = 1; i <= MAX_VIEW_IDS; i++)
+                var ownerIdOffset = ownerId * MAX_VIEW_IDS;
+                for (var i = 1; i <= MAX_VIEW_IDS; i++)
                 {
                     newSubId = (newSubId + 1) % MAX_VIEW_IDS;
                     if (newSubId == 0)
@@ -2477,7 +2477,7 @@ namespace Photon.Pun
                 return null;
             }
 
-            Pun.InstantiateParameters netParams = new InstantiateParameters(prefabName, position, rotation, group, data, currentLevelPrefix, null, LocalPlayer, ServerTimestamp);
+            var netParams = new InstantiateParameters(prefabName, position, rotation, group, data, currentLevelPrefix, null, LocalPlayer, ServerTimestamp);
             return NetworkInstantiate(netParams, false);
         }
 
@@ -2497,7 +2497,7 @@ namespace Photon.Pun
 
             if (LocalPlayer.IsMasterClient)
             {
-                Pun.InstantiateParameters netParams = new InstantiateParameters(prefabName, position, rotation, group, data, currentLevelPrefix, null, LocalPlayer, ServerTimestamp);
+                var netParams = new InstantiateParameters(prefabName, position, rotation, group, data, currentLevelPrefix, null, LocalPlayer, ServerTimestamp);
                 return NetworkInstantiate(netParams, true);
             }
 
@@ -2508,9 +2508,9 @@ namespace Photon.Pun
         {
 
             // some values always present:
-            string prefabName = (string)networkEvent[keyByteZero];
-            int serverTime = (int)networkEvent[keyByteSix];
-            int instantiationId = (int)networkEvent[keyByteSeven];
+            var prefabName = (string)networkEvent[keyByteZero];
+            var serverTime = (int)networkEvent[keyByteSix];
+            var instantiationId = (int)networkEvent[keyByteSeven];
 
             Vector3 position;
             if (networkEvent.ContainsKey(keyByteOne))
@@ -2522,7 +2522,7 @@ namespace Photon.Pun
                 position = Vector3.zero;
             }
 
-            Quaternion rotation = Quaternion.identity;
+            var rotation = Quaternion.identity;
             if (networkEvent.ContainsKey(keyByteTwo))
             {
                 rotation = (Quaternion)networkEvent[keyByteTwo];
@@ -2567,7 +2567,7 @@ namespace Photon.Pun
             }
 
 
-            Pun.InstantiateParameters netParams = new InstantiateParameters(prefabName, position, rotation, group, incomingInstantiationData, objLevelPrefix, viewsIDs, creator, serverTime);
+            var netParams = new InstantiateParameters(prefabName, position, rotation, group, incomingInstantiationData, objLevelPrefix, viewsIDs, creator, serverTime);
             return NetworkInstantiate(netParams, false, true);
         }
 
@@ -2609,14 +2609,14 @@ namespace Photon.Pun
                 return null;
             }
 
-            bool localInstantiate = !instantiateEvent && LocalPlayer.Equals(parameters.creator);
+            var localInstantiate = !instantiateEvent && LocalPlayer.Equals(parameters.creator);
             if (localInstantiate)
             {
                 // init viewIDs array, so it can be filled (below), before it gets sent
                 parameters.viewIDs = new int[photonViews.Length];
             }
 
-            for (int i = 0; i < photonViews.Length; i++)
+            for (var i = 0; i < photonViews.Length; i++)
             {
                 if (localInstantiate)
                 {
@@ -2654,8 +2654,8 @@ namespace Photon.Pun
                 var list = go.GetComponents<IPunInstantiateMagicCallback>();
                 if (list.Length > 0)
                 {
-                    PhotonMessageInfo pmi = new PhotonMessageInfo(parameters.creator, parameters.timestamp, photonViews[0]);
-                    foreach (IPunInstantiateMagicCallback callbackComponent in list)
+                    var pmi = new PhotonMessageInfo(parameters.creator, parameters.timestamp, photonViews[0]);
+                    foreach (var callbackComponent in list)
                     {
                         callbackComponent.OnPhotonInstantiate(pmi);
                     }
@@ -2676,7 +2676,7 @@ namespace Photon.Pun
         internal static bool SendInstantiate(Pun.InstantiateParameters parameters, bool roomObject = false)
         {
             // first viewID is now also the gameobject's instantiateId
-            int instantiateId = parameters.viewIDs[0];   // LIMITS PHOTONVIEWS&PLAYERS
+            var instantiateId = parameters.viewIDs[0];   // LIMITS PHOTONVIEWS&PLAYERS
 
             SendInstantiateEvHashtable.Clear();     // SendInstantiate reuses this Hashtable to reduce GC
 
@@ -3015,12 +3015,12 @@ namespace Photon.Pun
 
             if (enabled)
             {
-                byte[] groups = new byte[1] { (byte)group };
+                var groups = new byte[1] { (byte)group };
                 SetInterestGroups(null, groups);
             }
             else
             {
-                byte[] groups = new byte[1] { (byte)group };
+                var groups = new byte[1] { (byte)group };
                 SetInterestGroups(groups, null);
             }
         }
@@ -3208,9 +3208,9 @@ namespace Photon.Pun
                 return;
             }
 
-            string punResourcesDirectory = PhotonNetwork.FindPunAssetFolder() + "Resources/";
-            string serverSettingsAssetPath = punResourcesDirectory + PhotonNetwork.ServerSettingsFileName + ".asset";
-            string serverSettingsDirectory = Path.GetDirectoryName(serverSettingsAssetPath);
+            var punResourcesDirectory = PhotonNetwork.FindPunAssetFolder() + "Resources/";
+            var serverSettingsAssetPath = punResourcesDirectory + PhotonNetwork.ServerSettingsFileName + ".asset";
+            var serverSettingsDirectory = Path.GetDirectoryName(serverSettingsAssetPath);
 
             if (!Directory.Exists(serverSettingsDirectory))
             {
@@ -3239,7 +3239,7 @@ namespace Photon.Pun
         /// <param name="asset">Asset.</param>
         public static string FindAssetPath(string asset)
         {
-            string[] guids = AssetDatabase.FindAssets (asset, null);
+            var guids = AssetDatabase.FindAssets (asset, null);
             if (guids.Length != 1)
             {
                 return string.Empty;
@@ -3256,12 +3256,12 @@ namespace Photon.Pun
         /// <returns>The pun asset folder.</returns>
         public static string FindPunAssetFolder()
         {
-            string _thisPath =	FindAssetPath("PunClasses");
-            string _PunFolderPath = string.Empty;
+            var _thisPath =	FindAssetPath("PunClasses");
+            var _PunFolderPath = string.Empty;
 
             //Debug.Log("FindPunAssetFolder "+_thisPath);
-            string[] subdirectoryEntries = _thisPath.Split ('/');
-            foreach (string dir in subdirectoryEntries)
+            var subdirectoryEntries = _thisPath.Split ('/');
+            foreach (var dir in subdirectoryEntries)
             {
                 if (!string.IsNullOrEmpty (dir))
                 {

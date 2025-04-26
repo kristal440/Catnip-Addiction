@@ -114,14 +114,14 @@ namespace Photon.Pun
                 return 1;
             }
 
-            PunSceneSettings pss = Instance;
+            var pss = Instance;
             if (pss == null)
             {
                 Debug.LogError("pss cant be null");
                 return 1;
             }
 
-            foreach (SceneSetting setting in pss.MinViewIdPerScene)
+            foreach (var setting in pss.MinViewIdPerScene)
             {
                 if (setting.sceneName.Equals(sceneName))
                 {
@@ -139,16 +139,16 @@ namespace Photon.Pun
             }
             
             #if UNITY_EDITOR
-            foreach (SceneSetting sceneSetting in Instance.MinViewIdPerScene)
+            foreach (var sceneSetting in Instance.MinViewIdPerScene)
             {
                 if (sceneSetting.sceneAsset == null && !string.IsNullOrEmpty(sceneSetting.sceneName))
                 {
                     
-                    string[] guids = AssetDatabase.FindAssets(sceneSetting.sceneName + " t:SceneAsset");
+                    var guids = AssetDatabase.FindAssets(sceneSetting.sceneName + " t:SceneAsset");
 
-                    foreach (string guid in guids)
+                    foreach (var guid in guids)
                     {
-                        string path = AssetDatabase.GUIDToAssetPath(guid);
+                        var path = AssetDatabase.GUIDToAssetPath(guid);
                         if (Path.GetFileNameWithoutExtension(path) == sceneSetting.sceneName)
                         {
                             sceneSetting.sceneAsset =

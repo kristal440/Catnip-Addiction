@@ -444,7 +444,7 @@ namespace Photon.Pun
         {
             get
             {
-                uint u = (uint) this.timeInt;
+                var u = (uint) this.timeInt;
                 double t = u;
                 return t / 1000.0d;
             }
@@ -454,7 +454,7 @@ namespace Photon.Pun
         {
             get
             {
-                uint u = (uint)this.timeInt;
+                var u = (uint)this.timeInt;
                 double t = u;
                 return t / 1000.0d;
             }
@@ -578,7 +578,7 @@ namespace Photon.Pun
                 return null;
             }
 
-            object obj = this.readData[this.currentItem];
+            var obj = this.readData[this.currentItem];
             this.currentItem++;
             return obj;
         }
@@ -592,7 +592,7 @@ namespace Photon.Pun
                 return null;
             }
 
-            object obj = this.readData[this.currentItem];
+            var obj = this.readData[this.currentItem];
             //this.currentItem++;
             return obj;
         }
@@ -844,7 +844,7 @@ namespace Photon.Pun
         {
             get
             {
-                Scene s = SceneManager.GetActiveScene();
+                var s = SceneManager.GetActiveScene();
                 return s.name;
             }
         }
@@ -887,7 +887,7 @@ namespace Photon.Pun
         public GameObject Instantiate(string prefabId, Vector3 position, Quaternion rotation)
         {
             GameObject res = null;
-            bool cached = this.ResourceCache.TryGetValue(prefabId, out res);
+            var cached = this.ResourceCache.TryGetValue(prefabId, out res);
             if (!cached)
             {
                 res = Resources.Load<GameObject>(prefabId);
@@ -901,10 +901,10 @@ namespace Photon.Pun
                 }
             }
 
-            bool wasActive = res.activeSelf;
+            var wasActive = res.activeSelf;
             if (wasActive) res.SetActive(false);
 
-            GameObject instance =GameObject.Instantiate(res, position, rotation) as GameObject;
+            var instance =GameObject.Instantiate(res, position, rotation) as GameObject;
 
             if (wasActive) res.SetActive(true);
             return instance;
@@ -927,7 +927,7 @@ namespace Photon.Pun
         public static ParameterInfo[] GetCachedParemeters(this MethodInfo mo)
         {
             ParameterInfo[] result;
-            bool cached = ParametersOfMethods.TryGetValue(mo, out result);
+            var cached = ParametersOfMethods.TryGetValue(mo, out result);
 
             if (!cached)
             {

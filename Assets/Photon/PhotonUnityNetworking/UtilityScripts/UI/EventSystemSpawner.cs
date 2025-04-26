@@ -28,13 +28,13 @@ namespace Photon.Pun.UtilityScripts
             #endif
 
             #if UNITY_6000_0_OR_NEWER
-            EventSystem sceneEventSystem = FindFirstObjectByType<EventSystem>();
+            var sceneEventSystem = FindFirstObjectByType<EventSystem>();
             #else
             EventSystem sceneEventSystem = FindObjectOfType<EventSystem>();
             #endif
             if (sceneEventSystem == null)
             {
-                GameObject eventSystem = new GameObject("EventSystem");
+                var eventSystem = new GameObject("EventSystem");
 
                 eventSystem.AddComponent<EventSystem>();
                 eventSystem.AddComponent<StandaloneInputModule>();

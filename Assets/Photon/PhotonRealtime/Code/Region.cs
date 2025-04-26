@@ -64,7 +64,7 @@ namespace Photon.Realtime
             }
 
             codeAsString = codeAsString.ToLower();
-            int slash = codeAsString.IndexOf('/');
+            var slash = codeAsString.IndexOf('/');
             this.Code = slash <= 0 ? codeAsString : codeAsString.Substring(0, slash);
             this.Cluster = slash <= 0 ? "" : codeAsString.Substring(slash+1, codeAsString.Length-slash-1);
         }
@@ -76,7 +76,7 @@ namespace Photon.Realtime
 
         public string ToString(bool compact = false)
         {
-            string regionCluster = this.Code;
+            var regionCluster = this.Code;
             if (!string.IsNullOrEmpty(this.Cluster))
             {
                 regionCluster += "/" + this.Cluster;

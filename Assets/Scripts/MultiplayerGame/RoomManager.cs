@@ -56,7 +56,7 @@ public class RoomManager : MonoBehaviourPunCallbacks
 
     private void InstantiatePlayer()
     {
-        if (playerPrefab is not null && PhotonNetwork.IsConnected)
+        if (playerPrefab && PhotonNetwork.IsConnected)
         {
             var spawnIndex = PhotonNetwork.LocalPlayer.ActorNumber % spawnPoints.Length;
             var spawn = spawnPoints.Length > 0 ? spawnPoints[spawnIndex] : null;

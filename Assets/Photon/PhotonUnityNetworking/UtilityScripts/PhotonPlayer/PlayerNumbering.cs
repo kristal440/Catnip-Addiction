@@ -141,15 +141,15 @@ namespace Photon.Pun.UtilityScripts
             }
 
 
-            HashSet<int> usedInts = new HashSet<int>();
-            Player[] sorted = PhotonNetwork.PlayerList.OrderBy((p) => p.ActorNumber).ToArray();
+            var usedInts = new HashSet<int>();
+            var sorted = PhotonNetwork.PlayerList.OrderBy((p) => p.ActorNumber).ToArray();
 
-            string allPlayers = "all players: ";
-            foreach (Player player in sorted)
+            var allPlayers = "all players: ";
+            foreach (var player in sorted)
             {
                 allPlayers += player.ActorNumber + "=pNr:"+player.GetPlayerNumber()+", ";
 
-                int number = player.GetPlayerNumber();
+                var number = player.GetPlayerNumber();
 
                 // if it's this user, select a number and break
                 // else:
@@ -162,7 +162,7 @@ namespace Photon.Pun.UtilityScripts
 					Debug.Log ("PhotonNetwork.CurrentRoom.PlayerCount = " + PhotonNetwork.CurrentRoom.PlayerCount);
 
                     // select a number
-                    for (int i = 0; i < PhotonNetwork.CurrentRoom.PlayerCount; i++)
+                    for (var i = 0; i < PhotonNetwork.CurrentRoom.PlayerCount; i++)
                     {
                         if (!usedInts.Contains(i))
                         {
@@ -256,7 +256,7 @@ namespace Photon.Pun.UtilityScripts
                 return;
             }
 
-            int current = player.GetPlayerNumber();
+            var current = player.GetPlayerNumber();
             if (current != playerNumber)
             {
 				Debug.Log("PlayerNumbering: Set number "+playerNumber);

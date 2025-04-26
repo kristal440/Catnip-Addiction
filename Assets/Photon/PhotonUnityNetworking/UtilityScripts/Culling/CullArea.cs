@@ -129,7 +129,7 @@ namespace Photon.Pun.UtilityScripts
                 }
             }
 
-            CellTreeNode rootNode = new CellTreeNode(this.idCounter++, CellTreeNode.ENodeType.Root, null);
+            var rootNode = new CellTreeNode(this.idCounter++, CellTreeNode.ENodeType.Root, null);
 
             if (this.YIsUpAxis)
             {
@@ -171,25 +171,25 @@ namespace Photon.Pun.UtilityScripts
                 return;
             }
 
-            int rowCount = (int)this.Subdivisions[(cellLevelInHierarchy - 1)].x;
-            int columnCount = (int)this.Subdivisions[(cellLevelInHierarchy - 1)].y;
+            var rowCount = (int)this.Subdivisions[(cellLevelInHierarchy - 1)].x;
+            var columnCount = (int)this.Subdivisions[(cellLevelInHierarchy - 1)].y;
 
-            float startX = parent.Center.x - (parent.Size.x / 2.0f);
-            float width = parent.Size.x / rowCount;
+            var startX = parent.Center.x - (parent.Size.x / 2.0f);
+            var width = parent.Size.x / rowCount;
 
-            for (int row = 0; row < rowCount; ++row)
+            for (var row = 0; row < rowCount; ++row)
             {
-                for (int column = 0; column < columnCount; ++column)
+                for (var column = 0; column < columnCount; ++column)
                 {
-                    float xPos = startX + (row * width) + (width / 2.0f);
+                    var xPos = startX + (row * width) + (width / 2.0f);
 
-                    CellTreeNode node = new CellTreeNode(this.idCounter++, (this.NumberOfSubdivisions == cellLevelInHierarchy) ? CellTreeNode.ENodeType.Leaf : CellTreeNode.ENodeType.Node, parent);
+                    var node = new CellTreeNode(this.idCounter++, (this.NumberOfSubdivisions == cellLevelInHierarchy) ? CellTreeNode.ENodeType.Leaf : CellTreeNode.ENodeType.Node, parent);
 
                     if (this.YIsUpAxis)
                     {
-                        float startY = parent.Center.y - (parent.Size.y / 2.0f);
-                        float height = parent.Size.y / columnCount;
-                        float yPos = startY + (column * height) + (height / 2.0f);
+                        var startY = parent.Center.y - (parent.Size.y / 2.0f);
+                        var height = parent.Size.y / columnCount;
+                        var yPos = startY + (column * height) + (height / 2.0f);
 
                         node.Center = new Vector3(xPos, yPos, 0.0f);
                         node.Size = new Vector3(width, height, 0.0f);
@@ -198,9 +198,9 @@ namespace Photon.Pun.UtilityScripts
                     }
                     else
                     {
-                        float startZ = parent.Center.z - (parent.Size.z / 2.0f);
-                        float depth = parent.Size.z / columnCount;
-                        float zPos = startZ + (column * depth) + (depth / 2.0f);
+                        var startZ = parent.Center.z - (parent.Size.z / 2.0f);
+                        var depth = parent.Size.z / columnCount;
+                        var zPos = startZ + (column * depth) + (depth / 2.0f);
 
                         node.Center = new Vector3(xPos, 0.0f, zPos);
                         node.Size = new Vector3(width, 0.0f, depth);
@@ -236,10 +236,10 @@ namespace Photon.Pun.UtilityScripts
         /// <returns>True if the cell count is allowed, false if the cell count is too large.</returns>
         private bool IsCellCountAllowed()
         {
-            int horizontalCells = 1;
-            int verticalCells = 1;
+            var horizontalCells = 1;
+            var verticalCells = 1;
 
-            foreach (Vector2 v in this.Subdivisions)
+            foreach (var v in this.Subdivisions)
             {
                 horizontalCells *= (int)v.x;
                 verticalCells *= (int)v.y;
@@ -257,12 +257,12 @@ namespace Photon.Pun.UtilityScripts
         /// <returns>A list containing all cell IDs the player is currently inside or nearby.</returns>
         public List<byte> GetActiveCells(Vector3 position)
         {
-            List<byte> activeCells = new List<byte>(0);
+            var activeCells = new List<byte>(0);
             this.CellTree.RootNode.GetActiveCells(activeCells, this.YIsUpAxis, position);
 
             // it makes sense to sort the "nearby" cells. those are in the list in positions after the subdivisions the point is inside. 2 subdivisions result in 3 areas the point is in.
-            int cellsActive = this.NumberOfSubdivisions + 1;
-            int cellsNearby = activeCells.Count - cellsActive;
+            var cellsActive = this.NumberOfSubdivisions + 1;
+            var cellsNearby = activeCells.Count - cellsActive;
             if (cellsNearby > 0)
             {
                 activeCells.Sort(cellsActive, cellsNearby, new ByteComparer());
@@ -386,7 +386,7 @@ namespace Photon.Pun.UtilityScripts
 #if UNITY_EDITOR
         if (this.Childs != null)
         {
-            foreach (CellTreeNode node in this.Childs)
+            foreach (var node in this.Childs)
             {
                 node.Draw();
             }
@@ -395,8 +395,8 @@ namespace Photon.Pun.UtilityScripts
         Gizmos.color = new Color((this.NodeType == ENodeType.Root) ? 1 : 0, (this.NodeType == ENodeType.Node) ? 1 : 0, (this.NodeType == ENodeType.Leaf) ? 1 : 0);
         Gizmos.DrawWireCube(this.Center, this.Size);
 
-        byte offset = (byte)this.NodeType;
-        GUIStyle gs = new GUIStyle() { fontStyle = FontStyle.Bold };
+        var offset = (byte)this.NodeType;
+        var gs = new GUIStyle() { fontStyle = FontStyle.Bold };
         gs.normal.textColor = Gizmos.color;
         UnityEditor.Handles.Label(this.Center+(Vector3.forward*offset*1f), this.Id.ToString(), gs);
 #endif
@@ -412,7 +412,7 @@ namespace Photon.Pun.UtilityScripts
         {
             if (this.NodeType != ENodeType.Leaf)
             {
-                foreach (CellTreeNode node in this.Childs)
+                foreach (var node in this.Childs)
                 {
                     node.GetActiveCells(activeCells, yIsUpAxis, position);
                 }
@@ -425,7 +425,7 @@ namespace Photon.Pun.UtilityScripts
                     {
                         activeCells.Insert(0, this.Id);
 
-                        CellTreeNode p = this.Parent;
+                        var p = this.Parent;
                         while (p != null)
                         {
                             activeCells.Insert(0, p.Id);

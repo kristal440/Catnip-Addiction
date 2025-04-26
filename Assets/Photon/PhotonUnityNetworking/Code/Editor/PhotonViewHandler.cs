@@ -51,12 +51,12 @@ namespace Photon.Pun
             }
 
 
-            PhotonView[] photonViewResources = Resources.FindObjectsOfTypeAll<PhotonView>();
-            List<PhotonView> photonViewInstances = new List<PhotonView>();
-            Dictionary<int, List<PhotonView>> viewInstancesPerViewId = new Dictionary<int, List<PhotonView>>();
-            List<PhotonView> photonViewsToReassign = new List<PhotonView>();
+            var photonViewResources = Resources.FindObjectsOfTypeAll<PhotonView>();
+            var photonViewInstances = new List<PhotonView>();
+            var viewInstancesPerViewId = new Dictionary<int, List<PhotonView>>();
+            var photonViewsToReassign = new List<PhotonView>();
 
-            foreach (PhotonView view in photonViewResources)
+            foreach (var view in photonViewResources)
             {
                 if (PhotonEditorUtils.IsPrefab(view.gameObject))
                 {
@@ -92,7 +92,7 @@ namespace Photon.Pun
 
             //Debug.Log("PreviousAssignments: "+PunSceneViews.Instance.Views.Count);
 
-            foreach (List<PhotonView> list in viewInstancesPerViewId.Values)
+            foreach (var list in viewInstancesPerViewId.Values)
             {
                 if (list.Count <= 1)
                 {
@@ -101,9 +101,9 @@ namespace Photon.Pun
 
 
                 PhotonView previousAssignment = null;
-                bool wasAssigned = PunSceneViews.Instance.Views.TryGetValue(list[0].sceneViewId, out previousAssignment);
+                var wasAssigned = PunSceneViews.Instance.Views.TryGetValue(list[0].sceneViewId, out previousAssignment);
 
-                foreach (PhotonView view in list)
+                foreach (var view in list)
                 {
                     if (wasAssigned && view.Equals(previousAssignment))
                     {
@@ -117,7 +117,7 @@ namespace Photon.Pun
             }
 
             int i;
-            foreach (PhotonView view in photonViewsToReassign)
+            foreach (var view in photonViewsToReassign)
             {
                 i = MinSceneViewId(view);
                 while (viewInstancesPerViewId.ContainsKey(i))
@@ -132,7 +132,7 @@ namespace Photon.Pun
 
             // update the "semi persistent" list of viewIDs and their PhotonViews
             PunSceneViews.Instance.Views.Clear();
-            foreach (PhotonView view in photonViewInstances)
+            foreach (var view in photonViewInstances)
             {
                 if (PunSceneViews.Instance.Views.ContainsKey(view.sceneViewId))
                 {
@@ -150,7 +150,7 @@ namespace Photon.Pun
 
         private static int MinSceneViewId(PhotonView view)
         {
-            int result = PunSceneSettings.MinViewIdForScene(view.gameObject.scene.name);
+            var result = PunSceneSettings.MinViewIdForScene(view.gameObject.scene.name);
             return result;
         }
 

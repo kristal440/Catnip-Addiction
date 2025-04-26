@@ -73,9 +73,9 @@ namespace Photon.Pun
 
         private RuntimeAnimatorController GetEffectiveController(Animator animator)
         {
-            RuntimeAnimatorController controller = animator.runtimeAnimatorController;
+            var controller = animator.runtimeAnimatorController;
 
-            AnimatorOverrideController overrideController = controller as AnimatorOverrideController;
+            var overrideController = controller as AnimatorOverrideController;
             while (overrideController != null)
             {
                 controller = overrideController.runtimeAnimatorController;
@@ -100,7 +100,7 @@ namespace Photon.Pun
 
         private void DrawWeightInspector()
         {
-            SerializedProperty foldoutProperty = this.serializedObject.FindProperty("ShowLayerWeightsInspector");
+            var foldoutProperty = this.serializedObject.FindProperty("ShowLayerWeightsInspector");
             foldoutProperty.boolValue = PhotonGUI.ContainerHeaderFoldout("Synchronize Layer Weights", foldoutProperty.boolValue);
 
             if (foldoutProperty.boolValue == false)
@@ -109,28 +109,28 @@ namespace Photon.Pun
             }
 
             float lineHeight = 20;
-            Rect containerRect = PhotonGUI.ContainerBody(this.GetLayerCount() * lineHeight);
+            var containerRect = PhotonGUI.ContainerBody(this.GetLayerCount() * lineHeight);
 
-            for (int i = 0; i < this.GetLayerCount(); ++i)
+            for (var i = 0; i < this.GetLayerCount(); ++i)
             {
                 if (this.m_Target.DoesLayerSynchronizeTypeExist(i) == false)
                 {
                     this.m_Target.SetLayerSynchronized(i, PhotonAnimatorView.SynchronizeType.Disabled);
                 }
 
-                PhotonAnimatorView.SynchronizeType syncType = this.m_Target.GetLayerSynchronizeType(i);
+                var syncType = this.m_Target.GetLayerSynchronizeType(i);
 
-                Rect elementRect = new Rect(containerRect.xMin, containerRect.yMin + i * lineHeight, containerRect.width, lineHeight);
+                var elementRect = new Rect(containerRect.xMin, containerRect.yMin + i * lineHeight, containerRect.width, lineHeight);
 
-                Rect labelRect = new Rect(elementRect.xMin + 5, elementRect.yMin + 2, EditorGUIUtility.labelWidth - 5, elementRect.height);
+                var labelRect = new Rect(elementRect.xMin + 5, elementRect.yMin + 2, EditorGUIUtility.labelWidth - 5, elementRect.height);
                 GUI.Label(labelRect, "Layer " + i);
 
-                Rect popupRect = new Rect(elementRect.xMin + EditorGUIUtility.labelWidth, elementRect.yMin + 2, elementRect.width - EditorGUIUtility.labelWidth - 5, EditorGUIUtility.singleLineHeight);
+                var popupRect = new Rect(elementRect.xMin + EditorGUIUtility.labelWidth, elementRect.yMin + 2, elementRect.width - EditorGUIUtility.labelWidth - 5, EditorGUIUtility.singleLineHeight);
                 syncType = (PhotonAnimatorView.SynchronizeType)EditorGUI.EnumPopup(popupRect, syncType);
 
                 if (i < this.GetLayerCount() - 1)
                 {
-                    Rect splitterRect = new Rect(elementRect.xMin + 2, elementRect.yMax, elementRect.width - 4, 1);
+                    var splitterRect = new Rect(elementRect.xMin + 2, elementRect.yMax, elementRect.width - 4, 1);
                     PhotonGUI.DrawSplitter(splitterRect);
                 }
 
@@ -144,7 +144,7 @@ namespace Photon.Pun
 
         private bool DoesParameterExist(string name)
         {
-            for (int i = 0; i < this.GetParameterCount(); ++i)
+            for (var i = 0; i < this.GetParameterCount(); ++i)
             {
                 if (this.GetAnimatorControllerParameter(i).name == name)
                 {
@@ -158,11 +158,11 @@ namespace Photon.Pun
         private void CheckIfStoredParametersExist()
         {
             var syncedParams = this.m_Target.GetSynchronizedParameters();
-            List<string> paramsToRemove = new List<string>();
+            var paramsToRemove = new List<string>();
 
-            for (int i = 0; i < syncedParams.Count; ++i)
+            for (var i = 0; i < syncedParams.Count; ++i)
             {
-                string parameterName = syncedParams[i].Name;
+                var parameterName = syncedParams[i].Name;
                 if (this.DoesParameterExist(parameterName) == false)
                 {
                     Debug.LogWarning("Parameter '" + this.m_Target.GetSynchronizedParameters()[i].Name + "' doesn't exist anymore. Removing it from the list of synchronized parameters");
@@ -172,7 +172,7 @@ namespace Photon.Pun
 
             if (paramsToRemove.Count > 0)
             {
-                foreach (string param in paramsToRemove)
+                foreach (var param in paramsToRemove)
                 {
                     this.m_Target.GetSynchronizedParameters().RemoveAll(item => item.Name == param);
                 }
@@ -183,9 +183,9 @@ namespace Photon.Pun
         private void DrawParameterInspector()
         {
             // flag to expose a note in Interface if one or more trigger(s) are synchronized
-            bool isUsingTriggers = false;
+            var isUsingTriggers = false;
 
-            SerializedProperty foldoutProperty = this.serializedObject.FindProperty("ShowParameterInspector");
+            var foldoutProperty = this.serializedObject.FindProperty("ShowParameterInspector");
             foldoutProperty.boolValue = PhotonGUI.ContainerHeaderFoldout("Synchronize Parameters", foldoutProperty.boolValue);
 
             if (foldoutProperty.boolValue == false)
@@ -194,14 +194,14 @@ namespace Photon.Pun
             }
 
             float lineHeight = 20;
-            Rect containerRect = PhotonGUI.ContainerBody(this.GetParameterCount() * lineHeight);
+            var containerRect = PhotonGUI.ContainerBody(this.GetParameterCount() * lineHeight);
 
-            for (int i = 0; i < this.GetParameterCount(); i++)
+            for (var i = 0; i < this.GetParameterCount(); i++)
             {
                 AnimatorControllerParameter parameter = null;
                 parameter = this.GetAnimatorControllerParameter(i);
 
-                string defaultValue = "";
+                var defaultValue = "";
 
                 if (parameter.type == AnimatorControllerParameterType.Bool)
                 {
@@ -253,7 +253,7 @@ namespace Photon.Pun
                     this.m_Target.SetParameterSynchronized(parameter.name, (PhotonAnimatorView.ParameterType)parameter.type, PhotonAnimatorView.SynchronizeType.Disabled);
                 }
 
-                PhotonAnimatorView.SynchronizeType value = this.m_Target.GetParameterSynchronizeType(parameter.name);
+                var value = this.m_Target.GetParameterSynchronizeType(parameter.name);
 
                 // check if using trigger and actually synchronizing it
                 if (value != PhotonAnimatorView.SynchronizeType.Disabled && parameter.type == AnimatorControllerParameterType.Trigger)
@@ -261,17 +261,17 @@ namespace Photon.Pun
                     isUsingTriggers = true;
                 }
 
-                Rect elementRect = new Rect(containerRect.xMin, containerRect.yMin + i * lineHeight, containerRect.width, lineHeight);
+                var elementRect = new Rect(containerRect.xMin, containerRect.yMin + i * lineHeight, containerRect.width, lineHeight);
 
-                Rect labelRect = new Rect(elementRect.xMin + 5, elementRect.yMin + 2, EditorGUIUtility.labelWidth - 5, elementRect.height);
+                var labelRect = new Rect(elementRect.xMin + 5, elementRect.yMin + 2, EditorGUIUtility.labelWidth - 5, elementRect.height);
                 GUI.Label(labelRect, parameter.name + " (" + defaultValue + ")");
 
-                Rect popupRect = new Rect(elementRect.xMin + EditorGUIUtility.labelWidth, elementRect.yMin + 2, elementRect.width - EditorGUIUtility.labelWidth - 5, EditorGUIUtility.singleLineHeight);
+                var popupRect = new Rect(elementRect.xMin + EditorGUIUtility.labelWidth, elementRect.yMin + 2, elementRect.width - EditorGUIUtility.labelWidth - 5, EditorGUIUtility.singleLineHeight);
                 value = (PhotonAnimatorView.SynchronizeType)EditorGUI.EnumPopup(popupRect, value);
 
                 if (i < this.GetParameterCount() - 1)
                 {
-                    Rect splitterRect = new Rect(elementRect.xMin + 2, elementRect.yMax, elementRect.width - 4, 1);
+                    var splitterRect = new Rect(elementRect.xMin + 2, elementRect.yMax, elementRect.width - 4, 1);
                     PhotonGUI.DrawSplitter(splitterRect);
                 }
 

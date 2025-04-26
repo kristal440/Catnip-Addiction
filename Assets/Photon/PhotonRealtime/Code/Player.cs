@@ -216,11 +216,11 @@ namespace Photon.Realtime
                 return null;
             }
 
-            Dictionary<int, Player> players = this.RoomReference.Players;
-            int nextHigherId = int.MaxValue;    // we look for the next higher ID
-            int lowestId = currentPlayerId;     // if we are the player with the highest ID, there is no higher and we return to the lowest player's id
+            var players = this.RoomReference.Players;
+            var nextHigherId = int.MaxValue;    // we look for the next higher ID
+            var lowestId = currentPlayerId;     // if we are the player with the highest ID, there is no higher and we return to the lowest player's id
 
-            foreach (int playerid in players.Keys)
+            foreach (var playerid in players.Keys)
             {
                 if (playerid < lowestId)
                 {
@@ -255,7 +255,7 @@ namespace Photon.Realtime
             // only remote player instances update their NickName from the properties
             if (!this.IsLocal && properties.ContainsKey(ActorProperties.PlayerName))
             {
-                string nameInServersProperties = (string)properties[ActorProperties.PlayerName];
+                var nameInServersProperties = (string)properties[ActorProperties.PlayerName];
                 this.NickName = nameInServersProperties;
             }
 
@@ -298,7 +298,7 @@ namespace Photon.Realtime
         /// </summary>
         public override bool Equals(object p)
         {
-            Player pp = p as Player;
+            var pp = p as Player;
             return (pp != null && this.GetHashCode() == pp.GetHashCode());
         }
 
@@ -381,7 +381,7 @@ namespace Photon.Realtime
                 return false;
             }
 
-            Hashtable customProps = propertiesToSet.StripToStringKeys() as Hashtable;
+            var customProps = propertiesToSet.StripToStringKeys() as Hashtable;
 
             if (this.RoomReference != null)
             {
@@ -399,7 +399,7 @@ namespace Photon.Realtime
                 }
                 else
                 {
-                    Hashtable customPropsToCheck = expectedValues.StripToStringKeys() as Hashtable;
+                    var customPropsToCheck = expectedValues.StripToStringKeys() as Hashtable;
 
                     // send (sync) these new values if in online room
                     return this.RoomReference.LoadBalancingClient.OpSetPropertiesOfActor(this.actorNumber, customProps, customPropsToCheck, webFlags);
@@ -431,8 +431,8 @@ namespace Photon.Realtime
                 return false;
             }
 
-            bool found = this.RoomReference.CustomProperties.ContainsKey(ActorProperties.PlayerName);
-            string nickFromProps = found ? this.RoomReference.CustomProperties[ActorProperties.PlayerName] as string : string.Empty;
+            var found = this.RoomReference.CustomProperties.ContainsKey(ActorProperties.PlayerName);
+            var nickFromProps = found ? this.RoomReference.CustomProperties[ActorProperties.PlayerName] as string : string.Empty;
 
             if (!string.Equals(this.NickName, nickFromProps))
             {
@@ -447,7 +447,7 @@ namespace Photon.Realtime
         {
             if (this.RoomReference != null && !this.RoomReference.IsOffline)
             {
-                Hashtable properties = new Hashtable();
+                var properties = new Hashtable();
                 properties[ActorProperties.PlayerName] = this.nickName;
                 return this.RoomReference.LoadBalancingClient.OpSetPropertiesOfActor(this.ActorNumber, properties);
             }

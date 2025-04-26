@@ -110,7 +110,7 @@ namespace Photon.Realtime
         {
             foreach (BuildTarget target in Enum.GetValues(typeof(BuildTarget)))
             {
-                BuildTargetGroup group = BuildPipeline.GetBuildTargetGroup(target);
+                var group = BuildPipeline.GetBuildTargetGroup(target);
 
                 if (group == BuildTargetGroup.Unknown)
                 {
@@ -168,7 +168,7 @@ namespace Photon.Realtime
         {
             foreach (BuildTarget target in Enum.GetValues(typeof(BuildTarget)))
             {
-                BuildTargetGroup group = BuildPipeline.GetBuildTargetGroup(target);
+                var group = BuildPipeline.GetBuildTargetGroup(target);
                 if (group == BuildTargetGroup.Unknown)
                 {
                     continue;
@@ -179,7 +179,7 @@ namespace Photon.Realtime
                                    .Select(d => d.Trim())
                                    .ToList();
 
-                List<string> newDefineSymbols = new List<string>();
+                var newDefineSymbols = new List<string>();
                 foreach (var symbol in defineSymbols)
                 {
                     if ("PHOTON_UNITY_NETWORKING".Equals(symbol) || symbol.StartsWith("PUN_2_"))
@@ -272,7 +272,7 @@ namespace Photon.Realtime
 
         public static System.Collections.IEnumerator HttpPost(string url, Dictionary<string, string> headers, byte[] payload, Action<string> successCallback, Action<string> errorCallback)
         {
-            using (UnityWebRequest w = new UnityWebRequest(url, "POST"))
+            using (var w = new UnityWebRequest(url, "POST"))
             {
                 if (payload != null)
                 {
@@ -325,7 +325,7 @@ namespace Photon.Realtime
         public static bool Foldout(this SerializedProperty isExpanded, GUIContent label)
         {
             var rect = EditorGUILayout.GetControlRect();
-            bool newvalue = EditorGUI.Toggle(new Rect(rect) { xMin = rect.xMin + 2 }, GUIContent.none, isExpanded.boolValue, (GUIStyle)"Foldout");
+            var newvalue = EditorGUI.Toggle(new Rect(rect) { xMin = rect.xMin + 2 }, GUIContent.none, isExpanded.boolValue, (GUIStyle)"Foldout");
             EditorGUI.LabelField(new Rect(rect) { xMin = rect.xMin + 15 }, label);
             if (newvalue != isExpanded.boolValue)
             {
@@ -344,7 +344,7 @@ namespace Photon.Realtime
         public static bool Foldout(this bool isExpanded, GUIContent label)
         {
             var rect = EditorGUILayout.GetControlRect();
-            bool newvalue = EditorGUI.Toggle(new Rect(rect) { xMin = rect.xMin + 2 }, GUIContent.none, isExpanded, (GUIStyle)"Foldout");
+            var newvalue = EditorGUI.Toggle(new Rect(rect) { xMin = rect.xMin + 2 }, GUIContent.none, isExpanded, (GUIStyle)"Foldout");
             EditorGUI.LabelField(new Rect(rect) { xMin = rect.xMin + 15 }, label);
             return newvalue;
         }

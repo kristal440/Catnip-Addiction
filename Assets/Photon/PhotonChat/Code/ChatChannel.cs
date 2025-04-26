@@ -102,7 +102,7 @@ namespace Photon.Chat
                 return;
             }
 
-            int excessCount = this.Messages.Count - this.MessageLimit;
+            var excessCount = this.Messages.Count - this.MessageLimit;
             this.Senders.RemoveRange(0, excessCount);
             this.Messages.RemoveRange(0, excessCount);
         }
@@ -118,8 +118,8 @@ namespace Photon.Chat
         /// <returns>All known messages in format "Sender: Message", line by line.</returns>
         public string ToStringMessages()
         {
-            StringBuilder txt = new StringBuilder();
-            for (int i = 0; i < this.Messages.Count; i++)
+            var txt = new StringBuilder();
+            for (var i = 0; i < this.Messages.Count; i++)
             {
                 txt.AppendLine(string.Format("{0}: {1}", this.Senders[i], this.Messages[i]));
             }
@@ -163,8 +163,8 @@ namespace Photon.Chat
             {
                 return false;
             }
-            bool result = true;
-            for (int i = 0; i < users.Length; i++)
+            var result = true;
+            for (var i = 0; i < users.Length; i++)
             {
                 if (!this.Subscribers.Add(users[i]))
                 {

@@ -31,7 +31,7 @@ namespace Photon.Pun.UtilityScripts
     {
         public static void SetScore(this Player player, int newScore)
         {
-            Hashtable score = new Hashtable();  // using PUN's implementation of Hashtable
+            var score = new Hashtable();  // using PUN's implementation of Hashtable
             score[PunPlayerScores.PlayerScoreProp] = newScore;
 
             player.SetCustomProperties(score);  // this locally sets the score and will sync it in-game asap.
@@ -39,10 +39,10 @@ namespace Photon.Pun.UtilityScripts
 
         public static void AddScore(this Player player, int scoreToAddToCurrent)
         {
-            int current = player.GetScore();
+            var current = player.GetScore();
             current = current + scoreToAddToCurrent;
 
-            Hashtable score = new Hashtable();  // using PUN's implementation of Hashtable
+            var score = new Hashtable();  // using PUN's implementation of Hashtable
             score[PunPlayerScores.PlayerScoreProp] = current;
 
             player.SetCustomProperties(score);  // this locally sets the score and will sync it in-game asap.

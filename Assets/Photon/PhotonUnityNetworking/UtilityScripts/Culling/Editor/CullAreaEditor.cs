@@ -34,7 +34,7 @@ namespace Photon.Pun.UtilityScripts
             cullArea = (CullArea)target;
 
             // Destroying the newly created cull area if there is already one existing
-            int cullAreaCount = 0;
+            var cullAreaCount = 0;
             #if UNITY_6000_0_OR_NEWER
             cullAreaCount = FindObjectsByType<CullArea>(FindObjectsSortMode.None).Length;
             #else
@@ -106,11 +106,11 @@ namespace Photon.Pun.UtilityScripts
 
                 if (cullArea.NumberOfSubdivisions != 0)
                 {
-                    for (int index = 0; index < cullArea.Subdivisions.Length; ++index)
+                    for (var index = 0; index < cullArea.Subdivisions.Length; ++index)
                     {
                         if ((index + 1) <= cullArea.NumberOfSubdivisions)
                         {
-                            string countMessage = (index + 1) + ". Subdivision: row / column count";
+                            var countMessage = (index + 1) + ". Subdivision: row / column count";
 
                             EditorGUILayout.BeginVertical();
                             cullArea.Subdivisions[index] = EditorGUILayout.Vector2Field(countMessage, cullArea.Subdivisions[index]);
@@ -144,8 +144,8 @@ namespace Photon.Pun.UtilityScripts
                     {
                         Undo.RecordObject(Camera.main.transform, "Align main camera with grid.");
 
-                        float yCoord = cullArea.YIsUpAxis ? cullArea.Center.y : Mathf.Max(cullArea.Size.x, cullArea.Size.y);
-                        float zCoord = cullArea.YIsUpAxis ? -Mathf.Max(cullArea.Size.x, cullArea.Size.y) : cullArea.Center.y;
+                        var yCoord = cullArea.YIsUpAxis ? cullArea.Center.y : Mathf.Max(cullArea.Size.x, cullArea.Size.y);
+                        var zCoord = cullArea.YIsUpAxis ? -Mathf.Max(cullArea.Size.x, cullArea.Size.y) : cullArea.Center.y;
 
                         Camera.main.transform.position = new Vector3(cullArea.Center.x, yCoord, zCoord);
                         Camera.main.transform.LookAt(cullArea.transform.position);
@@ -213,18 +213,18 @@ namespace Photon.Pun.UtilityScripts
             if (cullArea.transform.hasChanged)
             {
                 // Resetting position
-                float posX = cullArea.transform.position.x;
-                float posY = cullArea.YIsUpAxis ? cullArea.transform.position.y : 0.0f;
-                float posZ = !cullArea.YIsUpAxis ? cullArea.transform.position.z : 0.0f;
+                var posX = cullArea.transform.position.x;
+                var posY = cullArea.YIsUpAxis ? cullArea.transform.position.y : 0.0f;
+                var posZ = !cullArea.YIsUpAxis ? cullArea.transform.position.z : 0.0f;
 
                 cullArea.transform.position = new Vector3(posX, posY, posZ);
 
                 // Resetting scaling
                 if (cullArea.Size.x < 1.0f || cullArea.Size.y < 1.0f)
                 {
-                    float scaleX = (cullArea.transform.localScale.x < 1.0f) ? 1.0f : cullArea.transform.localScale.x;
-                    float scaleY = (cullArea.transform.localScale.y < 1.0f) ? 1.0f : cullArea.transform.localScale.y;
-                    float scaleZ = (cullArea.transform.localScale.z < 1.0f) ? 1.0f : cullArea.transform.localScale.z;
+                    var scaleX = (cullArea.transform.localScale.x < 1.0f) ? 1.0f : cullArea.transform.localScale.x;
+                    var scaleY = (cullArea.transform.localScale.y < 1.0f) ? 1.0f : cullArea.transform.localScale.y;
+                    var scaleZ = (cullArea.transform.localScale.z < 1.0f) ? 1.0f : cullArea.transform.localScale.z;
 
                     cullArea.transform.localScale = new Vector3(scaleX, scaleY, scaleZ);
 
@@ -249,10 +249,10 @@ namespace Photon.Pun.UtilityScripts
 
             // This creates a temporary game object in order to align the editor view.
             // The created game object is destroyed afterwards.
-            GameObject tmpGo = new GameObject();
+            var tmpGo = new GameObject();
 
-            float yCoord = cullArea.YIsUpAxis ? cullArea.Center.y : Mathf.Max(cullArea.Size.x, cullArea.Size.y);
-            float zCoord = cullArea.YIsUpAxis ? -Mathf.Max(cullArea.Size.x, cullArea.Size.y) : cullArea.Center.y;
+            var yCoord = cullArea.YIsUpAxis ? cullArea.Center.y : Mathf.Max(cullArea.Size.x, cullArea.Size.y);
+            var zCoord = cullArea.YIsUpAxis ? -Mathf.Max(cullArea.Size.x, cullArea.Size.y) : cullArea.Center.y;
 
             tmpGo.transform.position = new Vector3(cullArea.Center.x, yCoord, zCoord);
             tmpGo.transform.LookAt(cullArea.transform.position);

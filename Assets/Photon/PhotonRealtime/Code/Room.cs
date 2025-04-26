@@ -161,7 +161,7 @@ namespace Photon.Realtime
                     // the following code is for compatibility with old and new servers. old use MaxPlayers, which has to be byte typed. MaxPlayersInt is available on new servers to allow int typed MaxPlayer values.
                     // added to server 5.0.19.xyz / 6.0.19.xyz respectively
                     this.maxPlayers = value;
-                    byte maxPlayersAsByte = value <= byte.MaxValue ? (byte)value : (byte)0;
+                    var maxPlayersAsByte = value <= byte.MaxValue ? (byte)value : (byte)0;
                     if (!this.isOffline)
                     {
                         this.LoadBalancingClient.OpSetPropertiesOfRoom(new Hashtable() { { GamePropertyKey.MaxPlayers, maxPlayersAsByte }, { GamePropertyKey.MaxPlayersInt, this.maxPlayers } });
@@ -349,7 +349,7 @@ namespace Photon.Realtime
 
         protected internal override void InternalCacheProperties(Hashtable propertiesToCache)
         {
-            int oldMasterId = this.masterClientId;
+            var oldMasterId = this.masterClientId;
 
             base.InternalCacheProperties(propertiesToCache);    // important: updating the properties fields has no way to do callbacks on change
 
@@ -411,7 +411,7 @@ namespace Photon.Realtime
             {
                 return false;
             }
-            Hashtable customProps = propertiesToSet.StripToStringKeys() as Hashtable;
+            var customProps = propertiesToSet.StripToStringKeys() as Hashtable;
 
             if (this.isOffline)
             {
@@ -450,7 +450,7 @@ namespace Photon.Realtime
             {
                 return false;
             }
-            Hashtable customProps = new Hashtable();
+            var customProps = new Hashtable();
             customProps[GamePropertyKey.PropsListedInLobby] = lobbyProps;
             return this.LoadBalancingClient.OpSetPropertiesOfRoom(customProps);
         }
@@ -499,8 +499,8 @@ namespace Photon.Realtime
             {
                 return false;
             }
-            Hashtable newProps = new Hashtable() { { GamePropertyKey.MasterClientId, masterClientPlayer.ActorNumber } };
-            Hashtable prevProps = new Hashtable() { { GamePropertyKey.MasterClientId, this.MasterClientId } };
+            var newProps = new Hashtable() { { GamePropertyKey.MasterClientId, masterClientPlayer.ActorNumber } };
+            var prevProps = new Hashtable() { { GamePropertyKey.MasterClientId, this.MasterClientId } };
             return this.LoadBalancingClient.OpSetPropertiesOfRoom(newProps, prevProps);
         }
 
@@ -547,7 +547,7 @@ namespace Photon.Realtime
         /// <returns>The player with the ID or null.</returns>
         public virtual Player GetPlayer(int id, bool findMaster = false)
         {
-            int idToFind = (findMaster && id == 0) ? this.MasterClientId : id;
+            var idToFind = (findMaster && id == 0) ? this.MasterClientId : id;
 
             Player result = null;
             this.Players.TryGetValue(idToFind, out result);
@@ -605,7 +605,7 @@ namespace Photon.Realtime
             {
                 return false;
             }
-            Hashtable gameProperties = new Hashtable(1);
+            var gameProperties = new Hashtable(1);
             gameProperties.Add(GamePropertyKey.ExpectedUsers, newExpectedUsers);
             Hashtable expectedProperties = null;
             if (oldExpectedUsers != null)

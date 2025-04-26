@@ -42,7 +42,7 @@ namespace Photon.Pun
                     #endif
                     if (instance == null)
                     {
-                        GameObject obj = new GameObject();
+                        var obj = new GameObject();
                         obj.name = "PhotonMono";
                         instance = obj.AddComponent<PhotonHandler>();
                     }
@@ -105,7 +105,7 @@ namespace Photon.Pun
 
             if (PhotonNetwork.PhotonServerSettings.EnableSupportLogger)
             {
-                SupportLogger supportLogger = this.gameObject.GetComponent<SupportLogger>();
+                var supportLogger = this.gameObject.GetComponent<SupportLogger>();
                 if (supportLogger == null)
                 {
                     supportLogger = this.gameObject.AddComponent<SupportLogger>();
@@ -184,8 +184,8 @@ namespace Photon.Pun
             if (SendAsap || this.swSendOutgoing.ElapsedMilliseconds >= this.UpdateInterval)
             {
                 SendAsap = false;
-                bool doSend = true;
-                int sendCounter = 0;
+                var doSend = true;
+                var sendCounter = 0;
                 while (PhotonNetwork.IsMessageQueueRunning && doSend && sendCounter < MaxDatagrams)
                 {
                     // Send all outgoing commands
@@ -224,9 +224,9 @@ namespace Photon.Pun
             //}
 
 
-            bool doDispatch = true;
+            var doDispatch = true;
             Exception ex = null;
-            int exceptionCount = 0;
+            var exceptionCount = 0;
             while (PhotonNetwork.IsMessageQueueRunning && doDispatch)
             {
                 // DispatchIncomingCommands() returns true of it dispatched any command (event, response or state change)
@@ -298,8 +298,8 @@ namespace Photon.Pun
 
             var views = PhotonNetwork.PhotonViewCollection;
 
-            bool amMasterClient = PhotonNetwork.IsMasterClient;
-            bool amRejoiningMaster = amMasterClient && PhotonNetwork.CurrentRoom.PlayerCount > 1;
+            var amMasterClient = PhotonNetwork.IsMasterClient;
+            var amRejoiningMaster = amMasterClient && PhotonNetwork.CurrentRoom.PlayerCount > 1;
 
             if (amRejoiningMaster)
                 reusableIntList.Clear();
@@ -307,8 +307,8 @@ namespace Photon.Pun
             // If this is the master rejoining, reassert ownership of non-creator owners
             foreach (var view in views)
             {
-                int viewOwnerId = view.OwnerActorNr;
-                int viewCreatorId = view.CreatorActorNr;
+                var viewOwnerId = view.OwnerActorNr;
+                var viewCreatorId = view.CreatorActorNr;
 
                 // on join / rejoin, assign control to either the Master Client (for room objects) or the owner (for anything else)
                     view.RebuildControllerCache();
@@ -341,7 +341,7 @@ namespace Photon.Pun
             // note: if the master client becomes inactive, someone else becomes master. so there is no case where the active master client reconnects
             // what may happen is that the Master Client disconnects locally and uses ReconnectAndRejoin before anyone (including the server) notices.
 
-            bool amMasterClient = PhotonNetwork.IsMasterClient;
+            var amMasterClient = PhotonNetwork.IsMasterClient;
 
             var views = PhotonNetwork.PhotonViewCollection;
             if (amMasterClient)
@@ -356,7 +356,7 @@ namespace Photon.Pun
                 // the master client notifies joining players of any non-creator ownership
                 if (amMasterClient)
                 {
-                    int viewOwnerId = view.OwnerActorNr;
+                    var viewOwnerId = view.OwnerActorNr;
                     if (viewOwnerId != view.CreatorActorNr)
                     {
                         reusableIntList.Add(view.ViewID);
@@ -377,8 +377,8 @@ namespace Photon.Pun
         {
             var views = PhotonNetwork.PhotonViewCollection;
 
-            int leavingPlayerId = otherPlayer.ActorNumber;
-            bool isInactive = otherPlayer.IsInactive;
+            var leavingPlayerId = otherPlayer.ActorNumber;
+            var isInactive = otherPlayer.IsInactive;
 
             // SOFT DISCONNECT: A player has timed out to the relay but has not yet exceeded PlayerTTL and may reconnect.
             // Master will take control of this objects until the player hard disconnects, or returns.
@@ -395,7 +395,7 @@ namespace Photon.Pun
             // HARD DISCONNECT: Player permanently removed. Remove that actor as owner for all items they created (Unless AutoCleanUp is false)
             else
             {
-                bool autocleanup = PhotonNetwork.CurrentRoom.AutoCleanUp;
+                var autocleanup = PhotonNetwork.CurrentRoom.AutoCleanUp;
 
                 foreach (var view in views)
                 {

@@ -81,7 +81,7 @@ namespace Photon.Pun.UtilityScripts
                     {
                         this.jumpingTime = this.JumpTimeout;
 
-                        Vector2 jump = Vector2.up * this.JumpForce;
+                        var jump = Vector2.up * this.JumpForce;
                         if (this.body2d != null)
                         {
                             this.body2d.AddForce(jump);

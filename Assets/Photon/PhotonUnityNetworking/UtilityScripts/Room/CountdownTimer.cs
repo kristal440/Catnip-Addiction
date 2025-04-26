@@ -83,7 +83,7 @@ namespace Photon.Pun.UtilityScripts
         {
             if (!this.isTimerRunning) return;
 
-            float countdown = TimeRemaining();
+            var countdown = TimeRemaining();
             this.Text.text = string.Format("Game starts in {0} seconds", countdown.ToString("n0"));
 
             if (countdown > 0.0f) return;
@@ -138,7 +138,7 @@ namespace Photon.Pun.UtilityScripts
 
         private float TimeRemaining()
         {
-            int timer = PhotonNetwork.ServerTimestamp - this.startTime;
+            var timer = PhotonNetwork.ServerTimestamp - this.startTime;
             return this.Countdown - timer / 1000f;
         }
 
@@ -160,10 +160,10 @@ namespace Photon.Pun.UtilityScripts
 
         public static void SetStartTime()
         {
-            int startTime = 0;
-            bool wasSet = TryGetStartTime(out startTime);
+            var startTime = 0;
+            var wasSet = TryGetStartTime(out startTime);
 
-            Hashtable props = new Hashtable
+            var props = new Hashtable
             {
                 {CountdownTimer.CountdownStartTime, (int)PhotonNetwork.ServerTimestamp}
             };

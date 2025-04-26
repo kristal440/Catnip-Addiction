@@ -69,8 +69,8 @@ namespace Photon.Pun.UtilityScripts
         {
             GUILayout.Label(string.Format("Rtt:{0,4} +/-{1,3}", this.Peer.RoundTripTime, this.Peer.RoundTripTimeVariance));
 
-            bool simEnabled = this.Peer.IsSimulationEnabled;
-            bool newSimEnabled = GUILayout.Toggle(simEnabled, "Simulate");
+            var simEnabled = this.Peer.IsSimulationEnabled;
+            var newSimEnabled = GUILayout.Toggle(simEnabled, "Simulate");
             if (newSimEnabled != simEnabled)
             {
                 this.Peer.IsSimulationEnabled = newSimEnabled;

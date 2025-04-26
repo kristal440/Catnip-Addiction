@@ -173,11 +173,11 @@ namespace Photon.Pun.UtilityScripts
             }
 
             // along with the actual move, we have to send which turn this move belongs to
-            Hashtable moveHt = new Hashtable();
+            var moveHt = new Hashtable();
             moveHt.Add("turn", Turn);
             moveHt.Add("move", move);
 
-            byte evCode = (finished) ? EvFinalMove : EvMove;
+            var evCode = (finished) ? EvFinalMove : EvMove;
             PhotonNetwork.RaiseEvent(evCode, moveHt, new RaiseEventOptions() {CachingOption = EventCaching.AddToRoomCache}, SendOptions.SendReliable);
             if (finished)
             {
@@ -220,18 +220,18 @@ namespace Photon.Pun.UtilityScripts
 			{
 			case EvMove:
 				{
-					Hashtable evTable = content as Hashtable;
-					int turn = (int)evTable["turn"];
-					object move = evTable["move"];
+					var evTable = content as Hashtable;
+					var turn = (int)evTable["turn"];
+					var move = evTable["move"];
 					this.TurnManagerListener.OnPlayerMove(sender, turn, move);
 
 					break;
 				}
 			case EvFinalMove:
 				{
-					Hashtable evTable = content as Hashtable;
-					int turn = (int)evTable["turn"];
-					object move = evTable["move"];
+					var evTable = content as Hashtable;
+					var turn = (int)evTable["turn"];
+					var move = evTable["move"];
 
 					if (turn == this.Turn)
 					{
@@ -349,7 +349,7 @@ namespace Photon.Pun.UtilityScripts
                 return;
             }
 
-            Hashtable turnProps = new Hashtable();
+            var turnProps = new Hashtable();
             turnProps[TurnPropKey] = turn;
             if (setStartTime)
             {
@@ -397,13 +397,13 @@ namespace Photon.Pun.UtilityScripts
         /// <param name="player">Player reference</param>
         public static int GetFinishedTurn(this Player player)
         {
-            Room room = PhotonNetwork.CurrentRoom;
+            var room = PhotonNetwork.CurrentRoom;
             if (room == null || room.CustomProperties == null || !room.CustomProperties.ContainsKey(TurnPropKey))
             {
                 return 0;
             }
 
-            string propKey = FinishedTurnPropKey + player.ActorNumber;
+            var propKey = FinishedTurnPropKey + player.ActorNumber;
             return (int) room.CustomProperties[propKey];
         }
 
@@ -414,14 +414,14 @@ namespace Photon.Pun.UtilityScripts
         /// <param name="turn">Turn Index</param>
         public static void SetFinishedTurn(this Player player, int turn)
         {
-            Room room = PhotonNetwork.CurrentRoom;
+            var room = PhotonNetwork.CurrentRoom;
             if (room == null || room.CustomProperties == null)
             {
                 return;
             }
 
-            string propKey = FinishedTurnPropKey + player.ActorNumber;
-            Hashtable finishedTurnProp = new Hashtable();
+            var propKey = FinishedTurnPropKey + player.ActorNumber;
+            var finishedTurnProp = new Hashtable();
             finishedTurnProp[propKey] = turn;
 
             room.SetCustomProperties(finishedTurnProp);

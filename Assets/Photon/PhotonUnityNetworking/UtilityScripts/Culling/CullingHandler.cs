@@ -149,10 +149,10 @@ namespace Photon.Pun.UtilityScripts
                 return;
             }
 
-            string subscribedAndActiveCells = "Inside cells:\n";
-            string subscribedCells = "Subscribed cells:\n";
+            var subscribedAndActiveCells = "Inside cells:\n";
+            var subscribedCells = "Subscribed cells:\n";
 
-            for (int index = 0; index < this.activeCells.Count; ++index)
+            for (var index = 0; index < this.activeCells.Count; ++index)
             {
                 if (index <= this.cullArea.NumberOfSubdivisions)
                 {
@@ -207,9 +207,9 @@ namespace Photon.Pun.UtilityScripts
         /// </summary>
         private void UpdateInterestGroups()
         {
-            List<byte> disable = new List<byte>(0);
+            var disable = new List<byte>(0);
 
-            foreach (byte groupId in this.previousActiveCells)
+            foreach (var groupId in this.previousActiveCells)
             {
                 if (!this.activeCells.Contains(groupId))
                 {

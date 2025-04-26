@@ -133,12 +133,12 @@ public class CloudManager : MonoBehaviour
         var cameraCenterX = _mainCamera.transform.position.x;
 
         // Calculate even spacing across the distribution width
-        float segmentWidth = distributionWidth / numberOfClouds;
+        var segmentWidth = distributionWidth / numberOfClouds;
 
         // Place cloud with some randomness within its segment
-        float segmentStart = cameraCenterX - (distributionWidth / 2f) + (index * segmentWidth);
-        float xPos = segmentStart + Random.Range(0, segmentWidth);
-        float yPos = Random.Range(minY, maxY);
+        var segmentStart = cameraCenterX - (distributionWidth / 2f) + (index * segmentWidth);
+        var xPos = segmentStart + Random.Range(0, segmentWidth);
+        var yPos = Random.Range(minY, maxY);
 
         cloud.GameObject.transform.position = new Vector3(xPos, yPos, 0);
     }
@@ -195,7 +195,6 @@ public class CloudManager : MonoBehaviour
                         Random.Range(minY, maxY),
                         0
                     );
-                    RandomizeCloudProperties(cloud);
                     break;
                 case false when isOutsideLeft:
                     cloud.GameObject.transform.position = new Vector3(
@@ -203,30 +202,26 @@ public class CloudManager : MonoBehaviour
                         Random.Range(minY, maxY),
                         0
                     );
-                    RandomizeCloudProperties(cloud);
                     break;
                 default:
                     // For other cases (clouds that have gone off-screen in the "wrong" direction)
                     // reposition them to come in from the appropriate side
                     if (moveRight)
-                    {
                         cloud.GameObject.transform.position = new Vector3(
                             leftBound - Random.Range(0.5f, 2f),
                             Random.Range(minY, maxY),
                             0
                         );
-                    }
                     else
-                    {
                         cloud.GameObject.transform.position = new Vector3(
                             rightBound + Random.Range(0.5f, 2f),
                             Random.Range(minY, maxY),
                             0
                         );
-                    }
-                    RandomizeCloudProperties(cloud);
                     break;
             }
+
+            RandomizeCloudProperties(cloud);
         }
     }
 

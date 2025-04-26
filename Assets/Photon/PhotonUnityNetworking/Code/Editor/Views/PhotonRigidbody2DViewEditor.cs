@@ -28,13 +28,13 @@ namespace Photon.Pun
                 return;
             }
 
-            PhotonRigidbody2DView view = (PhotonRigidbody2DView)target;
+            var view = (PhotonRigidbody2DView)target;
 
             view.m_TeleportEnabled = PhotonGUI.ContainerHeaderToggle("Enable teleport for large distances", view.m_TeleportEnabled);
 
             if (view.m_TeleportEnabled)
             {
-                Rect rect = PhotonGUI.ContainerBody(20.0f);
+                var rect = PhotonGUI.ContainerBody(20.0f);
                 view.m_TeleportIfDistanceGreaterThan = EditorGUI.FloatField(rect, "Teleport if distance greater than", view.m_TeleportIfDistanceGreaterThan);
             }
 

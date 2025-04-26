@@ -148,7 +148,7 @@ namespace Photon.Pun
         [MenuItem("Window/Photon Unity Networking/PUN Wizard &p", false, 0)]
         protected static void MenuItemOpenWizard()
         {
-            PhotonEditor win = GetWindow<PhotonEditor>(false, CurrentLang.WindowTitle, true);
+            var win = GetWindow<PhotonEditor>(false, CurrentLang.WindowTitle, true);
             if (win == null)
             {
                 return;
@@ -311,7 +311,7 @@ namespace Photon.Pun
         /// <summary>Creates an Editor window, showing the cloud-registration wizard for Photon (entry point to setup PUN).</summary>
         protected static void ShowRegistrationWizard()
         {
-            PhotonEditor win = GetWindow(WindowType, false, CurrentLang.WindowTitle, true) as PhotonEditor;
+            var win = GetWindow(WindowType, false, CurrentLang.WindowTitle, true) as PhotonEditor;
             if (win == null)
             {
                 return;
@@ -334,14 +334,14 @@ namespace Photon.Pun
         {
             if (BackgroundImage == null)
             {
-                string[] paths = AssetDatabase.FindAssets("PunGradient t:Texture2D");
+                var paths = AssetDatabase.FindAssets("PunGradient t:Texture2D");
                 if (paths != null && paths.Length > 0)
                 {
                     BackgroundImage = AssetDatabase.LoadAssetAtPath<Texture2D>(AssetDatabase.GUIDToAssetPath(paths[0]));
                 }
             }
 
-            PhotonSetupStates oldGuiState = this.photonSetupState; // used to fix an annoying Editor input field issue: wont refresh until focus is changed.
+            var oldGuiState = this.photonSetupState; // used to fix an annoying Editor input field issue: wont refresh until focus is changed.
 
             GUI.SetNextControlName(string.Empty);
             this.scrollPos = GUILayout.BeginScrollView(this.scrollPos);
@@ -517,7 +517,7 @@ namespace Photon.Pun
 
         private void UiTitleBox(string title, Texture2D bgIcon)
         {
-            GUIStyle bgStyle = EditorGUIUtility.isProSkin ? new GUIStyle(GUI.skin.GetStyle("Label")) : new GUIStyle(GUI.skin.GetStyle("WhiteLabel"));
+            var bgStyle = EditorGUIUtility.isProSkin ? new GUIStyle(GUI.skin.GetStyle("Label")) : new GUIStyle(GUI.skin.GetStyle("WhiteLabel"));
             bgStyle.padding = new RectOffset(10, 10, 10, 10);
             bgStyle.fontSize = 22;
             bgStyle.fontStyle = FontStyle.Bold;
@@ -529,7 +529,7 @@ namespace Photon.Pun
             EditorGUILayout.BeginHorizontal();
             GUILayout.FlexibleSpace();
             EditorGUILayout.EndHorizontal();
-            Rect scale = GUILayoutUtility.GetLastRect();
+            var scale = GUILayoutUtility.GetLastRect();
             scale.height = 44;
 
             GUI.Label(scale, title, bgStyle);
@@ -609,7 +609,7 @@ namespace Photon.Pun
         private AccountService serviceClient;
         protected virtual void RegisterWithEmail(string email)
         {
-            List<ServiceTypes> types = new List<ServiceTypes>();
+            var types = new List<ServiceTypes>();
             types.Add(ServiceTypes.Pun);
             if (PhotonEditorUtils.HasChat)
             {
@@ -658,7 +658,7 @@ namespace Photon.Pun
 
             if (res.ReturnCode == AccountServiceReturnCodes.Success)
             {
-                string key = ((int) ServiceTypes.Pun).ToString();
+                var key = ((int) ServiceTypes.Pun).ToString();
                 string appId;
                 if (res.ApplicationIds.TryGetValue(key, out appId))
                 {
@@ -720,7 +720,7 @@ namespace Photon.Pun
         // Pings PhotonServerSettings and makes it selected (show in Inspector)
         private static void HighlightSettings()
         {
-            ServerSettings serverSettings = (ServerSettings)Resources.Load(PhotonNetwork.ServerSettingsFileName, typeof(ServerSettings));
+            var serverSettings = (ServerSettings)Resources.Load(PhotonNetwork.ServerSettingsFileName, typeof(ServerSettings));
             Selection.objects = new UnityEngine.Object[] { serverSettings };
             EditorGUIUtility.PingObject(serverSettings);
         }
@@ -747,8 +747,8 @@ namespace Photon.Pun
 
 
             // check all "script assemblies" for methods with PunRPC attribute
-            List<string> additionalRpcs = new List<string>();       // not yet listed rpc-method names go here
-            List<string> allRpcs = new List<string>();
+            var additionalRpcs = new List<string>();       // not yet listed rpc-method names go here
+            var allRpcs = new List<string>();
 
 
             #if UNITY_2019_2_OR_NEWER
@@ -798,7 +798,7 @@ namespace Photon.Pun
             {
                 if (allRpcs.Count <= byte.MaxValue)
                 {
-                    bool clearList = EditorUtility.DisplayDialog(CurrentLang.IncorrectRPCListTitle, CurrentLang.IncorrectRPCListLabel, CurrentLang.RemoveOutdatedRPCsLabel, CurrentLang.CancelButton);
+                    var clearList = EditorUtility.DisplayDialog(CurrentLang.IncorrectRPCListTitle, CurrentLang.IncorrectRPCListLabel, CurrentLang.RemoveOutdatedRPCsLabel, CurrentLang.CancelButton);
                     if (clearList)
                     {
                         PhotonNetwork.PhotonServerSettings.RpcList.Clear();
@@ -828,10 +828,10 @@ namespace Photon.Pun
 
         public static void ClearRpcList()
         {
-            bool clearList = EditorUtility.DisplayDialog(CurrentLang.PUNNameReplaceTitle, CurrentLang.PUNNameReplaceLabel, CurrentLang.RPCListCleared, CurrentLang.CancelButton);
+            var clearList = EditorUtility.DisplayDialog(CurrentLang.PUNNameReplaceTitle, CurrentLang.PUNNameReplaceLabel, CurrentLang.RPCListCleared, CurrentLang.CancelButton);
             if (clearList)
             {
-                ServerSettings serverSettings = PhotonNetwork.PhotonServerSettings;
+                var serverSettings = PhotonNetwork.PhotonServerSettings;
 
                 Undo.RecordObject(serverSettings, "RPC-list cleared for PUN.");
                 serverSettings.RpcList.Clear();

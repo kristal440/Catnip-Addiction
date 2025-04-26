@@ -69,7 +69,7 @@ public class WaterEffectsHandler : MonoBehaviour
         _originalMaxSpeed = _playerController.maxSpeed;
         _originalMinJumpForce = _playerController.minJumpForce;
         _originalMaxJumpForce = _playerController.maxJumpForce;
-        _originalAcceleration = _playerController.acceleration;
+        _originalAcceleration = _playerController.Acceleration;
 
         if (waterEntrySplashPrefab == null)
             waterEntrySplashPrefab = waterSplashPrefab;
@@ -146,12 +146,12 @@ public class WaterEffectsHandler : MonoBehaviour
         _originalMaxSpeed = _playerController.maxSpeed;
         _originalMinJumpForce = _playerController.minJumpForce;
         _originalMaxJumpForce = _playerController.maxJumpForce;
-        _originalAcceleration = _playerController.acceleration;
+        _originalAcceleration = _playerController.Acceleration;
 
         _playerController.maxSpeed *= speedMultiplierInWater;
         _playerController.minJumpForce *= jumpMultiplierInWater;
         _playerController.maxJumpForce *= jumpMultiplierInWater;
-        _playerController.acceleration *= accelerationMultiplierInWater;
+        _playerController.Acceleration *= accelerationMultiplierInWater;
 
         if (affectCamera && _cameraController != null && (_photonView.IsMine || _spectatorModeManager.IsSpectating))
             _cameraController.EnterWater();
@@ -162,7 +162,7 @@ public class WaterEffectsHandler : MonoBehaviour
         _playerController.maxSpeed = _originalMaxSpeed;
         _playerController.minJumpForce = _originalMinJumpForce;
         _playerController.maxJumpForce = _originalMaxJumpForce;
-        _playerController.acceleration = _originalAcceleration;
+        _playerController.Acceleration = _originalAcceleration;
 
         if (affectCamera && _cameraController != null && (_photonView.IsMine || _spectatorModeManager.IsSpectating))
             _cameraController.ExitWater();

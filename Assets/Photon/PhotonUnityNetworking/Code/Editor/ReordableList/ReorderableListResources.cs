@@ -170,10 +170,10 @@ namespace Photon.Pun
             var skin = EditorGUIUtility.isProSkin ? s_DarkSkin : s_LightSkin;
             s_Cached = new Texture2D[ skin.Length ];
 
-            for( int i = 0; i < s_Cached.Length; ++i )
+            for( var i = 0; i < s_Cached.Length; ++i )
             {
                 // Get image data (PNG) from base64 encoded strings.
-                byte[] imageData = Convert.FromBase64String( skin[ i ] );
+                var imageData = Convert.FromBase64String( skin[ i ] );
 
                 // Gather image size from image data.
                 int texWidth, texHeight;

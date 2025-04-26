@@ -74,11 +74,11 @@ namespace Photon.Pun.UtilityScripts
             }
 
             //set up scaling
-            float rx = Screen.width / native_width;
-            float ry = Screen.height / native_height;
+            var rx = Screen.width / native_width;
+            var ry = Screen.height / native_height;
             GUI.matrix = Matrix4x4.TRS (new Vector3(0, 0, 0), Quaternion.identity, new Vector3 (rx, ry, 1));
 
-            Rect GuiOffsetRuntime = new Rect(this.GuiOffset);
+            var GuiOffsetRuntime = new Rect(this.GuiOffset);
 
             if (GuiOffsetRuntime.x < 0)
             {
@@ -132,7 +132,7 @@ namespace Photon.Pun.UtilityScripts
 
             if (EventsIn)
             {
-                int fragments = PhotonNetwork.NetworkingClient.LoadBalancingPeer.TrafficStatsIncoming.FragmentCommandCount;
+                var fragments = PhotonNetwork.NetworkingClient.LoadBalancingPeer.TrafficStatsIncoming.FragmentCommandCount;
                 GUILayout.Label("Events Received: "+PhotonNetwork.NetworkingClient.LoadBalancingPeer.TrafficStatsGameLevel.EventCount + " Fragments: "+fragments);
             }
 
@@ -143,7 +143,7 @@ namespace Photon.Pun.UtilityScripts
             }
             if (Others)
             {
-                foreach (Player player in PhotonNetwork.PlayerListOthers)
+                foreach (var player in PhotonNetwork.PlayerListOthers)
                 {
                     GUILayout.Label(PlayerToString(player));
                 }
@@ -152,7 +152,7 @@ namespace Photon.Pun.UtilityScripts
             {
                 if (PhotonNetwork.InRoom)
                 {
-                    int countExpected = (PhotonNetwork.CurrentRoom.ExpectedUsers != null) ? PhotonNetwork.CurrentRoom.ExpectedUsers.Length : 0;
+                    var countExpected = (PhotonNetwork.CurrentRoom.ExpectedUsers != null) ? PhotonNetwork.CurrentRoom.ExpectedUsers.Length : 0;
 
                     GUILayout.Label("Expected: " + countExpected + " " +
                                    ((PhotonNetwork.CurrentRoom.ExpectedUsers != null) ? string.Join(",", PhotonNetwork.CurrentRoom.ExpectedUsers) : "")

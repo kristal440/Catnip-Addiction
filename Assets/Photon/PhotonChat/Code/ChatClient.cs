@@ -318,7 +318,7 @@ namespace Photon.Chat
 
             this.NameServerAddress = this.chatPeer.NameServerAddress;
 
-            bool isConnecting = this.chatPeer.Connect(this.NameServerAddress, this.ProxyServerAddress, "NameServer", null);
+            var isConnecting = this.chatPeer.Connect(this.NameServerAddress, this.ProxyServerAddress, "NameServer", null);
             if (isConnecting)
             {
                 this.State = ChatState.ConnectingToNameServer;
@@ -464,7 +464,7 @@ namespace Photon.Chat
                 return false;
             }
 
-            for (int i = 0; i < channels.Length; i++)
+            for (var i = 0; i < channels.Length; i++)
             {
                 if (string.IsNullOrEmpty(channels[i]))
                 {
@@ -485,7 +485,7 @@ namespace Photon.Chat
                 return false;
             }
 
-            Dictionary<byte, object> opParameters = new Dictionary<byte, object>
+            var opParameters = new Dictionary<byte, object>
             {
                 { ChatParameterCode.Channels, channels },
                 { ChatParameterCode.MsgIds,  lastMsgIds},
@@ -561,7 +561,7 @@ namespace Photon.Chat
                 return false;
             }
 
-            foreach (string ch in channels)
+            foreach (var ch in channels)
             {
                 this.PublicChannelsUnsubscribing.Add(ch);
             }
@@ -607,7 +607,7 @@ namespace Photon.Chat
                 return false;
             }
 
-            Dictionary<byte, object> parameters = new Dictionary<byte, object>
+            var parameters = new Dictionary<byte, object>
                 {
                     { (byte)ChatParameterCode.Channel, channelName },
                     { (byte)ChatParameterCode.Message, message }
@@ -670,7 +670,7 @@ namespace Photon.Chat
                 return false;
             }
 
-            Dictionary<byte, object> parameters = new Dictionary<byte, object>
+            var parameters = new Dictionary<byte, object>
                 {
                     { ChatParameterCode.UserId, target },
                     { ChatParameterCode.Message, message }
@@ -709,7 +709,7 @@ namespace Photon.Chat
                 return false;
             }
 
-            Dictionary<byte, object> parameters = new Dictionary<byte, object>
+            var parameters = new Dictionary<byte, object>
                 {
                     { ChatParameterCode.Status, status },
                 };
@@ -814,7 +814,7 @@ namespace Photon.Chat
                 return false;
             }
 
-            Dictionary<byte, object> parameters = new Dictionary<byte, object>
+            var parameters = new Dictionary<byte, object>
                 {
                     { ChatParameterCode.Friends, friends },
                 };
@@ -892,7 +892,7 @@ namespace Photon.Chat
                 return false;
             }
 
-            Dictionary<byte, object> parameters = new Dictionary<byte, object>
+            var parameters = new Dictionary<byte, object>
                 {
                     { ChatParameterCode.Friends, friends },
                 };
@@ -944,7 +944,7 @@ namespace Photon.Chat
         /// Private channels exist only when at least one message is exchanged with the target user privately.</remarks>
         public bool TryGetChannel(string channelName, out ChatChannel channel)
         {
-            bool found = false;
+            var found = false;
             found = this.PublicChannels.TryGetValue(channelName, out channel);
             if (found) return true;
 
@@ -965,7 +965,7 @@ namespace Photon.Chat
             {
                 return false;
             }
-            string channelName = this.GetPrivateChannelNameByUser(userId);
+            var channelName = this.GetPrivateChannelNameByUser(userId);
             return this.TryGetChannel(channelName, true, out channel);
         }
 
@@ -1118,7 +1118,7 @@ namespace Photon.Chat
                             break;
                         default:
                             // unexpected disconnect, we log warning and stacktrace
-                            string stacktrace = string.Empty;
+                            var stacktrace = string.Empty;
                             #if DEBUG && !NETFX_CORE
                             stacktrace = new System.Diagnostics.StackTrace(true).ToString();
                             #endif
@@ -1232,7 +1232,7 @@ namespace Photon.Chat
 
         private bool SendChannelOperation(string[] channels, byte operation, int historyLength)
         {
-            Dictionary<byte, object> opParameters = new Dictionary<byte, object> { { (byte)ChatParameterCode.Channels, channels } };
+            var opParameters = new Dictionary<byte, object> { { (byte)ChatParameterCode.Channels, channels } };
 
             if (historyLength != 0)
             {
@@ -1246,14 +1246,14 @@ namespace Photon.Chat
         {
             //Console.WriteLine(SupportClass.DictionaryToString(eventData.Parameters));
 
-            object message = (object)eventData.Parameters[(byte)ChatParameterCode.Message];
-            string sender = (string)eventData.Parameters[(byte)ChatParameterCode.Sender];
-            int msgId = (int)eventData.Parameters[ChatParameterCode.MsgId];
+            var message = (object)eventData.Parameters[(byte)ChatParameterCode.Message];
+            var sender = (string)eventData.Parameters[(byte)ChatParameterCode.Sender];
+            var msgId = (int)eventData.Parameters[ChatParameterCode.MsgId];
 
             string channelName;
             if (this.UserId != null && this.UserId.Equals(sender))
             {
-                string target = (string)eventData.Parameters[(byte)ChatParameterCode.UserId];
+                var target = (string)eventData.Parameters[(byte)ChatParameterCode.UserId];
                 channelName = this.GetPrivateChannelNameByUser(target);
             }
             else
@@ -1276,10 +1276,10 @@ namespace Photon.Chat
 
         private void HandleChatMessagesEvent(EventData eventData)
         {
-            object[] messages = (object[])eventData.Parameters[(byte)ChatParameterCode.Messages];
-            string[] senders = (string[])eventData.Parameters[(byte)ChatParameterCode.Senders];
-            string channelName = (string)eventData.Parameters[(byte)ChatParameterCode.Channel];
-            int lastMsgId = (int)eventData.Parameters[ChatParameterCode.MsgId];
+            var messages = (object[])eventData.Parameters[(byte)ChatParameterCode.Messages];
+            var senders = (string[])eventData.Parameters[(byte)ChatParameterCode.Senders];
+            var channelName = (string)eventData.Parameters[(byte)ChatParameterCode.Channel];
+            var lastMsgId = (int)eventData.Parameters[ChatParameterCode.MsgId];
 
             ChatChannel channel;
             if (!this.PublicChannels.TryGetValue(channelName, out channel))
@@ -1297,13 +1297,13 @@ namespace Photon.Chat
 
         private void HandleSubscribeEvent(EventData eventData)
         {
-            string[] channelsInResponse = (string[])eventData.Parameters[ChatParameterCode.Channels];
-            bool[] results = (bool[])eventData.Parameters[ChatParameterCode.SubscribeResults];
-            for (int i = 0; i < channelsInResponse.Length; i++)
+            var channelsInResponse = (string[])eventData.Parameters[ChatParameterCode.Channels];
+            var results = (bool[])eventData.Parameters[ChatParameterCode.SubscribeResults];
+            for (var i = 0; i < channelsInResponse.Length; i++)
             {
                 if (results[i])
                 {
-                    string channelName = channelsInResponse[i];
+                    var channelName = channelsInResponse[i];
                     ChatChannel channel;
                     if (!this.PublicChannels.TryGetValue(channelName, out channel))
                     {
@@ -1314,7 +1314,7 @@ namespace Photon.Chat
                     object temp;
                     if (eventData.Parameters.TryGetValue(ChatParameterCode.Properties, out temp))
                     {
-                        Dictionary<object, object> channelProperties = temp as Dictionary<object, object>;
+                        var channelProperties = temp as Dictionary<object, object>;
                         channel.ReadChannelProperties(channelProperties);
                     }
                     if (channel.PublishSubscribers) // or maybe remove check & always add anyway?
@@ -1323,7 +1323,7 @@ namespace Photon.Chat
                     }
                     if (eventData.Parameters.TryGetValue(ChatParameterCode.ChannelSubscribers, out temp))
                     {
-                        string[] subscribers = temp as string[];
+                        var subscribers = temp as string[];
                         channel.AddSubscribers(subscribers);
                     }
                     #if CHAT_EXTENDED
@@ -1346,10 +1346,10 @@ namespace Photon.Chat
 
         private void HandleUnsubscribeEvent(EventData eventData)
         {
-            string[] channelsInRequest = (string[])eventData[ChatParameterCode.Channels];
-            for (int i = 0; i < channelsInRequest.Length; i++)
+            var channelsInRequest = (string[])eventData[ChatParameterCode.Channels];
+            for (var i = 0; i < channelsInRequest.Length; i++)
             {
-                string channelName = channelsInRequest[i];
+                var channelName = channelsInRequest[i];
                 this.PublicChannels.Remove(channelName);
                 this.PublicChannelsUnsubscribing.Remove(channelName);
             }
@@ -1393,7 +1393,7 @@ namespace Photon.Chat
                     }
                     if (operationResponse.Parameters.ContainsKey(ParameterCode.UserId))
                     {
-                        string incomingId = operationResponse.Parameters[ParameterCode.UserId] as string;
+                        var incomingId = operationResponse.Parameters[ParameterCode.UserId] as string;
                         if (!string.IsNullOrEmpty(incomingId))
                         {
                             this.UserId = incomingId;
@@ -1451,11 +1451,11 @@ namespace Photon.Chat
 
         private void HandleStatusUpdate(EventData eventData)
         {
-            string user = (string)eventData.Parameters[ChatParameterCode.Sender];
-            int status = (int)eventData.Parameters[ChatParameterCode.Status];
+            var user = (string)eventData.Parameters[ChatParameterCode.Sender];
+            var status = (int)eventData.Parameters[ChatParameterCode.Status];
 
             object message = null;
-            bool gotMessage = eventData.Parameters.ContainsKey(ChatParameterCode.Message);
+            var gotMessage = eventData.Parameters.ContainsKey(ChatParameterCode.Message);
             if (gotMessage)
             {
                 message = eventData.Parameters[ChatParameterCode.Message];
@@ -1507,7 +1507,7 @@ namespace Photon.Chat
                 }
                 else
                 {
-                    Dictionary<byte, object> opParameters = new Dictionary<byte, object> { { (byte)ChatParameterCode.Secret, this.AuthValues.Token } };
+                    var opParameters = new Dictionary<byte, object> { { (byte)ChatParameterCode.Secret, this.AuthValues.Token } };
                     if (this.PrivateChatHistoryLength > -1)
                     {
                         opParameters[(byte)ChatParameterCode.HistoryLength] = this.PrivateChatHistoryLength;
@@ -1528,8 +1528,8 @@ namespace Photon.Chat
 
         private void HandleUserUnsubscribedEvent(EventData eventData)
         {
-            string channelName = eventData.Parameters[ChatParameterCode.Channel] as string;
-            string userId = eventData.Parameters[ChatParameterCode.UserId] as string;
+            var channelName = eventData.Parameters[ChatParameterCode.Channel] as string;
+            var userId = eventData.Parameters[ChatParameterCode.UserId] as string;
             ChatChannel channel;
             if (this.PublicChannels.TryGetValue(channelName, out channel))
             {
@@ -1560,8 +1560,8 @@ namespace Photon.Chat
 
         private void HandleUserSubscribedEvent(EventData eventData)
         {
-            string channelName = eventData.Parameters[ChatParameterCode.Channel] as string;
-            string userId = eventData.Parameters[ChatParameterCode.UserId] as string;
+            var channelName = eventData.Parameters[ChatParameterCode.Channel] as string;
+            var userId = eventData.Parameters[ChatParameterCode.UserId] as string;
             ChatChannel channel;
             if (this.PublicChannels.TryGetValue(channelName, out channel))
             {
@@ -1621,8 +1621,8 @@ namespace Photon.Chat
             {
                 creationOptions = ChannelCreationOptions.Default;
             }
-            int maxSubscribers = creationOptions.MaxSubscribers;
-            bool publishSubscribers = creationOptions.PublishSubscribers;
+            var maxSubscribers = creationOptions.MaxSubscribers;
+            var publishSubscribers = creationOptions.PublishSubscribers;
             if (maxSubscribers < 0)
             {
                 if (this.DebugOut >= DebugLevel.ERROR)
@@ -1687,7 +1687,7 @@ namespace Photon.Chat
                 }
             }
             #endif
-            Dictionary<byte, object> opParameters = new Dictionary<byte, object> { { ChatParameterCode.Channels, new[] { channel } } };
+            var opParameters = new Dictionary<byte, object> { { ChatParameterCode.Channels, new[] { channel } } };
             if (messagesFromHistory != 0)
             {
                 opParameters.Add(ChatParameterCode.HistoryLength, messagesFromHistory);

@@ -84,7 +84,7 @@ namespace Photon.Pun.UtilityScripts
                     #endif
                     if (instance == null)
                     {
-                        GameObject obj = new GameObject();
+                        var obj = new GameObject();
                         obj.name = "PhotonTeamsManager";
                         instance = obj.AddComponent<PhotonTeamsManager>();
                     }
@@ -126,7 +126,7 @@ namespace Photon.Pun.UtilityScripts
             teamsByCode = new Dictionary<byte, PhotonTeam>(teamsList.Count);
             teamsByName = new Dictionary<string, PhotonTeam>(teamsList.Count);
             playersPerTeam = new Dictionary<byte, HashSet<Player>>(teamsList.Count);
-            for (int i = 0; i < teamsList.Count; i++)
+            for (var i = 0; i < teamsList.Count; i++)
             {
                 teamsByCode[teamsList[i].Code] = teamsList[i];
                 teamsByName[teamsList[i].Name] = teamsList[i];
@@ -155,7 +155,7 @@ namespace Photon.Pun.UtilityScripts
             {
                 if (temp == null)
                 {
-                    foreach (byte code in playersPerTeam.Keys)
+                    foreach (var code in playersPerTeam.Keys)
                     {
                         if (playersPerTeam[code].Remove(targetPlayer))
                         {
@@ -169,9 +169,9 @@ namespace Photon.Pun.UtilityScripts
                 } 
                 else if (temp is byte)
                 {
-                    byte teamCode = (byte) temp;
+                    var teamCode = (byte) temp;
                     // check if player switched teams, remove from previous team 
-                    foreach (byte code in playersPerTeam.Keys)
+                    foreach (var code in playersPerTeam.Keys)
                     {
                         if (code == teamCode)
                         {
@@ -186,7 +186,7 @@ namespace Photon.Pun.UtilityScripts
                             break;
                         }
                     }
-                    PhotonTeam team = teamsByCode[teamCode];
+                    var team = teamsByCode[teamCode];
                     if (!playersPerTeam[teamCode].Add(targetPlayer))
                     {
                         Debug.LogWarningFormat("Unexpected situation while setting team {0} for player {1}, updating teams for all", team, targetPlayer);
@@ -211,7 +211,7 @@ namespace Photon.Pun.UtilityScripts
             {
                 return;
             }
-            PhotonTeam team = otherPlayer.GetPhotonTeam();
+            var team = otherPlayer.GetPhotonTeam();
             if (team != null && !playersPerTeam[team.Code].Remove(otherPlayer))
             {
                 Debug.LogWarningFormat("Unexpected situation while removing player {0} who left from team {1}, updating teams for all", otherPlayer, team);
@@ -222,7 +222,7 @@ namespace Photon.Pun.UtilityScripts
 
         void IInRoomCallbacks.OnPlayerEnteredRoom(Player newPlayer)
         {
-            PhotonTeam team = newPlayer.GetPhotonTeam();
+            var team = newPlayer.GetPhotonTeam();
             if (team == null)
             {
                 return;
@@ -255,10 +255,10 @@ namespace Photon.Pun.UtilityScripts
         private void UpdateTeams()
         {
             this.ClearTeams();
-            for (int i = 0; i < PhotonNetwork.PlayerList.Length; i++)
+            for (var i = 0; i < PhotonNetwork.PlayerList.Length; i++)
             {
-                Player player = PhotonNetwork.PlayerList[i];
-                PhotonTeam playerTeam = player.GetPhotonTeam();
+                var player = PhotonNetwork.PlayerList[i];
+                var playerTeam = player.GetPhotonTeam();
                 if (playerTeam != null)
                 {
                     playersPerTeam[playerTeam.Code].Add(player);
@@ -326,7 +326,7 @@ namespace Photon.Pun.UtilityScripts
             if (this.playersPerTeam.TryGetValue(code, out players))
             {
                 members = new Player[players.Count];
-                int i = 0;
+                var i = 0;
                 foreach (var player in players)
                 {
                     members[i] = player;
@@ -383,7 +383,7 @@ namespace Photon.Pun.UtilityScripts
             {
                 return false;
             }
-            PhotonTeam team = player.GetPhotonTeam();
+            var team = player.GetPhotonTeam();
             if (team == null)
             {
                 return false;
@@ -398,7 +398,7 @@ namespace Photon.Pun.UtilityScripts
                     this.UpdateTeams();
                 }
                 teamMates = new Player[players.Count - 1];
-                int i = 0;
+                var i = 0;
                 foreach (var p in players)
                 {
                     if (p.Equals(player))
@@ -522,7 +522,7 @@ namespace Photon.Pun.UtilityScripts
                 Debug.LogWarning("JoinTeam failed: PhotonTeam provided is null");
                 return false;
             }
-            PhotonTeam currentTeam = player.GetPhotonTeam();
+            var currentTeam = player.GetPhotonTeam();
             if (currentTeam != null)
             {
                 Debug.LogWarningFormat("JoinTeam failed: player ({0}) is already joined to a team ({1}), call SwitchTeam instead", player, team);
@@ -566,7 +566,7 @@ namespace Photon.Pun.UtilityScripts
                 Debug.LogWarning("SwitchTeam failed: PhotonTeam provided is null");
                 return false;
             }
-            PhotonTeam currentTeam = player.GetPhotonTeam();
+            var currentTeam = player.GetPhotonTeam();
             if (currentTeam == null)
             {
                 Debug.LogWarningFormat("SwitchTeam failed: player ({0}) was not joined to any team, call JoinTeam instead", player);
@@ -610,7 +610,7 @@ namespace Photon.Pun.UtilityScripts
         /// <returns>If the leaving team request is queued to be sent to the server or done in case offline or not joined to a room yet.</returns>
         public static bool LeaveCurrentTeam(this Player player)
         {
-            PhotonTeam currentTeam = player.GetPhotonTeam();
+            var currentTeam = player.GetPhotonTeam();
             if (currentTeam == null)
             {
                 Debug.LogWarningFormat("LeaveCurrentTeam failed: player ({0}) was not joined to any team", player);

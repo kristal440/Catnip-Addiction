@@ -53,7 +53,7 @@ namespace Photon.Pun.UtilityScripts
         public void Start()
         {
             PlayersPerTeam = new Dictionary<Team, List<Player>>();
-            Array enumVals = Enum.GetValues(typeof(Team));
+            var enumVals = Enum.GetValues(typeof(Team));
             foreach (var enumVal in enumVals)
             {
                 PlayersPerTeam[(Team)enumVal] = new List<Player>();
@@ -101,16 +101,16 @@ namespace Photon.Pun.UtilityScripts
         [Obsolete("do not call this.")]
         public void UpdateTeams()
         {
-            Array enumVals = Enum.GetValues(typeof(Team));
+            var enumVals = Enum.GetValues(typeof(Team));
             foreach (var enumVal in enumVals)
             {
                 PlayersPerTeam[(Team)enumVal].Clear();
             }
 
-            for (int i = 0; i < PhotonNetwork.PlayerList.Length; i++)
+            for (var i = 0; i < PhotonNetwork.PlayerList.Length; i++)
             {
-                Player player = PhotonNetwork.PlayerList[i];
-                Team playerTeam = player.GetTeam();
+                var player = PhotonNetwork.PlayerList[i];
+                var playerTeam = player.GetTeam();
                 PlayersPerTeam[playerTeam].Add(player);
             }
         }
@@ -146,7 +146,7 @@ namespace Photon.Pun.UtilityScripts
                 return;
             }
 
-            PunTeams.Team currentTeam = player.GetTeam();
+            var currentTeam = player.GetTeam();
             if (currentTeam != team)
             {
                 player.SetCustomProperties(new Hashtable() { { PunTeams.TeamPlayerProp, (byte)team } });

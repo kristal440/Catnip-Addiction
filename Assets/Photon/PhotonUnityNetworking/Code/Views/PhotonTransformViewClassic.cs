@@ -216,7 +216,7 @@ namespace Photon.Pun
 
         Vector3 GetOldestStoredNetworkPosition()
         {
-            Vector3 oldPosition = m_NetworkPosition;
+            var oldPosition = m_NetworkPosition;
 
             if (m_OldNetworkPositions.Count > 0)
             {
@@ -247,7 +247,7 @@ namespace Photon.Pun
         /// <returns>The new position.</returns>
         public Vector3 UpdatePosition(Vector3 currentPosition)
         {
-            Vector3 targetPosition = GetNetworkPosition() + GetExtrapolatedPositionOffset();
+            var targetPosition = GetNetworkPosition() + GetExtrapolatedPositionOffset();
 
             switch (m_Model.InterpolateOption)
             {
@@ -273,7 +273,7 @@ namespace Photon.Pun
 
                     // knowing the last (incoming) position and the one before, we can guess a speed.
                     // note that the speed is times sendRateOnSerialize! we send X updates/sec, so our estimate has to factor that in.
-                    float estimatedSpeed = (Vector3.Distance(m_NetworkPosition, GetOldestStoredNetworkPosition()) / m_OldNetworkPositions.Count) * PhotonNetwork.SerializationRate;
+                    var estimatedSpeed = (Vector3.Distance(m_NetworkPosition, GetOldestStoredNetworkPosition()) / m_OldNetworkPositions.Count) * PhotonNetwork.SerializationRate;
 
                     // move towards the targetPosition (including estimates, if that's active) with the speed calculated from the last updates.
                     currentPosition = Vector3.MoveTowards(currentPosition, targetPosition, Time.deltaTime * estimatedSpeed);
@@ -323,28 +323,28 @@ namespace Photon.Pun
         /// <returns>Estimated position of the remote object</returns>
         public Vector3 GetExtrapolatedPositionOffset()
         {
-            float timePassed = (float)(PhotonNetwork.Time - m_LastSerializeTime);
+            var timePassed = (float)(PhotonNetwork.Time - m_LastSerializeTime);
 
             if (m_Model.ExtrapolateIncludingRoundTripTime == true)
             {
                 timePassed += (float)PhotonNetwork.GetPing() / 1000f;
             }
 
-            Vector3 extrapolatePosition = Vector3.zero;
+            var extrapolatePosition = Vector3.zero;
 
             switch (m_Model.ExtrapolateOption)
             {
                 case PhotonTransformViewPositionModel.ExtrapolateOptions.SynchronizeValues:
-                    Quaternion turnRotation = Quaternion.Euler(0, m_SynchronizedTurnSpeed * timePassed, 0);
+                    var turnRotation = Quaternion.Euler(0, m_SynchronizedTurnSpeed * timePassed, 0);
                     extrapolatePosition = turnRotation * (m_SynchronizedSpeed * timePassed);
                     break;
                 case PhotonTransformViewPositionModel.ExtrapolateOptions.FixedSpeed:
-                    Vector3 moveDirection = (m_NetworkPosition - GetOldestStoredNetworkPosition()).normalized;
+                    var moveDirection = (m_NetworkPosition - GetOldestStoredNetworkPosition()).normalized;
 
                     extrapolatePosition = moveDirection * m_Model.ExtrapolateSpeed * timePassed;
                     break;
                 case PhotonTransformViewPositionModel.ExtrapolateOptions.EstimateSpeedAndTurn:
-                    Vector3 moveDelta = (m_NetworkPosition - GetOldestStoredNetworkPosition()) * PhotonNetwork.SerializationRate;
+                    var moveDelta = (m_NetworkPosition - GetOldestStoredNetworkPosition()) * PhotonNetwork.SerializationRate;
                     extrapolatePosition = moveDelta * timePassed;
                     break;
             }
@@ -387,7 +387,7 @@ namespace Photon.Pun
 
         void DeserializeData(PhotonStream stream, PhotonMessageInfo info)
         {
-            Vector3 readPosition = (Vector3)stream.ReceiveNext();
+            var readPosition = (Vector3)stream.ReceiveNext();
             if (m_Model.ExtrapolateOption == PhotonTransformViewPositionModel.ExtrapolateOptions.SynchronizeValues ||
                 m_Model.InterpolateOption == PhotonTransformViewPositionModel.InterpolateOptions.SynchronizeValues)
             {

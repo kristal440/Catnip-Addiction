@@ -39,7 +39,7 @@ namespace Photon.Pun
         public static T GetParentComponent<T>(this Transform t)
             where T : Component
         {
-            T found = t.GetComponent<T>();
+            var found = t.GetComponent<T>();
 
             if (found)
                 return found;
@@ -68,7 +68,7 @@ namespace Photon.Pun
 
             while (t != null)
             {
-                T obj = t.GetComponent<T>();
+                var obj = t.GetComponent<T>();
                 if (obj)
                     list.Add(obj);
 
@@ -133,7 +133,7 @@ namespace Photon.Pun
         {
             T found = null;
 
-            Transform node = t;
+            var node = t;
             do
             {
 
@@ -238,7 +238,7 @@ namespace Photon.Pun
             if (nodeStack.Count == 0)
                 return;
 
-            System.Type type = typeof(T);
+            var type = typeof(T);
 
             // Acquire the right searchlist from our pool
             List<T> searchList;
@@ -273,7 +273,7 @@ namespace Photon.Pun
             where T : class
             where NestedT : class
         {
-            System.Type type = typeof(T);
+            var type = typeof(T);
 
             // Temp lists are also recycled. Get/Create a reusable List of this type.
             List<T> searchList;
@@ -344,7 +344,7 @@ namespace Photon.Pun
         public static List<T> GetNestedComponentsInChildren<T>(this Transform t, List<T> list, bool includeInactive = true, params System.Type[] stopOn)
             where T : class
         {
-            System.Type type = typeof(T);
+            var type = typeof(T);
 
             // Temp lists are also recycled. Get/Create a reusable List of this type.
             List<T> searchList;
@@ -368,7 +368,7 @@ namespace Photon.Pun
                     continue;
 
                 // ignore nested DontRecurseOnT
-                bool stopRecurse = false;
+                var stopRecurse = false;
                 for (int s = 0, scnt = stopOn.Length; s < scnt; ++s)
                 {
                     if (!ReferenceEquals(child.GetComponent(stopOn[s]), null))
@@ -402,7 +402,7 @@ namespace Photon.Pun
                         continue;
 
                     // ignore nested NestedT
-                    bool stopRecurse = false;
+                    var stopRecurse = false;
                     for (int s = 0, scnt = stopOn.Length; s < scnt; ++s)
                     {
                         if (!ReferenceEquals(child.GetComponent(stopOn[s]), null))
@@ -442,7 +442,7 @@ namespace Photon.Pun
             if (!includeInactive && !t.gameObject.activeSelf)
                 return;
 
-            System.Type searchType = typeof(SearchT);
+            var searchType = typeof(SearchT);
 
             // Temp lists are also recycled. Get/Create a reusable List of this type.
             List<SearchT> searchList;
