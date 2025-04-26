@@ -5,6 +5,7 @@ using Photon.Pun;
 using Photon.Realtime;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 using Hashtable = ExitGames.Client.Photon.Hashtable;
 
@@ -16,7 +17,6 @@ public class Launcher : MonoBehaviourPunCallbacks
 {
     private bool _isConnecting;
     private List<string> _roomLst;
-    private string _selectedMapName = "GameScene_Map1_Multi";
 
     [Header("Error popup")]
     [SerializeField] [Tooltip("Panel displayed when errors occur")] private GameObject errorPanel;
@@ -33,6 +33,7 @@ public class Launcher : MonoBehaviourPunCallbacks
     [SerializeField] [Tooltip("Slider controlling maximum player count")] private Slider slider;
 
     [Header("Map Selection")]
+    [SerializeField] [Tooltip("Name of the default map")] private string selectedMapName = "GameScene_Map1_Multi";
     [SerializeField] [Tooltip("Panel for selecting maps")] private GameObject mapListPanel;
     [SerializeField] [Tooltip("Manager handling map selection functionality")] private MapSelectionManager mapSelectionManager;
     [SerializeField] [Tooltip("UI elements to hide when map selector is open")] private List<GameObject> objectsToDisableWhenMapSelectorOpen = new();
@@ -110,7 +111,7 @@ public class Launcher : MonoBehaviourPunCallbacks
     {
         SetNickname();
 
-        var mapToLoad = _selectedMapName;
+        var mapToLoad = selectedMapName;
         if (PhotonNetwork.CurrentRoom.CustomProperties.TryGetValue("map", out var mapName))
             mapToLoad = (string)mapName;
 
@@ -199,7 +200,7 @@ public class Launcher : MonoBehaviourPunCallbacks
 
         var customRoomProperties = new Hashtable
         {
-            { "map", _selectedMapName },
+            { "map", selectedMapName },
             { "gameStarted", false }
         };
 
@@ -247,13 +248,13 @@ public class Launcher : MonoBehaviourPunCallbacks
     {
         DisableObjectsDuringMapSelection();
         mapListPanel.SetActive(true);
-        mapSelectionManager.Initialize(_selectedMapName);
+        mapSelectionManager.Initialize(selectedMapName);
     }
 
     /// Handles map selection event from the map selection manager
     private void OnMapSelected(string mapSceneName, string mapDisplayName)
     {
-        _selectedMapName = mapSceneName;
+        selectedMapName = mapSceneName;
         Debug.Log($"Selected map: {mapSceneName} ({mapDisplayName})");
     }
 

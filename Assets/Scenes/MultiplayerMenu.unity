@@ -1406,7 +1406,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 304625506192927063, guid: bd3949afda80f61cc9e76170b09b8a04, type: 3}
       propertyPath: m_Name
-      value: mapEntryPrefab (3)
+      value: GameScene_Map5_Multi
       objectReference: {fileID: 0}
     - target: {fileID: 304625506192927063, guid: bd3949afda80f61cc9e76170b09b8a04, type: 3}
       propertyPath: m_IsActive
@@ -3807,7 +3807,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 304625506192927063, guid: bd3949afda80f61cc9e76170b09b8a04, type: 3}
       propertyPath: m_Name
-      value: mapEntryPrefab (2)
+      value: GameScene_Map4_Multi
       objectReference: {fileID: 0}
     - target: {fileID: 304625506192927063, guid: bd3949afda80f61cc9e76170b09b8a04, type: 3}
       propertyPath: m_IsActive
@@ -5018,9 +5018,9 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 1166678750}
   - {fileID: 977088769}
   - {fileID: 1646147930}
+  - {fileID: 1166678750}
   - {fileID: 285853016}
   - {fileID: 230529690}
   - {fileID: 2118440934}
@@ -8650,6 +8650,7 @@ MonoBehaviour:
   playerNameInputField: {fileID: 1760589731}
   roomNameInputField: {fileID: 229658538}
   slider: {fileID: 1882189937}
+  selectedMapName: GameScene_Map2_Multi
   mapListPanel: {fileID: 1193840017}
   mapSelectionManager: {fileID: 832149949}
   objectsToDisableWhenMapSelectorOpen: []
@@ -8711,6 +8712,8 @@ MonoBehaviour:
     previewImage: {fileID: 6395251837119597512, guid: c87f16d82cc480e01ae4081cfd9bf82c, type: 3}
   - mapSceneName: GameScene_Map2_Multi
     previewImage: {fileID: -4042472012692577932, guid: 19d95fc9f9cc50116b9556b40cbce176, type: 3}
+  - mapSceneName: GameScene_Map3_Multi
+    previewImage: {fileID: 2155831721816894033, guid: f426606b4aadc308991ddd231546fb23, type: 3}
   skipMapsNotInBuild: 1
 --- !u!1 &838320657
 GameObject:
@@ -13010,11 +13013,11 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 304625506192927063, guid: bd3949afda80f61cc9e76170b09b8a04, type: 3}
       propertyPath: m_Name
-      value: mapEntryPrefab (1)
+      value: GameScene_Map3_Multi
       objectReference: {fileID: 0}
     - target: {fileID: 304625506192927063, guid: bd3949afda80f61cc9e76170b09b8a04, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 344573408014063480, guid: bd3949afda80f61cc9e76170b09b8a04, type: 3}
       propertyPath: m_Pivot.x
@@ -13096,6 +13099,14 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 1372168443632368211, guid: bd3949afda80f61cc9e76170b09b8a04, type: 3}
+      propertyPath: m_Color.a
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1372168443632368211, guid: bd3949afda80f61cc9e76170b09b8a04, type: 3}
+      propertyPath: m_Color.b
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 1622943122347019711, guid: bd3949afda80f61cc9e76170b09b8a04, type: 3}
       propertyPath: m_AnchorMax.y
       value: 1
@@ -13144,6 +13155,18 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: -51.5
       objectReference: {fileID: 0}
+    - target: {fileID: 2354241325926651229, guid: bd3949afda80f61cc9e76170b09b8a04, type: 3}
+      propertyPath: m_Color.b
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3869472203100065224, guid: bd3949afda80f61cc9e76170b09b8a04, type: 3}
+      propertyPath: m_Color.b
+      value: 0.78431374
+      objectReference: {fileID: 0}
+    - target: {fileID: 6537699752207153172, guid: bd3949afda80f61cc9e76170b09b8a04, type: 3}
+      propertyPath: m_Color.b
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 6824224252032660629, guid: bd3949afda80f61cc9e76170b09b8a04, type: 3}
       propertyPath: m_AnchorMax.y
       value: 1
@@ -13175,6 +13198,10 @@ PrefabInstance:
     - target: {fileID: 6899516322297460518, guid: bd3949afda80f61cc9e76170b09b8a04, type: 3}
       propertyPath: m_AnchoredPosition.y
       value: -51.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 7483161195402696563, guid: bd3949afda80f61cc9e76170b09b8a04, type: 3}
+      propertyPath: m_text
+      value: quick run
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
