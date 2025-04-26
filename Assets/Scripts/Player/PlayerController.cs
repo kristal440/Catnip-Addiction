@@ -477,6 +477,8 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
                 animator.SetBool(IsJumpQueued, true);
 
+                _rb.linearVelocity = new Vector2(0f, _rb.linearVelocity.y);
+
                 ExecuteJump(chargeToUse);
                 break;
             }
