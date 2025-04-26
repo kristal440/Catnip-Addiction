@@ -13,6 +13,26 @@ public class CloudManager : MonoBehaviour
     [SerializeField] [Tooltip("Total number of clouds to generate")] private int numberOfClouds = 15;
     [SerializeField] [Tooltip("Parent transform for all generated clouds")] private Transform parentTransform;
 
+    [Header("Visual Settings")]
+    [SerializeField] [Tooltip("Minimum alpha/transparency for clouds")] private float minAlpha = 0.5f;
+    [SerializeField] [Tooltip("Maximum alpha/transparency for clouds")] private float maxAlpha = 1.0f;
+    [SerializeField] [Tooltip("Color tint to apply to clouds")] private Color cloudTint = Color.white;
+    [SerializeField] [Tooltip("Whether to apply random color variations")] private bool useRandomColorVariation;
+    [SerializeField] [Tooltip("Minimum color variation (RGB)")] private float minColorVariation = 0.8f;
+    [SerializeField] [Tooltip("Maximum color variation (RGB)")] private float maxColorVariation = 1.0f;
+    [SerializeField] [Tooltip("Chance for a cloud to be flipped horizontally")] private float horizontalFlipChance = 0.5f;
+    [SerializeField] [Tooltip("Chance for a cloud to be flipped vertically")] private float verticalFlipChance = 0.2f;
+    [SerializeField] [Tooltip("Whether to apply random rotation to clouds")] private bool useRandomRotation;
+    [SerializeField] [Tooltip("Minimum rotation angle (degrees)")] private float minRotation = -15f;
+    [SerializeField] [Tooltip("Maximum rotation angle (degrees)")] private float maxRotation = 15f;
+
+    [Header("Shadow Settings")]
+    [SerializeField] [Tooltip("Whether to add shadows to clouds")] private bool useShadows = true;
+    [SerializeField] [Tooltip("Shadow color")] private Color shadowColor = new(0, 0, 0, 0.3f);
+    [SerializeField] [Tooltip("Shadow offset X")] private float shadowOffsetX = 0.2f;
+    [SerializeField] [Tooltip("Shadow offset Y")] private float shadowOffsetY = -0.2f;
+    [SerializeField] [Tooltip("Shadow sorting order offset from cloud")] private int shadowSortingOrderOffset = -1;
+
     [Header("Movement Settings")]
     [SerializeField] [Tooltip("Minimum movement speed for clouds")] private float minSpeed = 0.1f;
     [SerializeField] [Tooltip("Maximum movement speed for clouds")] private float maxSpeed = 0.5f;
@@ -41,7 +61,13 @@ public class CloudManager : MonoBehaviour
     private sealed class CloudData
     {
         public GameObject GameObject;
+        public GameObject ShadowObject;
         public float Speed;
+        public float Alpha;
+        public Color TintColor;
+        public bool FlippedHorizontally;
+        public bool FlippedVertically;
+        public float Rotation;
     }
 
     // Initializes camera, parent transform, player reference, and creates initial clouds
@@ -121,11 +147,27 @@ public class CloudManager : MonoBehaviour
         var cloud = new CloudData
         {
             GameObject = cloudObject,
-            Speed = Random.Range(minSpeed, maxSpeed)
+            Speed = Random.Range(minSpeed, maxSpeed),
+            Alpha = Random.Range(minAlpha, maxAlpha),
+            TintColor = GetRandomTintColor(),
+            FlippedHorizontally = Random.value < horizontalFlipChance,
+            FlippedVertically = Random.value < verticalFlipChance,
+            Rotation = useRandomRotation ? Random.Range(minRotation, maxRotation) : 0f
         };
 
         var scale = Random.Range(minScale, maxScale);
-        cloudObject.transform.localScale = new Vector3(scale, scale, 1f);
+        cloudObject.transform.localScale = new Vector3(
+            cloud.FlippedHorizontally ? -scale : scale,
+            cloud.FlippedVertically ? -scale : scale,
+            1f);
+
+        if (useRandomRotation)
+            cloudObject.transform.rotation = Quaternion.Euler(0, 0, cloud.Rotation);
+
+        ApplyVisualSettings(cloud);
+
+        if (useShadows)
+            CreateShadowForCloud(cloud, spriteRenderer.sprite);
 
         if (index >= 0)
             PositionCloudEvenly(cloud, index);
@@ -133,6 +175,25 @@ public class CloudManager : MonoBehaviour
             PositionCloudRandomly(cloud);
 
         _clouds.Add(cloud);
+    }
+
+    // Creates a shadow object for a cloud
+    private void CreateShadowForCloud(CloudData cloud, Sprite cloudSprite)
+    {
+        var shadowObject = new GameObject("Cloud_Shadow");
+        shadowObject.transform.SetParent(cloud.GameObject.transform);
+
+        var shadowRenderer = shadowObject.AddComponent<SpriteRenderer>();
+        shadowRenderer.sprite = cloudSprite;
+        shadowRenderer.sortingLayerName = sortingLayerName;
+        shadowRenderer.sortingOrder = baseSortingOrder + shadowSortingOrderOffset;
+        shadowRenderer.color = shadowColor;
+
+        shadowObject.transform.localPosition = new Vector3(shadowOffsetX, shadowOffsetY, 0);
+        shadowObject.transform.localScale = Vector3.one;
+        shadowObject.transform.localRotation = Quaternion.identity;
+
+        cloud.ShadowObject = shadowObject;
     }
 
     // Positions clouds evenly across the distribution width during initialization
@@ -229,16 +290,61 @@ public class CloudManager : MonoBehaviour
         }
     }
 
+    // Applies visual settings to a cloud
+    private static void ApplyVisualSettings(CloudData cloud)
+    {
+        var spriteRenderer = cloud.GameObject.GetComponent<SpriteRenderer>();
+        if (!spriteRenderer) return;
+
+        var finalColor = cloud.TintColor;
+        finalColor.a = cloud.Alpha;
+        spriteRenderer.color = finalColor;
+    }
+
+    // Gets a random color tint based on settings
+    private Color GetRandomTintColor()
+    {
+        if (!useRandomColorVariation)
+            return cloudTint;
+
+        return new Color(
+            cloudTint.r * Random.Range(minColorVariation, maxColorVariation),
+            cloudTint.g * Random.Range(minColorVariation, maxColorVariation),
+            cloudTint.b * Random.Range(minColorVariation, maxColorVariation),
+            cloudTint.a
+        );
+    }
+
     // Applies new random speed, scale, and sprite to a cloud
     private void RandomizeCloudProperties(CloudData cloud)
     {
         cloud.Speed = Random.Range(minSpeed, maxSpeed);
+        cloud.Alpha = Random.Range(minAlpha, maxAlpha);
+        cloud.TintColor = GetRandomTintColor();
+        cloud.FlippedHorizontally = Random.value < horizontalFlipChance;
+        cloud.FlippedVertically = Random.value < verticalFlipChance;
+        cloud.Rotation = useRandomRotation ? Random.Range(minRotation, maxRotation) : 0f;
 
         var scale = Random.Range(minScale, maxScale);
-        cloud.GameObject.transform.localScale = new Vector3(scale, scale, 1f);
+        cloud.GameObject.transform.localScale = new Vector3(
+            cloud.FlippedHorizontally ? -scale : scale,
+            cloud.FlippedVertically ? -scale : scale,
+            1f);
+
+        if (useRandomRotation)
+            cloud.GameObject.transform.rotation = Quaternion.Euler(0, 0, cloud.Rotation);
 
         var spriteRenderer = cloud.GameObject.GetComponent<SpriteRenderer>();
-        if (spriteRenderer)
-            spriteRenderer.sprite = cloudSprites[Random.Range(0, cloudSprites.Count)];
+        if (!spriteRenderer) return;
+
+        var newSprite = cloudSprites[Random.Range(0, cloudSprites.Count)];
+        spriteRenderer.sprite = newSprite;
+        ApplyVisualSettings(cloud);
+
+        if (!useShadows || !cloud.ShadowObject) return;
+
+        var shadowRenderer = cloud.ShadowObject.GetComponent<SpriteRenderer>();
+        if (shadowRenderer)
+            shadowRenderer.sprite = newSprite;
     }
 }
