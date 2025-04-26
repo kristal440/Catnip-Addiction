@@ -532,6 +532,7 @@ GameObject:
   m_Component:
   - component: {fileID: 48705945}
   - component: {fileID: 48705946}
+  - component: {fileID: 48705947}
   m_Layer: 0
   m_Name: MenuBackgroundSystem
   m_TagString: Untagged
@@ -574,6 +575,39 @@ MonoBehaviour:
   particleIntensity: 1
   transitionSpeed: 1.5
   menuCanvasGroup: {fileID: 9173803640405530109}
+--- !u!114 &48705947
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 48705944}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6b3e731ec95a423e88a3c51e75d26bee, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  cloudSprites:
+  - {fileID: 1991833948588684125, guid: 32735e263a0ce3ad29cd32c5001c4c16, type: 3}
+  - {fileID: -4053539982750107920, guid: 32735e263a0ce3ad29cd32c5001c4c16, type: 3}
+  - {fileID: -7936898829634126891, guid: 32735e263a0ce3ad29cd32c5001c4c16, type: 3}
+  - {fileID: 5759530782791945932, guid: 32735e263a0ce3ad29cd32c5001c4c16, type: 3}
+  - {fileID: 3125839181209662389, guid: 32735e263a0ce3ad29cd32c5001c4c16, type: 3}
+  - {fileID: 3204778827486154777, guid: 32735e263a0ce3ad29cd32c5001c4c16, type: 3}
+  numberOfClouds: 15
+  parentTransform: {fileID: 48705945}
+  minSpeed: 0.1
+  maxSpeed: 0.5
+  moveRight: 1
+  parallaxFactor: 0
+  minY: -3
+  maxY: 5
+  minScale: 3
+  maxScale: 4
+  distributionWidth: 100
+  sortingLayerName: Background
+  baseSortingOrder: -6
+  playerTag: Player
 --- !u!1 &65930536
 GameObject:
   m_ObjectHideFlags: 0
