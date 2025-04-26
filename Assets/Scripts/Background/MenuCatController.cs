@@ -35,7 +35,7 @@ public class MenuCatController : MonoBehaviour
     private Queue<GameObject> _inactiveCats;
     private float _spawnXPosition;
 
-    // Initialize components and references
+    /// Initialize components and references
     private void Awake()
     {
         _camera = Camera.main;
@@ -44,7 +44,7 @@ public class MenuCatController : MonoBehaviour
             backgroundController = GetComponent<MenuBackgroundController>();
     }
 
-    // Setup cat pool and initial spawn parameters
+    /// Setup cat pool and initial spawn parameters
     private void Start()
     {
         if (catPrefab == null)
@@ -61,7 +61,7 @@ public class MenuCatController : MonoBehaviour
             catSpawnInterval + catSpawnIntervalVariance);
     }
 
-    // Create pool of reusable cat objects
+    /// Create pool of reusable cat objects
     private void InitializeCatPool()
     {
         _inactiveCats = new Queue<GameObject>(poolSize);
@@ -74,14 +74,14 @@ public class MenuCatController : MonoBehaviour
         }
     }
 
-    // Determine the X position where cats will spawn off-screen
+    /// Determine the X position where cats will spawn off-screen
     private void CalculateSpawnPosition()
     {
         if (_camera != null)
             _spawnXPosition = _camera.ViewportToWorldPoint(new Vector3(0, 0, 0)).x - 2f;
     }
 
-    // Check spawn timer and trigger cat spawning
+    /// Check spawn timer and trigger cat spawning
     private void Update()
     {
         _timeSinceLastSpawn += Time.deltaTime;
@@ -94,7 +94,7 @@ public class MenuCatController : MonoBehaviour
             catSpawnInterval + catSpawnIntervalVariance);
     }
 
-    // Take a cat from the pool and set it up to run across the screen
+    /// Take a cat from the pool and set it up to run across the screen
     private void SpawnCat()
     {
         if (_inactiveCats.Count == 0)
@@ -127,7 +127,7 @@ public class MenuCatController : MonoBehaviour
         StartCoroutine(WaitForCatDeactivation(cat));
     }
 
-    // Return the cat to the pool once it's deactivated
+    /// Return the cat to the pool once it's deactivated
     private IEnumerator WaitForCatDeactivation(GameObject cat)
     {
         yield return new WaitUntil(() => !cat.activeInHierarchy);
@@ -135,7 +135,7 @@ public class MenuCatController : MonoBehaviour
         _inactiveCats.Enqueue(cat);
     }
 
-    // Request a menu transition from the background controller
+    /// Request a menu transition from the background controller
     public void TransitionToMenu(string menuName)
     {
         if (backgroundController != null)

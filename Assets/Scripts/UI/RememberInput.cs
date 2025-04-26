@@ -10,7 +10,7 @@ public class RememberInput : MonoBehaviour
     private TMP_InputField _inputField;
     private string _uniqueKey;
 
-    // Initializes component and sets up input field listeners
+    /// Initializes component and sets up input field listeners
     private void Awake()
     {
         _inputField = GetComponent<TMP_InputField>();
@@ -27,20 +27,20 @@ public class RememberInput : MonoBehaviour
         _inputField.onEndEdit.AddListener(SaveInputValue);
     }
 
-    // Loads saved input value on start
+    /// Loads saved input value on start
     private void Start()
     {
         LoadInputValue();
     }
 
-    // Saves input field value to PlayerPrefs
+    /// Saves input field value to PlayerPrefs
     private void SaveInputValue(string value)
     {
         PlayerPrefs.SetString(_uniqueKey, value);
         PlayerPrefs.Save();
     }
 
-    // Loads saved input value from PlayerPrefs if available
+    /// Loads saved input value from PlayerPrefs if available
     private void LoadInputValue()
     {
         if (!PlayerPrefs.HasKey(_uniqueKey)) return;
@@ -49,7 +49,7 @@ public class RememberInput : MonoBehaviour
         _inputField.text = savedValue;
     }
 
-    // Creates a unique path string based on the GameObject's hierarchy
+    /// Creates a unique path string based on the GameObject's hierarchy
     private static string GetFullPath(Transform transformObj)
     {
         var path = transformObj.name;
@@ -64,7 +64,7 @@ public class RememberInput : MonoBehaviour
         return path;
     }
 
-    // Removes listeners when component is destroyed
+    /// Removes listeners when component is destroyed
     private void OnDestroy()
     {
         if (_inputField == null) return;

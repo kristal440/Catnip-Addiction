@@ -14,19 +14,19 @@ public class RoomListController : MonoBehaviour, IScrollHandler
 
     private VerticalLayoutGroup _layoutGroup;
 
-    // Initializes component references
+    /// Initializes component references
     private void Start()
     {
         _layoutGroup = GetComponent<VerticalLayoutGroup>();
     }
 
-    // Updates card scales every frame based on position
+    /// Updates card scales every frame based on position
     private void Update()
     {
         UpdateCardScales();
     }
 
-    // Adjusts the scale of room cards based on their distance from viewport center
+    /// Adjusts the scale of room cards based on their distance from viewport center
     private void UpdateCardScales()
     {
         if (!_layoutGroup || !viewport) return;
@@ -47,7 +47,7 @@ public class RoomListController : MonoBehaviour, IScrollHandler
         }
     }
 
-    // Handles scroll events to update card scales during scrolling
+    /// Handles scroll events to update card scales during scrolling
     public void OnScroll(PointerEventData eventData)
     {
         UpdateCardScales();

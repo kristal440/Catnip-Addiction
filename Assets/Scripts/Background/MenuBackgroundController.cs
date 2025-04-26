@@ -20,7 +20,7 @@ public class MenuBackgroundController : MonoBehaviour
 
     private Camera _mainCamera;
 
-    // Initialize references and adjust particles for current screen
+    /// Initialize references and adjust particles for current screen
     private void Awake()
     {
         _mainCamera = Camera.main;
@@ -32,7 +32,7 @@ public class MenuBackgroundController : MonoBehaviour
         AdjustParticles();
     }
 
-    // Scale particle effects based on screen size and intensity setting
+    /// Scale particle effects based on screen size and intensity setting
     private void AdjustParticles()
     {
         foreach (var system in particleSystems)
@@ -49,14 +49,14 @@ public class MenuBackgroundController : MonoBehaviour
         }
     }
 
-    // Handle menu transition with fade effect
+    /// Handle menu transition with fade effect
     internal void TransitionToMenu(string menuName)
     {
         if (menuCanvasGroup)
             StartCoroutine(FadeCanvasGroup(menuCanvasGroup, 0f, 1f, transitionSpeed));
     }
 
-    // Smoothly fade a canvas group between alpha values
+    /// Smoothly fade a canvas group between alpha values
     private static IEnumerator FadeCanvasGroup(CanvasGroup group, float start, float end, float duration)
     {
         float elapsed = 0;

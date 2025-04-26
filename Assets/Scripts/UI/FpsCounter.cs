@@ -14,7 +14,7 @@ public class FpsCounter : MonoBehaviour
     private int _frameCount;
     private float _currentFps;
 
-    // Validates requirements and disables if text component is missing
+    /// Validates requirements and disables if text component is missing
     private void Start()
     {
         if (fpsText != null) return;
@@ -22,7 +22,7 @@ public class FpsCounter : MonoBehaviour
         enabled = false;
     }
 
-    // Calculates and updates the FPS display at specified intervals
+    /// Calculates and updates the FPS display at specified intervals
     private void Update()
     {
         _deltaTimeAccumulator += Time.deltaTime;

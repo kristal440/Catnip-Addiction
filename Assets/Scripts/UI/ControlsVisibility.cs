@@ -8,7 +8,7 @@ public class ControlsVisibility : MonoBehaviour
 {
     [SerializeField] [Tooltip("Container holding all control UI elements")] private GameObject controlsContainer;
 
-    // Subscribes to visibility events and sets initial state
+    /// Subscribes to visibility events and sets initial state
     private void OnEnable()
     {
         UpdateVisibility(OnScreenControlsManager.ShowMultiplayerControls);
@@ -16,13 +16,13 @@ public class ControlsVisibility : MonoBehaviour
         OnScreenControlsManager.OnControlsVisibilityChanged += UpdateVisibility;
     }
 
-    // Unsubscribes from visibility events when disabled
+    /// Unsubscribes from visibility events when disabled
     private void OnDisable()
     {
         OnScreenControlsManager.OnControlsVisibilityChanged -= UpdateVisibility;
     }
 
-    // Updates the visibility of control elements based on the provided state
+    /// Updates the visibility of control elements based on the provided state
     private void UpdateVisibility(bool showControls)
     {
         if (controlsContainer != null)

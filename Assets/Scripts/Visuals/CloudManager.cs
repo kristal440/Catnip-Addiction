@@ -70,7 +70,7 @@ public class CloudManager : MonoBehaviour
         public float Rotation;
     }
 
-    // Initializes camera, parent transform, player reference, and creates initial clouds
+    /// Initializes camera, parent transform, player reference, and creates initial clouds
     private void Start()
     {
         _mainCamera = Camera.main;
@@ -93,14 +93,14 @@ public class CloudManager : MonoBehaviour
         InitializeClouds();
     }
 
-    // Updates player movement direction and cloud positions each frame
+    /// Updates player movement direction and cloud positions each frame
     private void Update()
     {
         UpdatePlayerMovementDirection();
         UpdateClouds();
     }
 
-    // Calculates and stores player movement direction based on position change
+    /// Calculates and stores player movement direction based on position change
     private void UpdatePlayerMovementDirection()
     {
         if (!_playerTransform) return;
@@ -118,7 +118,7 @@ public class CloudManager : MonoBehaviour
         _lastPlayerPosition = currentPlayerPosition;
     }
 
-    // Creates the initial set of cloud objects
+    /// Creates the initial set of cloud objects
     private void InitializeClouds()
     {
         if (cloudSprites == null || cloudSprites.Count == 0)
@@ -131,7 +131,7 @@ public class CloudManager : MonoBehaviour
             CreateCloud(i);
     }
 
-    // Creates a single cloud with randomized properties
+    /// Creates a single cloud with randomized properties
     private void CreateCloud(int index = -1)
     {
         var cloudObject = new GameObject("Cloud");
@@ -177,7 +177,7 @@ public class CloudManager : MonoBehaviour
         _clouds.Add(cloud);
     }
 
-    // Creates a shadow object for a cloud
+    /// Creates a shadow object for a cloud
     private void CreateShadowForCloud(CloudData cloud, Sprite cloudSprite)
     {
         var shadowObject = new GameObject("Cloud_Shadow");
@@ -196,7 +196,7 @@ public class CloudManager : MonoBehaviour
         cloud.ShadowObject = shadowObject;
     }
 
-    // Positions clouds evenly across the distribution width during initialization
+    /// Positions clouds evenly across the distribution width during initialization
     private void PositionCloudEvenly(CloudData cloud, int index)
     {
         var cameraCenterX = _mainCamera.transform.position.x;
@@ -210,7 +210,7 @@ public class CloudManager : MonoBehaviour
         cloud.GameObject.transform.position = new Vector3(xPos, yPos, 0);
     }
 
-    // Positions a cloud randomly outside the screen bounds for recycling
+    /// Positions a cloud randomly outside the screen bounds for recycling
     private void PositionCloudRandomly(CloudData cloud)
     {
         float xPos;
@@ -230,7 +230,7 @@ public class CloudManager : MonoBehaviour
         cloud.GameObject.transform.position = new Vector3(xPos, yPos, 0);
     }
 
-    // Moves clouds and recycles them when they go off-screen
+    /// Moves clouds and recycles them when they go off-screen
     private void UpdateClouds()
     {
         var movementDirection = moveRight ? 1f : -1f;
@@ -290,7 +290,7 @@ public class CloudManager : MonoBehaviour
         }
     }
 
-    // Applies visual settings to a cloud
+    /// Applies visual settings to a cloud
     private static void ApplyVisualSettings(CloudData cloud)
     {
         var spriteRenderer = cloud.GameObject.GetComponent<SpriteRenderer>();
@@ -301,7 +301,7 @@ public class CloudManager : MonoBehaviour
         spriteRenderer.color = finalColor;
     }
 
-    // Gets a random color tint based on settings
+    /// Gets a random color tint based on settings
     private Color GetRandomTintColor()
     {
         if (!useRandomColorVariation)
@@ -315,7 +315,7 @@ public class CloudManager : MonoBehaviour
         );
     }
 
-    // Applies new random speed, scale, and sprite to a cloud
+    /// Applies new random speed, scale, and sprite to a cloud
     private void RandomizeCloudProperties(CloudData cloud)
     {
         cloud.Speed = Random.Range(minSpeed, maxSpeed);

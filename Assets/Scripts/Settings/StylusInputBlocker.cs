@@ -22,7 +22,7 @@ public class StylusInputBlocker : MonoBehaviour
     private int _loggedEventsCount;
     private readonly HashSet<InputDevice> _identifiedStylusDevices = new();
 
-    // Initializes the input blocker and registers event handlers
+    /// Initializes the input blocker and registers event handlers
     private void Awake()
     {
         DontDestroyOnLoad(gameObject);
@@ -31,14 +31,14 @@ public class StylusInputBlocker : MonoBehaviour
         Debug.Log("Stylus input blocker initialized");
     }
 
-    // Cleans up event handlers when object is destroyed
+    /// Cleans up event handlers when object is destroyed
     private void OnDestroy()
     {
         InputSystem.onEvent -= FilterStylusEvents;
         InputSystem.onDeviceChange -= OnDeviceChange;
     }
 
-    // Monitors device connections to identify and track stylus devices
+    /// Monitors device connections to identify and track stylus devices
     private void OnDeviceChange(InputDevice device, InputDeviceChange change)
     {
         if (change != InputDeviceChange.Added && change != InputDeviceChange.Reconnected)
@@ -56,7 +56,7 @@ public class StylusInputBlocker : MonoBehaviour
         }
     }
 
-    // Determines if a device is a stylus based on its name and capabilities
+    /// Determines if a device is a stylus based on its name and capabilities
     private static bool IsStylusDevice(InputDevice device)
     {
         switch (device)
@@ -79,7 +79,7 @@ public class StylusInputBlocker : MonoBehaviour
                 device.description.capabilities.Contains("Digitizer"));
     }
 
-    // Intercepts and blocks input events from stylus devices based on configuration
+    /// Intercepts and blocks input events from stylus devices based on configuration
     private void FilterStylusEvents(InputEventPtr eventPtr, InputDevice device)
     {
         if (device == null)
@@ -125,7 +125,7 @@ public class StylusInputBlocker : MonoBehaviour
             Debug.Log("Maximum logged stylus events reached. Further logging suppressed.");
     }
 
-    // Identifies touch events that originate from a stylus
+    /// Identifies touch events that originate from a stylus
     private static bool IsStylusTouchEvent(InputEventPtr eventPtr)
     {
         unsafe
@@ -149,7 +149,7 @@ public class StylusInputBlocker : MonoBehaviour
     }
 
     #if UNITY_EDITOR
-    // Logs all connected input devices for debugging purposes
+    /// Logs all connected input devices for debugging purposes
     [ContextMenu("Log Connected Input Devices")]
     private void LogConnectedDevices()
     {

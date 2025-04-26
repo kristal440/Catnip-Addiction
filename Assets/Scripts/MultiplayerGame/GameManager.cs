@@ -46,7 +46,7 @@ public class GameManager : MonoBehaviourPunCallbacks
     [SerializeField] [Tooltip("Prefab used for each leaderboard entry")] public GameObject inGameLeaderboardEntryPrefab;
     private readonly Dictionary<int, GameObject> _leaderboardEntries = new();
 
-    // Sets up the singleton pattern
+    /// Sets up the singleton pattern
     private void Awake()
     {
         if (Instance != null && Instance != this)
@@ -57,7 +57,7 @@ public class GameManager : MonoBehaviourPunCallbacks
         Instance = this;
     }
 
-    // Initializes game state and UI
+    /// Initializes game state and UI
     private void Start()
     {
         if (photonView == null)
@@ -70,7 +70,7 @@ public class GameManager : MonoBehaviourPunCallbacks
             inGameLeaderboardParent.SetActive(false);
     }
 
-    // Cleans up resources when destroyed
+    /// Cleans up resources when destroyed
     private void OnDestroy()
     {
         if (_countdownCoroutine != null)
@@ -79,7 +79,7 @@ public class GameManager : MonoBehaviourPunCallbacks
         ClearInGameLeaderboard();
     }
 
-    // Handles timer updates and countdown initiation
+    /// Handles timer updates and countdown initiation
     private void Update()
     {
         if (gameStarted)
@@ -96,7 +96,7 @@ public class GameManager : MonoBehaviourPunCallbacks
     }
 
     #region UI Methods
-    // Updates the game timer display
+    /// Updates the game timer display
     private void UpdateTimer()
     {
         if (!gameStarted)
@@ -112,7 +112,7 @@ public class GameManager : MonoBehaviourPunCallbacks
         DisplayTime(elapsedTime);
     }
 
-    // Formats and displays the time on UI
+    /// Formats and displays the time on UI
     private void DisplayTime(float timeToDisplay)
     {
         var minutes = FloorToInt(timeToDisplay / 60);
@@ -121,7 +121,7 @@ public class GameManager : MonoBehaviourPunCallbacks
         gameTimerText.text = $"{minutes:00}:{seconds:00}";
     }
 
-    // Updates the in-game leaderboard with current player positions
+    /// Updates the in-game leaderboard with current player positions
     private void UpdateInGameLeaderboard()
     {
         ClearInGameLeaderboard();
@@ -152,7 +152,7 @@ public class GameManager : MonoBehaviourPunCallbacks
         }
     }
 
-    // Removes all existing leaderboard entries
+    /// Removes all existing leaderboard entries
     private void ClearInGameLeaderboard()
     {
         foreach (var entry in _leaderboardEntries.Values.Where(static entry => entry))
@@ -161,7 +161,7 @@ public class GameManager : MonoBehaviourPunCallbacks
         _leaderboardEntries.Clear();
     }
 
-    // Adds a single entry to the leaderboard
+    /// Adds a single entry to the leaderboard
     private void AddLeaderboardEntry(int position, string playerName, float finishTime, int playerId)
     {
         var entryInstance = Instantiate(inGameLeaderboardEntryPrefab, inGameLeaderboardContainer);
@@ -179,7 +179,7 @@ public class GameManager : MonoBehaviourPunCallbacks
         entryInstance.SetActive(true);
     }
 
-    // Truncates player names that are too long
+    /// Truncates player names that are too long
     private static string ShortenName(string playerName)
     {
         if (string.IsNullOrEmpty(playerName))
@@ -193,7 +193,7 @@ public class GameManager : MonoBehaviourPunCallbacks
     #endregion
 
     #region Game State Management
-    // Manages the countdown sequence before game start
+    /// Manages the countdown sequence before game start
     private IEnumerator CountdownCoroutine(int serverStartTime)
     {
         countdownUI.SetActive(true);
@@ -240,7 +240,7 @@ public class GameManager : MonoBehaviourPunCallbacks
             photonView.RPC(nameof(StartGame), RpcTarget.All);
     }
 
-    // Handles when a player reaches the finish line
+    /// Handles when a player reaches the finish line
     internal void PlayerFinished(int playerId, float finishTime)
     {
         if (playerId == PhotonNetwork.LocalPlayer.ActorNumber)
@@ -258,7 +258,8 @@ public class GameManager : MonoBehaviourPunCallbacks
         photonView.RPC(nameof(UpdateLeaderboard), RpcTarget.All, playerId, finishTime);
     }
 
-    // Handles when a player leaves the room
+    /// <inheritdoc />
+    /// Handles when a player leaves the room
     public override void OnPlayerLeftRoom(Player otherPlayer)
     {
         base.OnPlayerLeftRoom(otherPlayer);
@@ -275,7 +276,7 @@ public class GameManager : MonoBehaviourPunCallbacks
     #endregion
 
     #region RPCs
-    // Initiates the countdown across all clients
+    /// Initiates the countdown across all clients
     [PunRPC]
     private void StartCountdown(int serverStartTime)
     {
@@ -286,7 +287,7 @@ public class GameManager : MonoBehaviourPunCallbacks
         _countdownCoroutine = StartCoroutine(CountdownCoroutine(serverStartTime));
     }
 
-    // Starts the game across all clients
+    /// Starts the game across all clients
     [PunRPC]
     private void StartGame()
     {
@@ -311,7 +312,7 @@ public class GameManager : MonoBehaviourPunCallbacks
         startTime = Time.timeSinceLevelLoad;
     }
 
-    // Updates leaderboard data across all clients
+    /// Updates leaderboard data across all clients
     [PunRPC]
     private void UpdateLeaderboard(int playerId, float finishTime)
     {
@@ -340,7 +341,7 @@ public class GameManager : MonoBehaviourPunCallbacks
         StartCoroutine(LoadLeaderboardWithDelay(leaderboardLoadDelay));
     }
 
-    // Loads leaderboard scene after a delay
+    /// Loads leaderboard scene after a delay
     private static IEnumerator LoadLeaderboardWithDelay(float delay)
     {
         yield return new WaitForSeconds(delay);
@@ -348,7 +349,7 @@ public class GameManager : MonoBehaviourPunCallbacks
         PhotonNetwork.LoadLevel("Leaderboard");
     }
 
-    // Makes all players stand up before race start
+    /// Makes all players stand up before race start
     [PunRPC]
     private void StandUp()
     {

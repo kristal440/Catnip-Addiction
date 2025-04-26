@@ -34,7 +34,7 @@ public class SpotLightManager : MonoBehaviourPun
     private float _baseIntensity;
     private Coroutine _flickerCoroutine;
 
-    // Creates a spotlight if needed and initializes light settings
+    /// Creates a spotlight if needed and initializes light settings
     private void Awake()
     {
         if (spotLight == null)
@@ -55,7 +55,7 @@ public class SpotLightManager : MonoBehaviourPun
         ApplyLightSettings();
     }
 
-    // Stops flickering when disabled
+    /// Stops flickering when disabled
     private void OnDisable()
     {
         if (_flickerCoroutine == null) return;
@@ -64,7 +64,7 @@ public class SpotLightManager : MonoBehaviourPun
         _flickerCoroutine = null;
     }
 
-    // Starts flickering if enabled
+    /// Starts flickering if enabled
     private void Start()
     {
         if (!useFlicker || !Application.isPlaying) return;
@@ -74,7 +74,7 @@ public class SpotLightManager : MonoBehaviourPun
         _flickerCoroutine = StartCoroutine(FlickerLight());
     }
 
-    // Applies configured settings to the spotlight
+    /// Applies configured settings to the spotlight
     private void ApplyLightSettings()
     {
         if (spotLight == null) return;
@@ -117,7 +117,7 @@ public class SpotLightManager : MonoBehaviourPun
         }
     }
 
-    // Creates a flickering effect using Perlin noise
+    /// Creates a flickering effect using Perlin noise
     private IEnumerator FlickerLight()
     {
         var waitTime = new WaitForSeconds(0.05f);
@@ -134,7 +134,7 @@ public class SpotLightManager : MonoBehaviourPun
         }
     }
 
-    // Synchronizes light settings across network
+    /// Synchronizes light settings across network
     [PunRPC]
     public void SyncLightSettings(float syncedIntensity, float syncedRadius, float r, float g, float b, float syncedFalloff, float syncedAngle)
     {
@@ -142,7 +142,7 @@ public class SpotLightManager : MonoBehaviourPun
         ApplyLightSettings();
     }
 
-    // Enables or disables light flickering
+    /// Enables or disables light flickering
     private void ToggleFlicker(bool enableFlicker)
     {
         useFlicker = enableFlicker;
@@ -167,21 +167,21 @@ public class SpotLightManager : MonoBehaviourPun
             photonView.RPC(nameof(SyncFlickerState), RpcTarget.Others, useFlicker);
     }
 
-    // Synchronizes flicker state across network
+    /// Synchronizes flicker state across network
     [PunRPC]
     public void SyncFlickerState(bool enableFlicker)
     {
         ToggleFlicker(enableFlicker);
     }
 
-    // Updates light settings and sends to network
+    /// Updates light settings and sends to network
     private void UpdateLightSettings()
     {
         if (PhotonNetwork.IsConnected && photonView != null && photonView.IsMine)
             photonView.RPC("SyncLightSettings", RpcTarget.Others);
     }
 
-    // Sets light properties and synchronizes changes
+    /// Sets light properties and synchronizes changes
     public void SetLightProperties(float newFalloffStrength = -1, float newSpotAngle = -1)
     {
         if (newFalloffStrength >= 0)
@@ -194,7 +194,7 @@ public class SpotLightManager : MonoBehaviourPun
     }
 
     #if UNITY_EDITOR
-    // Updates light settings when properties change in editor
+    /// Updates light settings when properties change in editor
     private void OnValidate()
     {
         ApplyLightSettings();

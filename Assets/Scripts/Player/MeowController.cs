@@ -27,7 +27,7 @@ public class MeowController : MonoBehaviourPunCallbacks
     private PlayerController _playerController;
     private Button _meowButton;
 
-    // Sets up input system, references, and components
+    /// Sets up input system, references, and components
     private void Awake()
     {
         _meowAction = new InputAction("Meow", InputActionType.Button);
@@ -50,7 +50,7 @@ public class MeowController : MonoBehaviourPunCallbacks
             audioSource = gameObject.AddComponent<AudioSource>();
     }
 
-    // Updates meow button interactivity based on cooldown
+    /// Updates meow button interactivity based on cooldown
     private void Update()
     {
         if (!photonView.IsMine)
@@ -60,7 +60,7 @@ public class MeowController : MonoBehaviourPunCallbacks
             _meowButton.interactable = true;
     }
 
-    // Cleans up input actions and event listeners
+    /// Cleans up input actions and event listeners
     private void OnDestroy()
     {
         _meowAction?.Disable();
@@ -69,7 +69,7 @@ public class MeowController : MonoBehaviourPunCallbacks
         _meowButton.onClick.RemoveListener(TryMeow);
     }
 
-    // Attempts to trigger a meow if conditions are met
+    /// Attempts to trigger a meow if conditions are met
     private void TryMeow()
     {
         if (_playerController.IsPaused)
@@ -91,7 +91,7 @@ public class MeowController : MonoBehaviourPunCallbacks
         photonView.RPC(nameof(RPC_PlayMeow), RpcTarget.All);
     }
 
-    // RPC method that plays meow animation and sound on all clients
+    /// RPC method that plays meow animation and sound on all clients
     [PunRPC]
     private void RPC_PlayMeow()
     {
@@ -107,7 +107,7 @@ public class MeowController : MonoBehaviourPunCallbacks
         audioSource.PlayOneShot(randomMeow);
     }
 
-    // Called by animation events to hide meow visual when complete
+    /// Called by animation events to hide meow visual when complete
     public void OnMeowAnimationComplete()
     {
         if (meowRenderer != null)

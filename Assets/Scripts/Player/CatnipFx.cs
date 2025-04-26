@@ -21,7 +21,7 @@ public class CatnipFx : MonoBehaviour
 
     private Coroutine _activeEffectCoroutine;
 
-    // Validates and initializes required components
+    /// Validates and initializes required components
     private void Awake()
     {
         if (catnipFxParent == null)
@@ -37,7 +37,7 @@ public class CatnipFx : MonoBehaviour
             catnipFxParent.SetActive(false);
     }
 
-    // Starts the catnip effect transition
+    /// Starts the catnip effect transition
     internal void ActivateCatnipEffect()
     {
         if (catnipFxParent == null || screenMask == null || light2D == null)
@@ -59,7 +59,7 @@ public class CatnipFx : MonoBehaviour
         _activeEffectCoroutine = StartCoroutine(TransitionCatnipEffect(true));
     }
 
-    // Fades out the catnip effect
+    /// Fades out the catnip effect
     internal void DeactivateCatnipEffect()
     {
         if (catnipFxParent == null || screenMask == null || light2D == null)
@@ -74,7 +74,7 @@ public class CatnipFx : MonoBehaviour
         _activeEffectCoroutine = StartCoroutine(TransitionCatnipEffect(false));
     }
 
-    // Smoothly transitions the catnip effect in or out
+    /// Smoothly transitions the catnip effect in or out
     private IEnumerator TransitionCatnipEffect(bool activating)
     {
         var elapsedTime = 0f;

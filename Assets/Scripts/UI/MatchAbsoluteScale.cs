@@ -9,7 +9,7 @@ public class MatchAbsoluteScale : MonoBehaviour
     [SerializeField] [Tooltip("The GameObject whose absolute scale will be matched")] private GameObject targetObject;
     [SerializeField] [Tooltip("If true, will update the scale every frame. If false, will only set it once on Start")] private bool continuousUpdate;
 
-    // Initializes scaling on startup if not doing continuous updates
+    /// Initializes scaling on startup if not doing continuous updates
     private void Start()
     {
         if (targetObject == null)
@@ -22,14 +22,14 @@ public class MatchAbsoluteScale : MonoBehaviour
             MatchScale();
     }
 
-    // Updates scale continuously if enabled
+    /// Updates scale continuously if enabled
     private void Update()
     {
         if (continuousUpdate && targetObject)
             MatchScale();
     }
 
-    // Calculates and applies the correct scale to match target's world scale
+    /// Calculates and applies the correct scale to match target's world scale
     private void MatchScale()
     {
         var targetWorldScale = targetObject.transform.lossyScale;

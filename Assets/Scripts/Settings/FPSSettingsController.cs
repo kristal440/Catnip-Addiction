@@ -22,7 +22,7 @@ public class FPSSettingsController : MonoBehaviour
 
     private int _screenRefreshRate;
 
-    // Initializes UI components and loads saved settings
+    /// Initializes UI components and loads saved settings
     private void Start()
     {
         _screenRefreshRate = Mathf.RoundToInt((float)Screen.currentResolution.refreshRateRatio.numerator /
@@ -41,7 +41,7 @@ public class FPSSettingsController : MonoBehaviour
         fpsSlider.onValueChanged.AddListener(OnFPSSliderChanged);
     }
 
-    // Handles vsync toggle changes and updates related settings
+    /// Handles vsync toggle changes and updates related settings
     private void OnVSyncToggleChanged(bool isVSyncOn)
     {
         QualitySettings.vSyncCount = isVSyncOn ? 1 : 0;
@@ -53,13 +53,13 @@ public class FPSSettingsController : MonoBehaviour
         ApplyFPSSetting();
     }
 
-    // Handles FPS slider value changes
+    /// Handles FPS slider value changes
     private void OnFPSSliderChanged(float value)
     {
         ApplyFPSSetting();
     }
 
-    // Updates the slider's maximum value based on vsync setting
+    /// Updates the slider's maximum value based on vsync setting
     private void UpdateSliderMaxValue()
     {
         fpsSlider.maxValue = vsyncToggle.isOn ? _screenRefreshRate : maxUnlimitedFps;
@@ -70,14 +70,14 @@ public class FPSSettingsController : MonoBehaviour
         UpdateFPSText();
     }
 
-    // Updates the FPS text display to show current value
+    /// Updates the FPS text display to show current value
     private void UpdateFPSText()
     {
         var fps = Mathf.RoundToInt(fpsSlider.value);
         fpsValueText.text = $"{fps} FPS";
     }
 
-    // Applies and saves the selected frame rate setting
+    /// Applies and saves the selected frame rate setting
     private void ApplyFPSSetting()
     {
         var targetFPS = Mathf.RoundToInt(fpsSlider.value);

@@ -8,7 +8,7 @@ public class ResizeToBottom : MonoBehaviour
 {
     [SerializeField] [Tooltip("Space in pixels to maintain from the bottom edge")] private float spacing;
 
-    // Updates the RectTransform to maintain proper spacing from bottom
+    /// Updates the RectTransform to maintain proper spacing from bottom
     private void Update()
     {
         var rectTransform = GetComponent<RectTransform>();

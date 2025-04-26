@@ -42,13 +42,13 @@ public class TeleportParticles : MonoBehaviour
     private Light _particleLight;
     private GameObject _lightObject;
 
-    // Initializes the component and creates the particle system
+    /// Initializes the component and creates the particle system
     private void Awake()
     {
         CreateParticleSystem();
     }
 
-    // Sets up particle system with all configured parameters
+    /// Sets up particle system with all configured parameters
     private void CreateParticleSystem()
     {
         InitializeParticleSystemComponent();
@@ -67,7 +67,7 @@ public class TeleportParticles : MonoBehaviour
         ConfigureLightsModule();
     }
 
-    // Initializes or gets the particle system component
+    /// Initializes or gets the particle system component
     private void InitializeParticleSystemComponent()
     {
         if (!_particleSystem)
@@ -80,7 +80,7 @@ public class TeleportParticles : MonoBehaviour
         _particleSystem.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
     }
 
-    // Configures the main module settings
+    /// Configures the main module settings
     private void ConfigureMainModule()
     {
         var main = _particleSystem.main;
@@ -96,14 +96,14 @@ public class TeleportParticles : MonoBehaviour
         main.cullingMode = ParticleSystemCullingMode.AlwaysSimulate;
     }
 
-    // Configures the emission module
+    /// Configures the emission module
     private void ConfigureEmissionModule()
     {
         _emission = _particleSystem.emission;
         _emission.rateOverTime = emissionRate;
     }
 
-    // Configures the shape module
+    /// Configures the shape module
     private void ConfigureShapeModule()
     {
         var shape = _particleSystem.shape;
@@ -111,7 +111,7 @@ public class TeleportParticles : MonoBehaviour
         shape.radius = emissionRadius;
     }
 
-    // Configures velocity over lifetime module
+    /// Configures velocity over lifetime module
     private void ConfigureVelocityOverLifetimeModule()
     {
         var velocityOverLifetime = _particleSystem.velocityOverLifetime;
@@ -139,7 +139,7 @@ public class TeleportParticles : MonoBehaviour
         );
     }
 
-    // Configures noise module
+    /// Configures noise module
     private void ConfigureNoiseModule()
     {
         var noise = _particleSystem.noise;
@@ -149,7 +149,7 @@ public class TeleportParticles : MonoBehaviour
         noise.quality = ParticleSystemNoiseQuality.Medium;
     }
 
-    // Configures color over lifetime module
+    /// Configures color over lifetime module
     private void ConfigureColorOverLifetimeModule()
     {
         var colorOverLifetime = _particleSystem.colorOverLifetime;
@@ -164,7 +164,7 @@ public class TeleportParticles : MonoBehaviour
         colorOverLifetime.color = gradient;
     }
 
-    // Configures size over lifetime module
+    /// Configures size over lifetime module
     private void ConfigureSizeOverLifetimeModule()
     {
         var sizeOverLifetime = _particleSystem.sizeOverLifetime;
@@ -176,7 +176,7 @@ public class TeleportParticles : MonoBehaviour
         sizeOverLifetime.size = new ParticleSystem.MinMaxCurve(1.0f, sizeOverLifetimeCurve);
     }
 
-    // Configures the particle renderer material and settings
+    /// Configures the particle renderer material and settings
     private void ConfigureParticleRenderer()
     {
         var particleSystemRenderer = _particleSystem.GetComponent<ParticleSystemRenderer>();
@@ -192,7 +192,7 @@ public class TeleportParticles : MonoBehaviour
         main.startSizeMultiplier = particleSize;
     }
 
-    // Creates and configures the particle material
+    /// Creates and configures the particle material
     private Material CreateParticleMaterial()
     {
         var shader = Shader.Find("Particles/Standard Unlit");
@@ -243,7 +243,7 @@ public class TeleportParticles : MonoBehaviour
             propertyInfo.SetValue(lightsModule, false);
     }
 
-    // Creates a persistent light reference for the particle system
+    /// Creates a persistent light reference for the particle system
     private void SetupLight()
     {
         if (_lightObject)
@@ -270,14 +270,14 @@ public class TeleportParticles : MonoBehaviour
         _particleLight.cullingMask = 1 << gameObject.layer;
     }
 
-    // Called when the object is destroyed
+    /// Called when the object is destroyed
     private void OnDestroy()
     {
         if (_lightObject != null)
             Destroy(_lightObject);
     }
 
-    // Initiates teleport animation between two points
+    /// Initiates teleport animation between two points
     internal void AnimateTeleport(Vector3 startPos, Vector3 endPos, float duration, AnimationCurve movementCurve = null)
     {
         gameObject.SetActive(true);
@@ -290,7 +290,7 @@ public class TeleportParticles : MonoBehaviour
         StartCoroutine(TeleportAnimation(startPos, endPos, duration, movementCurve));
     }
 
-    // Handles the movement and particle animation over time
+    /// Handles the movement and particle animation over time
     private IEnumerator TeleportAnimation(Vector3 startPos, Vector3 endPos, float duration, AnimationCurve movementCurve)
     {
         movementCurve ??= AnimationCurve.EaseInOut(0, 0, 1, 1);

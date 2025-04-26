@@ -15,21 +15,21 @@ public class OnScreenControlsManager : MonoBehaviour
 
     private const string MultiplayerControlsKey = "ShowMultiplayerControls";
 
-    // Sets visibility of multiplayer controls and triggers visibility event
+    /// Sets visibility of multiplayer controls and triggers visibility event
     internal static void SetControlsVisibility(bool isVisible)
     {
         ShowMultiplayerControls = isVisible;
         OnControlsVisibilityChanged?.Invoke(isVisible);
     }
 
-    // Initializes toggle based on saved preferences and sets up listener
+    /// Initializes toggle based on saved preferences and sets up listener
     private void Start()
     {
         controlsToggle.SetIsOnWithoutNotify(ShowMultiplayerControls);
         controlsToggle.onValueChanged.AddListener(OnToggleChanged);
     }
 
-    // Handles state changes for the controls toggle and persists the setting
+    /// Handles state changes for the controls toggle and persists the setting
     private static void OnToggleChanged(bool isOn)
     {
         ShowMultiplayerControls = isOn;
@@ -40,7 +40,7 @@ public class OnScreenControlsManager : MonoBehaviour
         OnControlsVisibilityChanged?.Invoke(ShowMultiplayerControls);
     }
 
-    // Cleans up event listeners when component is destroyed
+    /// Cleans up event listeners when component is destroyed
     private void OnDestroy()
     {
         if (controlsToggle != null)

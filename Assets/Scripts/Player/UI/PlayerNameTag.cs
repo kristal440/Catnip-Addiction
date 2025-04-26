@@ -10,7 +10,7 @@ public class PlayerNameTag : MonoBehaviourPun
 {
     [SerializeField] [Tooltip("Text component for displaying the player's name")] private TextMeshProUGUI nameTagText;
 
-    // Sets the name tag to the player's network nickname
+    /// Sets the name tag to the player's network nickname
     private void Start()
     {
         nameTagText.text = photonView.Owner.NickName;

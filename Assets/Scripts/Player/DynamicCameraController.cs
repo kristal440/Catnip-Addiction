@@ -51,7 +51,7 @@ public class DynamicCameraController : MonoBehaviour
     private Vector2 _lastPlayerPosition;
     private float _actualPlayerSpeed;
 
-    // Initializes the camera controller and triggers player search
+    /// Initializes the camera controller and triggers player search
     private void Start()
     {
         _camera = GetComponent<Camera>();
@@ -66,7 +66,7 @@ public class DynamicCameraController : MonoBehaviour
         StartCoroutine(FindPlayerControllerWithTimeout());
     }
 
-    // Searches for player controller with timeout
+    /// Searches for player controller with timeout
     private IEnumerator FindPlayerControllerWithTimeout()
     {
         var startTime = Time.time;
@@ -86,7 +86,7 @@ public class DynamicCameraController : MonoBehaviour
         enabled = false;
     }
 
-    // Sets up initial camera values and position
+    /// Sets up initial camera values and position
     private void InitializeCamera()
     {
         if (defaultFOV <= 0)
@@ -99,7 +99,7 @@ public class DynamicCameraController : MonoBehaviour
         _lastPlayerPosition = _playerController.transform.position;
     }
 
-    // Updates camera effects based on player movement
+    /// Updates camera effects based on player movement
     private void FixedUpdate()
     {
         if (!_playerController) return;
@@ -118,7 +118,7 @@ public class DynamicCameraController : MonoBehaviour
         UpdateCameraPosition(normalizedSpeed);
     }
 
-    // Updates FOV when charging a jump based on charge progress
+    /// Updates FOV when charging a jump based on charge progress
     internal void UpdateChargingJumpFOV(float chargeProgress)
     {
         if (_isInDeathZoom) return;
@@ -127,7 +127,7 @@ public class DynamicCameraController : MonoBehaviour
         _camera.fieldOfView = Lerp(_camera.fieldOfView, targetFOV, Time.deltaTime * jumpFOVTransitionSpeed);
     }
 
-    // Triggers jump transition FOV effect
+    /// Triggers jump transition FOV effect
     internal void TriggerJumpFOV()
     {
         if (_isInDeathZoom) return;
@@ -136,7 +136,7 @@ public class DynamicCameraController : MonoBehaviour
         _jumpTransitionTimer = 0f;
     }
 
-    // Updates FOV based on player state and movement
+    /// Updates FOV based on player state and movement
     private void UpdateFOV(float normalizedSpeed)
     {
         float targetFOV;
@@ -166,43 +166,40 @@ public class DynamicCameraController : MonoBehaviour
         }
     }
 
-    // Updates camera position based on player movement
+    /// Updates camera position based on player movement
     private void UpdateCameraPosition(float normalizedSpeed)
     {
-        // Horizontal position
         var targetX = _defaultPosition.x + (normalizedSpeed * maxHorizontalOffset);
         var localPosition = transform.localPosition;
         var newX = SmoothDamp(localPosition.x, targetX, ref _currentHorizontalVelocity, positionSmoothTime);
 
-        // Vertical position
         var normalizedVerticalSpeed = Clamp(_playerController.verticalSpeed / _playerController.maxSpeed, -1, 1);
         var targetY = _defaultPosition.y + (normalizedVerticalSpeed * maxVerticalOffset);
         var newY = SmoothDamp(localPosition.y, targetY, ref _currentVerticalVelocity, verticalSmoothTime);
 
-        // Apply combined position
         localPosition = new Vector3(newX, newY, localPosition.z);
         transform.localPosition = localPosition;
     }
 
-    // Activates death camera effect when player dies
+    /// Activates death camera effect when player dies
     internal void OnPlayerDeath()
     {
         _isInDeathZoom = true;
     }
 
-    // Resets camera when player respawns
+    /// Resets camera when player respawns
     internal void OnPlayerRespawn()
     {
         _isInDeathZoom = false;
     }
 
-    // Applies underwater FOV effect
+    /// Applies underwater FOV effect
     internal void EnterWater()
     {
         defaultFOV = _defaultFOVBackup * waterZoomMultiplier;
     }
 
-    // Resets FOV when exiting water
+    /// Resets FOV when exiting water
     internal void ExitWater()
     {
         defaultFOV = _defaultFOVBackup;

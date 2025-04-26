@@ -12,7 +12,7 @@ public class GameStartup : MonoBehaviour
     private const string TargetFPSKey = "TargetFPS";
     private const string MultiplayerControlsKey = "ShowMultiplayerControls";
 
-    // Initializes application settings and applies user preferences
+    /// Initializes application settings and applies user preferences
     private void Start()
     {
         ApplyFPSSettings();
@@ -22,7 +22,7 @@ public class GameStartup : MonoBehaviour
         Application.backgroundLoadingPriority = ThreadPriority.BelowNormal;
     }
 
-    // Configures vsync and frame rate based on saved preferences or platform defaults
+    /// Configures vsync and frame rate based on saved preferences or platform defaults
     private void ApplyFPSSettings()
     {
         bool vsyncEnabled;
@@ -45,7 +45,7 @@ public class GameStartup : MonoBehaviour
         Application.targetFrameRate = targetFPS;
     }
 
-    // Configures on-screen controls visibility based on saved preferences or platform defaults
+    /// Configures on-screen controls visibility based on saved preferences or platform defaults
     private static void ApplyOnScreenControlsSettings()
     {
         bool showMultiplayerControls;

@@ -9,7 +9,7 @@ public class PanelManager : MonoBehaviour
     [SerializeField] [Tooltip("Panel reference to show/hide or instantiate")] private GameObject panel;
     private GameObject _instantiatedPanel;
 
-    // Closes the currently active panel by destroying instance or deactivating
+    /// Closes the currently active panel by destroying instance or deactivating
     public void ClosePanel()
     {
         if (_instantiatedPanel)
@@ -23,7 +23,7 @@ public class PanelManager : MonoBehaviour
         }
     }
 
-    // Opens the panel by activating an existing instance or creating a new one
+    /// Opens the panel by activating an existing instance or creating a new one
     public void OpenPanel()
     {
         if (!panel)

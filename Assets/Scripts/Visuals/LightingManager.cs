@@ -27,7 +27,7 @@ public class LightingManager : MonoBehaviour
         High
     }
 
-    // Initializes the global light if not already assigned
+    /// Initializes the global light if not already assigned
     private void Awake()
     {
         if (globalLight == null)
@@ -46,7 +46,7 @@ public class LightingManager : MonoBehaviour
         ApplyLightSettings();
     }
 
-    // Applies configured light settings to the global light
+    /// Applies configured light settings to the global light
     private void ApplyLightSettings()
     {
         globalLight.intensity = globalLightIntensity;
@@ -58,7 +58,7 @@ public class LightingManager : MonoBehaviour
         ApplyQualitySettings();
     }
 
-    // Sets lighting quality based on the selected preset
+    /// Sets lighting quality based on the selected preset
     private void ApplyQualitySettings()
     {
         switch (lightQuality)
@@ -84,7 +84,7 @@ public class LightingManager : MonoBehaviour
     }
 
     #if UNITY_EDITOR
-    // Updates lighting when properties are changed in the inspector
+    /// Updates lighting when properties are changed in the inspector
     private void OnValidate()
     {
         if (globalLight != null)

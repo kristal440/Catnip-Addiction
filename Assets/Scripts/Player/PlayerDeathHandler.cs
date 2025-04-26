@@ -23,7 +23,7 @@ public class PlayerDeathHandler : MonoBehaviour
     private bool _isRespawning;
     private Camera _mainCamera;
 
-    // Find required components on start
+    /// Find required components on start
     private void Start()
     {
         _cameraController = FindFirstObjectByType<DynamicCameraController>();
@@ -31,7 +31,7 @@ public class PlayerDeathHandler : MonoBehaviour
         _mainCamera = Camera.main;
     }
 
-    // Detect collision with deadly objects
+    /// Detect collision with deadly objects
     private void OnTriggerEnter2D(Collider2D other)
     {
         if (_isRespawning || !other.CompareTag(hazardTag))
@@ -40,7 +40,7 @@ public class PlayerDeathHandler : MonoBehaviour
         StartCoroutine(RespawnPlayer());
     }
 
-    // Handle the death and respawn sequence
+    /// Handle the death and respawn sequence
     private IEnumerator RespawnPlayer()
     {
         _isRespawning = true;
@@ -76,7 +76,7 @@ public class PlayerDeathHandler : MonoBehaviour
         _isRespawning = false;
     }
 
-    // Determine whether camera effects should be applied based on ownership or spectating
+    /// Determine whether camera effects should be applied based on ownership or spectating
     private bool ShouldApplyCameraEffects()
     {
         if (!_mainCamera) return false;
@@ -84,13 +84,13 @@ public class PlayerDeathHandler : MonoBehaviour
         return playerController.photonView.IsMine || _spectatorModeManager.IsSpectating;
     }
 
-    // Enable or disable player movement
+    /// Enable or disable player movement
     private void SetPlayerMovementEnabled(bool movementEnabled)
     {
         playerController.SetMovement(movementEnabled);
     }
 
-    // Handle player falling out of world boundaries
+    /// Handle player falling out of world boundaries
     internal void HandleOutOfBoundsDeath()
     {
         if (_isRespawning)

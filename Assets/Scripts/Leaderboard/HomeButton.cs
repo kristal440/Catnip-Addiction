@@ -8,7 +8,7 @@ using UnityEngine.SceneManagement;
 /// </summary>
 public class HomeButton : MonoBehaviour
 {
-    // Disconnects from Photon network and loads the main menu scene
+    /// Disconnects from Photon network and loads the main menu scene
     public void OnDisconnectButtonClicked()
     {
         if (PhotonNetwork.InRoom)

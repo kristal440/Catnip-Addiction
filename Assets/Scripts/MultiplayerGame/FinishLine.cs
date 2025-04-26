@@ -9,7 +9,7 @@ public class FinishLine : MonoBehaviour
 {
     private FireworksManager _fireworks;
 
-    // Detects when players reach the finish line
+    /// Detects when players reach the finish line
     private void OnTriggerEnter2D(Collider2D other)
     {
         if (!GameManager.Instance.gameStarted) return;

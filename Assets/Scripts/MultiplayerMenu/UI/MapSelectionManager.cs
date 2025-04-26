@@ -37,27 +37,27 @@ public class MapSelectionManager : MonoBehaviour
         public Sprite previewImage;
     }
 
-    // Sets default selected map
+    /// Sets default selected map
     private void Awake()
     {
         _selectedMapName = "GameScene_Map1_Multi";
     }
 
-    // Subscribes to selection events
+    /// Subscribes to selection events
     private void OnEnable()
     {
         if (selectionHandler != null)
             selectionHandler.OnItemSelected += HandleMapSelection;
     }
 
-    // Unsubscribes from selection events
+    /// Unsubscribes from selection events
     private void OnDisable()
     {
         if (selectionHandler != null)
             selectionHandler.OnItemSelected -= HandleMapSelection;
     }
 
-    // Sets up the map selection UI with available maps
+    /// Sets up the map selection UI with available maps
     internal void Initialize(string defaultMapName = "GameScene_Map1_Multi")
     {
         _selectedMapName = defaultMapName;
@@ -65,7 +65,7 @@ public class MapSelectionManager : MonoBehaviour
         CreateMapSelectionButtons();
     }
 
-    // Discovers and validates available maps from scene build settings
+    /// Discovers and validates available maps from scene build settings
     private void LoadAvailableMaps()
     {
         _availableMaps.Clear();
@@ -106,7 +106,7 @@ public class MapSelectionManager : MonoBehaviour
             _selectedMapName = _availableMaps.Keys.First();
     }
 
-    // Configures map selection buttons based on available maps
+    /// Configures map selection buttons based on available maps
     private void CreateMapSelectionButtons()
     {
         var existingButtons = (from Transform child in mapsContainer select child.gameObject).ToList();
@@ -136,7 +136,7 @@ public class MapSelectionManager : MonoBehaviour
         SelectMap(_selectedMapName);
     }
 
-    // Processes map selection events
+    /// Processes map selection events
     private void HandleMapSelection(int index, GameObject selectedObject)
     {
         if (index < 0 || index >= _availableMaps.Count) return;
@@ -147,7 +147,7 @@ public class MapSelectionManager : MonoBehaviour
         UpdateMapPreviewImage(_selectedMapName);
     }
 
-    // Selects a map by scene name
+    /// Selects a map by scene name
     private void SelectMap(string mapSceneName)
     {
         if (!_availableMaps.ContainsKey(mapSceneName)) return;
@@ -159,7 +159,7 @@ public class MapSelectionManager : MonoBehaviour
         UpdateMapPreviewImage(mapSceneName);
     }
 
-    // Updates the map preview image based on selected map
+    /// Updates the map preview image based on selected map
     private void UpdateMapPreviewImage(string mapName)
     {
         if (mapPreviewImage == null) return;
@@ -177,7 +177,7 @@ public class MapSelectionManager : MonoBehaviour
         }
     }
 
-    // Returns the currently selected map's scene name
+    /// Returns the currently selected map's scene name
     public string GetSelectedMapName()
     {
         return _selectedMapName;

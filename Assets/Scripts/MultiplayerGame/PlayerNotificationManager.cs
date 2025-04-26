@@ -33,7 +33,7 @@ public class PlayerNotificationManager : MonoBehaviourPunCallbacks
         public bool IsJoining;
     }
 
-    // Initializes required components and sets initial state
+    /// Initializes required components and sets initial state
     private void Awake()
     {
         _canvasGroup = GetComponent<CanvasGroup>();
@@ -46,19 +46,21 @@ public class PlayerNotificationManager : MonoBehaviourPunCallbacks
         _canvasGroup.alpha = 0f;
     }
 
-    // Called when a new player joins the room
+    /// <inheritdoc />
+    /// Called when a new player joins the room
     public override void OnPlayerEnteredRoom(Player newPlayer)
     {
         QueueNotification(newPlayer.NickName, true);
     }
 
-    // Called when a player leaves the room
+    /// <inheritdoc />
+    /// Called when a player leaves the room
     public override void OnPlayerLeftRoom(Player otherPlayer)
     {
         QueueNotification(otherPlayer.NickName, false);
     }
 
-    // Adds a notification to the queue and starts processing if needed
+    /// Adds a notification to the queue and starts processing if needed
     private void QueueNotification(string playerName, bool isJoining)
     {
         _notificationQueue.Enqueue(new NotificationInfo { PlayerName = playerName, IsJoining = isJoining });
@@ -67,7 +69,7 @@ public class PlayerNotificationManager : MonoBehaviourPunCallbacks
             StartCoroutine(ProcessNotificationQueue());
     }
 
-    // Processes all queued notifications sequentially
+    /// Processes all queued notifications sequentially
     private IEnumerator ProcessNotificationQueue()
     {
         _isProcessingQueue = true;
@@ -88,7 +90,7 @@ public class PlayerNotificationManager : MonoBehaviourPunCallbacks
         _isProcessingQueue = false;
     }
 
-    // Handles the animation sequence for a notification
+    /// Handles the animation sequence for a notification
     private IEnumerator AnimateNotification()
     {
         _rectTransform.anchoredPosition = _originalPosition - new Vector2(0, slideDistance);

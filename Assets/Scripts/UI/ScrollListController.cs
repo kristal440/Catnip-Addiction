@@ -53,7 +53,7 @@ public class ScrollListController : MonoBehaviour
     public event Action<int> OnSelectionChanged;
     internal int CurrentIndex { get; private set; } = -1;
 
-    // Initializes components and configures the list on startup
+    /// Initializes components and configures the list on startup
     private void Start()
     {
         if (!scrollRect) scrollRect = GetComponentInParent<ScrollRect>();
@@ -65,7 +65,7 @@ public class ScrollListController : MonoBehaviour
         UpdatePadding();
     }
 
-    // Sets up reference dimensions based on the prefab
+    /// Sets up reference dimensions based on the prefab
     private void InitializeReferenceDimensions()
     {
         if (!mapEntryPrefab) return;
@@ -93,7 +93,7 @@ public class ScrollListController : MonoBehaviour
         _referenceExpandedHeight = _referenceHeight + heightExpansionAmount;
     }
 
-    // Collects all item RectTransforms and stores their original dimensions
+    /// Collects all item RectTransforms and stores their original dimensions
     internal void InitializeItems()
     {
         itemRects.Clear();
@@ -134,7 +134,7 @@ public class ScrollListController : MonoBehaviour
             _verticalLayoutGroup.spacing = ItemSpacing;
     }
 
-    // Updates vertical padding to center items in the viewport
+    /// Updates vertical padding to center items in the viewport
     private void UpdatePadding()
     {
         if (!viewport || !_verticalLayoutGroup) return;
@@ -156,7 +156,7 @@ public class ScrollListController : MonoBehaviour
         LayoutRebuilder.ForceRebuildLayoutImmediate(transform as RectTransform);
     }
 
-    // Selects an item by index and triggers visual updates
+    /// Selects an item by index and triggers visual updates
     internal void SelectItem(int index)
     {
         if (index < 0 || index >= itemRects.Count || index == CurrentIndex) return;
@@ -169,7 +169,7 @@ public class ScrollListController : MonoBehaviour
         StartCoroutine(ScrollToSelectedItem());
     }
 
-    // Smoothly scrolls to center the selected item in the viewport
+    /// Smoothly scrolls to center the selected item in the viewport
     private IEnumerator ScrollToSelectedItem()
     {
         yield return null;
@@ -190,7 +190,7 @@ public class ScrollListController : MonoBehaviour
         _isSnapping = true;
     }
 
-    // Updates snapping and item visual states each frame
+    /// Updates snapping and item visual states each frame
     private void Update()
     {
         HandleSnapping();
@@ -202,7 +202,7 @@ public class ScrollListController : MonoBehaviour
         _needsContentUpdate = false;
     }
 
-    // Handles smooth snapping to the selected item
+    /// Handles smooth snapping to the selected item
     private void HandleSnapping()
     {
         if (!_isSnapping) return;
@@ -219,7 +219,7 @@ public class ScrollListController : MonoBehaviour
         _isSnapping = false;
     }
 
-    // Updates the scale, alpha, and height of all list items based on viewport position
+    /// Updates the scale, alpha, and height of all list items based on viewport position
     private void UpdateItemScalesAndHeights()
     {
         if (itemRects.Count == 0 || !viewport) return;
@@ -263,7 +263,7 @@ public class ScrollListController : MonoBehaviour
             _needsContentUpdate = true;
     }
 
-    // Updates the alpha value of a list item's visual element
+    /// Updates the alpha value of a list item's visual element
     private bool UpdateVisualChildAppearance(Component visualChild, int index, float deltaTime)
     {
         var image = visualChild.GetComponent<Image>();
@@ -279,7 +279,7 @@ public class ScrollListController : MonoBehaviour
         return true;
     }
 
-    // Updates the height of a list item's visual child element
+    /// Updates the height of a list item's visual child element
     private bool UpdateVisualChildHeight(RectTransform visualChild, int index, float deltaTime)
     {
         var childTargetHeight = _referenceChildHeight;
@@ -295,7 +295,7 @@ public class ScrollListController : MonoBehaviour
         return true;
     }
 
-    // Updates the height of a list item
+    /// Updates the height of a list item
     private bool UpdateItemHeight(RectTransform item, int index, float deltaTime)
     {
         var targetHeight = _referenceHeight;
@@ -311,19 +311,19 @@ public class ScrollListController : MonoBehaviour
         return true;
     }
 
-    // Updates padding when the transform dimensions change
+    /// Updates padding when the transform dimensions change
     private void OnRectTransformDimensionsChange()
     {
         UpdatePadding();
     }
 
-    // Returns all item RectTransforms in the list
+    /// Returns all item RectTransforms in the list
     internal List<RectTransform> GetItemRects()
     {
         return itemRects;
     }
 
-    // Returns the RectTransform at the specified index
+    /// Returns the RectTransform at the specified index
     internal RectTransform GetItemAt(int index)
     {
         return index >= 0 && index < itemRects.Count ? itemRects[index] : null;

@@ -31,7 +31,7 @@ public class SpectatorModeManager : MonoBehaviourPunCallbacks
     private Camera _mainCamera;
     private Coroutine _spectatorCoroutine;
 
-    // Initialize singleton and UI elements
+    /// Initialize singleton and UI elements
     private void Awake()
     {
         if (Instance != null && Instance != this)
@@ -48,13 +48,13 @@ public class SpectatorModeManager : MonoBehaviourPunCallbacks
         nextPlayerButton.onClick.AddListener(SpectatorNextPlayer);
     }
 
-    // Find local player on start
+    /// Find local player on start
     private void Start()
     {
         FindLocalPlayer();
     }
 
-    // Locate the player that belongs to this client
+    /// Locate the player that belongs to this client
     private void FindLocalPlayer()
     {
         var allPlayers = FindObjectsByType<PlayerController>(FindObjectsSortMode.None);
@@ -66,7 +66,7 @@ public class SpectatorModeManager : MonoBehaviourPunCallbacks
         }
     }
 
-    // Handles player finishing the level by triggering spectator mode
+    /// Handles player finishing the level by triggering spectator mode
     internal void OnPlayerFinish()
     {
         if (!PhotonNetwork.IsConnected) return;
@@ -80,7 +80,7 @@ public class SpectatorModeManager : MonoBehaviourPunCallbacks
         _spectatorCoroutine = StartCoroutine(EnterSpectatorModeAfterDelay());
     }
 
-    // Waits for specified delay before entering spectator mode
+    /// Waits for specified delay before entering spectator mode
     private IEnumerator EnterSpectatorModeAfterDelay()
     {
         yield return new WaitForSeconds(delayBeforeSpectating);
@@ -88,7 +88,7 @@ public class SpectatorModeManager : MonoBehaviourPunCallbacks
         EnterSpectatorMode();
     }
 
-    // Activates spectator mode and prepares UI and camera
+    /// Activates spectator mode and prepares UI and camera
     private void EnterSpectatorMode()
     {
         RefreshPlayerList();
@@ -106,7 +106,7 @@ public class SpectatorModeManager : MonoBehaviourPunCallbacks
         SpectatorNextPlayer();
     }
 
-    // Disables spectator mode and resets camera to player
+    /// Disables spectator mode and resets camera to player
     private void ExitSpectatorMode()
     {
         if (_localPlayer == null) return;
@@ -125,7 +125,7 @@ public class SpectatorModeManager : MonoBehaviourPunCallbacks
         transform1.localPosition = new Vector3(0, 0, -10);
     }
 
-    // Updates the list of active players
+    /// Updates the list of active players
     private void RefreshPlayerList()
     {
         _activePlayers.Clear();
@@ -136,7 +136,7 @@ public class SpectatorModeManager : MonoBehaviourPunCallbacks
             _activePlayers.Add(player);
     }
 
-    // Switches to the next player in the list for spectating
+    /// Switches to the next player in the list for spectating
     private void SpectatorNextPlayer()
     {
         if (_activePlayers.Count <= 1) return;
@@ -149,7 +149,7 @@ public class SpectatorModeManager : MonoBehaviourPunCallbacks
         SwitchToPlayer(_currentPlayerIndex);
     }
 
-    // Switches to the previous player in the list for spectating
+    /// Switches to the previous player in the list for spectating
     private void SpectatorPreviousPlayer()
     {
         if (_activePlayers.Count <= 1) return;
@@ -162,7 +162,7 @@ public class SpectatorModeManager : MonoBehaviourPunCallbacks
         SwitchToPlayer(_currentPlayerIndex);
     }
 
-    // Attaches camera to the selected player and updates UI
+    /// Attaches camera to the selected player and updates UI
     private void SwitchToPlayer(int playerIndex)
     {
         if (playerIndex < 0 || playerIndex >= _activePlayers.Count) return;

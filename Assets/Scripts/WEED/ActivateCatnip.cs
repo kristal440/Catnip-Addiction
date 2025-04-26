@@ -18,7 +18,7 @@ public class ActivateCatnip : MonoBehaviour
     private bool _isEffectActive;
     private GameObject[] _childObjects;
 
-    // Initializes components and prepares collider
+    /// Initializes components and prepares collider
     private void Awake()
     {
         _renderer = GetComponent<Renderer>();
@@ -34,7 +34,7 @@ public class ActivateCatnip : MonoBehaviour
         _collider.isTrigger = true;
     }
 
-    // Activates catnip effect when player collides with the item
+    /// Activates catnip effect when player collides with the item
     private void OnTriggerEnter2D(Collider2D other)
     {
         if (_isEffectActive) return;
@@ -62,7 +62,7 @@ public class ActivateCatnip : MonoBehaviour
         StartCoroutine(DeactivateEffectAfterDelay(effectDuration, playerC, playerPhotonView));
     }
 
-    // Deactivates catnip effect after specified duration
+    /// Deactivates catnip effect after specified duration
     private IEnumerator DeactivateEffectAfterDelay(float delay, PlayerController playerC, PhotonView playerPhotonView)
     {
         yield return new WaitForSeconds(delay);

@@ -12,14 +12,14 @@ public class CheckpointManager : MonoBehaviour
     internal static Vector2 LastCheckpointPosition { get; private set; }
     private PhotonView _photonView;
 
-    // Initializes checkpoint position and gets PhotonView reference
+    /// Initializes checkpoint position and gets PhotonView reference
     private void Start()
     {
         LastCheckpointPosition = transform.position;
         _photonView = GetComponent<PhotonView>();
     }
 
-    // Registers new checkpoints when player enters their trigger area
+    /// Registers new checkpoints when player enters their trigger area
     private void OnTriggerEnter2D(Collider2D other)
     {
         if (!other.CompareTag(checkpointTag)) return;

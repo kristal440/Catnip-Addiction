@@ -14,7 +14,7 @@ public class MenuCatRunner : MonoBehaviour
     private float _speed;
     private float _destroyXPosition;
 
-    // Sets up cat runner with movement and animation parameters
+    /// Sets up cat runner with movement and animation parameters
     internal void Initialize(float speed, float destroyXPosition, int skinVariant,
         float minAnimSpeed, float maxAnimSpeed)
     {
@@ -29,7 +29,7 @@ public class MenuCatRunner : MonoBehaviour
         animator.SetFloat(Speed, animSpeed);
     }
 
-    // Moves the cat horizontally and disables it when off-screen
+    /// Moves the cat horizontally and disables it when off-screen
     private void Update()
     {
         transform.Translate(Vector3.right * (_speed * Time.deltaTime));
@@ -39,9 +39,9 @@ public class MenuCatRunner : MonoBehaviour
         gameObject.SetActive(false);
     }
 
-    // Animation event callback for standing animation completion
+    /// Animation event callback for standing animation completion
     public void OnStandingAnimationComplete() { }
 
-    // Pauses jump animation at a specific frame
+    /// Pauses jump animation at a specific frame
     public void PauseJump() { }
 }

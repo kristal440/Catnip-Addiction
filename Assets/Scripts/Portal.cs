@@ -32,7 +32,7 @@ public class Portal : MonoBehaviour
     [Header("Debug")]
     [SerializeField] [Tooltip("Show debug gizmos in the editor")] private bool showDebugGizmos = true;
 
-    // Enum to define velocity direction behavior
+    /// Enum to define velocity direction behavior
     private enum VelocityDirectionMode
     {
         Preserve,
@@ -41,7 +41,7 @@ public class Portal : MonoBehaviour
         Custom
     }
 
-    // Detects player collision and starts teleportation
+    /// Detects player collision and starts teleportation
     private void OnTriggerEnter2D(Collider2D other)
     {
         var playerController = other.GetComponent<PlayerController>();
@@ -49,7 +49,7 @@ public class Portal : MonoBehaviour
             StartCoroutine(TeleportSequence(playerController));
     }
 
-    // Handles the teleportation sequence
+    /// Handles the teleportation sequence
     private IEnumerator TeleportSequence(PlayerController player)
     {
         player.SetMovement(false);
@@ -120,7 +120,7 @@ public class Portal : MonoBehaviour
         playerRb.linearVelocity = newVelocity;
     }
 
-    // Toggles player visibility and manages canvas exclusions
+    /// Toggles player visibility and manages canvas exclusions
     private void SetPlayerVisibility(Component player, bool isVisible)
     {
         var renderers = player.GetComponentsInChildren<Renderer>();
@@ -139,7 +139,7 @@ public class Portal : MonoBehaviour
         }
     }
 
-    // Draws debug gizmos in the editor
+    /// Draws debug gizmos in the editor
     private void OnDrawGizmos()
     {
         if (!showDebugGizmos) return;

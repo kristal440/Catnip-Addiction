@@ -64,7 +64,7 @@ public class PlayerDirtParticleSystem : MonoBehaviour
     private float _inverseLandingForceRange;
     private float _inverseMaxSpeed;
 
-    // Creates the particle system and initializes basic settings
+    /// Creates the particle system and initializes basic settings
     private void Awake()
     {
         _dirtParticleSystem = gameObject.AddComponent<ParticleSystem>();
@@ -76,7 +76,7 @@ public class PlayerDirtParticleSystem : MonoBehaviour
         SetupParticleSystem();
     }
 
-    // Initializes references and calculated values
+    /// Initializes references and calculated values
     private void Start()
     {
         if (playerObject == null)
@@ -105,14 +105,14 @@ public class PlayerDirtParticleSystem : MonoBehaviour
             AdjustForRemotePlayer();
     }
 
-    // Cleans up created materials when destroyed
+    /// Cleans up created materials when destroyed
     private void OnDestroy()
     {
         if (_particleMaterial != null)
             Destroy(_particleMaterial);
     }
 
-    // Manages particle emission based on player state and movement
+    /// Manages particle emission based on player state and movement
     private void Update()
     {
         if (!_playerController)
@@ -152,7 +152,7 @@ public class PlayerDirtParticleSystem : MonoBehaviour
         _wasGrounded = isGrounded;
     }
 
-    // Checks if player is touching excluded objects that should prevent particles
+    /// Checks if player is touching excluded objects that should prevent particles
     private bool IsCollidingWithExcludedObjects()
     {
         if (excludedLayers.value == 0) return false;
@@ -165,7 +165,7 @@ public class PlayerDirtParticleSystem : MonoBehaviour
         return layerHit && layerHit.gameObject != playerObject;
     }
 
-    // Configures the particle system with all necessary modules and settings
+    /// Configures the particle system with all necessary modules and settings
     private void SetupParticleSystem()
     {
         _main.startColor = new ParticleSystem.MinMaxGradient(dirtColorMin, dirtColorMax);
@@ -203,7 +203,7 @@ public class PlayerDirtParticleSystem : MonoBehaviour
         SetupParticleRenderer();
     }
 
-    // Configures the particle system renderer component
+    /// Configures the particle system renderer component
     private void SetupParticleRenderer()
     {
         var component = _dirtParticleSystem.GetComponent<ParticleSystemRenderer>();
@@ -226,7 +226,7 @@ public class PlayerDirtParticleSystem : MonoBehaviour
         component.alignment = ParticleSystemRenderSpace.View;
     }
 
-    // Manages particle emission rate based on player's walking speed
+    /// Manages particle emission rate based on player's walking speed
     private void UpdateWalkingParticles(float speed)
     {
         if (speed > 0.1f)
@@ -240,7 +240,7 @@ public class PlayerDirtParticleSystem : MonoBehaviour
         }
     }
 
-    // Creates burst of particles when player jumps
+    /// Creates burst of particles when player jumps
     private void EmitJumpParticles(float jumpForce)
     {
         var jumpForceFactor = Clamp01(
@@ -254,7 +254,7 @@ public class PlayerDirtParticleSystem : MonoBehaviour
         _dirtParticleSystem.Emit(burstCount);
     }
 
-    // Creates burst of particles when player lands
+    /// Creates burst of particles when player lands
     private void EmitLandingParticles(float landingForce)
     {
         if (landingForce < minimumLandingForce)
@@ -271,7 +271,7 @@ public class PlayerDirtParticleSystem : MonoBehaviour
         _dirtParticleSystem.Emit(burstCount);
     }
 
-    // Reduces particle opacity for networked players that aren't the local player
+    /// Reduces particle opacity for networked players that aren't the local player
     private void AdjustForRemotePlayer()
     {
         var startColor = _main.startColor;

@@ -34,7 +34,7 @@ public class SkinPicker : MonoBehaviour
     private bool _isSnapping;
     private float _snapTargetPosition;
 
-    // Sets up skin previews and UI controls on startup
+    /// Sets up skin previews and UI controls on startup
     private void Start()
     {
         if (scrollRect == null || content == null || skinPreviewPrefab == null || leftButton == null || rightButton == null)
@@ -48,7 +48,7 @@ public class SkinPicker : MonoBehaviour
         UpdateContentPosition();
     }
 
-    // Creates skin preview objects and positions them in the scroll view
+    /// Creates skin preview objects and positions them in the scroll view
     private void InitializeSkinPreviews()
     {
         var currentX = 0f;
@@ -78,7 +78,7 @@ public class SkinPicker : MonoBehaviour
         _contentStartPosition = content.anchoredPosition.x;
     }
 
-    // Configures navigation button click handlers
+    /// Configures navigation button click handlers
     private void SetupButtons()
     {
         leftButton.onClick.AddListener(ScrollLeft);
@@ -86,7 +86,7 @@ public class SkinPicker : MonoBehaviour
         UpdateButtonStates();
     }
 
-    // Navigates to the previous skin
+    /// Navigates to the previous skin
     private void ScrollLeft()
     {
         _currentIndex--;
@@ -96,7 +96,7 @@ public class SkinPicker : MonoBehaviour
         UpdateButtonStates();
     }
 
-    // Navigates to the next skin
+    /// Navigates to the next skin
     private void ScrollRight()
     {
         _currentIndex++;
@@ -106,14 +106,14 @@ public class SkinPicker : MonoBehaviour
         UpdateButtonStates();
     }
 
-    // Enables/disables buttons based on current selection position
+    /// Enables/disables buttons based on current selection position
     private void UpdateButtonStates()
     {
         leftButton.interactable = _currentIndex > 0;
         rightButton.interactable = _currentIndex < skinNames.Count - 1;
     }
 
-    // Updates content position to center the selected skin
+    /// Updates content position to center the selected skin
     private void UpdateContentPosition()
     {
         _snapTargetPosition = _contentStartPosition - (_itemWidth + itemSpacing) * _currentIndex;
@@ -121,7 +121,7 @@ public class SkinPicker : MonoBehaviour
         SaveSelectedSkin();
     }
 
-    // Handles smooth scrolling and item scaling each frame
+    /// Handles smooth scrolling and item scaling each frame
     private void Update()
     {
         if (_isSnapping)
@@ -143,7 +143,7 @@ public class SkinPicker : MonoBehaviour
         UpdateItemScales();
     }
 
-    // Applies scale effects based on distance from center selection
+    /// Applies scale effects based on distance from center selection
     private void UpdateItemScales()
     {
         if (skinItemRects.Count == 0)
@@ -163,7 +163,7 @@ public class SkinPicker : MonoBehaviour
         }
     }
 
-    // Syncs selected skin with Photon network
+    /// Syncs selected skin with Photon network
     private void SaveSelectedSkin()
     {
         if (_currentIndex < 0 || _currentIndex >= skinNames.Count)

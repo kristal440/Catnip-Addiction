@@ -14,7 +14,7 @@ public class DeathBorderEffect : MonoBehaviour
     private float _currentAlpha;
     private bool _shouldShow;
 
-    // Initializes the border effect with zero opacity
+    /// Initializes the border effect with zero opacity
     private void Update()
     {
         switch (_shouldShow)
@@ -36,19 +36,19 @@ public class DeathBorderEffect : MonoBehaviour
         SetBorderAlpha(_currentAlpha);
     }
 
-    // Activates the death border effect
+    /// Activates the death border effect
     internal void ShowDeathBorder()
     {
         _shouldShow = true;
     }
 
-    // Deactivates the death border effect
+    /// Deactivates the death border effect
     internal void HideDeathBorder()
     {
         _shouldShow = false;
     }
 
-    // Updates the border image opacity
+    /// Updates the border image opacity
     private void SetBorderAlpha(float alpha)
     {
         if (!borderImage) return;

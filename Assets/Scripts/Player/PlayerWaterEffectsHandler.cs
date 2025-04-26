@@ -50,7 +50,7 @@ public class PlayerWaterEffectsHandler : MonoBehaviour
     private float _originalBaseAcceleration;
     private bool _waterEffectsApplied;
 
-    // Initialize component references and store original movement values
+    /// Initialize component references and store original movement values
     private void Awake()
     {
         _playerController = GetComponent<PlayerController>();
@@ -80,13 +80,13 @@ public class PlayerWaterEffectsHandler : MonoBehaviour
             _originalColor = _spriteRenderer.color;
     }
 
-    // Find spectator manager on start
+    /// Find spectator manager on start
     private void Start()
     {
         _spectatorModeManager = FindFirstObjectByType<SpectatorModeManager>();
     }
 
-    // Spawn water splash particles while moving in water
+    /// Spawn water splash particles while moving in water
     private void Update()
     {
         if (!_isInWater) return;
@@ -100,7 +100,7 @@ public class PlayerWaterEffectsHandler : MonoBehaviour
         _lastParticleTime = Time.time;
     }
 
-    // Create water splash particle effect via RPC
+    /// Create water splash particle effect via RPC
     [PunRPC]
     private void SpawnWaterSplash()
     {
@@ -108,7 +108,7 @@ public class PlayerWaterEffectsHandler : MonoBehaviour
         Destroy(splash, regularSplashLifetime);
     }
 
-    // Apply water effects when entering water
+    /// Apply water effects when entering water
     private void OnTriggerEnter2D(Collider2D other)
     {
         if (!other.CompareTag(waterTag) && !IsInWaterLayer(other.gameObject)) return;
@@ -123,7 +123,7 @@ public class PlayerWaterEffectsHandler : MonoBehaviour
         Destroy(splash, entrySplashLifetime);
     }
 
-    // Remove water effects when exiting water
+    /// Remove water effects when exiting water
     private void OnTriggerExit2D(Collider2D other)
     {
         if (!other.CompareTag(waterTag) && !IsInWaterLayer(other.gameObject)) return;
@@ -138,13 +138,13 @@ public class PlayerWaterEffectsHandler : MonoBehaviour
         Destroy(splash, entrySplashLifetime);
     }
 
-    // Check if object is in the water layer
+    /// Check if object is in the water layer
     private bool IsInWaterLayer(GameObject obj)
     {
         return (waterLayer.value & (1 << obj.layer)) != 0;
     }
 
-    // Apply movement modifications for water physics
+    /// Apply movement modifications for water physics
     private void ApplyWaterEffects()
     {
         if (_waterEffectsApplied)
@@ -166,7 +166,7 @@ public class PlayerWaterEffectsHandler : MonoBehaviour
             _cameraController.EnterWater();
     }
 
-    // Reset movement values to original state when exiting water
+    /// Reset movement values to original state when exiting water
     private void RemoveWaterEffects()
     {
         if (!_waterEffectsApplied)
@@ -186,7 +186,7 @@ public class PlayerWaterEffectsHandler : MonoBehaviour
             _cameraController.ExitWater();
     }
 
-    // Begin color transition for water tint effect
+    /// Begin color transition for water tint effect
     private void StartWaterTintTransition(bool entering)
     {
         if (!enableWaterTint || _spriteRenderer == null) return;
@@ -197,7 +197,7 @@ public class PlayerWaterEffectsHandler : MonoBehaviour
         _colorTransitionCoroutine = StartCoroutine(TransitionColor(entering ? waterTintColor : _originalColor));
     }
 
-    // Smoothly transition between normal and water tint colors
+    /// Smoothly transition between normal and water tint colors
     private IEnumerator TransitionColor(Color targetColor)
     {
         var startColor = _spriteRenderer.color;

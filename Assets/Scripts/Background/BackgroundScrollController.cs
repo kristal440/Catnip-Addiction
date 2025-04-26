@@ -31,7 +31,7 @@ public class BackgroundScrollController : MonoBehaviour
     private Camera _camera;
     private Vector2 _scrollOffset = Vector2.zero;
 
-    // Initialize camera reference and layer widths
+    /// Initialize camera reference and layer widths
     private void Start()
     {
         _camera = Camera.main;
@@ -44,7 +44,7 @@ public class BackgroundScrollController : MonoBehaviour
                 layer.width = tilemap.localBounds.size.x;
     }
 
-    // Handle scrolling for all layers or simple background
+    /// Handle scrolling for all layers or simple background
     private void Update()
     {
         if (useSimpleScrolling && simpleBackgroundRenderer)

@@ -21,7 +21,7 @@ public class Leaderboard : MonoBehaviour
     private const float MaxWaitTime = 10f;
     private float _startTime;
 
-    // Begins the leaderboard data loading process
+    /// Begins the leaderboard data loading process
     private void Start()
     {
         _startTime = Time.time;
@@ -29,7 +29,7 @@ public class Leaderboard : MonoBehaviour
     }
 
     #region Leaderboard Loading
-    // Attempts to load leaderboard data with retries until timeout
+    /// Attempts to load leaderboard data with retries until timeout
     private IEnumerator LoadLeaderboardWithRetry()
     {
         while (!_dataLoaded && (Time.time - _startTime) < MaxWaitTime)
@@ -69,7 +69,7 @@ public class Leaderboard : MonoBehaviour
             Debug.LogError("Failed to load leaderboard data after multiple retries.");
     }
 
-    // Extracts player name from hashtable data
+    /// Extracts player name from hashtable data
     private static string GetPlayerNameFromHash(Hashtable playerDataHash, int playerID)
     {
         if (!playerDataHash.TryGetValue("playerName", out var playerNameObj))
@@ -85,7 +85,7 @@ public class Leaderboard : MonoBehaviour
         return string.Empty;
     }
 
-    // Extracts finish time from hashtable data
+    /// Extracts finish time from hashtable data
     private static float GetFinishTimeFromHash(Hashtable playerDataHash, int playerID)
     {
         if (!playerDataHash.TryGetValue("finishTime", out var finishTimeObj))
@@ -106,7 +106,7 @@ public class Leaderboard : MonoBehaviour
         }
     }
 
-    // Creates and populates UI entries sorted by finish time
+    /// Creates and populates UI entries sorted by finish time
     private void PopulateLeaderboard(Dictionary<int, PlayerResultData> leaderboardData)
     {
         var sortedLeaderboard = new List<KeyValuePair<int, PlayerResultData>>(leaderboardData);
@@ -136,7 +136,7 @@ public class Leaderboard : MonoBehaviour
         }
     }
 
-    // Instantiates a new leaderboard entry UI element
+    /// Instantiates a new leaderboard entry UI element
     private GameObject CreateLeaderboardEntry()
     {
         if (leaderboardEntryPrefab)
@@ -151,7 +151,7 @@ public class Leaderboard : MonoBehaviour
     #endregion
 
     #region Helpers
-    // Truncates long player names and adds ellipsis
+    /// Truncates long player names and adds ellipsis
     private static string ShortenName(string playerName)
     {
         if (playerName.Length <= 13)
