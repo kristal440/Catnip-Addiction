@@ -36,6 +36,7 @@ public class GameManager : MonoBehaviourPunCallbacks
     [Header("UI Elements")]
     [SerializeField] [Tooltip("UI element showing the countdown")] public GameObject countdownUI;
     [SerializeField] [Tooltip("Text component displaying countdown values")] public TMP_Text countdownText;
+    [SerializeField] [Tooltip("Color to set the countdown text when countdown starts")] public Color countdownColor = new(1f, 0.35f, 0.35f);
     [SerializeField] [Tooltip("Reference to the finish line object")] public GameObject finishLine;
     [SerializeField] [Tooltip("Text component displaying the current game time")] public TMP_Text gameTimerText;
 
@@ -197,12 +198,15 @@ public class GameManager : MonoBehaviourPunCallbacks
     {
         countdownUI.SetActive(true);
 
+        var originalTextColor = countdownText.color;
+
         while (true)
         {
             if (PhotonNetwork.CurrentRoom == null ||
                 PhotonNetwork.CurrentRoom.PlayerCount < PhotonNetwork.CurrentRoom.MaxPlayers)
             {
                 countdownText.text = "waiting for players...";
+                countdownText.color = originalTextColor;
                 _countdownStarted = false;
 
                 while (PhotonNetwork.CurrentRoom == null ||
@@ -216,6 +220,9 @@ public class GameManager : MonoBehaviourPunCallbacks
             var elapsedTime = (PhotonNetwork.ServerTimestamp - serverStartTime) / 1000f;
             var remainingTime = countdownDuration - elapsedTime;
 
+            if (remainingTime <= countdownDuration)
+                countdownText.color = countdownColor;
+
             countdownText.text = "game starts in: " + CeilToInt(remainingTime);
 
             if (CeilToInt(remainingTime) == 2 && photonView)
@@ -227,6 +234,7 @@ public class GameManager : MonoBehaviourPunCallbacks
             yield return null;
         }
 
+        countdownText.color = originalTextColor;
         countdownUI.SetActive(false);
         if (photonView)
             photonView.RPC(nameof(StartGame), RpcTarget.All);
