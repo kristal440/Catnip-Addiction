@@ -783,6 +783,22 @@ MonoBehaviour:
   - {fileID: 3204778827486154777, guid: 32735e263a0ce3ad29cd32c5001c4c16, type: 3}
   numberOfClouds: 15
   parentTransform: {fileID: 0}
+  minAlpha: 0.5
+  maxAlpha: 1
+  cloudTint: {r: 1, g: 1, b: 1, a: 1}
+  useRandomColorVariation: 0
+  minColorVariation: 0.8
+  maxColorVariation: 1
+  horizontalFlipChance: 0.5
+  verticalFlipChance: 0.2
+  useRandomRotation: 0
+  minRotation: -15
+  maxRotation: 15
+  useShadows: 1
+  shadowColor: {r: 0, g: 0, b: 0, a: 0.3}
+  shadowOffsetX: 0.2
+  shadowOffsetY: -0.2
+  shadowSortingOrderOffset: -1
   minSpeed: 0.1
   maxSpeed: 0.5
   moveRight: 1
@@ -4799,6 +4815,10 @@ PrefabInstance:
     - target: {fileID: 6527983290951184688, guid: 79d520e561396a21baa4bd1e8d1e4d8d, type: 3}
       propertyPath: destinationPosition.x
       value: -28.6
+      objectReference: {fileID: 0}
+    - target: {fileID: 6527983290951184688, guid: 79d520e561396a21baa4bd1e8d1e4d8d, type: 3}
+      propertyPath: destinationPosition.y
+      value: 11.03
       objectReference: {fileID: 0}
     - target: {fileID: 7646909253736612936, guid: 79d520e561396a21baa4bd1e8d1e4d8d, type: 3}
       propertyPath: m_LocalPosition.x
