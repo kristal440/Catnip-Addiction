@@ -563,7 +563,7 @@ MonoBehaviour:
     - line: '|     m_GraphicsJobMode: 0'
     - line: '|   m_BuildTargetGraphicsAPIs:'
     - line: '|   - m_BuildTarget: AndroidPlayer'
-    - line: '|     m_APIs: 150000000b000000'
+    - line: '|     m_APIs: 0b000000'
     - line: '|     m_Automatic: 0'
     - line: '|   - m_BuildTarget: iOSSupport'
     - line: '|     m_APIs: 10000000'
@@ -999,7 +999,7 @@ MonoBehaviour:
     - rid: 7016962890364354665
       type: {class: AndroidPlatformBuildSettings, ns: UnityEditor.Android, asm: UnityEditor.Android.Extensions}
       data:
-        m_Development: 1
+        m_Development: 0
         m_ConnectProfiler: 0
         m_BuildWithDeepProfilingSupport: 0
         m_AllowDebugging: 0
@@ -1016,7 +1016,7 @@ MonoBehaviour:
         m_DebugSymbolLevel: 1
         m_DebugSymbolFormat: 5
         m_CurrentDeploymentTargetId: __builtin__target_default
-        m_BuildType: 1
+        m_BuildType: 2
         m_BuildAppBundle: 0
         m_IPAddressToConnect: 
         m_SymlinkSources: 0

@@ -2,9 +2,9 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.Rendering;
 
-/// <inheritdoc />
 /// <summary>
 /// Creates and manages teleportation particle effects with customizable appearance, movement, and lighting
+/// that works consistently across all platforms (Editor, Windows, Mac, Linux)
 /// </summary>
 public class TeleportParticles : MonoBehaviour
 {
@@ -33,9 +33,13 @@ public class TeleportParticles : MonoBehaviour
     [SerializeField] [Range(0.0f, 1.0f)] [Tooltip("Percentage of particles that emit light")] private float lightRatio = 0.5f;
     [SerializeField] [Tooltip("Color of the emitted light")] private Color lightColor = Color.green;
     [SerializeField] [Tooltip("Multiplies emission intensity for particle material")] private float emissionMultiplier = 2.0f;
+    [SerializeField] [Tooltip("Force pixel lighting for better compatibility")]
+    private bool forcePixelLighting = true;
 
     private ParticleSystem _particleSystem;
     private ParticleSystem.EmissionModule _emission;
+    private Light _particleLight;
+    private GameObject _lightObject;
 
     // Initializes the component and creates the particle system
     private void Awake()
@@ -46,7 +50,15 @@ public class TeleportParticles : MonoBehaviour
     // Sets up particle system with all configured parameters
     private void CreateParticleSystem()
     {
-        _particleSystem = gameObject.AddComponent<ParticleSystem>();
+        // Create particle system if it doesn't exist
+        if (_particleSystem == null)
+        {
+            _particleSystem = gameObject.GetComponent<ParticleSystem>();
+            if (_particleSystem == null)
+            {
+                _particleSystem = gameObject.AddComponent<ParticleSystem>();
+            }
+        }
 
         _particleSystem.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
 
@@ -59,6 +71,9 @@ public class TeleportParticles : MonoBehaviour
         main.startSizeMultiplier = particleSize;
         main.startColor = new ParticleSystem.MinMaxGradient(startColor, endColor);
         main.simulationSpace = ParticleSystemSimulationSpace.World;
+        // This is important for cross-platform compatibility
+        main.prewarm = false;
+        main.cullingMode = ParticleSystemCullingMode.AlwaysSimulate;
 
         _emission = _particleSystem.emission;
         _emission.rateOverTime = emissionRate;
@@ -118,10 +133,25 @@ public class TeleportParticles : MonoBehaviour
 
         var particleSystemRenderer = _particleSystem.GetComponent<ParticleSystemRenderer>();
 
-        var particleMaterial = new Material(Shader.Find("Particles/Standard Unlit"));
+        // Find a cross-platform compatible shader - first try getting a built-in one that's always included
+        var shader = Shader.Find("Particles/Standard Unlit");
+        if (shader == null)
+        {
+            // Fallback to default particle shader if Standard Unlit isn't available
+            shader = Shader.Find("Particles/Standard Surface");
+
+            // Last resort fallback
+            if (shader == null)
+            {
+                shader = Shader.Find("Standard");
+            }
+        }
+
+        var particleMaterial = new Material(shader);
         particleMaterial.EnableKeyword("_EMISSION");
         particleMaterial.SetColor(EmissionColor, startColor * emissionMultiplier);
 
+        // Configure the material for transparency
         particleMaterial.SetFloat(Mode, 2);
         particleMaterial.SetInt(SrcBlend, (int)BlendMode.SrcAlpha);
         particleMaterial.SetInt(DstBlend, (int)BlendMode.OneMinusSrcAlpha);
@@ -134,12 +164,18 @@ public class TeleportParticles : MonoBehaviour
         particleSystemRenderer.material = particleMaterial;
         particleSystemRenderer.renderMode = ParticleSystemRenderMode.Billboard;
         particleSystemRenderer.sortingOrder = 10;
+        // Use the material's color property instead of the built-in property for better compatibility
+        particleSystemRenderer.enableGPUInstancing = true;
 
         main.startSize = particleSize;
         main.startSizeMultiplier = particleSize;
 
         if (!emitLight) return;
 
+        // Create a permanent light reference for the particle system
+        SetupLight();
+
+        // Configure particle lights module
         var lightsModule = _particleSystem.lights;
         lightsModule.enabled = true;
         lightsModule.ratio = lightRatio;
@@ -147,22 +183,83 @@ public class TeleportParticles : MonoBehaviour
         lightsModule.intensityMultiplier = lightIntensity;
         lightsModule.rangeMultiplier = lightRange;
 
-        var tempLightObj = new GameObject("TempLight");
-        var tempLight = tempLightObj.AddComponent<Light>();
-        tempLight.color = lightColor;
-        tempLight.intensity = lightIntensity;
-        tempLight.range = lightRange;
-        tempLight.type = LightType.Point;
+        // Important: Set these explicitly for cross-platform compatibility
+        lightsModule.sizeAffectsRange = false;
+        lightsModule.alphaAffectsIntensity = true;
+        lightsModule.maxLights = Mathf.Min(8, Mathf.CeilToInt(emissionRate * lightRatio * 0.25f));
 
-        lightsModule.light = tempLight;
+        // Apply the reference light
+        lightsModule.light = _particleLight;
 
-        Destroy(tempLightObj);
+        // Don't use render pipeline settings to ensure consistent behavior
+        if (lightsModule.GetType().GetProperty("useRenderPipelineSettings") != null)
+        {
+            // This reflection approach works around potential compilation issues
+            // if the project doesn't use a SRP
+            System.Reflection.PropertyInfo propertyInfo =
+                lightsModule.GetType().GetProperty("useRenderPipelineSettings");
+            if (propertyInfo != null)
+            {
+                propertyInfo.SetValue(lightsModule, false);
+            }
+        }
+    }
+
+    // Creates a persistent light reference for the particle system
+    private void SetupLight()
+    {
+        // Clean up any existing light
+        if (_lightObject != null)
+        {
+            Destroy(_lightObject);
+            _lightObject = null;
+            _particleLight = null;
+        }
+
+        // Create a new child object for the light
+        _lightObject = new GameObject("ParticleLight");
+        _lightObject.transform.SetParent(transform);
+        _lightObject.transform.localPosition = Vector3.zero;
+
+        // Add and configure the light component
+        _particleLight = _lightObject.AddComponent<Light>();
+        _particleLight.color = lightColor;
+        _particleLight.intensity = lightIntensity;
+        _particleLight.range = lightRange;
+        _particleLight.type = LightType.Point;
+
+        // Force pixel lighting for better compatibility across platforms
+        if (forcePixelLighting)
+        {
+            _particleLight.renderMode = LightRenderMode.ForcePixel;
+        }
+
+        // These settings help with cross-platform compatibility
+        _particleLight.shadows = LightShadows.None;
+        _particleLight.cullingMask = 1 << gameObject.layer;
+    }
+
+    // Called when the object is destroyed
+    private void OnDestroy()
+    {
+        // Clean up light reference if it exists
+        if (_lightObject != null)
+        {
+            Destroy(_lightObject);
+        }
     }
 
     // Initiates teleport animation between two points
-    internal void AnimateTeleport(Vector3 startPos, Vector3 endPos, float duration, AnimationCurve movementCurve = null)
+    public void AnimateTeleport(Vector3 startPos, Vector3 endPos, float duration, AnimationCurve movementCurve = null)
     {
         gameObject.SetActive(true);
+
+        // Ensure particle system is properly set up
+        if (_particleSystem == null)
+        {
+            CreateParticleSystem();
+        }
+
         _particleSystem.Clear();
 
         StartCoroutine(TeleportAnimation(startPos, endPos, duration, movementCurve));
@@ -172,6 +269,16 @@ public class TeleportParticles : MonoBehaviour
     private IEnumerator TeleportAnimation(Vector3 startPos, Vector3 endPos, float duration, AnimationCurve movementCurve)
     {
         movementCurve ??= AnimationCurve.EaseInOut(0, 0, 1, 1);
+
+        // Ensure the light is properly set up
+        if (emitLight && (_particleLight == null || _lightObject == null))
+        {
+            SetupLight();
+
+            // Reconnect the light to the particles
+            var lightsModule = _particleSystem.lights;
+            lightsModule.light = _particleLight;
+        }
 
         _particleSystem.Play();
 
@@ -185,8 +292,8 @@ public class TeleportParticles : MonoBehaviour
 
             transform.position = Vector3.Lerp(startPos, endPos, curvedProgress);
 
-            var velocityFactor = movementCurve.Evaluate(normalizedTime + 0.01f) -
-                                 movementCurve.Evaluate(normalizedTime - 0.01f);
+            var velocityFactor = movementCurve.Evaluate(Mathf.Min(normalizedTime + 0.01f, 1f)) -
+                                 movementCurve.Evaluate(Mathf.Max(normalizedTime - 0.01f, 0f));
             _emission.rateOverTime = emissionRate * (1 + Mathf.Abs(velocityFactor) * 20);
 
             yield return null;
@@ -194,8 +301,12 @@ public class TeleportParticles : MonoBehaviour
 
         transform.position = endPos;
         _emission.rateOverTime = 0;
-        yield return new WaitForSeconds(3);
 
+        // Let remaining particles fade out
+        yield return new WaitForSeconds(particleLifetime);
+
+        // Final cleanup
+        _particleSystem.Stop();
         Destroy(gameObject);
     }
 }
