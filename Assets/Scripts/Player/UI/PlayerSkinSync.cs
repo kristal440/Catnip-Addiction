@@ -36,7 +36,7 @@ public class PlayerSkinSync : MonoBehaviourPunCallbacks
     }
 
     // Converts skin name to integer index for animator parameter
-    public static int GetSkinIndex(string skinName)
+    private static int GetSkinIndex(string skinName)
     {
         return skinName switch
         {
