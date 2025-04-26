@@ -185,7 +185,7 @@ namespace Photon.Realtime
         }
 
         /// <summary>While inside a Room, this is the list of players who are also in that room.</summary>
-        private Dictionary<int, Player> players = new Dictionary<int, Player>();
+        private Dictionary<int, Player> players = new();
 
         /// <summary>While inside a Room, this is the list of players who are also in that room.</summary>
         public Dictionary<int, Player> Players

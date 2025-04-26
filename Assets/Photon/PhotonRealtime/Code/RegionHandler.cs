@@ -205,7 +205,7 @@ namespace Photon.Realtime
             this.availableRegionCodes = string.Join(",", regions);
         }
 
-        private readonly List<RegionPinger> pingerList = new List<RegionPinger>();
+        private readonly List<RegionPinger> pingerList = new();
         private Action<RegionHandler> onCompleteCall;
         private int previousPing;
         private string previousSummaryProvided;

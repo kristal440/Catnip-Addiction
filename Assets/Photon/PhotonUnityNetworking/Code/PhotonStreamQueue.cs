@@ -31,7 +31,7 @@ namespace Photon.Pun
         private int m_LastFrameCount = -1;
         private int m_NextObjectIndex = -1;
 
-        private List<object> m_Objects = new List<object>();
+        private List<object> m_Objects = new();
 
         private bool m_IsWriting;
 

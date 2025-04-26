@@ -60,7 +60,7 @@ namespace Photon.Realtime
         /// <summary>Randomized number to identify a ping.</summary>
         protected internal byte PingId;
 
-        private static readonly System.Random RandomIdProvider = new System.Random();
+        private static readonly System.Random RandomIdProvider = new();
 
         /// <summary>Begins sending a ping.</summary>
         public virtual bool StartPing(string ip)

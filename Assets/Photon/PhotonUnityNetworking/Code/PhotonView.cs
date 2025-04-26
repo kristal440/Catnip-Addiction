@@ -715,7 +715,7 @@ namespace Photon.Pun
             }
         }
 
-        private Queue<CallbackTargetChange> CallbackChangeQueue = new Queue<CallbackTargetChange>();
+        private Queue<CallbackTargetChange> CallbackChangeQueue = new();
 
         private List<IOnPhotonViewPreNetDestroy> OnPreNetDestroyCallbacks;
         private List<IOnPhotonViewOwnerChange> OnOwnerChangeCallbacks;

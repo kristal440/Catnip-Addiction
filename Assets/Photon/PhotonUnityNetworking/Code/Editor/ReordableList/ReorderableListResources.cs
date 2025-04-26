@@ -213,7 +213,7 @@ namespace Photon.Pun
         #endregion
 
         #region GUI Helper
-        private static GUIStyle s_TempStyle = new GUIStyle();
+        private static GUIStyle s_TempStyle = new();
 
         /// <summary>
         /// Draw texture using <see cref="GUIStyle"/> to workaround bug in Unity where

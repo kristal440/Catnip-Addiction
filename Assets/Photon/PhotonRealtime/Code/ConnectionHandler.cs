@@ -81,7 +81,7 @@ namespace Photon.Realtime
 
 
         private bool didSendAcks;
-        private readonly Stopwatch backgroundStopwatch = new Stopwatch();
+        private readonly Stopwatch backgroundStopwatch = new();
 
         private Timer stateTimer;
 

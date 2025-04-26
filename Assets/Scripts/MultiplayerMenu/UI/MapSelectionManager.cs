@@ -1,14 +1,20 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class MapSelectionManager : MonoBehaviour
 {
     [SerializeField] private ScrollListController visualController;
     [SerializeField] private ScrollListSelectionHandler selectionHandler;
     [SerializeField] private Transform mapsContainer;
+
+    [Header("Map Preview")]
+    [SerializeField] private Image mapPreviewImage;
+    [SerializeField] private List<MapPreviewData> mapPreviews = new();
 
     [Header("Settings")]
     [SerializeField] private bool skipMapsNotInBuild = true;
@@ -18,6 +24,13 @@ public class MapSelectionManager : MonoBehaviour
 
     private readonly Dictionary<string, string> _availableMaps = new();
     private string _selectedMapName;
+
+    [Serializable]
+    public class MapPreviewData
+    {
+        public string mapSceneName;
+        public Sprite previewImage;
+    }
 
     private void Awake()
     {
@@ -118,6 +131,8 @@ public class MapSelectionManager : MonoBehaviour
 
         _selectedMapName = _availableMaps.Keys.ElementAt(index);
         OnMapSelected?.Invoke(_selectedMapName, _availableMaps[_selectedMapName]);
+
+        UpdateMapPreviewImage(_selectedMapName);
     }
 
     private void SelectMap(string mapSceneName)
@@ -127,6 +142,25 @@ public class MapSelectionManager : MonoBehaviour
         var index = _availableMaps.Keys.ToList().IndexOf(mapSceneName);
         if (index >= 0)
             selectionHandler.SelectItemProgrammatically(index);
+
+        UpdateMapPreviewImage(mapSceneName);
+    }
+
+    private void UpdateMapPreviewImage(string mapName)
+    {
+        if (mapPreviewImage == null) return;
+
+        var previewData = mapPreviews.FirstOrDefault(p => p.mapSceneName == mapName);
+
+        if (previewData != null && previewData.previewImage != null)
+        {
+            mapPreviewImage.sprite = previewData.previewImage;
+            mapPreviewImage.enabled = true;
+        }
+        else
+        {
+            Debug.LogWarning($"No preview image found for map '{mapName}'");
+        }
     }
 
     public string GetSelectedMapName()

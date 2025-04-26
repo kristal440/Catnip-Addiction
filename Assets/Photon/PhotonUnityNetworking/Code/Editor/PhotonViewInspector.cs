@@ -22,10 +22,10 @@ namespace Photon.Pun
     {
         private PhotonView m_Target;
 
-        private static GUIContent ownerTransferGuiContent = new GUIContent("Ownership Transfer", "Determines how ownership changes may be initiated.");
-        private static GUIContent syncronizationGuiContent = new GUIContent("Synchronization", "Determines how sync updates are culled and sent.");
-        private static GUIContent observableSearchGuiContent = new GUIContent("Observable Search", "When set to Auto, On Awake, Observables on this GameObject (and child GameObjects) will be found and populate the Observables List." +
-                "\n\nNested PhotonViews (children with a PhotonView) and their children will not be included in the search.");
+        private static GUIContent ownerTransferGuiContent = new("Ownership Transfer", "Determines how ownership changes may be initiated.");
+        private static GUIContent syncronizationGuiContent = new("Synchronization", "Determines how sync updates are culled and sent.");
+        private static GUIContent observableSearchGuiContent = new("Observable Search", "When set to Auto, On Awake, Observables on this GameObject (and child GameObjects) will be found and populate the Observables List." +
+                                                                                        "\n\nNested PhotonViews (children with a PhotonView) and their children will not be included in the search.");
 
         public void OnEnable()
         {

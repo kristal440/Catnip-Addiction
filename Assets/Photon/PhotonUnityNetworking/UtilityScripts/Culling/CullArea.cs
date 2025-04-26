@@ -68,7 +68,7 @@ namespace Photon.Pun.UtilityScripts
         public readonly int[] SUBDIVISION_THIRD_LEVEL_ORDER = new int[12] { 0, 3, 2, 3, 1, 3, 2, 3, 1, 3, 2, 3 };
 
         public Vector2 Center;
-        public Vector2 Size = new Vector2(25.0f, 25.0f);
+        public Vector2 Size = new(25.0f, 25.0f);
 
         public Vector2[] Subdivisions = new Vector2[MAX_NUMBER_OF_SUBDIVISIONS];
 

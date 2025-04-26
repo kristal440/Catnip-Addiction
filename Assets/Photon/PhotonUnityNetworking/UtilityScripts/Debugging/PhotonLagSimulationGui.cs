@@ -27,7 +27,7 @@ namespace Photon.Pun.UtilityScripts
     public class PhotonLagSimulationGui : MonoBehaviour
     {
         /// <summary>Positioning rect for window.</summary>
-        public Rect WindowRect = new Rect(0, 100, 120, 100);
+        public Rect WindowRect = new(0, 100, 120, 100);
 
         /// <summary>Unity GUI Window ID (must be unique or will cause issues).</summary>
         public int WindowId = 101;

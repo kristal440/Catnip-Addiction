@@ -17,7 +17,7 @@ namespace Photon.Pun.UtilityScripts
     /// </summary>
     public class StatesGui : MonoBehaviour
     {
-        public Rect GuiOffset = new Rect(250, 0, 300, 300);
+        public Rect GuiOffset = new(250, 0, 300, 300);
         public bool DontDestroy = true;
         public bool ServerTimestamp;
         public bool DetailedConnection;
@@ -33,7 +33,7 @@ namespace Photon.Pun.UtilityScripts
         public bool Buttons;
         public bool ExpectedUsers;
 
-        private Rect GuiRect = new Rect();
+        private Rect GuiRect = new();
         private static StatesGui Instance;
 
         void Awake()

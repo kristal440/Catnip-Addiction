@@ -256,7 +256,7 @@ namespace Photon.Realtime
     /// <summary>Container for port definitions.</summary>
     public struct PhotonPortDefinition
     {
-        public static readonly PhotonPortDefinition AlternativeUdpPorts = new PhotonPortDefinition() { NameServerPort = 27000, MasterServerPort = 27001, GameServerPort = 27002};
+        public static readonly PhotonPortDefinition AlternativeUdpPorts = new() { NameServerPort = 27000, MasterServerPort = 27001, GameServerPort = 27002};
 
         /// <summary>Typical ports: UDP: 5058 or 27000, TCP: 4533, WSS: 19093 or 443.</summary>
         public ushort NameServerPort;
@@ -377,7 +377,7 @@ namespace Photon.Realtime
         public string NameServerAddress { get { return this.GetNameServerAddress(); } }
 
         /// <summary>Name Server port per protocol (the UDP port is different than TCP, etc).</summary>
-        private static readonly Dictionary<ConnectionProtocol, int> ProtocolToNameServerPort = new Dictionary<ConnectionProtocol, int>() { { ConnectionProtocol.Udp, 5058 }, { ConnectionProtocol.Tcp, 4533 }, { ConnectionProtocol.WebSocket, 80 }, { ConnectionProtocol.WebSocketSecure, 443 } };
+        private static readonly Dictionary<ConnectionProtocol, int> ProtocolToNameServerPort = new() { { ConnectionProtocol.Udp, 5058 }, { ConnectionProtocol.Tcp, 4533 }, { ConnectionProtocol.WebSocket, 80 }, { ConnectionProtocol.WebSocketSecure, 443 } };
 
 
         /// <summary>Replaced by ServerPortOverrides.</summary>
@@ -646,7 +646,7 @@ namespace Photon.Realtime
         public bool EnableLobbyStatistics;
 
         /// <summary>Internal lobby stats cache, used by LobbyStatistics.</summary>
-        private readonly List<TypedLobbyInfo> lobbyStatistics = new List<TypedLobbyInfo>();
+        private readonly List<TypedLobbyInfo> lobbyStatistics = new();
 
 
         /// <summary>The local player is never null but not valid unless the client is in a room, too. The ID will be -1 outside of rooms.</summary>
@@ -811,8 +811,8 @@ namespace Photon.Realtime
             }
         }
 
-        private readonly Queue<CallbackTargetChange> callbackTargetChanges = new Queue<CallbackTargetChange>();
-        private readonly HashSet<object> callbackTargets = new HashSet<object>();
+        private readonly Queue<CallbackTargetChange> callbackTargetChanges = new();
+        private readonly HashSet<object> callbackTargets = new();
 
 
         /// <summary>Creates a LoadBalancingClient with UDP protocol or the one specified.</summary>

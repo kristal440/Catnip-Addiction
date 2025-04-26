@@ -80,7 +80,7 @@ namespace Photon.Pun
         
         private Animator m_Animator;
 
-        private PhotonStreamQueue m_StreamQueue = new PhotonStreamQueue(120);
+        private PhotonStreamQueue m_StreamQueue = new(120);
 
         //These fields are only used in the CustomEditor for this script and would trigger a
         //"this variable is never used" warning, which I am suppressing here
@@ -98,11 +98,11 @@ namespace Photon.Pun
 
         [HideInInspector]
         [SerializeField]
-        private List<SynchronizedParameter> m_SynchronizeParameters = new List<SynchronizedParameter>();
+        private List<SynchronizedParameter> m_SynchronizeParameters = new();
 
         [HideInInspector]
         [SerializeField]
-        private List<SynchronizedLayer> m_SynchronizeLayers = new List<SynchronizedLayer>();
+        private List<SynchronizedLayer> m_SynchronizeLayers = new();
 
         private Vector3 m_ReceiverPosition;
         private float m_LastDeserializeTime;
@@ -112,7 +112,7 @@ namespace Photon.Pun
         /// Cached raised triggers that are set to be synchronized in discrete mode. since a Trigger only stay up for less than a frame,
         /// We need to cache it until the next discrete serialization call.
         /// </summary>
-        List<string> m_raisedDiscreteTriggersCache = new List<string>();
+        List<string> m_raisedDiscreteTriggersCache = new();
 
         #endregion
 

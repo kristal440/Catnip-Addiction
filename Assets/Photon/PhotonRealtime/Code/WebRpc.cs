@@ -103,7 +103,7 @@ namespace Photon.Realtime
     public class WebFlags
     {
 
-        public readonly static WebFlags Default = new WebFlags(0);
+        public readonly static WebFlags Default = new(0);
         public byte WebhookFlags;
         /// <summary>
         /// Indicates whether to forward HTTP request to web service or not.

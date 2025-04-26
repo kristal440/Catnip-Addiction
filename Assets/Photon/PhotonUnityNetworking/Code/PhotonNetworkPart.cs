@@ -26,17 +26,17 @@ namespace Photon.Pun
 
     public static partial class PhotonNetwork
     {
-        private static HashSet<byte> allowedReceivingGroups = new HashSet<byte>();
+        private static HashSet<byte> allowedReceivingGroups = new();
 
-        private static HashSet<byte> blockedSendingGroups = new HashSet<byte>();
+        private static HashSet<byte> blockedSendingGroups = new();
 
-        private static HashSet<PhotonView> reusablePVHashset = new HashSet<PhotonView>();
+        private static HashSet<PhotonView> reusablePVHashset = new();
 
 
         /// <summary>
         /// The photon view list.
         /// </summary>
-        private static NonAllocDictionary<int, PhotonView> photonViewList = new NonAllocDictionary<int, PhotonView>();
+        private static NonAllocDictionary<int, PhotonView> photonViewList = new();
 
         /// <summary>
         /// Gets the photon views.
@@ -203,7 +203,7 @@ namespace Photon.Pun
         /// </remarks>
         public static bool UseRpcMonoBehaviourCache;
 
-        private static readonly Dictionary<Type, List<MethodInfo>> monoRPCMethodsCache = new Dictionary<Type, List<MethodInfo>>();
+        private static readonly Dictionary<Type, List<MethodInfo>> monoRPCMethodsCache = new();
 
         private static Dictionary<string, int> rpcShortcuts;  // lookup "table" for the index (shortcut) of an RPC name
 
@@ -766,7 +766,7 @@ namespace Photon.Pun
             LocalCleanupAnythingInstantiated(true);
         }
 
-        internal static List<PhotonView> foundPVs = new List<PhotonView>();
+        internal static List<PhotonView> foundPVs = new();
 
         /// <summary>Removes GameObject and the PhotonViews on it from local lists and optionally updates remotes. GameObject gets destroyed at end.</summary>
         /// <remarks>
@@ -863,13 +863,13 @@ namespace Photon.Pun
         }
 
 
-        private static readonly ExitGames.Client.Photon.Hashtable removeFilter = new ExitGames.Client.Photon.Hashtable();
-        private static readonly ExitGames.Client.Photon.Hashtable ServerCleanDestroyEvent = new ExitGames.Client.Photon.Hashtable();
-        private static readonly RaiseEventOptions ServerCleanOptions = new RaiseEventOptions() { CachingOption = EventCaching.RemoveFromRoomCache };
+        private static readonly ExitGames.Client.Photon.Hashtable removeFilter = new();
+        private static readonly ExitGames.Client.Photon.Hashtable ServerCleanDestroyEvent = new();
+        private static readonly RaiseEventOptions ServerCleanOptions = new() { CachingOption = EventCaching.RemoveFromRoomCache };
 
-        internal static RaiseEventOptions SendToAllOptions = new RaiseEventOptions() { Receivers = ReceiverGroup.All };
-        internal static RaiseEventOptions SendToOthersOptions = new RaiseEventOptions() { Receivers = ReceiverGroup.Others };
-        internal static RaiseEventOptions SendToSingleOptions = new RaiseEventOptions() { TargetActors = new int[1] };
+        internal static RaiseEventOptions SendToAllOptions = new() { Receivers = ReceiverGroup.All };
+        internal static RaiseEventOptions SendToOthersOptions = new() { Receivers = ReceiverGroup.Others };
+        internal static RaiseEventOptions SendToSingleOptions = new() { TargetActors = new int[1] };
 
         /// <summary>
         /// Removes an instantiation event from the server's cache. Needs id and actorNr of player who instantiated.
@@ -1080,8 +1080,8 @@ namespace Photon.Pun
         }
 
 
-        private static readonly Hashtable rpcFilterByViewId = new ExitGames.Client.Photon.Hashtable();
-        private static readonly RaiseEventOptions OpCleanRpcBufferOptions = new RaiseEventOptions() { CachingOption = EventCaching.RemoveFromRoomCache };
+        private static readonly Hashtable rpcFilterByViewId = new();
+        private static readonly RaiseEventOptions OpCleanRpcBufferOptions = new() { CachingOption = EventCaching.RemoveFromRoomCache };
 
         /// <summary>Cleans server RPCs for PhotonView (without any further checks).</summary>
         public static void OpCleanRpcBuffer(PhotonView view)
@@ -1188,8 +1188,8 @@ namespace Photon.Pun
         ///
         /// This is sent as event (code: 200) which will contain a sender (origin of this RPC).
 
-        static ExitGames.Client.Photon.Hashtable rpcEvent = new ExitGames.Client.Photon.Hashtable();
-        static RaiseEventOptions RpcOptionsToAll = new RaiseEventOptions();
+        static ExitGames.Client.Photon.Hashtable rpcEvent = new();
+        static RaiseEventOptions RpcOptionsToAll = new();
 
 
         internal static void RPC(PhotonView view, string methodName, RpcTarget target, Player player, bool encrypt, params object[] parameters)
@@ -1514,12 +1514,12 @@ namespace Photon.Pun
         public static int ObjectsInOneUpdate = 20;
 
 
-        private static readonly PhotonStream serializeStreamOut = new PhotonStream(true, null);
-        private static readonly PhotonStream serializeStreamIn = new PhotonStream(false, null);
+        private static readonly PhotonStream serializeStreamOut = new(true, null);
+        private static readonly PhotonStream serializeStreamIn = new(false, null);
 
 
         ///<summary> cache the RaiseEventOptions to prevent redundant Memory Allocation</summary>
-        private static RaiseEventOptions serializeRaiseEvOptions = new RaiseEventOptions();
+        private static RaiseEventOptions serializeRaiseEvOptions = new();
 
         private struct RaiseEventBatch : IEquatable<RaiseEventBatch>
         {
@@ -1595,7 +1595,7 @@ namespace Photon.Pun
         }
 
 
-        private static readonly Dictionary<RaiseEventBatch, SerializeViewBatch> serializeViewBatches = new Dictionary<RaiseEventBatch, SerializeViewBatch>();
+        private static readonly Dictionary<RaiseEventBatch, SerializeViewBatch> serializeViewBatches = new();
 
 
         /// <summary>Calls all locally controlled PhotonViews to write their updates in OnPhotonSerializeView. Called by a PhotonHandler.</summary>

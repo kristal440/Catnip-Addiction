@@ -51,7 +51,7 @@ namespace Photon.Pun.UtilityScripts
         #endif
 
         [SerializeField]
-        private List<PhotonTeam> teamsList = new List<PhotonTeam>
+        private List<PhotonTeam> teamsList = new()
         {
             new PhotonTeam { Name = "Blue", Code = 1 },
             new PhotonTeam { Name = "Red", Code = 2 }

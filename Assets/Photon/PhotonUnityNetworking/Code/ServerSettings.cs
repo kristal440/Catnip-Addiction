@@ -46,7 +46,7 @@ namespace Photon.Pun
         public bool StartInOfflineMode;
 
         [Tooltip("RPC name list.\nUsed as shortcut when sending calls.")]
-        public List<string> RpcList = new List<string>();   // set by scripts and or via Inspector
+        public List<string> RpcList = new();   // set by scripts and or via Inspector
 
         #if UNITY_EDITOR
         public bool DisableAutoOpenWizard;

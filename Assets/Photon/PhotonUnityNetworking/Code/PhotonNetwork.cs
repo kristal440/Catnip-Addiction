@@ -2572,7 +2572,7 @@ namespace Photon.Pun
         }
 
 
-        private static readonly HashSet<string> PrefabsWithoutMagicCallback = new HashSet<string>();
+        private static readonly HashSet<string> PrefabsWithoutMagicCallback = new();
 
         private static GameObject NetworkInstantiate(Pun.InstantiateParameters parameters, bool roomObject = false, bool instantiateEvent = false)
         {
@@ -2670,8 +2670,8 @@ namespace Photon.Pun
         }
 
 
-        private static readonly Hashtable SendInstantiateEvHashtable = new Hashtable();                             // SendInstantiate reuses this to reduce GC
-        private static readonly RaiseEventOptions SendInstantiateRaiseEventOptions = new RaiseEventOptions();       // SendInstantiate reuses this to reduce GC
+        private static readonly Hashtable SendInstantiateEvHashtable = new();                             // SendInstantiate reuses this to reduce GC
+        private static readonly RaiseEventOptions SendInstantiateRaiseEventOptions = new();       // SendInstantiate reuses this to reduce GC
 
         internal static bool SendInstantiate(Pun.InstantiateParameters parameters, bool roomObject = false)
         {

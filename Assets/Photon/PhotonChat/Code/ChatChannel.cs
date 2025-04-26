@@ -34,10 +34,10 @@ namespace Photon.Chat
         public readonly string Name;
 
         /// <summary>Senders of messages in chronological order. Senders and Messages refer to each other by index. Senders[x] is the sender of Messages[x].</summary>
-        public readonly List<string> Senders = new List<string>();
+        public readonly List<string> Senders = new();
 
         /// <summary>Messages in chronological order. Senders and Messages refer to each other by index. Senders[x] is the sender of Messages[x].</summary>
-        public readonly List<object> Messages = new List<object>();
+        public readonly List<object> Messages = new();
 
         /// <summary>If greater than 0, this channel will limit the number of messages, that it caches locally.</summary>
         public int MessageLimit;
@@ -65,7 +65,7 @@ namespace Photon.Chat
         public int MaxSubscribers { get; protected set; }
 
         /// <summary>Subscribed users.</summary>
-        public readonly HashSet<string> Subscribers = new HashSet<string>();
+        public readonly HashSet<string> Subscribers = new();
 
         /// <summary> Properties of subscribers </summary>
         private Dictionary<string, Dictionary<object, object>> usersProperties;

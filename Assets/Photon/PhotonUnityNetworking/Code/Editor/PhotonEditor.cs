@@ -85,11 +85,11 @@ namespace Photon.Pun
 
         protected Vector2 scrollPos = Vector2.zero;
 
-        private readonly Vector2 preferredSize = new Vector2(350, 400);
+        private readonly Vector2 preferredSize = new(350, 400);
 
         private static Texture2D BackgroundImage;
 
-        public static PunWizardText CurrentLang = new PunWizardText();
+        public static PunWizardText CurrentLang = new();
 
         /// <summary>
         /// third parties custom token

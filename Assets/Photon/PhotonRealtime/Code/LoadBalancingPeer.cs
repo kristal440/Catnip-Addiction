@@ -49,7 +49,7 @@ namespace Photon.Realtime
         }
 
 
-        private readonly Pool<ParameterDictionary> paramDictionaryPool = new Pool<ParameterDictionary>(
+        private readonly Pool<ParameterDictionary> paramDictionaryPool = new(
             () => new ParameterDictionary(),
             x => x.Clear(),
             1); // used in OpRaiseEvent() (avoids lots of new Dictionary() calls)
@@ -2008,7 +2008,7 @@ namespace Photon.Realtime
     public class RaiseEventOptions
     {
         /// <summary>Default options: CachingOption: DoNotCache, InterestGroup: 0, targetActors: null, receivers: Others, sequenceChannel: 0.</summary>
-        public readonly static RaiseEventOptions Default = new RaiseEventOptions();
+        public readonly static RaiseEventOptions Default = new();
 
         /// <summary>Defines if the server should simply send the event, put it in the cache or remove events that are like this one.</summary>
         /// <remarks>
@@ -2081,7 +2081,7 @@ namespace Photon.Realtime
         /// On the other hand, this is a shortcut and reusable reference to the default lobby.<br/>
         /// Do not change Name or Type.<br/>
         /// </remarks>
-        public static readonly TypedLobby Default = new TypedLobby();
+        public static readonly TypedLobby Default = new();
 
         /// <summary>
         /// Returns whether or not this instance points to the "default lobby" (<see cref="TypedLobby.Default"/>).

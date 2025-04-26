@@ -9,7 +9,7 @@ namespace Photon.Chat
     public class ChannelCreationOptions
     {
         /// <summary>Default values of channel creation options.</summary>
-        public static ChannelCreationOptions Default = new ChannelCreationOptions();
+        public static ChannelCreationOptions Default = new();
         /// <summary>Whether or not the channel to be created will allow client to keep a list of users.</summary>
         public bool PublishSubscribers { get; set; }
         /// <summary>Limit of the number of users subscribed to the channel to be created.</summary>

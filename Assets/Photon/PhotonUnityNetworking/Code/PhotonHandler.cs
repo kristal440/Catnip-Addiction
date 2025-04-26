@@ -70,9 +70,9 @@ namespace Photon.Pun
         protected internal int UpdateIntervalOnSerialize; // time [ms] between consecutive RunViewUpdate calls (sending syncs, etc)
 
 
-        private readonly Stopwatch swSendOutgoing = new Stopwatch();
+        private readonly Stopwatch swSendOutgoing = new();
 
-        private readonly Stopwatch swViewUpdate = new Stopwatch();
+        private readonly Stopwatch swViewUpdate = new();
 
         private SupportLogger supportLoggerComponent;
 
@@ -288,7 +288,7 @@ namespace Photon.Pun
 
         public void OnJoinRandomFailed(short returnCode, string message) { }
 
-        protected List<int> reusableIntList = new List<int>();
+        protected List<int> reusableIntList = new();
 
         public void OnJoinedRoom()
         {

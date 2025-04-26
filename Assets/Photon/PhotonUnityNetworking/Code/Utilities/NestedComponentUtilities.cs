@@ -29,9 +29,9 @@ namespace Photon.Pun
         #region GetComponent Replacements
 
         // Recycled collections
-        private static Queue<Transform> nodesQueue = new Queue<Transform>();
-        public static Dictionary<System.Type, ICollection> searchLists = new Dictionary<System.Type, ICollection>();
-        private static Stack<Transform> nodeStack = new Stack<Transform>();
+        private static Queue<Transform> nodesQueue = new();
+        public static Dictionary<System.Type, ICollection> searchLists = new();
+        private static Stack<Transform> nodeStack = new();
 
         /// <summary>
         /// Find T on supplied transform or any parent. Unlike GetComponentInParent, GameObjects do not need to be active to be found.

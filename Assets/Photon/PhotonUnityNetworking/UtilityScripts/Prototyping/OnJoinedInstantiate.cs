@@ -36,7 +36,7 @@ namespace Photon.Pun.UtilityScripts
 
         [HideInInspector] public SpawnSequence Sequence = SpawnSequence.Connection;
 
-        [HideInInspector] public List<Transform> SpawnPoints = new List<Transform>(1) { null };
+        [HideInInspector] public List<Transform> SpawnPoints = new(1) { null };
 
         [Tooltip("Add a random variance to a spawn point position. GetRandomOffset() can be overridden with your own method for producing offsets.")]
         [HideInInspector] public bool UseRandomOffset = true;
@@ -48,7 +48,7 @@ namespace Photon.Pun.UtilityScripts
         [Tooltip("Disables the Y axis of RandomOffset. The Y value of the spawn point will be used.")]
         [HideInInspector] public bool ClampY = true;
 
-        [HideInInspector] public List<GameObject> PrefabsToInstantiate = new List<GameObject>(1) { null }; // set in inspector
+        [HideInInspector] public List<GameObject> PrefabsToInstantiate = new(1) { null }; // set in inspector
 
         [FormerlySerializedAs("autoSpawnObjects")]
         [HideInInspector] public bool AutoSpawnObjects = true;
@@ -56,7 +56,7 @@ namespace Photon.Pun.UtilityScripts
         #endregion
 
         // Record of spawned objects, used for Despawn All
-        public Stack<GameObject> SpawnedObjects = new Stack<GameObject>();
+        public Stack<GameObject> SpawnedObjects = new();
         protected int spawnedAsActorId;
 
 

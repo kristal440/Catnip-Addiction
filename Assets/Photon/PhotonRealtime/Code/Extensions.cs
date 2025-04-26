@@ -181,7 +181,7 @@ namespace Photon.Realtime
         /// By making keysWithNullValue a static variable to clear before using, allocations only happen during the warm-up phase
         /// as the list needs to grow. Once it hit the high water mark for keys you need to remove.
         /// </remarks>
-        private static readonly List<object> keysWithNullValue = new List<object>();
+        private static readonly List<object> keysWithNullValue = new();
 
         /// <summary>Removes all keys with null values.</summary>
         /// <remarks>

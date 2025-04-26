@@ -111,7 +111,7 @@ namespace Photon.Pun.UtilityScripts
         /// <summary>
         /// The finished players.
         /// </summary>
-        private readonly HashSet<Player> finishedPlayers = new HashSet<Player>();
+        private readonly HashSet<Player> finishedPlayers = new();
 
         /// <summary>
         /// The turn manager event offset event message byte. Used internaly for defining data in Room Custom Properties

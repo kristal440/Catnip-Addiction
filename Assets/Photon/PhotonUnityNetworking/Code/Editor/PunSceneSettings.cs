@@ -39,7 +39,7 @@ namespace Photon.Pun
         #endif
         
         [SerializeField]
-        public List<SceneSetting> MinViewIdPerScene = new List<SceneSetting>();
+        public List<SceneSetting> MinViewIdPerScene = new();
 
       
         private const string SceneSettingsFileName = "PunSceneSettingsFile.asset";

@@ -166,7 +166,7 @@ namespace Photon.Pun
     public class PunSceneViews : ScriptableObject
     {
         [SerializeField]
-        public Dictionary<int, PhotonView> Views = new Dictionary<int, PhotonView>();
+        public Dictionary<int, PhotonView> Views = new();
 
         private static PunSceneViews instanceField;
         public static PunSceneViews Instance

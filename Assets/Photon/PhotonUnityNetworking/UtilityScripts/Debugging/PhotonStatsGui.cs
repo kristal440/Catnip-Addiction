@@ -48,7 +48,7 @@ namespace Photon.Pun.UtilityScripts
         public bool buttonsOn;
 
         /// <summary>Positioning rect for window.</summary>
-        public Rect statsRect = new Rect(0, 100, 200, 50);
+        public Rect statsRect = new(0, 100, 200, 50);
 
         /// <summary>Unity GUI Window ID (must be unique or will cause issues).</summary>
         public int WindowId = 100;

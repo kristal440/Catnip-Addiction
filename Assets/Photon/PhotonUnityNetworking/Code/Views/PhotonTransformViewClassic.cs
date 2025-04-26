@@ -32,13 +32,13 @@ namespace Photon.Pun
         //the object and calculating all the inter- and extrapolation
 
         [HideInInspector]
-        public PhotonTransformViewPositionModel m_PositionModel = new PhotonTransformViewPositionModel();
+        public PhotonTransformViewPositionModel m_PositionModel = new();
 
         [HideInInspector]
-        public PhotonTransformViewRotationModel m_RotationModel = new PhotonTransformViewRotationModel();
+        public PhotonTransformViewRotationModel m_RotationModel = new();
 
         [HideInInspector]
-        public PhotonTransformViewScaleModel m_ScaleModel = new PhotonTransformViewScaleModel();
+        public PhotonTransformViewScaleModel m_ScaleModel = new();
 
         PhotonTransformViewPositionControl m_PositionControl;
         PhotonTransformViewRotationControl m_RotationControl;
@@ -205,7 +205,7 @@ namespace Photon.Pun
         float m_SynchronizedTurnSpeed = 0;
 
         Vector3 m_NetworkPosition;
-        Queue<Vector3> m_OldNetworkPositions = new Queue<Vector3>();
+        Queue<Vector3> m_OldNetworkPositions = new();
 
         bool m_UpdatedPositionAfterOnSerialize = true;
 

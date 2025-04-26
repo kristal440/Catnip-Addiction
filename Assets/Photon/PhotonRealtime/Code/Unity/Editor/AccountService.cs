@@ -32,7 +32,7 @@ namespace Photon.Realtime
     {
         private const string ServiceUrl = "https://partner.photonengine.com/api/{0}/User/RegisterEx";
 
-        private readonly Dictionary<string, string> RequestHeaders = new Dictionary<string, string>
+        private readonly Dictionary<string, string> RequestHeaders = new()
         {
             { "Content-Type", "application/json" },
             { "x-functions-key", "" }
@@ -213,7 +213,7 @@ namespace Photon.Realtime
 
         // RFC2822 compliant matching 99.9% of all email addresses in actual use today
         // according to http://www.regular-expressions.info/email.html [22.02.2012]
-        private static Regex reg = new Regex("^((?>[a-zA-Z\\d!#$%&'*+\\-/=?^_{|}~]+\\x20*|\"((?=[\\x01-\\x7f])[^\"\\]|\\[\\x01-\\x7f])*\"\\x20*)*(?<angle><))?((?!\\.)(?>\\.?[a-zA-Z\\d!#$%&'*+\\-/=?^_{|}~]+)+|\"((?=[\\x01-\\x7f])[^\"\\]|\\[\\x01-\\x7f])*\")@(((?!-)[a-zA-Z\\d\\-]+(?<!-)\\.)+[a-zA-Z]{2,}|\\[(((?(?<!\\[)\\.)(25[0-5]|2[0-4]\\d|[01]?\\d?\\d)){4}|[a-zA-Z\\d\\-]*[a-zA-Z\\d]:((?=[\\x01-\\x7f])[^\\\\[\\]]|\\[\\x01-\\x7f])+)\\])(?(angle)>)$",
+        private static Regex reg = new("^((?>[a-zA-Z\\d!#$%&'*+\\-/=?^_{|}~]+\\x20*|\"((?=[\\x01-\\x7f])[^\"\\]|\\[\\x01-\\x7f])*\"\\x20*)*(?<angle><))?((?!\\.)(?>\\.?[a-zA-Z\\d!#$%&'*+\\-/=?^_{|}~]+)+|\"((?=[\\x01-\\x7f])[^\"\\]|\\[\\x01-\\x7f])*\")@(((?!-)[a-zA-Z\\d\\-]+(?<!-)\\.)+[a-zA-Z]{2,}|\\[(((?(?<!\\[)\\.)(25[0-5]|2[0-4]\\d|[01]?\\d?\\d)){4}|[a-zA-Z\\d\\-]*[a-zA-Z\\d]:((?=[\\x01-\\x7f])[^\\\\[\\]]|\\[\\x01-\\x7f])+)\\])(?(angle)>)$",
              RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
         public static bool IsValidEmail(string mailAddress)
         {

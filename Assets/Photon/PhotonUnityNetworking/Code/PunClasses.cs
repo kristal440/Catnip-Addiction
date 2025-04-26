@@ -877,7 +877,7 @@ namespace Photon.Pun
     public class DefaultPool : IPunPrefabPool
     {
         /// <summary>Contains a GameObject per prefabId, to speed up instantiation.</summary>
-        public readonly Dictionary<string, GameObject> ResourceCache = new Dictionary<string, GameObject>();
+        public readonly Dictionary<string, GameObject> ResourceCache = new();
 
         /// <summary>Returns an inactive instance of a networked GameObject, to be used by PUN.</summary>
         /// <param name="prefabId">String identifier for the networked object.</param>
@@ -922,7 +922,7 @@ namespace Photon.Pun
     /// <summary>Small number of extension methods that make it easier for PUN to work cross-Unity-versions.</summary>
     public static class PunExtensions
     {
-        public static Dictionary<MethodInfo, ParameterInfo[]> ParametersOfMethods = new Dictionary<MethodInfo, ParameterInfo[]>();
+        public static Dictionary<MethodInfo, ParameterInfo[]> ParametersOfMethods = new();
 
         public static ParameterInfo[] GetCachedParemeters(this MethodInfo mo)
         {
