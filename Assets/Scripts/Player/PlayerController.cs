@@ -16,11 +16,29 @@ public class PlayerController : MonoBehaviourPunCallbacks
     public Animator animator;
 
     [Header("Movement")]
-    public float acceleration = 10f;
+    [Tooltip("How quickly player accelerates")]
+    public AnimationCurve accelerationCurve = new AnimationCurve(
+        new Keyframe(0f, 0.3f),
+        new Keyframe(0.6f, 0.7f),
+        new Keyframe(1f, 1f)
+    );
+    public float baseAcceleration = 10f;
+    [Tooltip("How long it takes to reach full acceleration")]
+    public float accelerationTime = 0.8f;
     public float deceleration = 15f;
     public float maxSpeed = 5f;
+    [Tooltip("Higher speed reached after maintaining max speed")]
+    public float turboSpeed = 7f;
+    [Tooltip("Time in seconds player needs to maintain max speed before reaching turbo speed")]
+    public float timeToTurboSpeed = 1.5f;
     [HideInInspector] public float currentSpeed;
     [HideInInspector] public float verticalSpeed;
+
+    // Acceleration tracking
+    private float _currentAccelTime;
+    private float _timeAtMaxSpeed;
+    private bool _isTurboActive;
+    private int _lastMoveDirection;
 
     [Header("Ground Check")]
     public Transform groundCheck;
@@ -61,7 +79,6 @@ public class PlayerController : MonoBehaviourPunCallbacks
     private bool _movementDisabledForJump;
     private bool _isTouchingWall;
     private bool _isJumpQueued;
-    private bool _jump1;
     private float _idleTimer;
     private Vector3 _previousPlayerScale;
     private float _originalGravityScale;
@@ -277,6 +294,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
     {
         _newMaxSpeed = HasCatnip ? maxSpeed * 1.1f : maxSpeed;
         _newDeceleration = HasCatnip ? deceleration * 0.9f : deceleration;
+        float currentTurboSpeed = HasCatnip ? turboSpeed * 1.1f : turboSpeed;
 
         var facingRight = transform.localScale.x > 0;
         var movingIntoWall = _isTouchingWall &&
@@ -287,20 +305,73 @@ public class PlayerController : MonoBehaviourPunCallbacks
         {
             currentSpeed = 0;
             _wallCollisionHandled = true;
+            _currentAccelTime = 0f;
+            _timeAtMaxSpeed = 0f;
+            _isTurboActive = false;
         }
 
+        int moveDirection = (int)Sign(horizontalInput);
         switch (Abs(horizontalInput))
         {
             case > 0.01f when !movingIntoWall:
-                currentSpeed = MoveTowards(currentSpeed, horizontalInput * _newMaxSpeed, acceleration * Time.deltaTime);
+                // If changing direction, reset acceleration
+                if (moveDirection != _lastMoveDirection && _lastMoveDirection != 0)
+                {
+                    _currentAccelTime = 0f;
+                    _timeAtMaxSpeed = 0f;
+                    _isTurboActive = false;
+                }
+
+                // Track current direction for next frame
+                _lastMoveDirection = moveDirection;
+
+                // Gradually increase acceleration based on time
+                _currentAccelTime = Min(_currentAccelTime + Time.deltaTime, accelerationTime);
+
+                // Evaluate acceleration from curve (normalized 0-1 time)
+                float accelMultiplier = accelerationCurve.Evaluate(_currentAccelTime / accelerationTime);
+                float currentAccel = baseAcceleration * accelMultiplier;
+
+                // Target speed calculation
+                float targetSpeed = _newMaxSpeed;
+
+                // Check if player is at max speed
+                if (Abs(currentSpeed) >= _newMaxSpeed * 0.98f && Sign(currentSpeed) == moveDirection)
+                {
+                    _timeAtMaxSpeed += Time.deltaTime;
+
+                    // Check if we should activate turbo
+                    if (_timeAtMaxSpeed >= timeToTurboSpeed)
+                    {
+                        _isTurboActive = true;
+                    }
+                }
+                else
+                {
+                    _timeAtMaxSpeed = 0f;
+                }
+
+                // If turbo is active, target the turbo speed
+                if (_isTurboActive)
+                {
+                    targetSpeed = currentTurboSpeed;
+                }
+
+                currentSpeed = MoveTowards(currentSpeed, horizontalInput * targetSpeed, currentAccel * Time.deltaTime);
                 break;
+
             case <= 0.01f:
-            {
-                currentSpeed = MoveTowards(currentSpeed, 0, _newDeceleration * Time.deltaTime);
-                if (Abs(currentSpeed) < 0.01f)
-                    currentSpeed = 0;
-                break;
-            }
+                {
+                    _currentAccelTime = 0f;
+                    _timeAtMaxSpeed = 0f;
+                    _isTurboActive = false;
+                    _lastMoveDirection = 0;
+
+                    currentSpeed = MoveTowards(currentSpeed, 0, _newDeceleration * Time.deltaTime);
+                    if (Abs(currentSpeed) < 0.01f)
+                        currentSpeed = 0;
+                    break;
+                }
         }
 
         _rb.linearVelocity = new Vector2(currentSpeed, _rb.linearVelocity.y);
@@ -487,13 +558,6 @@ public class PlayerController : MonoBehaviourPunCallbacks
         {
             animator.speed = 1f;
             IsJumpPaused = false;
-            _jump1 = false;
-        }
-
-        if (!_jump1 && _rb.linearVelocity.y is < 3f and > 2.5f)
-        {
-            animator.speed = 1f;
-            _jump1 = true;
         }
 
         if (photonView.IsMine)
@@ -524,6 +588,13 @@ public class PlayerController : MonoBehaviourPunCallbacks
     #endregion
 
     #region Utility
+
+    // For compatibility with existing code that referenced acceleration
+    public float acceleration
+    {
+        get { return baseAcceleration * accelerationCurve.Evaluate(_currentAccelTime / accelerationTime); }
+        set { baseAcceleration = value; }
+    }
 
     internal void Teleport(Vector3 position)
     {

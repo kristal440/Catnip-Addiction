@@ -1489,9 +1489,45 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   animator: {fileID: 5390650277062847292}
-  acceleration: 20
+  accelerationCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0.3
+      inSlope: 2.094339
+      outSlope: 2.094339
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0.09210645
+    - serializedVersion: 3
+      time: 0.6333252
+      value: 0.934436
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  baseAcceleration: 20
+  accelerationTime: 0.6
   deceleration: 25
   maxSpeed: 8
+  turboSpeed: 8.2
+  timeToTurboSpeed: 1.5
   currentSpeed: 0
   verticalSpeed: 0
   groundCheck: {fileID: 1442861436919526986}
