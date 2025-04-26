@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -127,7 +128,7 @@ public class MenuCatController : MonoBehaviour
     }
 
     // Return the cat to the pool once it's deactivated
-    private System.Collections.IEnumerator WaitForCatDeactivation(GameObject cat)
+    private IEnumerator WaitForCatDeactivation(GameObject cat)
     {
         yield return new WaitUntil(() => !cat.activeInHierarchy);
 

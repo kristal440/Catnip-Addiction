@@ -1,5 +1,6 @@
 using System.Collections;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 /// <inheritdoc />
 /// <summary>
@@ -122,8 +123,8 @@ public class TeleportParticles : MonoBehaviour
         particleMaterial.SetColor(EmissionColor, startColor * emissionMultiplier);
 
         particleMaterial.SetFloat(Mode, 2);
-        particleMaterial.SetInt(SrcBlend, (int)UnityEngine.Rendering.BlendMode.SrcAlpha);
-        particleMaterial.SetInt(DstBlend, (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
+        particleMaterial.SetInt(SrcBlend, (int)BlendMode.SrcAlpha);
+        particleMaterial.SetInt(DstBlend, (int)BlendMode.OneMinusSrcAlpha);
         particleMaterial.SetInt(ZWrite, 0);
         particleMaterial.DisableKeyword("_ALPHATEST_ON");
         particleMaterial.EnableKeyword("_ALPHABLEND_ON");

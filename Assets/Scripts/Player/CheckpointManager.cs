@@ -1,6 +1,6 @@
+using Photon.Pun;
 using UnityEngine;
 using static UnityEngine.Vector2;
-using Photon.Pun;
 
 /// <summary>
 /// Manages checkpoint registration and tracking for player respawning.

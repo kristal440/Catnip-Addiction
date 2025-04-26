@@ -1,7 +1,7 @@
 using System.Collections;
+using Photon.Pun;
 using UnityEngine;
 using UnityEngine.Rendering.Universal;
-using Photon.Pun;
 
 /// <inheritdoc />
 /// <summary>

@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 /// <inheritdoc />
@@ -56,7 +57,7 @@ public class MenuBackgroundController : MonoBehaviour
     }
 
     // Smoothly fade a canvas group between alpha values
-    private static System.Collections.IEnumerator FadeCanvasGroup(CanvasGroup group, float start, float end, float duration)
+    private static IEnumerator FadeCanvasGroup(CanvasGroup group, float start, float end, float duration)
     {
         float elapsed = 0;
         while (elapsed < duration)

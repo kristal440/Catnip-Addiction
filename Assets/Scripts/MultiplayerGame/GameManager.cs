@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Photon.Pun;
+using Photon.Realtime;
 using TMPro;
 using UnityEngine;
 using static UnityEngine.Mathf;
@@ -250,7 +251,7 @@ public class GameManager : MonoBehaviourPunCallbacks
     }
 
     // Handles when a player leaves the room
-    public override void OnPlayerLeftRoom(Photon.Realtime.Player otherPlayer)
+    public override void OnPlayerLeftRoom(Player otherPlayer)
     {
         base.OnPlayerLeftRoom(otherPlayer);
 

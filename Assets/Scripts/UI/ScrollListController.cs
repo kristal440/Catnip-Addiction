@@ -1,7 +1,8 @@
+using System;
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using System.Collections.Generic;
-using System;
 
 /// <summary>
 /// Controls the visual behavior of a scrollable list with scaling, snapping, and expansion effects.
@@ -169,7 +170,7 @@ public class ScrollListController : MonoBehaviour
     }
 
     // Smoothly scrolls to center the selected item in the viewport
-    private System.Collections.IEnumerator ScrollToSelectedItem()
+    private IEnumerator ScrollToSelectedItem()
     {
         yield return null;
 

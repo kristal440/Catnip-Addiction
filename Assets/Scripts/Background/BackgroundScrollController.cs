@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.Tilemaps;
@@ -8,7 +9,7 @@ using UnityEngine.Tilemaps;
 /// </summary>
 public class BackgroundScrollController : MonoBehaviour
 {
-    [System.Serializable]
+    [Serializable]
     public class ParallaxLayer
     {
         public Transform transform;

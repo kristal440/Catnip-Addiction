@@ -1,7 +1,7 @@
 using System.Collections;
 using UnityEngine;
-using UnityEngine.UI;
 using UnityEngine.Rendering.Universal;
+using UnityEngine.UI;
 
 /// <summary>
 /// Controls visual effects when player is under the influence of catnip.

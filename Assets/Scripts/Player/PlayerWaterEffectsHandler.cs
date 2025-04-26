@@ -1,6 +1,6 @@
-using UnityEngine;
 using System.Collections;
 using Photon.Pun;
+using UnityEngine;
 
 /// <inheritdoc />
 /// <summary>
@@ -47,7 +47,8 @@ public class PlayerWaterEffectsHandler : MonoBehaviour
     private float _originalMaxSpeed;
     private float _originalMinJumpForce;
     private float _originalMaxJumpForce;
-    private float _originalAcceleration;
+    private float _originalBaseAcceleration;
+    private bool _waterEffectsApplied;
 
     // Initialize component references and store original movement values
     private void Awake()
@@ -69,7 +70,7 @@ public class PlayerWaterEffectsHandler : MonoBehaviour
         _originalMaxSpeed = _playerController.maxSpeed;
         _originalMinJumpForce = _playerController.minJumpForce;
         _originalMaxJumpForce = _playerController.maxJumpForce;
-        _originalAcceleration = _playerController.Acceleration;
+        _originalBaseAcceleration = _playerController.baseAcceleration;
 
         if (waterEntrySplashPrefab == null)
             waterEntrySplashPrefab = waterSplashPrefab;
@@ -146,15 +147,20 @@ public class PlayerWaterEffectsHandler : MonoBehaviour
     // Apply movement modifications for water physics
     private void ApplyWaterEffects()
     {
+        if (_waterEffectsApplied)
+            return;
+
+        _waterEffectsApplied = true;
+
         _originalMaxSpeed = _playerController.maxSpeed;
         _originalMinJumpForce = _playerController.minJumpForce;
         _originalMaxJumpForce = _playerController.maxJumpForce;
-        _originalAcceleration = _playerController.Acceleration;
+        _originalBaseAcceleration = _playerController.baseAcceleration;
 
         _playerController.maxSpeed *= speedMultiplierInWater;
         _playerController.minJumpForce *= jumpMultiplierInWater;
         _playerController.maxJumpForce *= jumpMultiplierInWater;
-        _playerController.Acceleration *= accelerationMultiplierInWater;
+        _playerController.baseAcceleration *= accelerationMultiplierInWater;
 
         if (affectCamera && _cameraController != null && (_photonView.IsMine || _spectatorModeManager.IsSpectating))
             _cameraController.EnterWater();
@@ -163,10 +169,15 @@ public class PlayerWaterEffectsHandler : MonoBehaviour
     // Reset movement values to original state when exiting water
     private void RemoveWaterEffects()
     {
+        if (!_waterEffectsApplied)
+            return;
+
+        _waterEffectsApplied = false;
+
         _playerController.maxSpeed = _originalMaxSpeed;
         _playerController.minJumpForce = _originalMinJumpForce;
         _playerController.maxJumpForce = _originalMaxJumpForce;
-        _playerController.Acceleration = _originalAcceleration;
+        _playerController.baseAcceleration = _originalBaseAcceleration;
 
         if (_photonView.IsMine)
             _playerController.ResetAccelerationState();

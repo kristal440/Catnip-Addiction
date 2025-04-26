@@ -612,7 +612,11 @@ public class PlayerController : MonoBehaviourPunCallbacks
     internal float Acceleration
     {
         get => baseAcceleration * accelerationCurve.Evaluate(_currentAccelTime / accelerationTime);
-        set => baseAcceleration = value;
+        set
+        {
+            baseAcceleration = value;
+            _currentAccelTime = 0f;
+        }
     }
 
     // Teleports player to specified position

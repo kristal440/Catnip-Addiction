@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using TMPro;
 using UnityEngine;
@@ -79,7 +80,7 @@ public class MapSelectionManager : MonoBehaviour
             for (var i = 0; i < SceneManager.sceneCountInBuildSettings; i++)
             {
                 var scenePath = SceneUtility.GetScenePathByBuildIndex(i);
-                var sceneNameFromBuild = System.IO.Path.GetFileNameWithoutExtension(scenePath);
+                var sceneNameFromBuild = Path.GetFileNameWithoutExtension(scenePath);
 
                 if (sceneNameFromBuild != sceneName) continue;
 
