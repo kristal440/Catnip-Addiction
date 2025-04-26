@@ -14,14 +14,14 @@ public class CloudManager : MonoBehaviour
     [SerializeField] [Tooltip("Parent transform for all generated clouds")] private Transform parentTransform;
 
     [Header("Visual Settings")]
-    [SerializeField] [Tooltip("Minimum alpha/transparency for clouds")] private float minAlpha = 0.5f;
+    [SerializeField] [Tooltip("Minimum alpha/transparency for clouds")] private float minAlpha = 0.8f;
     [SerializeField] [Tooltip("Maximum alpha/transparency for clouds")] private float maxAlpha = 1.0f;
     [SerializeField] [Tooltip("Color tint to apply to clouds")] private Color cloudTint = Color.white;
     [SerializeField] [Tooltip("Whether to apply random color variations")] private bool useRandomColorVariation;
     [SerializeField] [Tooltip("Minimum color variation (RGB)")] private float minColorVariation = 0.8f;
     [SerializeField] [Tooltip("Maximum color variation (RGB)")] private float maxColorVariation = 1.0f;
-    [SerializeField] [Tooltip("Chance for a cloud to be flipped horizontally")] private float horizontalFlipChance = 0.5f;
-    [SerializeField] [Tooltip("Chance for a cloud to be flipped vertically")] private float verticalFlipChance = 0.2f;
+    [SerializeField] [Tooltip("Chance for a cloud to be flipped horizontally")] private float horizontalFlipChance;
+    [SerializeField] [Tooltip("Chance for a cloud to be flipped vertically")] private float verticalFlipChance;
     [SerializeField] [Tooltip("Whether to apply random rotation to clouds")] private bool useRandomRotation;
     [SerializeField] [Tooltip("Minimum rotation angle (degrees)")] private float minRotation = -15f;
     [SerializeField] [Tooltip("Maximum rotation angle (degrees)")] private float maxRotation = 15f;
@@ -29,22 +29,22 @@ public class CloudManager : MonoBehaviour
     [Header("Shadow Settings")]
     [SerializeField] [Tooltip("Whether to add shadows to clouds")] private bool useShadows = true;
     [SerializeField] [Tooltip("Shadow color")] private Color shadowColor = new(0, 0, 0, 0.3f);
-    [SerializeField] [Tooltip("Shadow offset X")] private float shadowOffsetX = 0.2f;
-    [SerializeField] [Tooltip("Shadow offset Y")] private float shadowOffsetY = -0.2f;
+    [SerializeField] [Tooltip("Shadow offset X")] private float shadowOffsetX = 0.025f;
+    [SerializeField] [Tooltip("Shadow offset Y")] private float shadowOffsetY = -0.025f;
     [SerializeField] [Tooltip("Shadow sorting order offset from cloud")] private int shadowSortingOrderOffset = -1;
 
     [Header("Movement Settings")]
     [SerializeField] [Tooltip("Minimum movement speed for clouds")] private float minSpeed = 0.1f;
     [SerializeField] [Tooltip("Maximum movement speed for clouds")] private float maxSpeed = 0.5f;
     [SerializeField] [Tooltip("Direction clouds move (true = right, false = left)")] private bool moveRight = true;
-    [SerializeField] [Tooltip("Factor affecting how clouds react to player movement")] private float parallaxFactor;
+    [SerializeField] [Tooltip("Factor affecting how clouds react to player movement")] private float parallaxFactor = 0.5f;
 
     [Header("Position Settings")]
     [SerializeField] [Tooltip("Minimum Y position for cloud placement")] private float minY = -5f;
     [SerializeField] [Tooltip("Maximum Y position for cloud placement")] private float maxY = 20f;
     [SerializeField] [Tooltip("Minimum scale multiplier for clouds")] private float minScale = 3f;
     [SerializeField] [Tooltip("Maximum scale multiplier for clouds")] private float maxScale = 4f;
-    [SerializeField] [Tooltip("Width across which clouds are distributed")] private float distributionWidth = 100f;
+    [SerializeField] [Tooltip("Width across which clouds are distributed")] private float distributionWidth = 150f;
 
     [Header("Advanced")]
     [SerializeField] [Tooltip("Sorting layer name for cloud sprites")] private string sortingLayerName = "Background";
