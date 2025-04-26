@@ -13,10 +13,10 @@ MonoBehaviour:
   m_Name: UniversalBlurFeature
   m_EditorClassIdentifier: 
   m_Active: 1
-  iterations: 4
-  downsample: 1
+  iterations: 2
+  downsample: 2
   enableMipMaps: 1
-  scale: 2
+  scale: 3
   offset: 1
   scaleBlurWith: 1
   scaleReferenceSize: 1080
