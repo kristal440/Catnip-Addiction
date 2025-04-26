@@ -674,6 +674,41 @@ RectTransform:
   m_AnchoredPosition: {x: -0.00108, y: -0.05881}
   m_SizeDelta: {x: 0.13776, y: -0.03001}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!1 &4699294203893747706
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7838709526519794932}
+  m_Layer: 6
+  m_Name: BackWallCheck
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &7838709526519794932
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4699294203893747706}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 7617576481928218717}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: -0.085, y: 0.0117}
+  m_SizeDelta: {x: 0.01237, y: 0.03463}
+  m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &4709443584379856986
 GameObject:
   m_ObjectHideFlags: 0
@@ -1089,7 +1124,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3951173809159813694}
   m_Layer: 6
-  m_Name: WallCheck
+  m_Name: FrontWallCheck
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1111,7 +1146,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0.0772, y: 0.0117}
+  m_AnchoredPosition: {x: 0.085, y: 0.0117}
   m_SizeDelta: {x: 0.01237, y: 0.03463}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &6574133941179210712
@@ -1318,6 +1353,7 @@ Transform:
   - {fileID: 6004654633719211774}
   - {fileID: 1442861436919526986}
   - {fileID: 3951173809159813694}
+  - {fileID: 7838709526519794932}
   - {fileID: 6934162617730736680}
   - {fileID: 5892264231262284542}
   - {fileID: 4449914176471476980}
@@ -1524,7 +1560,7 @@ MonoBehaviour:
     m_RotationOrder: 4
   baseAcceleration: 20
   accelerationTime: 0.6
-  deceleration: 25
+  deceleration: 28
   maxSpeed: 8
   turboSpeed: 8.2
   timeToTurboSpeed: 1.5
@@ -1535,8 +1571,9 @@ MonoBehaviour:
   groundLayerMask:
     serializedVersion: 2
     m_Bits: 8
-  wallCheck: {fileID: 3951173809159813694}
-  wallCheckRadius: 0.15
+  frontWallCheck: {fileID: 3951173809159813694}
+  backWallCheck: {fileID: 7838709526519794932}
+  wallCheckRadius: 0.19
   wallLayerMask:
     serializedVersion: 2
     m_Bits: 8
@@ -1611,9 +1648,9 @@ MonoBehaviour:
   waterLayer:
     serializedVersion: 2
     m_Bits: 16
-  speedMultiplierInWater: 0.5
-  jumpMultiplierInWater: 0.85
-  accelerationMultiplierInWater: 0.4
+  speedMultiplierInWater: 0.55
+  jumpMultiplierInWater: 0.9
+  accelerationMultiplierInWater: 0.5
   waterSplashPrefab: {fileID: 3062182869956756065, guid: 5e308d9b4f1ade24db990f0a763a4d79, type: 3}
   waterEntrySplashPrefab: {fileID: 3062182869956756065, guid: 65ebe6d7e86c3c3f59fcf5caa66a7e83, type: 3}
   minSpeedToShowParticles: 2

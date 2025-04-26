@@ -41,6 +41,8 @@ public class TeleportParticles : MonoBehaviour
     {
         _particleSystem = gameObject.AddComponent<ParticleSystem>();
 
+        _particleSystem.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+
         var main = _particleSystem.main;
         main.duration = 1f;
         main.loop = true;

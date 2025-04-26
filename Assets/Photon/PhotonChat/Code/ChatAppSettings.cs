@@ -16,7 +16,6 @@ namespace Photon.Chat
     using System;
     using ExitGames.Client.Photon;
     #if SUPPORTED_UNITY
-    using UnityEngine.Serialization;
     #endif
 
     /// <summary>

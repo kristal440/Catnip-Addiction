@@ -17,7 +17,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
     [Header("Movement")]
     [Tooltip("How quickly player accelerates")]
-    public AnimationCurve accelerationCurve = new AnimationCurve(
+    public AnimationCurve accelerationCurve = new(
         new Keyframe(0f, 0.3f),
         new Keyframe(0.6f, 0.7f),
         new Keyframe(1f, 1f)
@@ -46,7 +46,8 @@ public class PlayerController : MonoBehaviourPunCallbacks
     public LayerMask groundLayerMask;
 
     [Header("Wall Detection")]
-    public Transform wallCheck;
+    public Transform frontWallCheck; // Renamed from wallCheck
+    public Transform backWallCheck; // New wall check for the back
     public float wallCheckRadius = 0.2f;
     public LayerMask wallLayerMask;
 
@@ -77,7 +78,8 @@ public class PlayerController : MonoBehaviourPunCallbacks
     private float _jumpChargeStartTime;
     private bool _jumpButtonHeld;
     private bool _movementDisabledForJump;
-    private bool _isTouchingWall;
+    private bool _isTouchingFrontWall;
+    private bool _isTouchingBackWall;
     private bool _isJumpQueued;
     private float _idleTimer;
     private Vector3 _previousPlayerScale;
@@ -210,9 +212,12 @@ public class PlayerController : MonoBehaviourPunCallbacks
         if (IsPaused)
             return;
 
-        _isTouchingWall = Physics2D.OverlapCircle(wallCheck.position, wallCheckRadius, wallLayerMask);
+        // Check both front and back walls
+        _isTouchingFrontWall = Physics2D.OverlapCircle(frontWallCheck.position, wallCheckRadius, wallLayerMask);
+        _isTouchingBackWall = Physics2D.OverlapCircle(backWallCheck.position, wallCheckRadius, wallLayerMask);
 
-        if (!_isTouchingWall)
+        // Reset wall collision flag only when not touching any walls
+        if (!_isTouchingFrontWall && !_isTouchingBackWall)
             _wallCollisionHandled = false;
 
         HandleJumpInput();
@@ -232,9 +237,10 @@ public class PlayerController : MonoBehaviourPunCallbacks
     private void HandlePlayerDirection(float horizontalInput)
     {
         var facingRight = transform.localScale.x > 0;
-        var movingIntoWall = _isTouchingWall &&
-                             ((facingRight && horizontalInput > 0) ||
-                              (!facingRight && horizontalInput < 0));
+
+        // Check for wall collision in the direction player is facing
+        var movingIntoWall = (facingRight && _isTouchingFrontWall && horizontalInput > 0) ||
+                             (!facingRight && _isTouchingBackWall && horizontalInput < 0);
 
         if (movingIntoWall && !_isJumpQueued)
             return;
@@ -297,23 +303,27 @@ public class PlayerController : MonoBehaviourPunCallbacks
         var currentTurboSpeed = HasCatnip ? turboSpeed * 1.1f : turboSpeed;
 
         var facingRight = transform.localScale.x > 0;
-        var movingIntoWall = _isTouchingWall &&
-                             ((facingRight && horizontalInput > 0) ||
-                              (!facingRight && horizontalInput < 0));
 
-        if (movingIntoWall && !_wallCollisionHandled)
+        // Check collision with both front and back walls
+        var movingIntoFrontWall = _isTouchingFrontWall &&
+                                  ((facingRight && horizontalInput > 0) ||
+                                   (!facingRight && horizontalInput < 0));
+
+        var movingIntoBackWall = _isTouchingBackWall &&
+                                 ((facingRight && horizontalInput < 0) ||
+                                  (!facingRight && horizontalInput > 0));
+
+        // Handle collision with any wall
+        if ((movingIntoFrontWall || movingIntoBackWall) && !_wallCollisionHandled)
         {
             currentSpeed = 0;
             _wallCollisionHandled = true;
-            _currentAccelTime = 0f;
-            _timeAtMaxSpeed = 0f;
-            _isTurboActive = false;
         }
 
         var moveDirection = (int)Sign(horizontalInput);
         switch (Abs(horizontalInput))
         {
-            case > 0.01f when !movingIntoWall:
+            case > 0.01f when !movingIntoFrontWall && !movingIntoBackWall:
                 if (moveDirection != _lastMoveDirection && _lastMoveDirection != 0)
                 {
                     _currentAccelTime = 0f;
@@ -576,6 +586,14 @@ public class PlayerController : MonoBehaviourPunCallbacks
     #endregion
 
     #region Utility
+
+    internal void ResetAccelerationState()
+    {
+        _currentAccelTime = 0f;
+        _timeAtMaxSpeed = 0f;
+        _isTurboActive = false;
+        _lastMoveDirection = 0;
+    }
 
     // For compatibility with existing code that referenced acceleration
     internal float Acceleration

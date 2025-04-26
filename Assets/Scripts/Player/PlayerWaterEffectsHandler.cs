@@ -164,6 +164,12 @@ public class WaterEffectsHandler : MonoBehaviour
         _playerController.maxJumpForce = _originalMaxJumpForce;
         _playerController.Acceleration = _originalAcceleration;
 
+        // Reset acceleration tracking variables when exiting water
+        if (_photonView.IsMine)
+        {
+            _playerController.ResetAccelerationState();
+        }
+
         if (affectCamera && _cameraController != null && (_photonView.IsMine || _spectatorModeManager.IsSpectating))
             _cameraController.ExitWater();
     }

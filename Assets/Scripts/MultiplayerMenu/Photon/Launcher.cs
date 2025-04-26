@@ -32,6 +32,7 @@ public class Launcher : MonoBehaviourPunCallbacks
     [Header("Map Selection")]
     [SerializeField] private GameObject mapListPanel;
     [SerializeField] private MapSelectionManager mapSelectionManager;
+    [SerializeField] private List<GameObject> objectsToDisableWhenMapSelectorOpen = new();
 
     [Header("Room List")]
     [SerializeField] private GameObject roomListPanel;
@@ -227,6 +228,7 @@ public class Launcher : MonoBehaviourPunCallbacks
     #region Map Selection
     public void InitializeMaps()
     {
+        DisableObjectsDuringMapSelection();
         mapListPanel.SetActive(true);
         mapSelectionManager.Initialize(_selectedMapName);
     }
@@ -235,6 +237,18 @@ public class Launcher : MonoBehaviourPunCallbacks
     {
         _selectedMapName = mapSceneName;
         Debug.Log($"Selected map: {mapSceneName} ({mapDisplayName})");
+    }
+
+    private void DisableObjectsDuringMapSelection()
+    {
+        foreach (var obj in objectsToDisableWhenMapSelectorOpen.Where(static obj => obj != null))
+            obj.SetActive(false);
+    }
+
+    public void EnableObjectsAfterMapSelection()
+    {
+        foreach (var obj in objectsToDisableWhenMapSelectorOpen.Where(static obj => obj != null))
+            obj.SetActive(true);
     }
     #endregion
 }
