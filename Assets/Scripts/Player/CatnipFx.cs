@@ -3,20 +3,25 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Rendering.Universal;
 
+/// <summary>
+/// Controls visual effects when player is under the influence of catnip.
+/// </summary>
+/// <inheritdoc />
 public class CatnipFx : MonoBehaviour
 {
     [Header("References")]
-    [SerializeField] private GameObject catnipFxParent;
-    [SerializeField] private Image screenMask;
-    [SerializeField] private Light2D light2D;
+    [SerializeField] [Tooltip("Parent object containing all catnip visual effects")] private GameObject catnipFxParent;
+    [SerializeField] [Tooltip("UI image used for screen color overlay during catnip effect")] private Image screenMask;
+    [SerializeField] [Tooltip("2D light for glow effects during catnip")] private Light2D light2D;
 
     [Header("Effect Settings")]
-    [SerializeField] private float transitionDuration = 1.0f;
-    [SerializeField] private float targetLightIntensity = 1.0f;
-    [SerializeField] [Range(0, 255)] private int targetMaskTransparency = 75;
+    [SerializeField] [Tooltip("Duration of effect transition in seconds")] private float transitionDuration = 1.0f;
+    [SerializeField] [Tooltip("Maximum light intensity during catnip effect")] private float targetLightIntensity = 1.0f;
+    [SerializeField] [Range(0, 255)] [Tooltip("Maximum transparency of screen mask during effect (0-255)")] private int targetMaskTransparency = 75;
 
     private Coroutine _activeEffectCoroutine;
 
+    // Validates and initializes required components
     private void Awake()
     {
         if (catnipFxParent == null)
@@ -32,6 +37,7 @@ public class CatnipFx : MonoBehaviour
             catnipFxParent.SetActive(false);
     }
 
+    // Starts the catnip effect transition
     internal void ActivateCatnipEffect()
     {
         if (catnipFxParent == null || screenMask == null || light2D == null)
@@ -53,6 +59,7 @@ public class CatnipFx : MonoBehaviour
         _activeEffectCoroutine = StartCoroutine(TransitionCatnipEffect(true));
     }
 
+    // Fades out the catnip effect
     internal void DeactivateCatnipEffect()
     {
         if (catnipFxParent == null || screenMask == null || light2D == null)
@@ -67,6 +74,7 @@ public class CatnipFx : MonoBehaviour
         _activeEffectCoroutine = StartCoroutine(TransitionCatnipEffect(false));
     }
 
+    // Smoothly transitions the catnip effect in or out
     private IEnumerator TransitionCatnipEffect(bool activating)
     {
         var elapsedTime = 0f;

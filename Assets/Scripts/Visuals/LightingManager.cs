@@ -2,19 +2,23 @@ using System;
 using UnityEngine;
 using UnityEngine.Rendering.Universal;
 
+/// <summary>
+/// Manages the global 2D lighting settings and quality for the scene.
+/// </summary>
+/// <inheritdoc />
 public class LightingManager : MonoBehaviour
 {
     [Header("Global Light Settings")]
-    [SerializeField] private Light2D globalLight;
-    [SerializeField] [Range(0f, 1f)] private float globalLightIntensity = 0.7f;
-    [SerializeField] private Color globalLightColor = Color.white;
+    [SerializeField] [Tooltip("Reference to the global 2D light")] private Light2D globalLight;
+    [SerializeField] [Range(0f, 1f)] [Tooltip("Controls the brightness of the global light")] private float globalLightIntensity = 0.7f;
+    [SerializeField] [Tooltip("Color of the global light")] private Color globalLightColor = Color.white;
 
     [Header("Shadow Settings")]
-    [SerializeField] [Range(0f, 1f)] private float shadowIntensity = 0.5f;
-    [SerializeField] [Range(0f, 1f)] private float shadowSmoothing;
+    [SerializeField] [Range(0f, 1f)] [Tooltip("Controls the darkness of shadows")] private float shadowIntensity = 0.5f;
+    [SerializeField] [Range(0f, 1f)] [Tooltip("Controls the softness of shadow edges")] private float shadowSmoothing;
 
     [Header("Performance")]
-    [SerializeField] private LightQuality lightQuality = LightQuality.Medium;
+    [SerializeField] [Tooltip("Quality preset for lighting (affects shadow quality)")] private LightQuality lightQuality = LightQuality.Medium;
 
     private enum LightQuality
     {
@@ -23,9 +27,9 @@ public class LightingManager : MonoBehaviour
         High
     }
 
+    // Initializes the global light if not already assigned
     private void Awake()
     {
-        // Set up global light if not assigned
         if (globalLight == null)
         {
             var lightObj = new GameObject("Global Light")
@@ -42,6 +46,7 @@ public class LightingManager : MonoBehaviour
         ApplyLightSettings();
     }
 
+    // Applies configured light settings to the global light
     private void ApplyLightSettings()
     {
         globalLight.intensity = globalLightIntensity;
@@ -53,6 +58,7 @@ public class LightingManager : MonoBehaviour
         ApplyQualitySettings();
     }
 
+    // Sets lighting quality based on the selected preset
     private void ApplyQualitySettings()
     {
         switch (lightQuality)
@@ -78,6 +84,7 @@ public class LightingManager : MonoBehaviour
     }
 
     #if UNITY_EDITOR
+    // Updates lighting when properties are changed in the inspector
     private void OnValidate()
     {
         if (globalLight != null)

@@ -1,5 +1,9 @@
 using UnityEngine;
 
+/// <summary>
+/// Manages the animation of skin previews in the UI by controlling animator states based on skin selection.
+/// </summary>
+/// <inheritdoc />
 public class SkinPreviewAnimator : MonoBehaviour
 {
     private const string BaseLayerName = "Base Layer";
@@ -10,6 +14,7 @@ public class SkinPreviewAnimator : MonoBehaviour
     private int _baseLayerIndex;
     private string _currentSkinName;
 
+    // Initializes component references and verifies required components exist
     private void Awake()
     {
         _animator = GetComponent<Animator>();
@@ -27,12 +32,14 @@ public class SkinPreviewAnimator : MonoBehaviour
         enabled = false;
     }
 
+    // Sets the current skin name and updates the animation accordingly
     internal void SetSkinName(string skinName)
     {
         _currentSkinName = skinName;
         UpdateAnimation();
     }
 
+    // Updates the animator to play the appropriate animation for the current skin
     private void UpdateAnimation()
     {
         if (_animator == null || string.IsNullOrEmpty(_currentSkinName)) return;
@@ -48,6 +55,7 @@ public class SkinPreviewAnimator : MonoBehaviour
             Debug.LogError($"State '{stateName}' not found in Animator Controller for skin: {_currentSkinName} on layer '{BaseLayerName}' (index: {_baseLayerIndex})");
     }
 
+    // Converts skin name to corresponding integer index for animator parameter
     private static int GetSkinIndex(string skinName)
     {
         return skinName.ToLower() switch

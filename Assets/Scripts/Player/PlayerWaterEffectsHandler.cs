@@ -2,37 +2,37 @@ using UnityEngine;
 using System.Collections;
 using Photon.Pun;
 
+/// <inheritdoc />
+/// <summary>
+/// Handles water interaction effects including movement modification, visual tints, and splash particles
+/// </summary>
 [RequireComponent(typeof(PlayerController), typeof(PhotonView))]
-[RequireComponent(typeof(PlayerController))]
-public class WaterEffectsHandler : MonoBehaviour
+public class PlayerWaterEffectsHandler : MonoBehaviour
 {
     [Header("Water Detection")]
-    [SerializeField] private string waterTag = "Water";
-    [SerializeField] private LayerMask waterLayer;
+    [SerializeField] [Tooltip("Tag used to identify water objects")] private string waterTag = "Water";
+    [SerializeField] [Tooltip("Layer mask for water objects")] private LayerMask waterLayer;
 
     [Header("Movement Modifiers")]
-    [Range(0.1f, 1.0f)]
-    [SerializeField] private float speedMultiplierInWater = 0.6f;
-    [Range(0.1f, 1.0f)]
-    [SerializeField] private float jumpMultiplierInWater = 0.7f;
-    [Range(0.1f, 1.0f)]
-    [SerializeField] private float accelerationMultiplierInWater = 0.5f;
+    [SerializeField] [Range(0.1f, 1.0f)] [Tooltip("How much player speed is reduced in water")] private float speedMultiplierInWater = 0.6f;
+    [SerializeField] [Range(0.1f, 1.0f)] [Tooltip("How much jump force is reduced in water")] private float jumpMultiplierInWater = 0.7f;
+    [SerializeField] [Range(0.1f, 1.0f)] [Tooltip("How much acceleration is reduced in water")] private float accelerationMultiplierInWater = 0.5f;
 
     [Header("Particle Effects")]
-    [SerializeField] private GameObject waterSplashPrefab;
-    [SerializeField] private GameObject waterEntrySplashPrefab;
-    [SerializeField] private float minSpeedToShowParticles = 0.5f;
-    [SerializeField] private float particleSpawnInterval = 0.2f;
-    [SerializeField] private float regularSplashLifetime = 2f;
-    [SerializeField] private float entrySplashLifetime = 3f;
+    [SerializeField] [Tooltip("Particle effect for regular water movement")] private GameObject waterSplashPrefab;
+    [SerializeField] [Tooltip("Particle effect when entering/exiting water")] private GameObject waterEntrySplashPrefab;
+    [SerializeField] [Tooltip("Minimum speed required to show splash particles")] private float minSpeedToShowParticles = 0.5f;
+    [SerializeField] [Tooltip("Time between spawning splash particles")] private float particleSpawnInterval = 0.2f;
+    [SerializeField] [Tooltip("How long regular splash effects last before being destroyed")] private float regularSplashLifetime = 2f;
+    [SerializeField] [Tooltip("How long entry splash effects last before being destroyed")] private float entrySplashLifetime = 3f;
 
     [Header("Water Tint Effect")]
-    [SerializeField] private bool enableWaterTint = true;
-    [SerializeField] private Color waterTintColor = new(0.6f, 0.8f, 1.0f, 0.9f);
-    [SerializeField] private float colorTransitionDuration = 0.5f;
+    [SerializeField] [Tooltip("Whether to apply color tint when in water")] private bool enableWaterTint = true;
+    [SerializeField] [Tooltip("Color applied to the player when underwater")] private Color waterTintColor = new(0.6f, 0.8f, 1.0f, 0.9f);
+    [SerializeField] [Tooltip("Time to transition between normal and underwater colors")] private float colorTransitionDuration = 0.5f;
 
     [Header("Camera Effects")]
-    [SerializeField] private bool affectCamera = true;
+    [SerializeField] [Tooltip("Whether water affects the camera")] private bool affectCamera = true;
 
     private PlayerController _playerController;
     private PhotonView _photonView;
@@ -49,12 +49,12 @@ public class WaterEffectsHandler : MonoBehaviour
     private float _originalMaxJumpForce;
     private float _originalAcceleration;
 
+    // Initialize component references and store original movement values
     private void Awake()
     {
         _playerController = GetComponent<PlayerController>();
         _photonView = GetComponent<PhotonView>();
 
-        // Find the camera controller
         if (affectCamera)
         {
             var playerCamera = GetComponentInChildren<Camera>();
@@ -79,11 +79,13 @@ public class WaterEffectsHandler : MonoBehaviour
             _originalColor = _spriteRenderer.color;
     }
 
+    // Find spectator manager on start
     private void Start()
     {
         _spectatorModeManager = FindFirstObjectByType<SpectatorModeManager>();
     }
 
+    // Spawn water splash particles while moving in water
     private void Update()
     {
         if (!_isInWater) return;
@@ -93,18 +95,19 @@ public class WaterEffectsHandler : MonoBehaviour
             !(Mathf.Abs(_playerController.currentSpeed) > minSpeedToShowParticles) ||
             !(Time.time > _lastParticleTime + particleSpawnInterval)) return;
 
-        _photonView.RPC("SpawnWaterSplash", RpcTarget.All);
+        _photonView.RPC(nameof(SpawnWaterSplash), RpcTarget.All);
         _lastParticleTime = Time.time;
     }
 
+    // Create water splash particle effect via RPC
     [PunRPC]
-    // ReSharper disable once UnusedMember.Local
     private void SpawnWaterSplash()
     {
         var splash = Instantiate(waterSplashPrefab, transform.position, Quaternion.identity);
         Destroy(splash, regularSplashLifetime);
     }
 
+    // Apply water effects when entering water
     private void OnTriggerEnter2D(Collider2D other)
     {
         if (!other.CompareTag(waterTag) && !IsInWaterLayer(other.gameObject)) return;
@@ -113,13 +116,13 @@ public class WaterEffectsHandler : MonoBehaviour
         ApplyWaterEffects();
         StartWaterTintTransition(true);
 
-        // Initial splash
         if (waterEntrySplashPrefab == null) return;
 
         var splash = Instantiate(waterEntrySplashPrefab, transform.position, Quaternion.identity);
         Destroy(splash, entrySplashLifetime);
     }
 
+    // Remove water effects when exiting water
     private void OnTriggerExit2D(Collider2D other)
     {
         if (!other.CompareTag(waterTag) && !IsInWaterLayer(other.gameObject)) return;
@@ -128,21 +131,21 @@ public class WaterEffectsHandler : MonoBehaviour
         RemoveWaterEffects();
         StartWaterTintTransition(false);
 
-        // Exit splash
         if (waterEntrySplashPrefab == null) return;
 
         var splash = Instantiate(waterEntrySplashPrefab, transform.position, Quaternion.identity);
         Destroy(splash, entrySplashLifetime);
     }
 
+    // Check if object is in the water layer
     private bool IsInWaterLayer(GameObject obj)
     {
         return (waterLayer.value & (1 << obj.layer)) != 0;
     }
 
+    // Apply movement modifications for water physics
     private void ApplyWaterEffects()
     {
-        // Apply movement effects
         _originalMaxSpeed = _playerController.maxSpeed;
         _originalMinJumpForce = _playerController.minJumpForce;
         _originalMaxJumpForce = _playerController.maxJumpForce;
@@ -157,6 +160,7 @@ public class WaterEffectsHandler : MonoBehaviour
             _cameraController.EnterWater();
     }
 
+    // Reset movement values to original state when exiting water
     private void RemoveWaterEffects()
     {
         _playerController.maxSpeed = _originalMaxSpeed;
@@ -164,16 +168,14 @@ public class WaterEffectsHandler : MonoBehaviour
         _playerController.maxJumpForce = _originalMaxJumpForce;
         _playerController.Acceleration = _originalAcceleration;
 
-        // Reset acceleration tracking variables when exiting water
         if (_photonView.IsMine)
-        {
             _playerController.ResetAccelerationState();
-        }
 
         if (affectCamera && _cameraController != null && (_photonView.IsMine || _spectatorModeManager.IsSpectating))
             _cameraController.ExitWater();
     }
 
+    // Begin color transition for water tint effect
     private void StartWaterTintTransition(bool entering)
     {
         if (!enableWaterTint || _spriteRenderer == null) return;
@@ -184,6 +186,7 @@ public class WaterEffectsHandler : MonoBehaviour
         _colorTransitionCoroutine = StartCoroutine(TransitionColor(entering ? waterTintColor : _originalColor));
     }
 
+    // Smoothly transition between normal and water tint colors
     private IEnumerator TransitionColor(Color targetColor)
     {
         var startColor = _spriteRenderer.color;

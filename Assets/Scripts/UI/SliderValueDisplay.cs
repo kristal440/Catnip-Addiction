@@ -5,8 +5,8 @@ using UnityEngine.UI;
 public class SliderValueDisplay : MonoBehaviour
 {
     [Header("UI References")]
-    public Slider slider;
-    public TMP_Text valueText;
+    [SerializeField] public Slider slider;
+    [SerializeField] public TMP_Text valueText;
 
     private void Start()
     {

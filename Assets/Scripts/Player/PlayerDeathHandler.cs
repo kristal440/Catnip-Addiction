@@ -1,17 +1,21 @@
 using System.Collections;
 using UnityEngine;
 
+/// <inheritdoc />
+/// <summary>
+/// Handles player death events, respawning, and visual effects when player dies
+/// </summary>
 [RequireComponent(typeof(CheckpointManager))]
 public class PlayerDeathHandler : MonoBehaviour
 {
-    [SerializeField] private string hazardTag = "Death";
-    [SerializeField] private float respawnDelay = 1f;
-    [SerializeField] private PlayerController playerController;
-    [SerializeField] private DeathBorderEffect deathBorderEffect;
-    [SerializeField] private GameObject deathExplosionPrefab;
-    [SerializeField] private SpriteRenderer playerSpriteToHide;
-    [SerializeField] private Canvas playerCanvasToHide;
-    [SerializeField] private float explosionDuration = 10f;
+    [SerializeField] [Tooltip("Tag that identifies hazardous objects causing death")] private string hazardTag = "Death";
+    [SerializeField] [Tooltip("Delay in seconds before respawning after death")] private float respawnDelay = 1f;
+    [SerializeField] [Tooltip("Reference to the player controller component")] private PlayerController playerController;
+    [SerializeField] [Tooltip("Death border effect for visual feedback")] private DeathBorderEffect deathBorderEffect;
+    [SerializeField] [Tooltip("Prefab to spawn when player dies")] private GameObject deathExplosionPrefab;
+    [SerializeField] [Tooltip("Player sprite to hide during death sequence")] private SpriteRenderer playerSpriteToHide;
+    [SerializeField] [Tooltip("Player UI canvas to hide during death sequence")] private Canvas playerCanvasToHide;
+    [SerializeField] [Tooltip("How long death explosion effect remains before being destroyed")] private float explosionDuration = 10f;
 
     private SpectatorModeManager _spectatorModeManager;
     private DynamicCameraController _cameraController;
@@ -19,6 +23,7 @@ public class PlayerDeathHandler : MonoBehaviour
     private bool _isRespawning;
     private Camera _mainCamera;
 
+    // Find required components on start
     private void Start()
     {
         _cameraController = FindFirstObjectByType<DynamicCameraController>();
@@ -26,6 +31,7 @@ public class PlayerDeathHandler : MonoBehaviour
         _mainCamera = Camera.main;
     }
 
+    // Detect collision with deadly objects
     private void OnTriggerEnter2D(Collider2D other)
     {
         if (_isRespawning || !other.CompareTag(hazardTag))
@@ -34,6 +40,7 @@ public class PlayerDeathHandler : MonoBehaviour
         StartCoroutine(RespawnPlayer());
     }
 
+    // Handle the death and respawn sequence
     private IEnumerator RespawnPlayer()
     {
         _isRespawning = true;
@@ -44,7 +51,6 @@ public class PlayerDeathHandler : MonoBehaviour
         var explosion = Instantiate(deathExplosionPrefab, transform.position, Quaternion.identity);
         Destroy(explosion, explosionDuration);
 
-        // Only apply camera effects if this is the local player or being spectated
         if (ShouldApplyCameraEffects())
         {
             _cameraController.OnPlayerDeath();
@@ -60,7 +66,6 @@ public class PlayerDeathHandler : MonoBehaviour
         playerSpriteToHide.enabled = true;
         playerCanvasToHide.enabled = true;
 
-        // Only apply camera effects if this is the local player or being spectated
         if (ShouldApplyCameraEffects())
         {
             _cameraController.OnPlayerRespawn();
@@ -71,6 +76,7 @@ public class PlayerDeathHandler : MonoBehaviour
         _isRespawning = false;
     }
 
+    // Determine whether camera effects should be applied based on ownership or spectating
     private bool ShouldApplyCameraEffects()
     {
         if (!_mainCamera) return false;
@@ -78,11 +84,13 @@ public class PlayerDeathHandler : MonoBehaviour
         return playerController.photonView.IsMine || _spectatorModeManager.IsSpectating;
     }
 
+    // Enable or disable player movement
     private void SetPlayerMovementEnabled(bool movementEnabled)
     {
         playerController.SetMovement(movementEnabled);
     }
 
+    // Handle player falling out of world boundaries
     internal void HandleOutOfBoundsDeath()
     {
         if (_isRespawning)

@@ -5,6 +5,10 @@ using UnityEngine.UI;
 using static UnityEngine.Mathf;
 using static UnityEngine.Vector2;
 
+/// <inheritdoc />
+/// <summary>
+/// Controls player movement, jumping, animations and networking for multiplayer functionality
+/// </summary>
 public class PlayerController : MonoBehaviourPunCallbacks
 {
     #region Variables
@@ -13,24 +17,20 @@ public class PlayerController : MonoBehaviourPunCallbacks
     private static readonly int InAir = Animator.StringToHash("InAir");
     private static readonly int IsJumpQueued = Animator.StringToHash("IsJumpQueued");
     private static readonly int IsLaying = Animator.StringToHash("IsLaying");
-    public Animator animator;
+    [SerializeField] [Tooltip("Reference to the player's animator component")] public Animator animator;
 
     [Header("Movement")]
-    [Tooltip("How quickly player accelerates")]
-    public AnimationCurve accelerationCurve = new(
+    [SerializeField] [Tooltip("How quickly player accelerates")] public AnimationCurve accelerationCurve = new(
         new Keyframe(0f, 0.3f),
         new Keyframe(0.6f, 0.7f),
         new Keyframe(1f, 1f)
     );
-    public float baseAcceleration = 10f;
-    [Tooltip("How long it takes to reach full acceleration")]
-    public float accelerationTime = 0.8f;
-    public float deceleration = 15f;
-    public float maxSpeed = 5f;
-    [Tooltip("Higher speed reached after maintaining max speed")]
-    public float turboSpeed = 7f;
-    [Tooltip("Time in seconds player needs to maintain max speed before reaching turbo speed")]
-    public float timeToTurboSpeed = 1.5f;
+    [SerializeField] [Tooltip("Base acceleration value")] public float baseAcceleration = 10f;
+    [SerializeField] [Tooltip("How long it takes to reach full acceleration")] public float accelerationTime = 0.8f;
+    [SerializeField] [Tooltip("How quickly player slows down")] public float deceleration = 15f;
+    [SerializeField] [Tooltip("Maximum movement speed")] public float maxSpeed = 5f;
+    [SerializeField] [Tooltip("Higher speed reached after maintaining max speed")] public float turboSpeed = 7f;
+    [SerializeField] [Tooltip("Time in seconds player needs to maintain max speed before reaching turbo speed")] public float timeToTurboSpeed = 1.5f;
     [HideInInspector] public float currentSpeed;
     [HideInInspector] public float verticalSpeed;
 
@@ -41,30 +41,30 @@ public class PlayerController : MonoBehaviourPunCallbacks
     private int _lastMoveDirection;
 
     [Header("Ground Check")]
-    public Transform groundCheck;
-    public float groundCheckRadius = 0.2f;
-    public LayerMask groundLayerMask;
+    [SerializeField] [Tooltip("Transform used to detect ground")] public Transform groundCheck;
+    [SerializeField] [Tooltip("Radius of the ground check sphere")] public float groundCheckRadius = 0.2f;
+    [SerializeField] [Tooltip("Layer mask for ground detection")] public LayerMask groundLayerMask;
 
     [Header("Wall Detection")]
-    public Transform frontWallCheck; // Renamed from wallCheck
-    public Transform backWallCheck; // New wall check for the back
-    public float wallCheckRadius = 0.2f;
-    public LayerMask wallLayerMask;
+    [SerializeField] [Tooltip("Transform used to detect walls in front")] public Transform frontWallCheck;
+    [SerializeField] [Tooltip("Transform used to detect walls behind")] public Transform backWallCheck;
+    [SerializeField] [Tooltip("Radius of the wall check sphere")] public float wallCheckRadius = 0.2f;
+    [SerializeField] [Tooltip("Layer mask for wall detection")] public LayerMask wallLayerMask;
 
     [Header("UI")]
-    public TextMeshProUGUI playerNameTag;
-    public GameObject jumpChargeBarGameObject;
-    public Image jumpChargeBar;
+    [SerializeField] [Tooltip("Player name text display")] public TextMeshProUGUI playerNameTag;
+    [SerializeField] [Tooltip("Container for jump charge bar")] public GameObject jumpChargeBarGameObject;
+    [SerializeField] [Tooltip("Jump charge fill bar")] public Image jumpChargeBar;
 
     [Header("Charged Jump")]
-    public float minJumpForce = 8.5f;
-    public float maxJumpForce = 14.5f;
-    public float maxChargeTime = 2f;
-    public float jumpCooldown = 0.1f;
+    [SerializeField] [Tooltip("Minimum jump force when uncharged")] public float minJumpForce = 8.5f;
+    [SerializeField] [Tooltip("Maximum jump force when fully charged")] public float maxJumpForce = 14.5f;
+    [SerializeField] [Tooltip("Maximum time to charge jump")] public float maxChargeTime = 2f;
+    [SerializeField] [Tooltip("Time before player can jump again")] public float jumpCooldown = 0.1f;
 
     [Header("Death")]
-    public float deathHeight = -100f;
-    [SerializeField] private PlayerDeathHandler playerDeathHandler;
+    [SerializeField] [Tooltip("Y-position that triggers death when fallen below")] public float deathHeight = -100f;
+    [SerializeField] [Tooltip("Handler for player death events")] private PlayerDeathHandler playerDeathHandler;
 
     // Component references
     private Camera _mainCamera;
@@ -109,21 +109,25 @@ public class PlayerController : MonoBehaviourPunCallbacks
     #endregion
 
     #region Unity Lifecycle
+    // Initializes player input actions
     private void Awake()
     {
         _playerInputActions = new InputSystem_Actions();
     }
 
+    // Enables player input actions
     public override void OnEnable()
     {
         _playerInputActions.Player.Enable();
     }
 
+    // Disables player input actions
     public override void OnDisable()
     {
         _playerInputActions.Player.Disable();
     }
 
+    // Sets up initial references and player visuals
     private void Start()
     {
         _mainCamera = Camera.main;
@@ -143,6 +147,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
             SetupLocalPlayerCamera();
     }
 
+    // Updates player state, animations, and handles movement
     private void Update()
     {
         UpdateAnimations();
@@ -162,6 +167,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
     #endregion
 
     #region Player Setup
+    // Configures visuals for non-local players
     private static void SetupRemotePlayerVisuals(SpriteRenderer sr, Graphic nameTagText, Canvas playerCanvas)
     {
         if (sr != null)
@@ -193,6 +199,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
             Debug.LogWarning("No Canvas found on player GameObject!");
     }
 
+    // Sets up camera for local player
     private void SetupLocalPlayerCamera()
     {
         if (_mainCamera == null)
@@ -207,16 +214,15 @@ public class PlayerController : MonoBehaviourPunCallbacks
     #endregion
 
     #region Movement
+    // Handles player movement, wall detection, and jump input
     private void HandleMovement()
     {
         if (IsPaused)
             return;
 
-        // Check both front and back walls
         _isTouchingFrontWall = Physics2D.OverlapCircle(frontWallCheck.position, wallCheckRadius, wallLayerMask);
         _isTouchingBackWall = Physics2D.OverlapCircle(backWallCheck.position, wallCheckRadius, wallLayerMask);
 
-        // Reset wall collision flag only when not touching any walls
         if (!_isTouchingFrontWall && !_isTouchingBackWall)
             _wallCollisionHandled = false;
 
@@ -234,11 +240,11 @@ public class PlayerController : MonoBehaviourPunCallbacks
         UpdatePlayerSpeed(horizontalInput);
     }
 
+    // Changes player direction based on input and updates visuals
     private void HandlePlayerDirection(float horizontalInput)
     {
         var facingRight = transform.localScale.x > 0;
 
-        // Check for wall collision in the direction player is facing
         var movingIntoWall = (facingRight && _isTouchingFrontWall && horizontalInput > 0) ||
                              (!facingRight && _isTouchingBackWall && horizontalInput < 0);
 
@@ -296,6 +302,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
         _previousPlayerScale = transform.localScale;
     }
 
+    // Updates player speed based on input, acceleration and wall detection
     private void UpdatePlayerSpeed(float horizontalInput)
     {
         _newMaxSpeed = HasCatnip ? maxSpeed * 1.1f : maxSpeed;
@@ -304,7 +311,6 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
         var facingRight = transform.localScale.x > 0;
 
-        // Check collision with both front and back walls
         var movingIntoFrontWall = _isTouchingFrontWall &&
                                   ((facingRight && horizontalInput > 0) ||
                                    (!facingRight && horizontalInput < 0));
@@ -313,7 +319,6 @@ public class PlayerController : MonoBehaviourPunCallbacks
                                  ((facingRight && horizontalInput < 0) ||
                                   (!facingRight && horizontalInput > 0));
 
-        // Handle collision with any wall
         if ((movingIntoFrontWall || movingIntoBackWall) && !_wallCollisionHandled)
         {
             currentSpeed = 0;
@@ -377,6 +382,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
     #endregion
 
     #region Jump
+    // Processes jump button input for charging and executing jumps
     private void HandleJumpInput()
     {
         var jumpOnCooldown = Time.time < _lastJumpTime + jumpCooldown;
@@ -426,6 +432,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
         }
     }
 
+    // Updates jump charge progress and visual indicators
     private void UpdateJumpCharging()
     {
         if (!_jumpButtonHeld) return;
@@ -455,6 +462,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
         }
     }
 
+    // Checks if buffered jump should be executed when landing
     private void CheckBufferedJumpLanding(bool wasGrounded, bool isGroundedNow)
     {
         if (wasGrounded || !isGroundedNow || !_isBufferingJump) return;
@@ -484,6 +492,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
         }
     }
 
+    // Executes jump with appropriate force based on charge time
     private void ExecuteJump(float chargeTime)
     {
         _isChargingJump = false;
@@ -510,6 +519,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
         _isJumpQueued = false;
     }
 
+    // Cancels current jump charge state
     private void CancelJumpCharge()
     {
         _isChargingJump = false;
@@ -525,6 +535,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
     #endregion
 
     #region Animations
+    // Tracks idle time and triggers laying animation when idle
     private void CheckIdleState()
     {
         if (Approximately(currentSpeed, 0f) && Approximately(verticalSpeed, 0f) && animator.GetBool(IsLaying) == false)
@@ -541,6 +552,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
         }
     }
 
+    // Updates player animations based on movement and ground state
     private void UpdateAnimations()
     {
         var wasGrounded = IsGrounded;
@@ -587,6 +599,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
     #region Utility
 
+    // Resets player acceleration state variables
     internal void ResetAccelerationState()
     {
         _currentAccelTime = 0f;
@@ -595,13 +608,14 @@ public class PlayerController : MonoBehaviourPunCallbacks
         _lastMoveDirection = 0;
     }
 
-    // For compatibility with existing code that referenced acceleration
+    // Gets or sets the player's current acceleration value
     internal float Acceleration
     {
         get => baseAcceleration * accelerationCurve.Evaluate(_currentAccelTime / accelerationTime);
         set => baseAcceleration = value;
     }
 
+    // Teleports player to specified position
     internal void Teleport(Vector3 position)
     {
         if (!photonView.IsMine)
@@ -611,28 +625,33 @@ public class PlayerController : MonoBehaviourPunCallbacks
         currentSpeed = 0f;
     }
 
+    // Enables or disables player movement
     internal void SetMovement(bool isEnabled)
     {
         IsPaused = !isEnabled;
     }
 
+    // Disables player's rigidbody simulation
     internal void DisableRigidbody()
     {
         if (_rb)
             _rb.simulated = false;
     }
 
+    // Enables player's rigidbody simulation
     internal void EnableRigidbody()
     {
         if (_rb)
             _rb.simulated = true;
     }
 
+    // Sets player to spectator mode
     internal void SetSpectatorMode(bool isEnabled)
     {
         SetMovement(false);
-        Debug.Log(isEnabled ? "Spectator mode enabled" : "Spectator mode disabled");
     }
+
+    // RPC call to activate or deactivate catnip effect
     [PunRPC]
     internal void RPC_SetCatnipEffectActive(bool isActive)
     {
@@ -649,6 +668,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
     #region Death and Respawn
 
+    // Handles player death state
     internal void OnPlayerDeath()
     {
         if (IsDead)
@@ -664,12 +684,14 @@ public class PlayerController : MonoBehaviourPunCallbacks
             _cameraController.OnPlayerDeath();
     }
 
+    // Respawns player at the last checkpoint
     internal void RespawnAtLastCheckpoint()
     {
         Teleport(CheckpointManager.LastCheckpointPosition);
         OnPlayerRespawn();
     }
 
+    // Resets player state after respawning
     private void OnPlayerRespawn()
     {
         if (!IsDead)

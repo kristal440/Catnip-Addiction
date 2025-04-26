@@ -2,35 +2,38 @@ using System.Collections;
 using UnityEngine;
 using static UnityEngine.Mathf;
 
+/// <summary>
+/// Controls camera dynamics including field of view and positioning effects based on player movement and state.
+/// </summary>
+/// <inheritdoc />
 public class DynamicCameraController : MonoBehaviour
 {
-    #region Variables
     [Header("Field of View")]
-    public float defaultFOV = 37f;
-    public float maxFOVOffset = 10f;
-    [Range(0.01f, 1f)] public float fovSmoothTime = 0.5f;
-    [SerializeField] private float catnipFOVIncrease = 5f;
+    [SerializeField] [Tooltip("Base field of view when player is stationary")] public float defaultFOV = 37f;
+    [SerializeField] [Tooltip("Maximum additional FOV when player is at max speed")] public float maxFOVOffset = 10f;
+    [SerializeField] [Range(0.01f, 1f)] [Tooltip("Smoothing time for FOV changes")] public float fovSmoothTime = 0.5f;
+    [SerializeField] [Tooltip("How much to increase FOV when player has catnip")] private float catnipFOVIncrease = 5f;
 
     [Header("Camera Positioning")]
-    public float maxHorizontalOffset = 0.25f;
-    [Range(0.01f, 1f)] public float positionSmoothTime = 0.6f;
-    public float maxVerticalOffset = 0.27f;
-    [Range(0.01f, 1f)] public float verticalSmoothTime = 0.3f;
+    [SerializeField] [Tooltip("Maximum horizontal offset when moving at max speed")] public float maxHorizontalOffset = 0.25f;
+    [SerializeField] [Range(0.01f, 1f)] [Tooltip("Smoothing time for horizontal position changes")] public float positionSmoothTime = 0.6f;
+    [SerializeField] [Tooltip("Maximum vertical offset based on vertical speed")] public float maxVerticalOffset = 0.27f;
+    [SerializeField] [Range(0.01f, 1f)] [Tooltip("Smoothing time for vertical position changes")] public float verticalSmoothTime = 0.3f;
 
     [Header("Player Search")]
-    public float playerSearchTimeout = 5f;
+    [SerializeField] [Tooltip("How long to search for player controller before disabling")] public float playerSearchTimeout = 5f;
 
     [Header("Jump Effects")]
-    public float jumpFOV = 45f;
-    public float minChargeJumpFOV = 25f;
-    public float jumpFOVTransitionSpeed = 5f;
+    [SerializeField] [Tooltip("Target FOV when jumping")] public float jumpFOV = 45f;
+    [SerializeField] [Tooltip("Target FOV when fully charging a jump")] public float minChargeJumpFOV = 25f;
+    [SerializeField] [Tooltip("Speed of FOV transitions during jumps")] public float jumpFOVTransitionSpeed = 5f;
 
     [Header("Death Camera")]
-    public float deathZoomFOV = 25f;
-    public float deathZoomSpeed = 3f;
+    [SerializeField] [Tooltip("FOV when player dies")] public float deathZoomFOV = 25f;
+    [SerializeField] [Tooltip("Speed of FOV transition when player dies")] public float deathZoomSpeed = 3f;
 
     [Header("Water Effects")]
-    [Range(-1f, 2f)] public float waterZoomMultiplier = 0.8f;
+    [SerializeField] [Range(-1f, 2f)] [Tooltip("FOV multiplier when underwater")] public float waterZoomMultiplier = 0.8f;
 
     private float _defaultFOVBackup;
     private bool _isInJumpTransition;
@@ -47,9 +50,8 @@ public class DynamicCameraController : MonoBehaviour
 
     private Vector2 _lastPlayerPosition;
     private float _actualPlayerSpeed;
-    #endregion
 
-    #region Initialization
+    // Initializes the camera controller and triggers player search
     private void Start()
     {
         _camera = GetComponent<Camera>();
@@ -64,6 +66,7 @@ public class DynamicCameraController : MonoBehaviour
         StartCoroutine(FindPlayerControllerWithTimeout());
     }
 
+    // Searches for player controller with timeout
     private IEnumerator FindPlayerControllerWithTimeout()
     {
         var startTime = Time.time;
@@ -83,6 +86,7 @@ public class DynamicCameraController : MonoBehaviour
         enabled = false;
     }
 
+    // Sets up initial camera values and position
     private void InitializeCamera()
     {
         if (defaultFOV <= 0)
@@ -94,9 +98,8 @@ public class DynamicCameraController : MonoBehaviour
         _defaultPosition = new Vector2(localPosition.x, localPosition.y);
         _lastPlayerPosition = _playerController.transform.position;
     }
-    #endregion
 
-    #region Core Updates
+    // Updates camera effects based on player movement
     private void FixedUpdate()
     {
         if (!_playerController) return;
@@ -114,10 +117,8 @@ public class DynamicCameraController : MonoBehaviour
         UpdateFOV(normalizedSpeed);
         UpdateCameraPosition(normalizedSpeed);
     }
-    #endregion
 
-    #region FOV Management
-
+    // Updates FOV when charging a jump based on charge progress
     internal void UpdateChargingJumpFOV(float chargeProgress)
     {
         if (_isInDeathZoom) return;
@@ -126,6 +127,7 @@ public class DynamicCameraController : MonoBehaviour
         _camera.fieldOfView = Lerp(_camera.fieldOfView, targetFOV, Time.deltaTime * jumpFOVTransitionSpeed);
     }
 
+    // Triggers jump transition FOV effect
     internal void TriggerJumpFOV()
     {
         if (_isInDeathZoom) return;
@@ -134,6 +136,7 @@ public class DynamicCameraController : MonoBehaviour
         _jumpTransitionTimer = 0f;
     }
 
+    // Updates FOV based on player state and movement
     private void UpdateFOV(float normalizedSpeed)
     {
         float targetFOV;
@@ -162,9 +165,8 @@ public class DynamicCameraController : MonoBehaviour
             _camera.fieldOfView = SmoothDamp(_camera.fieldOfView, targetFOV, ref _currentFOVVelocity, fovSmoothTime);
         }
     }
-    #endregion
 
-    #region Position Management
+    // Updates camera position based on player movement
     private void UpdateCameraPosition(float normalizedSpeed)
     {
         // Horizontal position
@@ -181,28 +183,28 @@ public class DynamicCameraController : MonoBehaviour
         localPosition = new Vector3(newX, newY, localPosition.z);
         transform.localPosition = localPosition;
     }
-    #endregion
 
-    #region Player Events
-
+    // Activates death camera effect when player dies
     internal void OnPlayerDeath()
     {
         _isInDeathZoom = true;
     }
 
+    // Resets camera when player respawns
     internal void OnPlayerRespawn()
     {
         _isInDeathZoom = false;
     }
 
+    // Applies underwater FOV effect
     internal void EnterWater()
     {
         defaultFOV = _defaultFOVBackup * waterZoomMultiplier;
     }
 
+    // Resets FOV when exiting water
     internal void ExitWater()
     {
         defaultFOV = _defaultFOVBackup;
     }
-    #endregion
 }

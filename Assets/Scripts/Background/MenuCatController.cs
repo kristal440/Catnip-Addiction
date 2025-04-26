@@ -1,33 +1,32 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+/// <inheritdoc />
+/// <summary>
+/// Controls the spawning and behavior of cats in the menu background.
+/// </summary>
 public class MenuCatController : MonoBehaviour
 {
     [Header("Cat Animation")]
-    public GameObject catPrefab;
-    [Range(1f, 10f)]
-    public float catSpawnInterval = 5f;
-    public float catSpawnIntervalVariance = 1.5f;
-    [Range(2f, 6f)]
-    public float slowCatSpeed = 3.5f;
-    [Range(4f, 8f)]
-    public float fastCatSpeed = 7.8f;
-    [Range(1f, 2f)]
-    public float animationSpeedMultiplier = 1.5f;
-    public float animationSpeedVariance = 0.2f;
-    public float spawnYPosition = -2f;
-    public float spawnYVariance = 0.5f;
-    public float destroyXPosition = 12f;
+    [SerializeField] [Tooltip("Prefab used to spawn cats in the menu")] private GameObject catPrefab;
+    [SerializeField] [Range(1f, 10f)] [Tooltip("Base time between cat spawns in seconds")] private float catSpawnInterval = 5f;
+    [SerializeField] [Tooltip("Random variation applied to spawn interval")] private float catSpawnIntervalVariance = 1.5f;
+    [SerializeField] [Range(2f, 6f)] [Tooltip("Movement speed for slow cats")] private float slowCatSpeed = 3.5f;
+    [SerializeField] [Range(4f, 8f)] [Tooltip("Movement speed for fast cats")] private float fastCatSpeed = 7.8f;
+    [SerializeField] [Range(1f, 2f)] [Tooltip("Base multiplier for animation speed")] private float animationSpeedMultiplier = 1.5f;
+    [SerializeField] [Tooltip("Random variation applied to animation speed")] private float animationSpeedVariance = 0.2f;
+    [SerializeField] [Tooltip("Base Y position for spawning cats")] private float spawnYPosition = -2f;
+    [SerializeField] [Tooltip("Random variation applied to spawn Y position")] private float spawnYVariance = 0.5f;
+    [SerializeField] [Tooltip("X position at which cats are destroyed")] private float destroyXPosition = 12f;
 
     [Header("Animation States")]
-    [Tooltip("Available skin variants (corresponds to the 'Skin' parameter on Animator)")]
-    public int[] skinAnimVariables = { 0, 1, 2 };
+    [SerializeField] [Tooltip("Available skin variants (corresponds to the 'Skin' parameter on Animator)")] private int[] skinAnimVariables = { 0, 1, 2 };
 
     [Header("Optimization")]
-    public int poolSize = 10;
+    [SerializeField] [Tooltip("Maximum number of cat objects to create for object pooling")] private int poolSize = 10;
 
     [Header("Background Controller Reference")]
-    public MenuBackgroundController backgroundController;
+    [SerializeField] [Tooltip("Reference to the menu background controller")] private MenuBackgroundController backgroundController;
 
     private float _timeSinceLastSpawn;
     private float _nextSpawnTime;
@@ -35,6 +34,7 @@ public class MenuCatController : MonoBehaviour
     private Queue<GameObject> _inactiveCats;
     private float _spawnXPosition;
 
+    // Initialize components and references
     private void Awake()
     {
         _camera = Camera.main;
@@ -43,6 +43,7 @@ public class MenuCatController : MonoBehaviour
             backgroundController = GetComponent<MenuBackgroundController>();
     }
 
+    // Setup cat pool and initial spawn parameters
     private void Start()
     {
         if (catPrefab == null)
@@ -59,6 +60,7 @@ public class MenuCatController : MonoBehaviour
             catSpawnInterval + catSpawnIntervalVariance);
     }
 
+    // Create pool of reusable cat objects
     private void InitializeCatPool()
     {
         _inactiveCats = new Queue<GameObject>(poolSize);
@@ -71,12 +73,14 @@ public class MenuCatController : MonoBehaviour
         }
     }
 
+    // Determine the X position where cats will spawn off-screen
     private void CalculateSpawnPosition()
     {
         if (_camera != null)
             _spawnXPosition = _camera.ViewportToWorldPoint(new Vector3(0, 0, 0)).x - 2f;
     }
 
+    // Check spawn timer and trigger cat spawning
     private void Update()
     {
         _timeSinceLastSpawn += Time.deltaTime;
@@ -89,6 +93,7 @@ public class MenuCatController : MonoBehaviour
             catSpawnInterval + catSpawnIntervalVariance);
     }
 
+    // Take a cat from the pool and set it up to run across the screen
     private void SpawnCat()
     {
         if (_inactiveCats.Count == 0)
@@ -121,6 +126,7 @@ public class MenuCatController : MonoBehaviour
         StartCoroutine(WaitForCatDeactivation(cat));
     }
 
+    // Return the cat to the pool once it's deactivated
     private System.Collections.IEnumerator WaitForCatDeactivation(GameObject cat)
     {
         yield return new WaitUntil(() => !cat.activeInHierarchy);
@@ -128,6 +134,7 @@ public class MenuCatController : MonoBehaviour
         _inactiveCats.Enqueue(cat);
     }
 
+    // Request a menu transition from the background controller
     public void TransitionToMenu(string menuName)
     {
         if (backgroundController != null)

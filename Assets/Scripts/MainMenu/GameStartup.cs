@@ -1,13 +1,18 @@
 using UnityEngine;
 
+/// <inheritdoc />
+/// <summary>
+/// Initializes game settings like frame rate, vsync, and on-screen controls on startup.
+/// </summary>
 public class GameStartup : MonoBehaviour
 {
-    [SerializeField] private int defaultTargetFPS;
+    [SerializeField] [Tooltip("Default frame rate to use if not set in player preferences")] private int defaultTargetFPS;
 
     private const string VsyncEnabledKey = "VSyncEnabled";
     private const string TargetFPSKey = "TargetFPS";
     private const string MultiplayerControlsKey = "ShowMultiplayerControls";
 
+    // Initializes application settings and applies user preferences
     private void Start()
     {
         ApplyFPSSettings();
@@ -17,6 +22,7 @@ public class GameStartup : MonoBehaviour
         Application.backgroundLoadingPriority = ThreadPriority.BelowNormal;
     }
 
+    // Configures vsync and frame rate based on saved preferences or platform defaults
     private void ApplyFPSSettings()
     {
         bool vsyncEnabled;
@@ -39,6 +45,7 @@ public class GameStartup : MonoBehaviour
         Application.targetFrameRate = targetFPS;
     }
 
+    // Configures on-screen controls visibility based on saved preferences or platform defaults
     private static void ApplyOnScreenControlsSettings()
     {
         bool showMultiplayerControls;

@@ -2,28 +2,32 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 
+/// <inheritdoc />
+/// <summary>
+/// Controls frame rate settings and vsync options through the UI.
+/// </summary>
 public class FPSSettingsController : MonoBehaviour
 {
     [Header("UI References")]
-    [SerializeField] private Slider fpsSlider;
-    [SerializeField] private Toggle vsyncToggle;
-    [SerializeField] private TMP_Text fpsValueText;
+    [SerializeField] [Tooltip("Slider that controls the target frame rate")] private Slider fpsSlider;
+    [SerializeField] [Tooltip("Toggle for enabling/disabling vertical sync")] private Toggle vsyncToggle;
+    [SerializeField] [Tooltip("Text element that displays the current FPS setting")] private TMP_Text fpsValueText;
 
     [Header("FPS Settings")]
-    [SerializeField] private int minFps = 30;
-    [SerializeField] private int maxUnlimitedFps = 1000;
+    [SerializeField] [Tooltip("Minimum allowed frame rate")] private int minFps = 30;
+    [SerializeField] [Tooltip("Maximum frame rate when unlimited")] private int maxUnlimitedFps = 1000;
 
     private const string VsyncEnabledKey = "VSyncEnabled";
     private const string TargetFPSKey = "TargetFPS";
 
     private int _screenRefreshRate;
 
+    // Initializes UI components and loads saved settings
     private void Start()
     {
         _screenRefreshRate = Mathf.RoundToInt((float)Screen.currentResolution.refreshRateRatio.numerator /
                                               Screen.currentResolution.refreshRateRatio.denominator);
 
-        // Initialize UI based on current settings (set by GameStartup)
         vsyncToggle.isOn = QualitySettings.vSyncCount > 0;
 
         fpsSlider.minValue = minFps;
@@ -37,6 +41,7 @@ public class FPSSettingsController : MonoBehaviour
         fpsSlider.onValueChanged.AddListener(OnFPSSliderChanged);
     }
 
+    // Handles vsync toggle changes and updates related settings
     private void OnVSyncToggleChanged(bool isVSyncOn)
     {
         QualitySettings.vSyncCount = isVSyncOn ? 1 : 0;
@@ -48,11 +53,13 @@ public class FPSSettingsController : MonoBehaviour
         ApplyFPSSetting();
     }
 
+    // Handles FPS slider value changes
     private void OnFPSSliderChanged(float value)
     {
         ApplyFPSSetting();
     }
 
+    // Updates the slider's maximum value based on vsync setting
     private void UpdateSliderMaxValue()
     {
         fpsSlider.maxValue = vsyncToggle.isOn ? _screenRefreshRate : maxUnlimitedFps;
@@ -63,12 +70,14 @@ public class FPSSettingsController : MonoBehaviour
         UpdateFPSText();
     }
 
+    // Updates the FPS text display to show current value
     private void UpdateFPSText()
     {
         var fps = Mathf.RoundToInt(fpsSlider.value);
         fpsValueText.text = $"{fps} FPS";
     }
 
+    // Applies and saves the selected frame rate setting
     private void ApplyFPSSetting()
     {
         var targetFPS = Mathf.RoundToInt(fpsSlider.value);

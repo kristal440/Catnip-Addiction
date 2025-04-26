@@ -2,6 +2,10 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
+/// <inheritdoc />
+/// <summary>
+/// Manages parallax scrolling background layers with different scroll speeds.
+/// </summary>
 public class BackgroundScrollController : MonoBehaviour
 {
     [System.Serializable]
@@ -15,17 +19,18 @@ public class BackgroundScrollController : MonoBehaviour
     }
 
     [Header("Parallax Settings")]
-    public ParallaxLayer[] layers;
-    public Transform cameraTransform;
+    [SerializeField] [Tooltip("Background layers with individual parallax settings")] private ParallaxLayer[] layers;
+    [SerializeField] [Tooltip("Reference to the camera transform for position tracking")] public Transform cameraTransform;
 
     [Header("Simple Background Scrolling")]
-    public bool useSimpleScrolling;
-    public float simpleScrollSpeed = 2f;
-    public Renderer simpleBackgroundRenderer;
+    [SerializeField] [Tooltip("Whether to use simple texture offset scrolling instead of parallax")] private bool useSimpleScrolling;
+    [SerializeField] [Tooltip("Speed for simple scrolling mode")] private float simpleScrollSpeed = 2f;
+    [SerializeField] [Tooltip("Renderer to use for simple scrolling mode")] private Renderer simpleBackgroundRenderer;
 
     private Camera _camera;
     private Vector2 _scrollOffset = Vector2.zero;
 
+    // Initialize camera reference and layer widths
     private void Start()
     {
         _camera = Camera.main;
@@ -38,6 +43,7 @@ public class BackgroundScrollController : MonoBehaviour
                 layer.width = tilemap.localBounds.size.x;
     }
 
+    // Handle scrolling for all layers or simple background
     private void Update()
     {
         if (useSimpleScrolling && simpleBackgroundRenderer)

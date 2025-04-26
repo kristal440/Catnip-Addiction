@@ -5,17 +5,21 @@ using Photon.Realtime;
 using TMPro;
 using UnityEngine;
 
+/// <summary>
+/// Manages and displays notifications when players join or leave the room with animated UI elements.
+/// </summary>
+/// <inheritdoc />
 public class PlayerNotificationManager : MonoBehaviourPunCallbacks
 {
     [Header("References")]
-    public TMP_Text playerNameText;
-    public TMP_Text statusText;
+    [SerializeField] [Tooltip("Text element displaying the player's name")] public TMP_Text playerNameText;
+    [SerializeField] [Tooltip("Text element displaying the player's status (joined/left)")] public TMP_Text statusText;
 
     [Header("Animation Settings")]
-    public float fadeInDuration = 0.5f;
-    public float displayDuration = 2.5f;
-    public float fadeOutDuration = 0.5f;
-    public float slideDistance = 50f;
+    [SerializeField] [Tooltip("Duration of the fade-in animation")] public float fadeInDuration = 0.5f;
+    [SerializeField] [Tooltip("How long the notification stays visible")] public float displayDuration = 2.5f;
+    [SerializeField] [Tooltip("Duration of the fade-out animation")] public float fadeOutDuration = 0.5f;
+    [SerializeField] [Tooltip("Vertical distance the notification slides during animations")] public float slideDistance = 50f;
 
     private CanvasGroup _canvasGroup;
     private RectTransform _rectTransform;
@@ -29,6 +33,7 @@ public class PlayerNotificationManager : MonoBehaviourPunCallbacks
         public bool IsJoining;
     }
 
+    // Initializes required components and sets initial state
     private void Awake()
     {
         _canvasGroup = GetComponent<CanvasGroup>();
@@ -41,16 +46,19 @@ public class PlayerNotificationManager : MonoBehaviourPunCallbacks
         _canvasGroup.alpha = 0f;
     }
 
+    // Called when a new player joins the room
     public override void OnPlayerEnteredRoom(Player newPlayer)
     {
         QueueNotification(newPlayer.NickName, true);
     }
 
+    // Called when a player leaves the room
     public override void OnPlayerLeftRoom(Player otherPlayer)
     {
         QueueNotification(otherPlayer.NickName, false);
     }
 
+    // Adds a notification to the queue and starts processing if needed
     private void QueueNotification(string playerName, bool isJoining)
     {
         _notificationQueue.Enqueue(new NotificationInfo { PlayerName = playerName, IsJoining = isJoining });
@@ -59,6 +67,7 @@ public class PlayerNotificationManager : MonoBehaviourPunCallbacks
             StartCoroutine(ProcessNotificationQueue());
     }
 
+    // Processes all queued notifications sequentially
     private IEnumerator ProcessNotificationQueue()
     {
         _isProcessingQueue = true;
@@ -79,6 +88,7 @@ public class PlayerNotificationManager : MonoBehaviourPunCallbacks
         _isProcessingQueue = false;
     }
 
+    // Handles the animation sequence for a notification
     private IEnumerator AnimateNotification()
     {
         _rectTransform.anchoredPosition = _originalPosition - new Vector2(0, slideDistance);

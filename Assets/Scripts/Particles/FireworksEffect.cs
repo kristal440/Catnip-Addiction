@@ -2,66 +2,34 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-// 4 prompts to gemini 2.5 pro exp
+/// <inheritdoc />
+/// <summary>
+/// Manages and spawns particle-based firework effects with customizable burst patterns and sparkle trails
+/// </summary>
 public class FireworksManager : MonoBehaviour
 {
     [Header("Firework Burst Settings")]
-    [Tooltip("The material to use for the firework particles. A simple additive particle material works well for dots.")]
-    public Material particleMaterial;
-
-    [Tooltip("List of possible colors for the firework particles. Each particle will pick randomly from this gradient.")]
-    public List<Color> burstColors = new() { Color.red, Color.yellow, Color.white, Color.cyan, Color.magenta, Color.green };
-
-    [Tooltip("Number of particles per individual burst.")]
-    [Range(50, 1000)]
-    public int particleCountPerBurst = 500;
-
-    [Tooltip("How long the particles last before fading.")]
-    [Range(0.5f, 5.0f)]
-    public float particleLifetime = 2.0f;
-
-    [Tooltip("Initial speed of the particles exploding outwards.")]
-    [Range(1.0f, 20.0f)]
-    public float burstSpeed = 10.0f;
-
-    [Tooltip("Size of the individual particles.")]
-    [Range(0.01f, 0.5f)]
-    public float particleSize = 0.05f;
-
-    [Tooltip("How much gravity affects the particles (1 = normal gravity).")]
-    [Range(0.0f, 2.0f)]
-    public float gravityModifier = 0.3f;
+    [SerializeField] [Tooltip("The material to use for the firework particles. A simple additive particle material works well for dots.")] private Material particleMaterial;
+    [SerializeField] [Tooltip("List of possible colors for the firework particles. Each particle will pick randomly from this gradient.")] private List<Color> burstColors = new() { Color.red, Color.yellow, Color.white, Color.cyan, Color.magenta, Color.green };
+    [SerializeField] [Range(50, 1000)] [Tooltip("Number of particles per individual burst.")] private int particleCountPerBurst = 500;
+    [SerializeField] [Range(0.5f, 5.0f)] [Tooltip("How long the particles last before fading.")] private float particleLifetime = 2.0f;
+    [SerializeField] [Range(1.0f, 20.0f)] [Tooltip("Initial speed of the particles exploding outwards.")] private float burstSpeed = 10.0f;
+    [SerializeField] [Range(0.01f, 0.5f)] [Tooltip("Size of the individual particles.")] private float particleSize = 0.05f;
+    [SerializeField] [Range(0.0f, 2.0f)] [Tooltip("How much gravity affects the particles (1 = normal gravity).")] private float gravityModifier = 0.3f;
 
     [Header("Sparkle Trail Settings")]
-    [Tooltip("Enable subtle trails for a sparkle effect.")]
-    public bool enableTrails = true;
-
-    [Tooltip("Material for the particle trails (often same/similar to the main material).")]
-    public Material trailMaterial;
-
-    [Tooltip("Proportion of particles that will have trails (0 to 1). Lower for sparser sparkles.")]
-    [Range(0.0f, 1.0f)]
-    public float trailRatio = 0.2f;
-
-    [Tooltip("How long the trails last (relative to particle lifetime).")]
-    [Range(0.1f, 1.0f)]
-    public float trailLifetimeFactor = 0.3f;
-
-    [Tooltip("Width of the trails.")]
-    [Range(0.01f, 0.5f)]
-    public float trailWidth = 0.02f;
+    [SerializeField] [Tooltip("Enable subtle trails for a sparkle effect.")] private bool enableTrails = true;
+    [SerializeField] [Tooltip("Material for the particle trails (often same/similar to the main material).")] private Material trailMaterial;
+    [SerializeField] [Range(0.0f, 1.0f)] [Tooltip("Proportion of particles that will have trails (0 to 1). Lower for sparser sparkles.")] private float trailRatio = 0.2f;
+    [SerializeField] [Range(0.1f, 1.0f)] [Tooltip("How long the trails last (relative to particle lifetime).")] private float trailLifetimeFactor = 0.3f;
+    [SerializeField] [Range(0.01f, 0.5f)] [Tooltip("Width of the trails.")] private float trailWidth = 0.02f;
 
     [Header("Firework Sequence")]
-    [Tooltip("Number of bursts to spawn when TriggerFireworks is called.")]
-    public int sequenceBurstCount = 5;
+    [SerializeField] [Tooltip("Number of bursts to spawn when TriggerFireworks is called.")] private int sequenceBurstCount = 5;
+    [SerializeField] [Tooltip("Delay in seconds between each burst in the sequence.")] private float sequenceDelay = 0.3f;
+    [SerializeField] [Tooltip("Maximum random offset distance from the base position for each burst.")] private float sequencePositionVariance = 1.5f;
 
-    [Tooltip("Delay in seconds between each burst in the sequence.")]
-    public float sequenceDelay = 0.3f;
-
-    [Tooltip("Maximum random offset distance from the base position for each burst.")]
-    public float sequencePositionVariance = 1.5f;
-
-
+    /// Initiates a sequence of firework effects at the specified position
     internal void TriggerFireworksSequence(Vector3 basePosition)
     {
         if (particleMaterial == null)
@@ -74,7 +42,7 @@ public class FireworksManager : MonoBehaviour
         StartCoroutine(FireworkSequenceCoroutine(basePosition));
     }
 
-
+    /// Coroutine that spawns multiple firework bursts with delays between each burst
     private IEnumerator FireworkSequenceCoroutine(Vector3 basePosition)
     {
         var trailsActuallyEnabled = enableTrails && trailMaterial;
@@ -90,7 +58,7 @@ public class FireworksManager : MonoBehaviour
         }
     }
 
-
+    /// Creates a single firework burst with particle system at the specified position
     private void SpawnSingleFireworkBurst(Vector3 position, bool useTrails)
     {
         var fireworkObject = new GameObject("FireworkBurstEffect")

@@ -4,20 +4,25 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.LowLevel;
 
+/// <inheritdoc />
+/// <summary>
+/// Blocks and filters input from stylus and pen devices to prevent unwanted interactions.
+/// </summary>
 public class StylusInputBlocker : MonoBehaviour
 {
     [Header("Blocking Settings")]
-    [SerializeField] private bool blockPenDevices = true;
-    [SerializeField] private bool blockStylusTouches = true;
-    [SerializeField] private bool blockTabletInput = true;
+    [SerializeField] [Tooltip("When enabled, blocks input from pen-type devices")] private bool blockPenDevices = true;
+    [SerializeField] [Tooltip("When enabled, blocks touch events identified as coming from a stylus")] private bool blockStylusTouches = true;
+    [SerializeField] [Tooltip("When enabled, blocks input from tablet devices")] private bool blockTabletInput = true;
 
     [Header("Debug")]
-    [SerializeField] private bool logBlockedEvents;
-    [SerializeField] private int maxLoggedEvents = 100;
+    [SerializeField] [Tooltip("Logs details about blocked stylus events to the console")] private bool logBlockedEvents;
+    [SerializeField] [Tooltip("Maximum number of events to log before suppressing further logging")] private int maxLoggedEvents = 100;
 
     private int _loggedEventsCount;
     private readonly HashSet<InputDevice> _identifiedStylusDevices = new();
 
+    // Initializes the input blocker and registers event handlers
     private void Awake()
     {
         DontDestroyOnLoad(gameObject);
@@ -26,12 +31,14 @@ public class StylusInputBlocker : MonoBehaviour
         Debug.Log("Stylus input blocker initialized");
     }
 
+    // Cleans up event handlers when object is destroyed
     private void OnDestroy()
     {
         InputSystem.onEvent -= FilterStylusEvents;
         InputSystem.onDeviceChange -= OnDeviceChange;
     }
 
+    // Monitors device connections to identify and track stylus devices
     private void OnDeviceChange(InputDevice device, InputDeviceChange change)
     {
         if (change != InputDeviceChange.Added && change != InputDeviceChange.Reconnected)
@@ -49,6 +56,7 @@ public class StylusInputBlocker : MonoBehaviour
         }
     }
 
+    // Determines if a device is a stylus based on its name and capabilities
     private static bool IsStylusDevice(InputDevice device)
     {
         switch (device)
@@ -71,9 +79,9 @@ public class StylusInputBlocker : MonoBehaviour
                 device.description.capabilities.Contains("Digitizer"));
     }
 
+    // Intercepts and blocks input events from stylus devices based on configuration
     private void FilterStylusEvents(InputEventPtr eventPtr, InputDevice device)
     {
-        // Early return if device is null
         if (device == null)
         {
             if (!logBlockedEvents || _loggedEventsCount >= maxLoggedEvents) return;
@@ -86,22 +94,18 @@ public class StylusInputBlocker : MonoBehaviour
         var shouldBlock = false;
         var blockReason = string.Empty;
 
-        // Block known stylus devices
         if (blockPenDevices && (_identifiedStylusDevices.Contains(device) || device is Pen))
         {
             shouldBlock = true;
             blockReason = "Known stylus device";
         }
-        // Check for stylus touch events
         else if (blockStylusTouches && eventPtr.type == TouchState.Format && IsStylusTouchEvent(eventPtr))
         {
             shouldBlock = true;
             blockReason = "Stylus touch event";
 
-            // Remember this device for future events
             _identifiedStylusDevices.Add(device);
         }
-        // Block tablet devices
         else if (blockTabletInput && IsStylusDevice(device))
         {
             shouldBlock = true;
@@ -109,10 +113,9 @@ public class StylusInputBlocker : MonoBehaviour
         }
 
         if (!shouldBlock) return;
-        // Mark the event as handled to prevent propagation
+
         eventPtr.handled = true;
 
-        // Log blocked events if enabled
         if (!logBlockedEvents || _loggedEventsCount >= maxLoggedEvents) return;
 
         Debug.Log($"Blocked stylus input: {blockReason}, Device: {device.name}");
@@ -122,36 +125,31 @@ public class StylusInputBlocker : MonoBehaviour
             Debug.Log("Maximum logged stylus events reached. Further logging suppressed.");
     }
 
+    // Identifies touch events that originate from a stylus
     private static bool IsStylusTouchEvent(InputEventPtr eventPtr)
     {
         unsafe
         {
             var touchState = (TouchState*)eventPtr.data;
 
-            // Replace TouchFlags.Pen check with bit flag check
-            // TouchFlags.Pen is typically bit 2 (value 4)
-            // Using raw value 4 instead of the inaccessible enum
             if ((touchState->flags & 4) != 0)
                 return true;
 
-            // Check for negative touchId/phaseId which can indicate stylus on some devices
             if (touchState->touchId < 0)
                 return true;
 
-            // Check pressure characteristics - stylus often has precise pressure
             if (touchState->pressure > 0 && touchState->pressure < 0.1f)
                 return true;
 
-            // Check touch radius - stylus typically has small contact area
             if (touchState->radius.x < 0.01f && touchState->radius.y < 0.01f && touchState->pressure > 0)
                 return true;
 
-            // Check for specific flag patterns that might indicate stylus
             return touchState->flags > 10;
         }
     }
 
     #if UNITY_EDITOR
+    // Logs all connected input devices for debugging purposes
     [ContextMenu("Log Connected Input Devices")]
     private void LogConnectedDevices()
     {

@@ -1,20 +1,24 @@
 using JetBrains.Annotations;
 using UnityEngine;
 
+/// <summary>
+/// Handles animation events sent from the player animator.
+/// </summary>
+/// <inheritdoc />
 public class AnimatorEvents : MonoBehaviour
 {
-    [CanBeNull] public PlayerController playerController;
+    [CanBeNull] [SerializeField] [Tooltip("Reference to the player controller component")] public PlayerController playerController;
 
+    // Pauses jump animation while player is in the air
     public void PauseJump()
     {
-        // Only pause if still in the air
         if (playerController == null || playerController.IsGrounded) return;
 
         playerController.animator.speed = 0f;
         playerController.IsJumpPaused = true;
     }
 
-    // gets called when the player is standing
+    // Called by animation event when standing animation completes
     public void OnStandingAnimationComplete()
     {
         if (playerController == null) return;
@@ -22,7 +26,7 @@ public class AnimatorEvents : MonoBehaviour
         playerController.IsStanding = true;
     }
 
-    // gets called when the player is laying
+    // Called by animation event when laying animation completes
     public void OnLayingAnimationComplete()
     {
         if (playerController == null) return;

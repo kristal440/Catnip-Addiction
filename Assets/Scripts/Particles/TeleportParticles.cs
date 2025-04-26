@@ -1,6 +1,10 @@
 using System.Collections;
 using UnityEngine;
 
+/// <inheritdoc />
+/// <summary>
+/// Creates and manages teleportation particle effects with customizable appearance, movement, and lighting
+/// </summary>
 public class TeleportParticles : MonoBehaviour
 {
     private static readonly int EmissionColor = Shader.PropertyToID("_EmissionColor");
@@ -10,33 +14,35 @@ public class TeleportParticles : MonoBehaviour
     private static readonly int ZWrite = Shader.PropertyToID("_ZWrite");
 
     [Header("Particle Settings")]
-    [SerializeField] private Color startColor = new(0.7f, 0.9f, 0.7f, 0.8f);
-    [SerializeField] private Color endColor = new(0.5f, 0.8f, 0.5f, 0f);
-    [SerializeField] private float particleSize = 0.2f;
-    [SerializeField] private float particleLifetime = 1.5f;
-    [SerializeField] private int emissionRate = 40;
+    [SerializeField] [Tooltip("Initial color of particles when spawned")] private Color startColor = new(0.7f, 0.9f, 0.7f, 0.8f);
+    [SerializeField] [Tooltip("Final color of particles before disappearing")] private Color endColor = new(0.5f, 0.8f, 0.5f, 0f);
+    [SerializeField] [Tooltip("Size of individual particles")] private float particleSize = 0.2f;
+    [SerializeField] [Tooltip("How long particles remain visible")] private float particleLifetime = 1.5f;
+    [SerializeField] [Tooltip("Number of particles emitted per second")] private int emissionRate = 40;
 
     [Header("Spread Settings")]
-    [SerializeField] private float emissionRadius = 0.1f;
-    [SerializeField] private float spreadForce = 1.0f;
-    [SerializeField] private float directionVariance = 0.3f;
+    [SerializeField] [Tooltip("Radius of the emission sphere")] private float emissionRadius = 0.1f;
+    [SerializeField] [Tooltip("Force applied to particles when emitted")] private float spreadForce = 1.0f;
+    [SerializeField] [Tooltip("Random variation in particle movement direction")] private float directionVariance = 0.3f;
 
     [Header("Light Settings")]
-    [SerializeField] private bool emitLight = true;
-    [SerializeField] private float lightIntensity = 2f;
-    [SerializeField] private float lightRange = 2.0f;
-    [SerializeField] [Range(0.0f, 1.0f)] private float lightRatio = 0.5f;
-    [SerializeField] private Color lightColor = Color.green;
-    [SerializeField] private float emissionMultiplier = 2.0f;
+    [SerializeField] [Tooltip("Whether particles should emit light")] private bool emitLight = true;
+    [SerializeField] [Tooltip("Brightness of particle lights")] private float lightIntensity = 2f;
+    [SerializeField] [Tooltip("How far light reaches from particles")] private float lightRange = 2.0f;
+    [SerializeField] [Range(0.0f, 1.0f)] [Tooltip("Percentage of particles that emit light")] private float lightRatio = 0.5f;
+    [SerializeField] [Tooltip("Color of the emitted light")] private Color lightColor = Color.green;
+    [SerializeField] [Tooltip("Multiplies emission intensity for particle material")] private float emissionMultiplier = 2.0f;
 
     private ParticleSystem _particleSystem;
     private ParticleSystem.EmissionModule _emission;
 
+    // Initializes the component and creates the particle system
     private void Awake()
     {
         CreateParticleSystem();
     }
 
+    // Sets up particle system with all configured parameters
     private void CreateParticleSystem()
     {
         _particleSystem = gameObject.AddComponent<ParticleSystem>();
@@ -152,6 +158,7 @@ public class TeleportParticles : MonoBehaviour
         Destroy(tempLightObj);
     }
 
+    // Initiates teleport animation between two points
     internal void AnimateTeleport(Vector3 startPos, Vector3 endPos, float duration, AnimationCurve movementCurve = null)
     {
         gameObject.SetActive(true);
@@ -160,6 +167,7 @@ public class TeleportParticles : MonoBehaviour
         StartCoroutine(TeleportAnimation(startPos, endPos, duration, movementCurve));
     }
 
+    // Handles the movement and particle animation over time
     private IEnumerator TeleportAnimation(Vector3 startPos, Vector3 endPos, float duration, AnimationCurve movementCurve)
     {
         movementCurve ??= AnimationCurve.EaseInOut(0, 0, 1, 1);

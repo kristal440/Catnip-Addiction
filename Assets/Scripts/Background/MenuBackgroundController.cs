@@ -1,20 +1,25 @@
 using UnityEngine;
 
+/// <inheritdoc />
+/// <summary>
+/// Controls the menu background elements including particle effects and transitions.
+/// </summary>
 public class MenuBackgroundController : MonoBehaviour
 {
     [Header("References")]
-    public BackgroundScrollController backgroundScrollController;
+    [SerializeField] [Tooltip("Reference to the scroll controller that handles background movement")] private BackgroundScrollController backgroundScrollController;
 
     [Header("Ambient Effects")]
-    public ParticleSystem[] particleSystems;
-    public float particleIntensity = 1f;
+    [SerializeField] [Tooltip("Particle systems to adjust based on screen size and intensity")] private ParticleSystem[] particleSystems;
+    [SerializeField] [Tooltip("Multiplier that affects particle speed and intensity")] private float particleIntensity = 1f;
 
     [Header("Transitions")]
-    public float transitionSpeed = 1.5f;
-    public CanvasGroup menuCanvasGroup;
+    [SerializeField] [Tooltip("Speed at which menu transitions occur")] private float transitionSpeed = 1.5f;
+    [SerializeField] [Tooltip("Canvas group to fade during transitions")] private CanvasGroup menuCanvasGroup;
 
     private Camera _mainCamera;
 
+    // Initialize references and adjust particles for current screen
     private void Awake()
     {
         _mainCamera = Camera.main;
@@ -26,6 +31,7 @@ public class MenuBackgroundController : MonoBehaviour
         AdjustParticles();
     }
 
+    // Scale particle effects based on screen size and intensity setting
     private void AdjustParticles()
     {
         foreach (var system in particleSystems)
@@ -42,12 +48,14 @@ public class MenuBackgroundController : MonoBehaviour
         }
     }
 
+    // Handle menu transition with fade effect
     internal void TransitionToMenu(string menuName)
     {
         if (menuCanvasGroup)
             StartCoroutine(FadeCanvasGroup(menuCanvasGroup, 0f, 1f, transitionSpeed));
     }
 
+    // Smoothly fade a canvas group between alpha values
     private static System.Collections.IEnumerator FadeCanvasGroup(CanvasGroup group, float start, float end, float duration)
     {
         float elapsed = 0;

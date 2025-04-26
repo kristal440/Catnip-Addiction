@@ -6,17 +6,22 @@ using TMPro;
 using UnityEngine;
 using Hashtable = ExitGames.Client.Photon.Hashtable;
 
+/// <inheritdoc />
+/// <summary>
+/// Fetches and displays player race completion times in a sorted list.
+/// </summary>
 public class Leaderboard : MonoBehaviour
 {
     [Header("UI References")]
-    public Transform leaderboardListContainer;
-    public GameObject leaderboardEntryPrefab;
+    [SerializeField] [Tooltip("Parent transform for spawning leaderboard entries")] public Transform leaderboardListContainer;
+    [SerializeField] [Tooltip("Prefab for individual leaderboard entries")] public GameObject leaderboardEntryPrefab;
 
     private bool _dataLoaded;
     private const float RetryInterval = 1f;
     private const float MaxWaitTime = 10f;
     private float _startTime;
 
+    // Begins the leaderboard data loading process
     private void Start()
     {
         _startTime = Time.time;
@@ -24,18 +29,13 @@ public class Leaderboard : MonoBehaviour
     }
 
     #region Leaderboard Loading
+    // Attempts to load leaderboard data with retries until timeout
     private IEnumerator LoadLeaderboardWithRetry()
     {
         while (!_dataLoaded && (Time.time - _startTime) < MaxWaitTime)
         {
-            if (PhotonNetwork.CurrentRoom?.CustomProperties == null)
-            {
-                yield return new WaitForSeconds(RetryInterval);
-
-                continue;
-            }
-
-            if (!PhotonNetwork.CurrentRoom.CustomProperties.TryGetValue("LeaderboardData", out var leaderboardDataObj)
+            if (PhotonNetwork.CurrentRoom?.CustomProperties == null
+                || !PhotonNetwork.CurrentRoom.CustomProperties.TryGetValue("LeaderboardData", out var leaderboardDataObj)
                 || leaderboardDataObj is not Hashtable leaderboardHashtable)
             {
                 yield return new WaitForSeconds(RetryInterval);
@@ -69,6 +69,7 @@ public class Leaderboard : MonoBehaviour
             Debug.LogError("Failed to load leaderboard data after multiple retries.");
     }
 
+    // Extracts player name from hashtable data
     private static string GetPlayerNameFromHash(Hashtable playerDataHash, int playerID)
     {
         if (!playerDataHash.TryGetValue("playerName", out var playerNameObj))
@@ -84,6 +85,7 @@ public class Leaderboard : MonoBehaviour
         return string.Empty;
     }
 
+    // Extracts finish time from hashtable data
     private static float GetFinishTimeFromHash(Hashtable playerDataHash, int playerID)
     {
         if (!playerDataHash.TryGetValue("finishTime", out var finishTimeObj))
@@ -104,6 +106,7 @@ public class Leaderboard : MonoBehaviour
         }
     }
 
+    // Creates and populates UI entries sorted by finish time
     private void PopulateLeaderboard(Dictionary<int, PlayerResultData> leaderboardData)
     {
         var sortedLeaderboard = new List<KeyValuePair<int, PlayerResultData>>(leaderboardData);
@@ -133,6 +136,7 @@ public class Leaderboard : MonoBehaviour
         }
     }
 
+    // Instantiates a new leaderboard entry UI element
     private GameObject CreateLeaderboardEntry()
     {
         if (leaderboardEntryPrefab)
@@ -147,6 +151,7 @@ public class Leaderboard : MonoBehaviour
     #endregion
 
     #region Helpers
+    // Truncates long player names and adds ellipsis
     private static string ShortenName(string playerName)
     {
         if (playerName.Length <= 13)

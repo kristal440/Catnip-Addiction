@@ -2,52 +2,54 @@ using Photon.Pun;
 using UnityEngine;
 using static UnityEngine.Mathf;
 
+/// <inheritdoc />
+/// <summary>
+/// Creates dirt particles for player movement, with effects for walking, jumping, and landing
+/// </summary>
 public class PlayerDirtParticleSystem : MonoBehaviour
 {
-    [SerializeField] private GameObject playerObject;
+    [SerializeField] [Tooltip("Reference to the player GameObject")] private GameObject playerObject;
 
     [Header("Interaction Filters")]
-    [Tooltip("Particles won't spawn when player is colliding with objects on these layers")]
-    [SerializeField] private LayerMask excludedLayers;
-    [Tooltip("Radius to check for collisions with excluded objects")]
-    [SerializeField] private float collisionCheckRadius = 0.2f;
+    [SerializeField] [Tooltip("Particles won't spawn when player is colliding with objects on these layers")] private LayerMask excludedLayers;
+    [SerializeField] [Tooltip("Radius to check for collisions with excluded objects")] private float collisionCheckRadius = 0.2f;
 
     [Header("Base Particle Settings")]
-    [SerializeField] private float baseEmissionRate = 5f;
-    [SerializeField] private float walkingEmissionMultiplier = 2f;
-    [SerializeField] private float particleLifetimeMin = 0.5f;
-    [SerializeField] private float particleLifetimeMax = 1.0f;
-    [SerializeField] private float particleSizeMin = 0.05f;
-    [SerializeField] private float particleSizeMax = 0.15f;
-    [SerializeField] private float gravityModifier = 0.5f;
-    [SerializeField] private Color dirtColorMin = new(0.6f, 0.4f, 0.2f, 0.7f);
-    [SerializeField] private Color dirtColorMax = new(0.7f, 0.5f, 0.3f, 0.5f);
+    [SerializeField] [Tooltip("Base emission rate when player is moving")] private float baseEmissionRate = 5f;
+    [SerializeField] [Tooltip("Multiplier for emission rate when walking")] private float walkingEmissionMultiplier = 2f;
+    [SerializeField] [Tooltip("Minimum lifetime of particles in seconds")] private float particleLifetimeMin = 0.5f;
+    [SerializeField] [Tooltip("Maximum lifetime of particles in seconds")] private float particleLifetimeMax = 1.0f;
+    [SerializeField] [Tooltip("Minimum size of individual particles")] private float particleSizeMin = 0.05f;
+    [SerializeField] [Tooltip("Maximum size of individual particles")] private float particleSizeMax = 0.15f;
+    [SerializeField] [Tooltip("How strongly gravity affects the particles")] private float gravityModifier = 0.5f;
+    [SerializeField] [Tooltip("Minimum color variation for dirt particles")] private Color dirtColorMin = new(0.6f, 0.4f, 0.2f, 0.7f);
+    [SerializeField] [Tooltip("Maximum color variation for dirt particles")] private Color dirtColorMax = new(0.7f, 0.5f, 0.3f, 0.5f);
 
     [Header("Jump Particles")]
-    [SerializeField] private bool enableJumpParticles = true;
-    [SerializeField] private float jumpBurstCountMin = 5f;
-    [SerializeField] private float jumpBurstCountMax = 20f;
-    [SerializeField] private float jumpBurstSpeedMin = 1f;
-    [SerializeField] private float jumpBurstSpeedMax = 3f;
+    [SerializeField] [Tooltip("Whether to emit particles when player jumps")] private bool enableJumpParticles = true;
+    [SerializeField] [Tooltip("Minimum number of particles emitted on jump")] private float jumpBurstCountMin = 5f;
+    [SerializeField] [Tooltip("Maximum number of particles emitted on jump")] private float jumpBurstCountMax = 20f;
+    [SerializeField] [Tooltip("Minimum speed of particles emitted on jump")] private float jumpBurstSpeedMin = 1f;
+    [SerializeField] [Tooltip("Maximum speed of particles emitted on jump")] private float jumpBurstSpeedMax = 3f;
 
     [Header("Landing Particles")]
-    [SerializeField] private bool enableLandingParticles = true;
-    [SerializeField] private float landingBurstCountMin = 3f;
-    [SerializeField] private float landingBurstCountMax = 15f;
-    [SerializeField] private float landingBurstSpeedMin = 0.7f;
-    [SerializeField] private float landingBurstSpeedMax = 2.1f;
-    [SerializeField] private float minimumLandingForce = 0.5f;
-    [SerializeField] private float maximumLandingForce = 10f;
+    [SerializeField] [Tooltip("Whether to emit particles when player lands")] private bool enableLandingParticles = true;
+    [SerializeField] [Tooltip("Minimum number of particles emitted on landing")] private float landingBurstCountMin = 3f;
+    [SerializeField] [Tooltip("Maximum number of particles emitted on landing")] private float landingBurstCountMax = 15f;
+    [SerializeField] [Tooltip("Minimum speed of particles emitted on landing")] private float landingBurstSpeedMin = 0.7f;
+    [SerializeField] [Tooltip("Maximum speed of particles emitted on landing")] private float landingBurstSpeedMax = 2.1f;
+    [SerializeField] [Tooltip("Minimum falling force required to trigger landing particles")] private float minimumLandingForce = 0.5f;
+    [SerializeField] [Tooltip("Maximum falling force for scaling landing particles")] private float maximumLandingForce = 10f;
 
     [Header("Rendering")]
-    [SerializeField] private string sortingLayerName = "Foreground";
-    [SerializeField] private int sortingOrder = 10;
+    [SerializeField] [Tooltip("Sorting layer for particle renderer")] private string sortingLayerName = "Foreground";
+    [SerializeField] [Tooltip("Sorting order within the layer")] private int sortingOrder = 10;
 
     [Header("Performance")]
-    [SerializeField] private int maxParticles = 100;
+    [SerializeField] [Tooltip("Maximum number of particles allowed at once")] private int maxParticles = 100;
 
     [Header("Remote Player Settings")]
-    [SerializeField] private float remotePlayerOpacityMultiplier = 0.7f;
+    [SerializeField] [Tooltip("Reduces opacity of particles for remote players")] private float remotePlayerOpacityMultiplier = 0.7f;
 
     private PlayerController _playerController;
     private ParticleSystem _dirtParticleSystem;
@@ -62,6 +64,7 @@ public class PlayerDirtParticleSystem : MonoBehaviour
     private float _inverseLandingForceRange;
     private float _inverseMaxSpeed;
 
+    // Creates the particle system and initializes basic settings
     private void Awake()
     {
         _dirtParticleSystem = gameObject.AddComponent<ParticleSystem>();
@@ -73,6 +76,7 @@ public class PlayerDirtParticleSystem : MonoBehaviour
         SetupParticleSystem();
     }
 
+    // Initializes references and calculated values
     private void Start()
     {
         if (playerObject == null)
@@ -101,12 +105,14 @@ public class PlayerDirtParticleSystem : MonoBehaviour
             AdjustForRemotePlayer();
     }
 
+    // Cleans up created materials when destroyed
     private void OnDestroy()
     {
         if (_particleMaterial != null)
             Destroy(_particleMaterial);
     }
 
+    // Manages particle emission based on player state and movement
     private void Update()
     {
         if (!_playerController)
@@ -146,6 +152,7 @@ public class PlayerDirtParticleSystem : MonoBehaviour
         _wasGrounded = isGrounded;
     }
 
+    // Checks if player is touching excluded objects that should prevent particles
     private bool IsCollidingWithExcludedObjects()
     {
         if (excludedLayers.value == 0) return false;
@@ -158,6 +165,7 @@ public class PlayerDirtParticleSystem : MonoBehaviour
         return layerHit && layerHit.gameObject != playerObject;
     }
 
+    // Configures the particle system with all necessary modules and settings
     private void SetupParticleSystem()
     {
         _main.startColor = new ParticleSystem.MinMaxGradient(dirtColorMin, dirtColorMax);
@@ -195,6 +203,7 @@ public class PlayerDirtParticleSystem : MonoBehaviour
         SetupParticleRenderer();
     }
 
+    // Configures the particle system renderer component
     private void SetupParticleRenderer()
     {
         var component = _dirtParticleSystem.GetComponent<ParticleSystemRenderer>();
@@ -217,6 +226,7 @@ public class PlayerDirtParticleSystem : MonoBehaviour
         component.alignment = ParticleSystemRenderSpace.View;
     }
 
+    // Manages particle emission rate based on player's walking speed
     private void UpdateWalkingParticles(float speed)
     {
         if (speed > 0.1f)
@@ -230,6 +240,7 @@ public class PlayerDirtParticleSystem : MonoBehaviour
         }
     }
 
+    // Creates burst of particles when player jumps
     private void EmitJumpParticles(float jumpForce)
     {
         var jumpForceFactor = Clamp01(
@@ -243,6 +254,7 @@ public class PlayerDirtParticleSystem : MonoBehaviour
         _dirtParticleSystem.Emit(burstCount);
     }
 
+    // Creates burst of particles when player lands
     private void EmitLandingParticles(float landingForce)
     {
         if (landingForce < minimumLandingForce)
@@ -259,6 +271,7 @@ public class PlayerDirtParticleSystem : MonoBehaviour
         _dirtParticleSystem.Emit(burstCount);
     }
 
+    // Reduces particle opacity for networked players that aren't the local player
     private void AdjustForRemotePlayer()
     {
         var startColor = _main.startColor;

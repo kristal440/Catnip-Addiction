@@ -8,45 +8,49 @@ using UnityEngine;
 using UnityEngine.UI;
 using Hashtable = ExitGames.Client.Photon.Hashtable;
 
+/// <inheritdoc />
+/// <summary>
+/// Manages multiplayer connection, room creation/joining, and map selection through the Photon networking system.
+/// </summary>
 public class Launcher : MonoBehaviourPunCallbacks
 {
     private bool _isConnecting;
     private List<string> _roomLst;
-
     private string _selectedMapName = "GameScene_Map1_Multi";
 
     [Header("Error popup")]
-    [SerializeField] private GameObject errorPanel;
-    [SerializeField] private TextMeshProUGUI errorText;
+    [SerializeField] [Tooltip("Panel displayed when errors occur")] private GameObject errorPanel;
+    [SerializeField] [Tooltip("Text component that displays error messages")] private TextMeshProUGUI errorText;
 
     [Header("Loading Panel")]
-    [SerializeField] private GameObject loadingPanel;
-    [SerializeField] private TMP_Text loadingText;
+    [SerializeField] [Tooltip("Panel shown during connection process")] private GameObject loadingPanel;
+    [SerializeField] [Tooltip("Text showing connection status")] private TMP_Text loadingText;
 
     [Header("Main UI")]
-    [SerializeField] private GameObject mainPanel;
-    [SerializeField] private TMP_InputField playerNameInputField;
-    [SerializeField] private TMP_InputField roomNameInputField;
-    [SerializeField] private Slider slider;
+    [SerializeField] [Tooltip("Main panel containing room creation interface")] private GameObject mainPanel;
+    [SerializeField] [Tooltip("Input field for player name")] private TMP_InputField playerNameInputField;
+    [SerializeField] [Tooltip("Input field for room name")] private TMP_InputField roomNameInputField;
+    [SerializeField] [Tooltip("Slider controlling maximum player count")] private Slider slider;
 
     [Header("Map Selection")]
-    [SerializeField] private GameObject mapListPanel;
-    [SerializeField] private MapSelectionManager mapSelectionManager;
-    [SerializeField] private List<GameObject> objectsToDisableWhenMapSelectorOpen = new();
+    [SerializeField] [Tooltip("Panel for selecting maps")] private GameObject mapListPanel;
+    [SerializeField] [Tooltip("Manager handling map selection functionality")] private MapSelectionManager mapSelectionManager;
+    [SerializeField] [Tooltip("UI elements to hide when map selector is open")] private List<GameObject> objectsToDisableWhenMapSelectorOpen = new();
 
     [Header("Room List")]
-    [SerializeField] private GameObject roomListPanel;
-    [SerializeField] private GameObject roomPrefab;
-    [SerializeField] private Transform roomsContainer;
-    [SerializeField] private Color fullRoomColor = new(1f, 0.239f, 0.239f);
-    [SerializeField] private Color availableRoomColor = new(0.475f, 1f, 0.498f);
+    [SerializeField] [Tooltip("Panel showing available rooms")] private GameObject roomListPanel;
+    [SerializeField] [Tooltip("Prefab for room list entries")] private GameObject roomPrefab;
+    [SerializeField] [Tooltip("Container for instantiated room list items")] private Transform roomsContainer;
+    [SerializeField] [Tooltip("Color for full rooms")] private Color fullRoomColor = new(1f, 0.239f, 0.239f);
+    [SerializeField] [Tooltip("Color for available rooms")] private Color availableRoomColor = new(0.475f, 1f, 0.498f);
 
-    #region Unity Lifecycle
+    /// Configures automatic scene synchronization
     private void Awake()
     {
         PhotonNetwork.AutomaticallySyncScene = true;
     }
 
+    /// Initializes UI state and begins connection to Photon network
     private void Start()
     {
         roomListPanel.SetActive(false);
@@ -67,14 +71,15 @@ public class Launcher : MonoBehaviourPunCallbacks
             mapSelectionManager.OnMapSelected += OnMapSelected;
     }
 
+    /// Removes event listeners when destroyed
     private void OnDestroy()
     {
         if (mapSelectionManager != null)
             mapSelectionManager.OnMapSelected -= OnMapSelected;
     }
-    #endregion
 
-    #region Photon Callbacks
+    /// <inheritdoc />
+    /// Called when successfully connected to Photon master server
     public override void OnConnectedToMaster()
     {
         if (!_isConnecting) return;
@@ -84,17 +89,23 @@ public class Launcher : MonoBehaviourPunCallbacks
         loadingText.text = "Connected to Server :3";
     }
 
+    /// <inheritdoc />
+    /// Called when successfully joined the Photon lobby
     public override void OnJoinedLobby()
     {
         StartCoroutine(ShowRoomListWithDelay());
     }
 
+    /// <inheritdoc />
+    /// Called when room creation fails
     public override void OnCreateRoomFailed(short returnCode, string message)
     {
         errorText.text = $"Room creation failed ({returnCode}): {message}";
         errorPanel.SetActive(true);
     }
 
+    /// <inheritdoc />
+    /// Called when successfully joined a room, loads the selected map
     public override void OnJoinedRoom()
     {
         SetNickname();
@@ -106,11 +117,15 @@ public class Launcher : MonoBehaviourPunCallbacks
         PhotonNetwork.LoadLevel(mapToLoad);
     }
 
+    /// <inheritdoc />
+    /// Called when joining a room fails
     public override void OnJoinRoomFailed(short returnCode, string message)
     {
         Debug.LogError($"Join room failed: {message} ({returnCode})");
     }
 
+    /// <inheritdoc />
+    /// Updates the UI list of available rooms when the list changes
     public override void OnRoomListUpdate(List<RoomInfo> roomList)
     {
         _roomLst = roomList.ConvertAll(static x => x.Name);
@@ -140,9 +155,8 @@ public class Launcher : MonoBehaviourPunCallbacks
             button.onClick.AddListener(() => JoinRoom(roomInfo.Name));
         }
     }
-    #endregion
 
-    #region UI Methods
+    /// Shows the room list UI after a short delay
     private IEnumerator ShowRoomListWithDelay()
     {
         yield return new WaitForSeconds(1);
@@ -152,6 +166,7 @@ public class Launcher : MonoBehaviourPunCallbacks
         roomListPanel.SetActive(true);
     }
 
+    /// Creates a new multiplayer room after validating inputs
     public void CreateRoom()
     {
         if (playerNameInputField.text.Length < 3)
@@ -201,12 +216,14 @@ public class Launcher : MonoBehaviourPunCallbacks
         PhotonNetwork.CreateRoom(roomNameInputField.text, roomOptions);
     }
 
+    /// Validates if a room name meets requirements
     private static bool IsRoomNameValid(string roomName)
     {
         return roomName.Length is >= 3 and <= 20 &&
                roomName.All(static c => char.IsLetterOrDigit(c) || c == '_' || c == '-' || c == ' ');
     }
 
+    /// Joins an existing room after validating player name
     private void JoinRoom(string roomName)
     {
         if (playerNameInputField.text.Length < 3)
@@ -219,13 +236,13 @@ public class Launcher : MonoBehaviourPunCallbacks
         PhotonNetwork.JoinRoom(roomName);
     }
 
+    /// Sets the player nickname based on input field
     private void SetNickname()
     {
         PhotonNetwork.NickName = playerNameInputField.text;
     }
-    #endregion
 
-    #region Map Selection
+    /// Opens the map selection interface
     public void InitializeMaps()
     {
         DisableObjectsDuringMapSelection();
@@ -233,22 +250,24 @@ public class Launcher : MonoBehaviourPunCallbacks
         mapSelectionManager.Initialize(_selectedMapName);
     }
 
+    /// Handles map selection event from the map selection manager
     private void OnMapSelected(string mapSceneName, string mapDisplayName)
     {
         _selectedMapName = mapSceneName;
         Debug.Log($"Selected map: {mapSceneName} ({mapDisplayName})");
     }
 
+    /// Disables certain UI elements during map selection
     private void DisableObjectsDuringMapSelection()
     {
         foreach (var obj in objectsToDisableWhenMapSelectorOpen.Where(static obj => obj != null))
             obj.SetActive(false);
     }
 
+    /// Re-enables UI elements after map selection
     public void EnableObjectsAfterMapSelection()
     {
         foreach (var obj in objectsToDisableWhenMapSelectorOpen.Where(static obj => obj != null))
             obj.SetActive(true);
     }
-    #endregion
 }

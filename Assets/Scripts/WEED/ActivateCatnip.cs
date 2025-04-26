@@ -3,17 +3,22 @@ using System.Linq;
 using Photon.Pun;
 using UnityEngine;
 
+/// <inheritdoc />
+/// <summary>
+/// Manages catnip items that apply temporary effects to players upon collection.
+/// </summary>
 [RequireComponent(typeof(Collider2D))]
 [RequireComponent(typeof(Renderer))]
 public class ActivateCatnip : MonoBehaviour
 {
-    public float effectDuration = 5f;
+    [SerializeField] [Tooltip("Duration of catnip effect in seconds")] public float effectDuration = 5f;
 
     private Renderer _renderer;
     private Collider2D _collider;
     private bool _isEffectActive;
     private GameObject[] _childObjects;
 
+    // Initializes components and prepares collider
     private void Awake()
     {
         _renderer = GetComponent<Renderer>();
@@ -29,6 +34,7 @@ public class ActivateCatnip : MonoBehaviour
         _collider.isTrigger = true;
     }
 
+    // Activates catnip effect when player collides with the item
     private void OnTriggerEnter2D(Collider2D other)
     {
         if (_isEffectActive) return;
@@ -56,6 +62,7 @@ public class ActivateCatnip : MonoBehaviour
         StartCoroutine(DeactivateEffectAfterDelay(effectDuration, playerC, playerPhotonView));
     }
 
+    // Deactivates catnip effect after specified duration
     private IEnumerator DeactivateEffectAfterDelay(float delay, PlayerController playerC, PhotonView playerPhotonView)
     {
         yield return new WaitForSeconds(delay);

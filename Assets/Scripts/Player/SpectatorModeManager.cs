@@ -6,20 +6,24 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
+/// <inheritdoc />
+/// <summary>
+/// Manages spectator mode functionality when a player finishes the level, allowing them to watch other active players
+/// </summary>
 public class SpectatorModeManager : MonoBehaviourPunCallbacks
 {
     internal bool IsSpectating { get; private set; }
     private static SpectatorModeManager Instance { get; set; }
 
     [Header("UI Elements")]
-    [SerializeField] private GameObject spectatorModeUI;
-    [SerializeField] private Button previousPlayerButton;
-    [SerializeField] private Button nextPlayerButton;
-    [SerializeField] private TextMeshProUGUI spectatingPlayerText;
-    [SerializeField] private GameObject onScreenControlsParent;
+    [SerializeField] [Tooltip("Root UI container for spectator mode interface")] private GameObject spectatorModeUI;
+    [SerializeField] [Tooltip("Button to cycle to the previous player")] private Button previousPlayerButton;
+    [SerializeField] [Tooltip("Button to cycle to the next player")] private Button nextPlayerButton;
+    [SerializeField] [Tooltip("Text displaying the name of the player being spectated")] private TextMeshProUGUI spectatingPlayerText;
+    [SerializeField] [Tooltip("Container for on-screen controls that should be hidden during spectating")] private GameObject onScreenControlsParent;
 
     [Header("Settings")]
-    [SerializeField] private float delayBeforeSpectating = 3f;
+    [SerializeField] [Tooltip("Time in seconds before switching to spectator mode after finishing")] private float delayBeforeSpectating = 3f;
 
     private readonly List<PlayerController> _activePlayers = new();
     private int _currentPlayerIndex = -1;
@@ -27,6 +31,7 @@ public class SpectatorModeManager : MonoBehaviourPunCallbacks
     private Camera _mainCamera;
     private Coroutine _spectatorCoroutine;
 
+    // Initialize singleton and UI elements
     private void Awake()
     {
         if (Instance != null && Instance != this)
@@ -43,11 +48,13 @@ public class SpectatorModeManager : MonoBehaviourPunCallbacks
         nextPlayerButton.onClick.AddListener(SpectatorNextPlayer);
     }
 
+    // Find local player on start
     private void Start()
     {
         FindLocalPlayer();
     }
 
+    // Locate the player that belongs to this client
     private void FindLocalPlayer()
     {
         var allPlayers = FindObjectsByType<PlayerController>(FindObjectsSortMode.None);
@@ -59,6 +66,7 @@ public class SpectatorModeManager : MonoBehaviourPunCallbacks
         }
     }
 
+    // Handles player finishing the level by triggering spectator mode
     internal void OnPlayerFinish()
     {
         if (!PhotonNetwork.IsConnected) return;
@@ -72,6 +80,7 @@ public class SpectatorModeManager : MonoBehaviourPunCallbacks
         _spectatorCoroutine = StartCoroutine(EnterSpectatorModeAfterDelay());
     }
 
+    // Waits for specified delay before entering spectator mode
     private IEnumerator EnterSpectatorModeAfterDelay()
     {
         yield return new WaitForSeconds(delayBeforeSpectating);
@@ -79,6 +88,7 @@ public class SpectatorModeManager : MonoBehaviourPunCallbacks
         EnterSpectatorMode();
     }
 
+    // Activates spectator mode and prepares UI and camera
     private void EnterSpectatorMode()
     {
         RefreshPlayerList();
@@ -96,6 +106,7 @@ public class SpectatorModeManager : MonoBehaviourPunCallbacks
         SpectatorNextPlayer();
     }
 
+    // Disables spectator mode and resets camera to player
     private void ExitSpectatorMode()
     {
         if (_localPlayer == null) return;
@@ -114,6 +125,7 @@ public class SpectatorModeManager : MonoBehaviourPunCallbacks
         transform1.localPosition = new Vector3(0, 0, -10);
     }
 
+    // Updates the list of active players
     private void RefreshPlayerList()
     {
         _activePlayers.Clear();
@@ -124,6 +136,7 @@ public class SpectatorModeManager : MonoBehaviourPunCallbacks
             _activePlayers.Add(player);
     }
 
+    // Switches to the next player in the list for spectating
     private void SpectatorNextPlayer()
     {
         if (_activePlayers.Count <= 1) return;
@@ -136,6 +149,7 @@ public class SpectatorModeManager : MonoBehaviourPunCallbacks
         SwitchToPlayer(_currentPlayerIndex);
     }
 
+    // Switches to the previous player in the list for spectating
     private void SpectatorPreviousPlayer()
     {
         if (_activePlayers.Count <= 1) return;
@@ -148,6 +162,7 @@ public class SpectatorModeManager : MonoBehaviourPunCallbacks
         SwitchToPlayer(_currentPlayerIndex);
     }
 
+    // Attaches camera to the selected player and updates UI
     private void SwitchToPlayer(int playerIndex)
     {
         if (playerIndex < 0 || playerIndex >= _activePlayers.Count) return;

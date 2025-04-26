@@ -1,13 +1,15 @@
 using UnityEngine;
 
+/// <summary>
+/// Matches this object's scale to match another object's absolute world scale
+/// </summary>
+/// <inheritdoc />
 public class MatchAbsoluteScale : MonoBehaviour
 {
-    [Tooltip("The GameObject whose absolute scale will be matched")]
-    public GameObject targetObject;
+    [SerializeField] [Tooltip("The GameObject whose absolute scale will be matched")] private GameObject targetObject;
+    [SerializeField] [Tooltip("If true, will update the scale every frame. If false, will only set it once on Start")] private bool continuousUpdate;
 
-    [Tooltip("If true, will update the scale every frame. If false, will only set it once on Start")]
-    public bool continuousUpdate;
-
+    // Initializes scaling on startup if not doing continuous updates
     private void Start()
     {
         if (targetObject == null)
@@ -20,12 +22,14 @@ public class MatchAbsoluteScale : MonoBehaviour
             MatchScale();
     }
 
+    // Updates scale continuously if enabled
     private void Update()
     {
         if (continuousUpdate && targetObject)
             MatchScale();
     }
 
+    // Calculates and applies the correct scale to match target's world scale
     private void MatchScale()
     {
         var targetWorldScale = targetObject.transform.lossyScale;

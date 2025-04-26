@@ -4,25 +4,29 @@ using Photon.Pun;
 using UnityEngine;
 using UnityEngine.UI;
 
+/// <summary>
+/// Manages a horizontal skin selection UI with scrolling, item scaling, and Photon network synchronization.
+/// </summary>
+/// <inheritdoc />
 public class SkinPicker : MonoBehaviour
 {
     [Header("UI References")]
-    [SerializeField] private Button leftButton;
-    [SerializeField] private Button rightButton;
-    [SerializeField] private RectTransform content;
-    [SerializeField] private GameObject skinPreviewPrefab;
-    [SerializeField] private ScrollRect scrollRect;
+    [SerializeField] [Tooltip("Button to navigate to the previous skin")] private Button leftButton;
+    [SerializeField] [Tooltip("Button to navigate to the next skin")] private Button rightButton;
+    [SerializeField] [Tooltip("Container for skin preview items")] private RectTransform content;
+    [SerializeField] [Tooltip("Prefab used to display each skin preview")] private GameObject skinPreviewPrefab;
+    [SerializeField] [Tooltip("ScrollRect component for scrolling through skins")] private ScrollRect scrollRect;
 
     [Header("Settings")]
-    [SerializeField] private float itemSpacing;
-    [SerializeField] private float snapSpeed = 5f;
-    [SerializeField] public List<string> skinNames = new();
-    [SerializeField] private List<RectTransform> skinItemRects = new();
+    [SerializeField] [Tooltip("Space between each skin preview item")] private float itemSpacing;
+    [SerializeField] [Tooltip("Speed at which the view snaps to selected skin")] private float snapSpeed = 5f;
+    [SerializeField] [Tooltip("List of available skin names")] public List<string> skinNames = new();
+    [SerializeField] [Tooltip("References to skin item rect transforms")] private List<RectTransform> skinItemRects = new();
 
     [Header("Scale Effect")]
-    [SerializeField] private float selectedScale = 1.2f;
-    [SerializeField] private float unselectedScale = 0.5f;
-    [SerializeField] private float scaleSmoothing = 3f;
+    [SerializeField] [Tooltip("Scale factor for the selected skin")] private float selectedScale = 1.2f;
+    [SerializeField] [Tooltip("Scale factor for unselected skins")] private float unselectedScale = 0.5f;
+    [SerializeField] [Tooltip("How quickly items scale up/down when selected/deselected")] private float scaleSmoothing = 3f;
 
     private float _contentStartPosition;
     private int _currentIndex;
@@ -30,6 +34,7 @@ public class SkinPicker : MonoBehaviour
     private bool _isSnapping;
     private float _snapTargetPosition;
 
+    // Sets up skin previews and UI controls on startup
     private void Start()
     {
         if (scrollRect == null || content == null || skinPreviewPrefab == null || leftButton == null || rightButton == null)
@@ -43,6 +48,7 @@ public class SkinPicker : MonoBehaviour
         UpdateContentPosition();
     }
 
+    // Creates skin preview objects and positions them in the scroll view
     private void InitializeSkinPreviews()
     {
         var currentX = 0f;
@@ -72,6 +78,7 @@ public class SkinPicker : MonoBehaviour
         _contentStartPosition = content.anchoredPosition.x;
     }
 
+    // Configures navigation button click handlers
     private void SetupButtons()
     {
         leftButton.onClick.AddListener(ScrollLeft);
@@ -79,6 +86,7 @@ public class SkinPicker : MonoBehaviour
         UpdateButtonStates();
     }
 
+    // Navigates to the previous skin
     private void ScrollLeft()
     {
         _currentIndex--;
@@ -88,6 +96,7 @@ public class SkinPicker : MonoBehaviour
         UpdateButtonStates();
     }
 
+    // Navigates to the next skin
     private void ScrollRight()
     {
         _currentIndex++;
@@ -97,12 +106,14 @@ public class SkinPicker : MonoBehaviour
         UpdateButtonStates();
     }
 
+    // Enables/disables buttons based on current selection position
     private void UpdateButtonStates()
     {
         leftButton.interactable = _currentIndex > 0;
         rightButton.interactable = _currentIndex < skinNames.Count - 1;
     }
 
+    // Updates content position to center the selected skin
     private void UpdateContentPosition()
     {
         _snapTargetPosition = _contentStartPosition - (_itemWidth + itemSpacing) * _currentIndex;
@@ -110,6 +121,7 @@ public class SkinPicker : MonoBehaviour
         SaveSelectedSkin();
     }
 
+    // Handles smooth scrolling and item scaling each frame
     private void Update()
     {
         if (_isSnapping)
@@ -131,6 +143,7 @@ public class SkinPicker : MonoBehaviour
         UpdateItemScales();
     }
 
+    // Applies scale effects based on distance from center selection
     private void UpdateItemScales()
     {
         if (skinItemRects.Count == 0)
@@ -150,6 +163,7 @@ public class SkinPicker : MonoBehaviour
         }
     }
 
+    // Syncs selected skin with Photon network
     private void SaveSelectedSkin()
     {
         if (_currentIndex < 0 || _currentIndex >= skinNames.Count)

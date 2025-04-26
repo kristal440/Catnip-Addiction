@@ -2,30 +2,34 @@ using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
 
+/// <inheritdoc />
+/// <summary>
+/// Manages cloud sprites in a parallax background system that responds to player movement
+/// </summary>
 public class CloudManager : MonoBehaviour
 {
     [Header("Cloud Settings")]
-    [SerializeField] private List<Sprite> cloudSprites;
-    [SerializeField] private int numberOfClouds = 15;
-    [SerializeField] private Transform parentTransform;
+    [SerializeField] [Tooltip("Collection of cloud sprite variations to use")] private List<Sprite> cloudSprites;
+    [SerializeField] [Tooltip("Total number of clouds to generate")] private int numberOfClouds = 15;
+    [SerializeField] [Tooltip("Parent transform for all generated clouds")] private Transform parentTransform;
 
     [Header("Movement Settings")]
-    [SerializeField] private float minSpeed = 0.1f;
-    [SerializeField] private float maxSpeed = 0.5f;
-    [SerializeField] private bool moveRight = true;
-    [SerializeField] private float parallaxFactor;
+    [SerializeField] [Tooltip("Minimum movement speed for clouds")] private float minSpeed = 0.1f;
+    [SerializeField] [Tooltip("Maximum movement speed for clouds")] private float maxSpeed = 0.5f;
+    [SerializeField] [Tooltip("Direction clouds move (true = right, false = left)")] private bool moveRight = true;
+    [SerializeField] [Tooltip("Factor affecting how clouds react to player movement")] private float parallaxFactor;
 
     [Header("Position Settings")]
-    [SerializeField] private float minY = -5f;
-    [SerializeField] private float maxY = 20f;
-    [SerializeField] private float minScale = 3f;
-    [SerializeField] private float maxScale = 4f;
-    [SerializeField] private float distributionWidth = 100f; // Width for distributing clouds
+    [SerializeField] [Tooltip("Minimum Y position for cloud placement")] private float minY = -5f;
+    [SerializeField] [Tooltip("Maximum Y position for cloud placement")] private float maxY = 20f;
+    [SerializeField] [Tooltip("Minimum scale multiplier for clouds")] private float minScale = 3f;
+    [SerializeField] [Tooltip("Maximum scale multiplier for clouds")] private float maxScale = 4f;
+    [SerializeField] [Tooltip("Width across which clouds are distributed")] private float distributionWidth = 100f;
 
     [Header("Advanced")]
-    [SerializeField] private string sortingLayerName = "Background";
-    [SerializeField] private int baseSortingOrder = -6;
-    [SerializeField] private string playerTag = "Player";
+    [SerializeField] [Tooltip("Sorting layer name for cloud sprites")] private string sortingLayerName = "Background";
+    [SerializeField] [Tooltip("Base sorting order for cloud sprites")] private int baseSortingOrder = -6;
+    [SerializeField] [Tooltip("Tag used to identify player object")] private string playerTag = "Player";
 
     private readonly List<CloudData> _clouds = new();
     private Camera _mainCamera;
@@ -40,6 +44,7 @@ public class CloudManager : MonoBehaviour
         public float Speed;
     }
 
+    // Initializes camera, parent transform, player reference, and creates initial clouds
     private void Start()
     {
         _mainCamera = Camera.main;
@@ -62,12 +67,14 @@ public class CloudManager : MonoBehaviour
         InitializeClouds();
     }
 
+    // Updates player movement direction and cloud positions each frame
     private void Update()
     {
         UpdatePlayerMovementDirection();
         UpdateClouds();
     }
 
+    // Calculates and stores player movement direction based on position change
     private void UpdatePlayerMovementDirection()
     {
         if (!_playerTransform) return;
@@ -85,6 +92,7 @@ public class CloudManager : MonoBehaviour
         _lastPlayerPosition = currentPlayerPosition;
     }
 
+    // Creates the initial set of cloud objects
     private void InitializeClouds()
     {
         if (cloudSprites == null || cloudSprites.Count == 0)
@@ -97,6 +105,7 @@ public class CloudManager : MonoBehaviour
             CreateCloud(i);
     }
 
+    // Creates a single cloud with randomized properties
     private void CreateCloud(int index = -1)
     {
         var cloudObject = new GameObject("Cloud");
@@ -118,7 +127,6 @@ public class CloudManager : MonoBehaviour
         var scale = Random.Range(minScale, maxScale);
         cloudObject.transform.localScale = new Vector3(scale, scale, 1f);
 
-        // Distribute clouds evenly if we're initializing
         if (index >= 0)
             PositionCloudEvenly(cloud, index);
         else
@@ -127,15 +135,13 @@ public class CloudManager : MonoBehaviour
         _clouds.Add(cloud);
     }
 
+    // Positions clouds evenly across the distribution width during initialization
     private void PositionCloudEvenly(CloudData cloud, int index)
     {
-        // Get camera center position
         var cameraCenterX = _mainCamera.transform.position.x;
 
-        // Calculate even spacing across the distribution width
         var segmentWidth = distributionWidth / numberOfClouds;
 
-        // Place cloud with some randomness within its segment
         var segmentStart = cameraCenterX - (distributionWidth / 2f) + (index * segmentWidth);
         var xPos = segmentStart + Random.Range(0, segmentWidth);
         var yPos = Random.Range(minY, maxY);
@@ -143,9 +149,9 @@ public class CloudManager : MonoBehaviour
         cloud.GameObject.transform.position = new Vector3(xPos, yPos, 0);
     }
 
+    // Positions a cloud randomly outside the screen bounds for recycling
     private void PositionCloudRandomly(CloudData cloud)
     {
-        // This is used for clouds that need repositioning during gameplay
         float xPos;
         var yPos = Random.Range(minY, maxY);
 
@@ -153,7 +159,6 @@ public class CloudManager : MonoBehaviour
         var leftBound = position.x - (_screenWidthInUnits / 2f);
         var rightBound = position.x + (_screenWidthInUnits / 2f);
 
-        // Always position outside the view for recycled clouds
         var offset = Random.Range(1f, 3f);
 
         if (moveRight)
@@ -164,6 +169,7 @@ public class CloudManager : MonoBehaviour
         cloud.GameObject.transform.position = new Vector3(xPos, yPos, 0);
     }
 
+    // Moves clouds and recycles them when they go off-screen
     private void UpdateClouds()
     {
         var movementDirection = moveRight ? 1f : -1f;
@@ -204,8 +210,6 @@ public class CloudManager : MonoBehaviour
                     );
                     break;
                 default:
-                    // For other cases (clouds that have gone off-screen in the "wrong" direction)
-                    // reposition them to come in from the appropriate side
                     if (moveRight)
                         cloud.GameObject.transform.position = new Vector3(
                             leftBound - Random.Range(0.5f, 2f),
@@ -225,6 +229,7 @@ public class CloudManager : MonoBehaviour
         }
     }
 
+    // Applies new random speed, scale, and sprite to a cloud
     private void RandomizeCloudProperties(CloudData cloud)
     {
         cloud.Speed = Random.Range(minSpeed, maxSpeed);

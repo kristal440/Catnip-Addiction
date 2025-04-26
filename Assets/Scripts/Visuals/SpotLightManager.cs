@@ -3,25 +3,38 @@ using UnityEngine;
 using UnityEngine.Rendering.Universal;
 using Photon.Pun;
 
+/// <inheritdoc />
+/// <summary>
+/// Manages spotlight effects with configurable properties and network synchronization
+/// </summary>
 public class SpotLightManager : MonoBehaviourPun
 {
     [Header("Light Settings")]
-    [SerializeField] private Light2D spotLight;
-    [SerializeField] [Range(0f, 2f)] private float falloffStrength = 1f;
-    [SerializeField] private Vector2 spotDirection = new(0, -1);
+    [SerializeField] [Tooltip("Reference to the 2D spotlight component")]
+    private Light2D spotLight;
+    [SerializeField] [Range(0f, 2f)] [Tooltip("Controls how quickly light intensity diminishes with distance")]
+    private float falloffStrength = 1f;
+    [SerializeField] [Tooltip("Direction the spotlight will point")]
+    private Vector2 spotDirection = new(0, -1);
 
     [Header("Visual Effects")]
-    [SerializeField] private bool useFlicker;
-    [SerializeField] [Range(0f, 1f)] private float flickerIntensity = 0.1f;
-    [SerializeField] [Range(0.1f, 5f)] private float flickerSpeed = 1f;
+    [SerializeField] [Tooltip("Enable flickering effect for more dynamic lighting")]
+    private bool useFlicker;
+    [SerializeField] [Range(0f, 1f)] [Tooltip("How strong the flickering effect will be")]
+    private float flickerIntensity = 0.1f;
+    [SerializeField] [Range(0.1f, 5f)] [Tooltip("How fast the light will flicker")]
+    private float flickerSpeed = 1f;
 
     [Header("Mobile Optimization")]
-    [SerializeField] private bool optimizeForMobile = true;
-    [SerializeField] private int mobilePixelResolution = 64;
+    [SerializeField] [Tooltip("Reduces light quality on mobile for better performance")]
+    private bool optimizeForMobile = true;
+    [SerializeField] [Tooltip("Resolution of the light in pixels when optimized")]
+    private int mobilePixelResolution = 64;
 
     private float _baseIntensity;
     private Coroutine _flickerCoroutine;
 
+    // Creates a spotlight if needed and initializes light settings
     private void Awake()
     {
         if (spotLight == null)
@@ -42,6 +55,7 @@ public class SpotLightManager : MonoBehaviourPun
         ApplyLightSettings();
     }
 
+    // Stops flickering when disabled
     private void OnDisable()
     {
         if (_flickerCoroutine == null) return;
@@ -50,6 +64,7 @@ public class SpotLightManager : MonoBehaviourPun
         _flickerCoroutine = null;
     }
 
+    // Starts flickering if enabled
     private void Start()
     {
         if (!useFlicker || !Application.isPlaying) return;
@@ -59,6 +74,7 @@ public class SpotLightManager : MonoBehaviourPun
         _flickerCoroutine = StartCoroutine(FlickerLight());
     }
 
+    // Applies configured settings to the spotlight
     private void ApplyLightSettings()
     {
         if (spotLight == null) return;
@@ -101,6 +117,7 @@ public class SpotLightManager : MonoBehaviourPun
         }
     }
 
+    // Creates a flickering effect using Perlin noise
     private IEnumerator FlickerLight()
     {
         var waitTime = new WaitForSeconds(0.05f);
@@ -117,6 +134,7 @@ public class SpotLightManager : MonoBehaviourPun
         }
     }
 
+    // Synchronizes light settings across network
     [PunRPC]
     public void SyncLightSettings(float syncedIntensity, float syncedRadius, float r, float g, float b, float syncedFalloff, float syncedAngle)
     {
@@ -124,6 +142,7 @@ public class SpotLightManager : MonoBehaviourPun
         ApplyLightSettings();
     }
 
+    // Enables or disables light flickering
     private void ToggleFlicker(bool enableFlicker)
     {
         useFlicker = enableFlicker;
@@ -148,18 +167,21 @@ public class SpotLightManager : MonoBehaviourPun
             photonView.RPC(nameof(SyncFlickerState), RpcTarget.Others, useFlicker);
     }
 
+    // Synchronizes flicker state across network
     [PunRPC]
     public void SyncFlickerState(bool enableFlicker)
     {
         ToggleFlicker(enableFlicker);
     }
 
+    // Updates light settings and sends to network
     private void UpdateLightSettings()
     {
         if (PhotonNetwork.IsConnected && photonView != null && photonView.IsMine)
             photonView.RPC("SyncLightSettings", RpcTarget.Others);
     }
 
+    // Sets light properties and synchronizes changes
     public void SetLightProperties(float newFalloffStrength = -1, float newSpotAngle = -1)
     {
         if (newFalloffStrength >= 0)
@@ -171,18 +193,8 @@ public class SpotLightManager : MonoBehaviourPun
         UpdateLightSettings();
     }
 
-    public float FalloffStrength
-    {
-        get => falloffStrength;
-        set
-        {
-            falloffStrength = value;
-            ApplyLightSettings();
-            UpdateLightSettings();
-        }
-    }
-
     #if UNITY_EDITOR
+    // Updates light settings when properties change in editor
     private void OnValidate()
     {
         ApplyLightSettings();

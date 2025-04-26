@@ -5,22 +5,27 @@ using Photon.Realtime;
 using TMPro;
 using UnityEngine;
 
+/// <inheritdoc />
+/// <summary>
+/// Manages multiplayer room state, player spawning and the player list UI display.
+/// </summary>
 public class RoomManager : MonoBehaviourPunCallbacks
 {
-    public GameObject playerPrefab;
-    public Transform[] spawnPoints;
-    public TMP_Text pingText;
+    [SerializeField] [Tooltip("Prefab to instantiate for each player joining the game")] public GameObject playerPrefab;
+    [SerializeField] [Tooltip("Positions where players can spawn in the game")] public Transform[] spawnPoints;
+    [SerializeField] [Tooltip("Text component that displays current network ping")] public TMP_Text pingText;
 
     [Header("Player List")]
-    public Transform playerListContainer;
-    public GameObject playerListItemPrefab;
+    [SerializeField] [Tooltip("Container for player list UI elements")] public Transform playerListContainer;
+    [SerializeField] [Tooltip("Prefab for each player entry in the player list")] public GameObject playerListItemPrefab;
     private readonly Dictionary<int, GameObject> _playerListItems = new();
 
     [Header("Player Count Display")]
-    public TMP_Text playerCountText;
-    public Color normalColor = Color.white;
-    public Color fullRoomColor = Color.green;
+    [SerializeField] [Tooltip("Text component showing current player count")] public TMP_Text playerCountText;
+    [SerializeField] [Tooltip("Color for normal player count display")] public Color normalColor = Color.white;
+    [SerializeField] [Tooltip("Color when room is at maximum capacity")] public Color fullRoomColor = Color.green;
 
+    /// Initializes the room and updates player displays
     private void Start()
     {
         if (PhotonNetwork.PlayerList.Contains(PhotonNetwork.LocalPlayer) && PhotonNetwork.CurrentRoom.PlayerCount == 1)
@@ -30,6 +35,8 @@ public class RoomManager : MonoBehaviourPunCallbacks
         UpdatePlayerCountDisplay();
     }
 
+    /// <inheritdoc />
+    /// Called when the local player joins a room
     public override void OnJoinedRoom()
     {
         InstantiatePlayer();
@@ -37,23 +44,29 @@ public class RoomManager : MonoBehaviourPunCallbacks
         UpdatePlayerCountDisplay();
     }
 
+    /// <inheritdoc />
+    /// Called when a new player enters the room
     public override void OnPlayerEnteredRoom(Player newPlayer)
     {
         UpdatePlayerList();
         UpdatePlayerCountDisplay();
     }
 
+    /// <inheritdoc />
+    /// Called when a player leaves the room
     public override void OnPlayerLeftRoom(Player otherPlayer)
     {
         UpdatePlayerList();
         UpdatePlayerCountDisplay();
     }
 
+    /// Updates the ping display every frame
     public void Update()
     {
         pingText.text = $"{PhotonNetwork.GetPing()}ms";
     }
 
+    /// Spawns the player character for the local player
     private void InstantiatePlayer()
     {
         if (playerPrefab && PhotonNetwork.IsConnected)
@@ -72,6 +85,7 @@ public class RoomManager : MonoBehaviourPunCallbacks
         }
     }
 
+    /// Removes all player entries from the player list UI
     private void ClearPlayerList()
     {
         foreach (var item in _playerListItems.Values)
@@ -79,6 +93,7 @@ public class RoomManager : MonoBehaviourPunCallbacks
         _playerListItems.Clear();
     }
 
+    /// Refreshes the player list UI with current players
     private void UpdatePlayerList()
     {
         Debug.Log($"Updating player list. Player count: {PhotonNetwork.PlayerList.Length}");
@@ -91,6 +106,7 @@ public class RoomManager : MonoBehaviourPunCallbacks
         }
     }
 
+    /// Updates the player count display and colors
     private void UpdatePlayerCountDisplay()
     {
         if (!playerCountText || PhotonNetwork.CurrentRoom == null) return;
@@ -103,6 +119,7 @@ public class RoomManager : MonoBehaviourPunCallbacks
         playerCountText.color = (currentPlayers == maxPlayers) ? fullRoomColor : normalColor;
     }
 
+    /// Creates a UI entry for a player in the player list
     private void AddPlayerToList(Player player)
     {
         var listItem = Instantiate(playerListItemPrefab, playerListContainer);
