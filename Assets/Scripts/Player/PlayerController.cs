@@ -31,6 +31,8 @@ public class PlayerController : MonoBehaviourPunCallbacks
     [SerializeField] [Tooltip("Maximum movement speed")] public float maxSpeed = 5f;
     [SerializeField] [Tooltip("Higher speed reached after maintaining max speed")] public float turboSpeed = 7f;
     [SerializeField] [Tooltip("Time in seconds player needs to maintain max speed before reaching turbo speed")] public float timeToTurboSpeed = 1.5f;
+    [SerializeField] [Tooltip("Minimum input value to register movement")] public float movementDeadzone = 0.01f;
+    [SerializeField] [Tooltip("Threshold to consider player at max speed (0-1)")] public float maxSpeedThreshold = 0.98f;
     [HideInInspector] public float currentSpeed;
     [HideInInspector] public float verticalSpeed;
 
@@ -61,6 +63,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
     [SerializeField] [Tooltip("Maximum jump force when fully charged")] public float maxJumpForce = 14.5f;
     [SerializeField] [Tooltip("Maximum time to charge jump")] public float maxChargeTime = 2f;
     [SerializeField] [Tooltip("Time before player can jump again")] public float jumpCooldown = 0.1f;
+    [SerializeField] [Tooltip("Maximum time to buffer a jump before landing")] public float jumpBufferTime = 0.2f;
 
     [Header("Death")]
     [SerializeField] [Tooltip("Y-position that triggers death when fallen below")] public float deathHeight = -100f;
@@ -70,6 +73,20 @@ public class PlayerController : MonoBehaviourPunCallbacks
     [SerializeField] [Tooltip("Sorting order for remote player sprites")] private int remotePlayerSpriteOrder = 2;
     [SerializeField] [Tooltip("Sorting order for remote player UI canvas")] private int remotePlayerCanvasOrder = 3;
     [SerializeField] [Tooltip("Alpha transparency for remote players (0-1)")] private float remotePlayerAlpha = 0.7f;
+
+    [Header("Camera")]
+    [SerializeField] [Tooltip("Local position offset for camera")] public Vector3 cameraOffset = new(0, 0, -10);
+
+    [Header("Idle Behavior")]
+    [SerializeField] [Tooltip("Time in seconds before triggering laying animation")] public float idleToLayingTime = 3.0f;
+
+    [Header("Catnip Effects")]
+    [SerializeField] [Tooltip("Speed multiplier when catnip is active")] public float catnipSpeedMultiplier = 1.1f;
+    [SerializeField] [Tooltip("Jump force multiplier when catnip is active")] public float catnipJumpMultiplier = 1.1f;
+    [SerializeField] [Tooltip("Deceleration multiplier when catnip is active")] public float catnipDecelerationMultiplier = 0.9f;
+
+    [Header("Physics")]
+    [SerializeField] [Tooltip("Normal gravity scale for the player")] public float defaultGravityScale = 1.0f;
 
     /// Component references
     private Camera _mainCamera;
@@ -88,7 +105,6 @@ public class PlayerController : MonoBehaviourPunCallbacks
     private bool _isJumpQueued;
     private float _idleTimer;
     private Vector3 _previousPlayerScale;
-    private float _originalGravityScale;
     private bool _wallCollisionHandled;
     private float _lastJumpTime;
 
@@ -191,7 +207,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
     {
         Transform transform1;
         (transform1 = _mainCamera.transform).SetParent(transform);
-        transform1.localPosition = new Vector3(0, 0, -10);
+        transform1.localPosition = cameraOffset;
         transform1.localRotation = Quaternion.identity;
         _cameraController = GetComponentInChildren<DynamicCameraController>();
     }
@@ -289,9 +305,9 @@ public class PlayerController : MonoBehaviourPunCallbacks
     /// Updates player speed based on input, acceleration and wall detection
     private void UpdatePlayerSpeed(float horizontalInput)
     {
-        _newMaxSpeed = HasCatnip ? maxSpeed * 1.1f : maxSpeed;
-        _newDeceleration = HasCatnip ? deceleration * 0.9f : deceleration;
-        var currentTurboSpeed = HasCatnip ? turboSpeed * 1.1f : turboSpeed;
+        _newMaxSpeed = HasCatnip ? maxSpeed * catnipSpeedMultiplier : maxSpeed;
+        _newDeceleration = HasCatnip ? deceleration * catnipDecelerationMultiplier : deceleration;
+        var currentTurboSpeed = HasCatnip ? turboSpeed * catnipSpeedMultiplier : turboSpeed;
 
         var facingRight = transform.localScale.x > 0;
 
@@ -329,7 +345,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
                 var targetSpeed = _newMaxSpeed;
 
-                if (Abs(currentSpeed) >= _newMaxSpeed * 0.98f && Approximately(Sign(currentSpeed), moveDirection))
+                if (Abs(currentSpeed) >= _newMaxSpeed * maxSpeedThreshold && Approximately(Sign(currentSpeed), moveDirection))
                 {
                     _timeAtMaxSpeed += Time.deltaTime;
 
@@ -355,7 +371,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
                 _lastMoveDirection = 0;
 
                 currentSpeed = MoveTowards(currentSpeed, 0, _newDeceleration * Time.deltaTime);
-                if (Abs(currentSpeed) < 0.01f)
+                if (Abs(currentSpeed) < movementDeadzone)
                     currentSpeed = 0;
                 break;
             }
@@ -388,9 +404,17 @@ public class PlayerController : MonoBehaviourPunCallbacks
             else
             {
                 _isBufferingJump = true;
+                _bufferedJumpStartTime = Time.time;
             }
 
             jumpChargeBarGameObject.SetActive(true);
+        }
+
+        if (_isBufferingJump && Time.time - _bufferedJumpStartTime > jumpBufferTime)
+        {
+            _isBufferingJump = false;
+            if (!_isChargingJump)
+                jumpChargeBarGameObject.SetActive(false);
         }
 
         if (!_playerInputActions.Player.Jump.WasReleasedThisFrame() || !_jumpButtonHeld)
@@ -489,7 +513,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
         var jumpMultiplier = Lerp(minJumpForce, maxJumpForce, chargeProgress);
 
         if (HasCatnip)
-            jumpMultiplier *= 1.1f;
+            jumpMultiplier *= catnipJumpMultiplier;
 
         _cameraController.TriggerJumpFOV();
 
@@ -525,10 +549,10 @@ public class PlayerController : MonoBehaviourPunCallbacks
         if (Approximately(currentSpeed, 0f) && Approximately(verticalSpeed, 0f) && animator.GetBool(IsLaying) == false)
         {
             _idleTimer += Time.deltaTime;
-            if (!(_idleTimer >= 3f)) return;
+            if (!(_idleTimer >= idleToLayingTime)) return;
 
             animator.SetBool(IsLaying, true);
-            _idleTimer = 3f;
+            _idleTimer = idleToLayingTime;
         }
         else
         {
@@ -659,7 +683,6 @@ public class PlayerController : MonoBehaviourPunCallbacks
             return;
 
         IsDead = true;
-        _originalGravityScale = _rb.gravityScale;
         _rb.gravityScale = 0;
         _rb.linearVelocity = zero;
         _rb.constraints = RigidbodyConstraints2D.FreezeAll;
@@ -681,7 +704,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
             return;
 
         IsDead = false;
-        _rb.gravityScale = _originalGravityScale;
+        _rb.gravityScale = defaultGravityScale;
         _rb.constraints = RigidbodyConstraints2D.FreezeRotation;
 
         _cameraController.OnPlayerRespawn();
