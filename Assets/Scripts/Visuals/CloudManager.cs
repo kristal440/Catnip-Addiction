@@ -78,14 +78,10 @@ public class CloudManager : MonoBehaviour
             parentTransform = transform;
 
         var player = GameObject.FindGameObjectWithTag(playerTag);
-        if (player != null)
+        if (player)
         {
             _playerTransform = player.transform;
             _lastPlayerPosition = _playerTransform.position;
-        }
-        else
-        {
-            Debug.LogWarning("Player not found! Make sure to tag your player with '" + playerTag + "'.");
         }
 
         if (_mainCamera != null) _screenWidthInUnits = _mainCamera.orthographicSize * 2f * _mainCamera.aspect;
