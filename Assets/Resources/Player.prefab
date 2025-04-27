@@ -1333,6 +1333,7 @@ GameObject:
   - component: {fileID: 6099844445017409013}
   - component: {fileID: 5206486501185713570}
   - component: {fileID: 447548775382103744}
+  - component: {fileID: 1910770581723117347}
   m_Layer: 6
   m_Name: Player
   m_TagString: Player
@@ -1579,7 +1580,7 @@ MonoBehaviour:
     m_Bits: 8
   frontWallCheck: {fileID: 3951173809159813694}
   backWallCheck: {fileID: 7838709526519794932}
-  wallCheckRadius: 0.19
+  wallCheckRadius: 0.17
   wallLayerMask:
     serializedVersion: 2
     m_Bits: 8
@@ -1703,6 +1704,36 @@ MonoBehaviour:
   transitionDuration: 0.5
   targetLightIntensity: 0.15
   targetMaskTransparency: 50
+--- !u!114 &1910770581723117347
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6966233725223629069}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6e741e21b21a406193f5a76faa7c62fa, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  pingText: {fileID: 2156509218820715032}
+  playerNameTag: {fileID: 8640071455980941114}
+  playerTransform: {fileID: 7617576481928218717}
+  pingFormat: '{0} ms'
+  updateInterval: 1
+  showOnlyLocalPlayer: 0
+  showPing: 1
+  verticalOffset: -4.4
+  useColorCoding: 1
+  excellentPingColor: {r: 0, g: 1, b: 0, a: 1}
+  goodPingColor: {r: 1, g: 1, b: 0, a: 1}
+  poorPingColor: {r: 1, g: 0.5, b: 0, a: 1}
+  badPingColor: {r: 1, g: 0, b: 0, a: 1}
+  excellentPingThreshold: 50
+  goodPingThreshold: 100
+  poorPingThreshold: 200
+  debugMode: 0
+  simulatedPing: 50
 --- !u!1 &7770859034571384311
 GameObject:
   m_ObjectHideFlags: 0
