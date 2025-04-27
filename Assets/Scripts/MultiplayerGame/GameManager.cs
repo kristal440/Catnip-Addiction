@@ -264,14 +264,28 @@ public class GameManager : MonoBehaviourPunCallbacks
     {
         base.OnPlayerLeftRoom(otherPlayer);
 
-        if (PhotonNetwork.CurrentRoom.PlayerCount != 1 || !gameStarted) return;
+        if (!gameStarted || !PhotonNetwork.IsMasterClient) return;
 
-        var localPlayerId = PhotonNetwork.LocalPlayer.ActorNumber;
-        if (!_finishTimes.ContainsKey(localPlayerId)) return;
-        if (_finishTimes[localPlayerId] is not Hashtable playerData) return;
+        if (!AllRemainingPlayersFinished()) return;
 
-        if (playerData["finishTime"] is float finishTime)
-            UpdateLeaderboard(localPlayerId, finishTime);
+        var roomProps = new Hashtable { { "LeaderboardData", _finishTimes } };
+        PhotonNetwork.CurrentRoom.SetCustomProperties(roomProps);
+        StartCoroutine(LoadLeaderboardWithDelay(leaderboardLoadDelay));
+    }
+
+    /// Checks if all currently connected players have finished the race
+    private bool AllRemainingPlayersFinished()
+    {
+        return PhotonNetwork.CurrentRoom.PlayerCount != 0 && PhotonNetwork.PlayerList.All(player => _finishTimes.ContainsKey(player.ActorNumber));
+    }
+
+    /// Loads the leaderboard scene after a delay
+    private static IEnumerator LoadLeaderboardWithDelay(float delayTime)
+    {
+        yield return new WaitForSeconds(delayTime);
+
+        if (PhotonNetwork.IsMasterClient)
+            PhotonNetwork.LoadLevel("Leaderboard");
     }
     #endregion
 
@@ -333,20 +347,14 @@ public class GameManager : MonoBehaviourPunCallbacks
 
         UpdateInGameLeaderboard();
 
-        if (_finishTimes.Count != PhotonNetwork.CurrentRoom.PlayerCount || !PhotonNetwork.IsMasterClient) return;
+        if (PhotonNetwork.IsMasterClient)
+        {
+            var roomProps = new Hashtable { { "LeaderboardData", _finishTimes } };
+            PhotonNetwork.CurrentRoom.SetCustomProperties(roomProps);
+        }
 
-        var roomProps = new Hashtable { { "LeaderboardData", _finishTimes } };
-        PhotonNetwork.CurrentRoom.SetCustomProperties(roomProps);
-
-        StartCoroutine(LoadLeaderboardWithDelay(leaderboardLoadDelay));
-    }
-
-    /// Loads leaderboard scene after a delay
-    private static IEnumerator LoadLeaderboardWithDelay(float delay)
-    {
-        yield return new WaitForSeconds(delay);
-
-        PhotonNetwork.LoadLevel("Leaderboard");
+        if (PhotonNetwork.IsMasterClient && AllRemainingPlayersFinished())
+            StartCoroutine(LoadLeaderboardWithDelay(leaderboardLoadDelay));
     }
 
     /// Makes all players stand up before race start

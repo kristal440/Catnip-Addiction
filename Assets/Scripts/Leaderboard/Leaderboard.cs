@@ -65,8 +65,10 @@ public class Leaderboard : MonoBehaviour
             yield break;
         }
 
-        if (!_dataLoaded)
-            Debug.LogError("Failed to load leaderboard data after multiple retries.");
+        if (_dataLoaded) yield break;
+
+        Debug.LogError("Failed to load leaderboard data after multiple retries.");
+        PopulateLeaderboard(new Dictionary<int, PlayerResultData>());
     }
 
     /// Extracts player name from hashtable data
@@ -109,6 +111,24 @@ public class Leaderboard : MonoBehaviour
     /// Creates and populates UI entries sorted by finish time
     private void PopulateLeaderboard(Dictionary<int, PlayerResultData> leaderboardData)
     {
+        if (leaderboardData.Count == 0)
+        {
+            Debug.LogWarning("No leaderboard data available to display.");
+            var entryInstance = CreateLeaderboardEntry();
+            if (!entryInstance)
+                return;
+
+            var texts = entryInstance.GetComponentsInChildren<TextMeshProUGUI>();
+            if (texts.Length == 3)
+            {
+                texts[0].text = "";
+                texts[1].text = "No data for this player";
+                texts[2].text = "";
+            }
+            entryInstance.SetActive(true);
+            return;
+        }
+
         var sortedLeaderboard = new List<KeyValuePair<int, PlayerResultData>>(leaderboardData);
         sortedLeaderboard.Sort(static (pair1, pair2) => pair1.Value.finishTime.CompareTo(pair2.Value.finishTime));
 
