@@ -774,7 +774,9 @@ public class PlayerController : MonoBehaviourPunCallbacks
         _isWallSliding = false;
         animator.SetBool(IsWallSlidingAnimVar, false);
 
-        _cameraController.OnPlayerDeath();
+        // 2h well spent
+        if (_cameraController)
+            _cameraController.OnPlayerDeath();
     }
 
     /// Respawns player at the last checkpoint
