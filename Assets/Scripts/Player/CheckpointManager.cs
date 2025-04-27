@@ -9,7 +9,7 @@ using static UnityEngine.Vector3;
 public class CheckpointManager : MonoBehaviourPun
 {
     [SerializeField] [Tooltip("Tag used to identify checkpoint objects in the scene")] private string checkpointTag = "Checkpoint";
-    internal static Vector3 LastCheckpointPosition { get; private set; }
+    internal static Vector3 LastCheckpointPosition { get; set; }
 
     internal static bool IsRespawning { get; set; }
 

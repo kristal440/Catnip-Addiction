@@ -309,6 +309,9 @@ public class GameManager : MonoBehaviourPunCallbacks
         var gameProps = new Hashtable { { "gameStarted", true } };
         PhotonNetwork.CurrentRoom.SetCustomProperties(gameProps);
 
+        if (spawnPoint != null)
+            CheckpointManager.LastCheckpointPosition = spawnPoint.position;
+
         var players = FindObjectsByType<PlayerController>(FindObjectsSortMode.None);
         foreach (var p in players.Where(static p => p != null && p.photonView != null && p.photonView.Owner != null))
         {
