@@ -1085,6 +1085,9 @@ MonoBehaviour:
   - Type: 4
     SynchronizeType: 1
     Name: IsJumpQueued
+  - Type: 4
+    SynchronizeType: 0
+    Name: IsWallSlidingAnimVar
   m_SynchronizeLayers:
   - SynchronizeType: 0
     LayerIndex: 0
@@ -1564,6 +1567,8 @@ MonoBehaviour:
   maxSpeed: 8
   turboSpeed: 8.2
   timeToTurboSpeed: 1.5
+  movementDeadzone: 0.01
+  maxSpeedThreshold: 0.98
   currentSpeed: 0
   verticalSpeed: 0
   groundCheck: {fileID: 1442861436919526986}
@@ -1577,6 +1582,11 @@ MonoBehaviour:
   wallLayerMask:
     serializedVersion: 2
     m_Bits: 8
+  wallSlideRotationObject: {fileID: 5740860746093048113}
+  wallSlideRotationAngle: 90
+  wallSlideGravityMultiplier: 0.3
+  wallSlideXOffset: 0.07
+  wallSlideTransitionSpeed: 8
   playerNameTag: {fileID: 8640071455980941114}
   jumpChargeBarGameObject: {fileID: 4709443584379856986}
   jumpChargeBar: {fileID: 1315758324830475671}
@@ -1584,8 +1594,18 @@ MonoBehaviour:
   maxJumpForce: 14.2
   maxChargeTime: 1.1
   jumpCooldown: 0.2
+  jumpBufferTime: 0.2
   deathHeight: -50
   playerDeathHandler: {fileID: 6099844445017409013}
+  remotePlayerSpriteOrder: 2
+  remotePlayerCanvasOrder: 3
+  remotePlayerAlpha: 0.7
+  cameraOffset: {x: 0, y: 0, z: -10}
+  idleToLayingTime: 3
+  catnipSpeedMultiplier: 1.1
+  catnipJumpMultiplier: 1.1
+  catnipDecelerationMultiplier: 0.9
+  defaultGravityScale: 1
 --- !u!114 &4098701528552782764
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -17,6 +17,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
     private static readonly int InAir = Animator.StringToHash("InAir");
     private static readonly int IsJumpQueued = Animator.StringToHash("IsJumpQueued");
     private static readonly int IsLaying = Animator.StringToHash("IsLaying");
+    private static readonly int IsWallSlidingAnimVar = Animator.StringToHash("IsWallSlidingAnimVar"); // New animator parameter for wall sliding
     [SerializeField] [Tooltip("Reference to the player's animator component")] public Animator animator;
 
     [Header("Movement")]
@@ -52,6 +53,13 @@ public class PlayerController : MonoBehaviourPunCallbacks
     [SerializeField] [Tooltip("Transform used to detect walls behind")] public Transform backWallCheck;
     [SerializeField] [Range(0.05f, 0.5f)] [Tooltip("Radius of the wall check sphere")] public float wallCheckRadius = 0.2f;
     [SerializeField] [Tooltip("Layer mask for wall detection")] public LayerMask wallLayerMask;
+
+    [Header("Wall Sliding")]
+    [SerializeField] [Tooltip("GameObject that will be rotated during wall sliding")] public GameObject wallSlideRotationObject;
+    [SerializeField] [Range(0f, 90f)] [Tooltip("Rotation angle when wall sliding")] public float wallSlideRotationAngle = 15f;
+    [SerializeField] [Range(0.1f, 1f)] [Tooltip("Wall sliding gravity multiplier")] public float wallSlideGravityMultiplier = 0.5f;
+    [SerializeField] [Tooltip("X position offset for the rotation object during wall sliding")] public float wallSlideXOffset = 0.3f;
+    [SerializeField] [Range(0.1f, 10f)] [Tooltip("How fast the player transforms into wall slide position")] public float wallSlideTransitionSpeed = 5f;
 
     [Header("UI")]
     [SerializeField] [Tooltip("Player name text display")] public TextMeshProUGUI playerNameTag;
@@ -107,6 +115,8 @@ public class PlayerController : MonoBehaviourPunCallbacks
     private Vector3 _previousPlayerScale;
     private bool _wallCollisionHandled;
     private float _lastJumpTime;
+    private bool _isWallSliding;
+    private float _defaultGravityScaleCache;
 
     /// Jump buffer
     private bool _isBufferingJump;
@@ -184,6 +194,12 @@ public class PlayerController : MonoBehaviourPunCallbacks
         if (transform.position.y < deathHeight && !IsDead)
             playerDeathHandler.HandleOutOfBoundsDeath();
     }
+
+    private void FixedUpdate()
+    {
+        if (photonView.IsMine)
+            CheckWallSliding();
+    }
     #endregion
 
     #region Player Setup
@@ -238,6 +254,71 @@ public class PlayerController : MonoBehaviourPunCallbacks
             return;
 
         UpdatePlayerSpeed(horizontalInput);
+    }
+
+    /// Checks if player should be wall sliding and applies effects
+    private void CheckWallSliding()
+    {
+        if (_defaultGravityScaleCache == 0)
+            _defaultGravityScaleCache = _rb.gravityScale;
+
+        var wasWallSliding = _isWallSliding;
+
+        _isWallSliding = !IsGrounded && (_isTouchingFrontWall || _isTouchingBackWall) && _rb.linearVelocity.y < 0;
+
+        if (_isWallSliding)
+        {
+            _rb.gravityScale = _defaultGravityScaleCache * wallSlideGravityMultiplier;
+
+            var facingRight = transform.localScale.x > 0;
+            float targetRotationZ = 0;
+            float directionMultiplier = facingRight ? 1 : -1;
+
+            switch (facingRight)
+            {
+                case true when _isTouchingFrontWall:
+                case false when _isTouchingBackWall:
+                    targetRotationZ = wallSlideRotationAngle * directionMultiplier;
+                    break;
+                case true when _isTouchingBackWall:
+                case false when _isTouchingFrontWall:
+                    targetRotationZ = -wallSlideRotationAngle * directionMultiplier;
+                    break;
+            }
+
+            if (wallSlideRotationObject)
+            {
+                // Apply rotation instantly without transition
+                wallSlideRotationObject.transform.localRotation = Quaternion.Euler(0, 0, targetRotationZ);
+
+                var currentPosition = wallSlideRotationObject.transform.localPosition;
+                var targetPosition = new Vector3(wallSlideXOffset, currentPosition.y, currentPosition.z);
+                wallSlideRotationObject.transform.localPosition = Vector3.Lerp(
+                    currentPosition,
+                    targetPosition,
+                    Time.fixedDeltaTime * wallSlideTransitionSpeed);
+            }
+        }
+        else
+        {
+            _rb.gravityScale = _defaultGravityScaleCache;
+
+            if (wallSlideRotationObject)
+            {
+                // Apply rotation instantly without transition
+                wallSlideRotationObject.transform.localRotation = Quaternion.Euler(0, 0, 0);
+
+                var currentPosition = wallSlideRotationObject.transform.localPosition;
+                var targetPosition = new Vector3(0f, currentPosition.y, currentPosition.z);
+                wallSlideRotationObject.transform.localPosition = Vector3.Lerp(
+                    currentPosition,
+                    targetPosition,
+                    Time.fixedDeltaTime * wallSlideTransitionSpeed);
+            }
+        }
+
+        if (wasWallSliding != _isWallSliding)
+            animator.SetBool(IsWallSlidingAnimVar, _isWallSliding);
     }
 
     /// Changes player direction based on input and updates visuals
@@ -546,6 +627,12 @@ public class PlayerController : MonoBehaviourPunCallbacks
     /// Tracks idle time and triggers laying animation when idle
     private void CheckIdleState()
     {
+        if (_isWallSliding)
+        {
+            _idleTimer = 0f;
+            return;
+        }
+
         if (Approximately(currentSpeed, 0f) && Approximately(verticalSpeed, 0f) && animator.GetBool(IsLaying) == false)
         {
             _idleTimer += Time.deltaTime;
@@ -686,6 +773,8 @@ public class PlayerController : MonoBehaviourPunCallbacks
         _rb.gravityScale = 0;
         _rb.linearVelocity = zero;
         _rb.constraints = RigidbodyConstraints2D.FreezeAll;
+        _isWallSliding = false;
+        animator.SetBool(IsWallSlidingAnimVar, false);
 
         _cameraController.OnPlayerDeath();
     }
