@@ -61,6 +61,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
     [SerializeField] [Tooltip("X position offset for the rotation object during wall sliding")] public float wallSlideXOffset = 0.3f;
     [SerializeField] [Range(0.1f, 10f)] [Tooltip("How fast the player transforms into wall slide position")] public float wallSlideTransitionSpeed = 5f;
     [SerializeField] [Tooltip("Layers that prevent wall sliding when colliding with them")] public LayerMask wallSlidePreventionLayers;
+    [SerializeField] [Range(-10f, 0f)] [Tooltip("Vertical velocity threshold to activate wall sliding")] public float wallSlideVerticalThreshold = -1f;
 
     [Header("UI")]
     [SerializeField] [Tooltip("Player name text display")] public TextMeshProUGUI playerNameTag;
@@ -271,7 +272,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
         _isWallSliding = !IsGrounded &&
                          (_isTouchingFrontWall || _isTouchingBackWall) &&
-                         _rb.linearVelocity.y < 0 &&
+                         _rb.linearVelocity.y < wallSlideVerticalThreshold &&
                          !isCollidingWithPreventionLayer;
 
         if (_isWallSliding)
