@@ -23,6 +23,10 @@ public class CheckpointManager : MonoBehaviour
     private void OnTriggerEnter2D(Collider2D other)
     {
         if (!other.CompareTag(checkpointTag)) return;
+
+        var localParticles = other.GetComponent<CheckpointParticles>();
+        localParticles.TriggerFireworks(LastCheckpointPosition);
+
         if (!_photonView.IsMine) return;
 
         var newCheckpointPosition = other.transform.position;
@@ -31,5 +35,7 @@ public class CheckpointManager : MonoBehaviour
 
         LastCheckpointPosition = newCheckpointPosition;
         Debug.Log($"Checkpoint set at {LastCheckpointPosition}");
+
+        localParticles.TriggerFireworks(LastCheckpointPosition);
     }
 }
