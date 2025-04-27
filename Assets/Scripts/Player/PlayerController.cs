@@ -569,9 +569,6 @@ public class PlayerController : MonoBehaviourPunCallbacks
             {
                 var chargeToUse = _bufferedJumpMaxCharged ? maxChargeTime : _bufferedJumpChargeLevel;
 
-                currentSpeed = 0f;
-                _rb.linearVelocity = new Vector2(0f, _rb.linearVelocity.y);
-
                 animator.SetBool(IsJumpQueued, true);
                 ExecuteJump(chargeToUse);
                 _executeBufferedJump = false;
@@ -605,8 +602,10 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
         _cameraController.TriggerJumpFOV();
 
-        currentSpeed = 0f;
-        _rb.linearVelocity = new Vector2(0f, jumpMultiplier);
+        var horizontalVelocity = _rb.linearVelocity.x;
+        var facingDirection = transform.localScale.x > 0 ? 0.5f : -0.5f;
+
+        _rb.linearVelocity = new Vector2(horizontalVelocity * facingDirection, jumpMultiplier);
         _lastJumpTime = Time.time;
 
         ResetAccelerationState();
