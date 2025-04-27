@@ -1,5 +1,4 @@
 using UnityEngine;
-using Photon.Pun;
 
 /// <inheritdoc />
 /// <summary>
@@ -26,11 +25,18 @@ public class CheckpointParticles : MonoBehaviour
     [Header("Colors")]
     [SerializeField] [Tooltip("Random colors to use for the fireworks")] private Color[] fireworkColors = { new(1.0f, 0.7f, 0.7f), new(0.7f, 0.7f, 1.0f), new(0.7f, 1.0f, 0.7f), new(1.0f, 1.0f, 0.7f), new(1.0f, 0.7f, 1.0f) };
 
-    /// Triggers firework effects at the specified checkpoint position
-    internal void TriggerFireworks(Vector2 checkpointPosition)
+    /// Triggers firework particles locally (for single-player or direct calls)
+    internal void TriggerFireworksLocally(Vector3 previousCheckpointPosition)
     {
-        if (!PhotonNetwork.IsMasterClient) return;
+        if (Vector3.Distance(transform.position, previousCheckpointPosition) < 0.01f)
+            return;
 
+        SpawnFireworkEffects(transform.position);
+    }
+
+    /// Spawns the actual firework particle effects at the given position
+    private void SpawnFireworkEffects(Vector3 checkpointPosition)
+    {
         for (var i = 0; i < fireworkCount; i++)
         {
             var randomOffset = Random.insideUnitCircle * spawnRadius;
