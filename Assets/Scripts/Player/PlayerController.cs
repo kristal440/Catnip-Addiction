@@ -772,8 +772,17 @@ public class PlayerController : MonoBehaviourPunCallbacks
     /// Respawns player at the last checkpoint
     internal void RespawnAtLastCheckpoint()
     {
+        CheckpointManager.IsRespawning = true;
         Teleport(CheckpointManager.LastCheckpointPosition);
         OnPlayerRespawn();
+
+        Invoke(nameof(ResetRespawnFlag), 0.5f);
+    }
+
+    /// Resets the respawning flag
+    private void ResetRespawnFlag()
+    {
+        CheckpointManager.IsRespawning = false;
     }
 
     /// Resets player state after respawning
