@@ -24,6 +24,9 @@ EditorBuildSettings:
     path: Assets/Scenes/GameScene_Map2_Multi.unity
     guid: e85ddfc8a4a60312d8bb478a66bf9d98
   - enabled: 1
+    path: Assets/Scenes/GameScene_Map3_Multi.unity
+    guid: 3d3799d323ef6154a9001087e2549e9c
+  - enabled: 1
     path: Assets/Scenes/GameScene_Map5_Multi.unity
     guid: 08fa958c20b52dd0b928a29aa9440e77
   m_configObjects:

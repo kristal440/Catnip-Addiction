@@ -12,8 +12,6 @@ public class CheckpointManager : MonoBehaviour
     internal static Vector2 LastCheckpointPosition { get; private set; }
     private PhotonView _photonView;
 
-    internal static bool IsRespawning { get; set; }
-
     /// Initializes checkpoint position and gets PhotonView reference
     private void Start()
     {
@@ -27,11 +25,7 @@ public class CheckpointManager : MonoBehaviour
         if (!other.CompareTag(checkpointTag)) return;
 
         var localParticles = other.GetComponent<CheckpointParticles>();
-
-        if (!IsRespawning)
-            localParticles.TriggerFireworks(LastCheckpointPosition);
-
-        IsRespawning = false;
+        localParticles.TriggerFireworks(LastCheckpointPosition);
 
         if (!_photonView.IsMine) return;
 

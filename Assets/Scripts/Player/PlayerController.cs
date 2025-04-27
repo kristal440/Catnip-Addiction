@@ -60,6 +60,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
     [SerializeField] [Range(0.1f, 1f)] [Tooltip("Wall sliding gravity multiplier")] public float wallSlideGravityMultiplier = 0.5f;
     [SerializeField] [Tooltip("X position offset for the rotation object during wall sliding")] public float wallSlideXOffset = 0.3f;
     [SerializeField] [Range(0.1f, 10f)] [Tooltip("How fast the player transforms into wall slide position")] public float wallSlideTransitionSpeed = 5f;
+    [SerializeField] [Tooltip("Layers that prevent wall sliding when colliding with them")] public LayerMask wallSlidePreventionLayers;
 
     [Header("UI")]
     [SerializeField] [Tooltip("Player name text display")] public TextMeshProUGUI playerNameTag;
@@ -262,7 +263,16 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
         var wasWallSliding = _isWallSliding;
 
-        _isWallSliding = !IsGrounded && (_isTouchingFrontWall || _isTouchingBackWall) && _rb.linearVelocity.y < 0;
+        var isCollidingWithPreventionLayer = false;
+        if (wallSlidePreventionLayers != 0)
+            isCollidingWithPreventionLayer =
+                Physics2D.OverlapCircle(frontWallCheck.position, wallCheckRadius, wallSlidePreventionLayers) ||
+                Physics2D.OverlapCircle(backWallCheck.position, wallCheckRadius, wallSlidePreventionLayers);
+
+        _isWallSliding = !IsGrounded &&
+                         (_isTouchingFrontWall || _isTouchingBackWall) &&
+                         _rb.linearVelocity.y < 0 &&
+                         !isCollidingWithPreventionLayer;
 
         if (_isWallSliding)
         {
@@ -286,7 +296,6 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
             if (wallSlideRotationObject)
             {
-                // Apply rotation instantly without transition
                 wallSlideRotationObject.transform.localRotation = Quaternion.Euler(0, 0, targetRotationZ);
 
                 var currentPosition = wallSlideRotationObject.transform.localPosition;
@@ -303,7 +312,6 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
             if (wallSlideRotationObject)
             {
-                // Apply rotation instantly without transition
                 wallSlideRotationObject.transform.localRotation = Quaternion.Euler(0, 0, 0);
 
                 var currentPosition = wallSlideRotationObject.transform.localPosition;
@@ -772,17 +780,8 @@ public class PlayerController : MonoBehaviourPunCallbacks
     /// Respawns player at the last checkpoint
     internal void RespawnAtLastCheckpoint()
     {
-        CheckpointManager.IsRespawning = true;
         Teleport(CheckpointManager.LastCheckpointPosition);
         OnPlayerRespawn();
-
-        Invoke(nameof(ResetRespawnFlag), 0.5f);
-    }
-
-    /// Resets the respawning flag
-    private void ResetRespawnFlag()
-    {
-        CheckpointManager.IsRespawning = false;
     }
 
     /// Resets player state after respawning
@@ -795,7 +794,8 @@ public class PlayerController : MonoBehaviourPunCallbacks
         _rb.gravityScale = defaultGravityScale;
         _rb.constraints = RigidbodyConstraints2D.FreezeRotation;
 
-        _cameraController.OnPlayerRespawn();
+        if (_cameraController)
+            _cameraController.OnPlayerRespawn();
     }
     #endregion
 }

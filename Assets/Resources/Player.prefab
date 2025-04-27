@@ -1563,7 +1563,7 @@ MonoBehaviour:
     m_RotationOrder: 4
   baseAcceleration: 20
   accelerationTime: 0.6
-  deceleration: 28
+  deceleration: 30
   maxSpeed: 8
   turboSpeed: 8.2
   timeToTurboSpeed: 1.5
@@ -1587,6 +1587,9 @@ MonoBehaviour:
   wallSlideGravityMultiplier: 0.3
   wallSlideXOffset: 0.07
   wallSlideTransitionSpeed: 8
+  wallSlidePreventionLayers:
+    serializedVersion: 2
+    m_Bits: 272
   playerNameTag: {fileID: 8640071455980941114}
   jumpChargeBarGameObject: {fileID: 4709443584379856986}
   jumpChargeBar: {fileID: 1315758324830475671}
@@ -1603,7 +1606,7 @@ MonoBehaviour:
   idleToLayingTime: 3
   catnipSpeedMultiplier: 1.1
   catnipJumpMultiplier: 1.1
-  catnipDecelerationMultiplier: 0.9
+  catnipDecelerationMultiplier: 0.95
   defaultGravityScale: 1
 --- !u!114 &4098701528552782764
 MonoBehaviour:

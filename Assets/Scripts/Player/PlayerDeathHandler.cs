@@ -44,7 +44,7 @@ public class PlayerDeathHandler : MonoBehaviour
     private IEnumerator RespawnPlayer()
     {
         _isRespawning = true;
-        SetPlayerMovementEnabled(false);
+        playerController.SetMovement(false);
 
         playerSpriteToHide.enabled = false;
         playerCanvasToHide.enabled = false;
@@ -72,7 +72,7 @@ public class PlayerDeathHandler : MonoBehaviour
             deathBorderEffect.HideDeathBorder();
         }
 
-        SetPlayerMovementEnabled(true);
+        playerController.SetMovement(true);
         _isRespawning = false;
     }
 
@@ -82,12 +82,6 @@ public class PlayerDeathHandler : MonoBehaviour
         if (!_mainCamera) return false;
 
         return playerController.photonView.IsMine || _spectatorModeManager.IsSpectating;
-    }
-
-    /// Enable or disable player movement
-    private void SetPlayerMovementEnabled(bool movementEnabled)
-    {
-        playerController.SetMovement(movementEnabled);
     }
 
     /// Handle player falling out of world boundaries
