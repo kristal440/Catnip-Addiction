@@ -66,6 +66,11 @@ public class PlayerController : MonoBehaviourPunCallbacks
     [SerializeField] [Tooltip("Y-position that triggers death when fallen below")] public float deathHeight = -100f;
     [SerializeField] [Tooltip("Handler for player death events")] private PlayerDeathHandler playerDeathHandler;
 
+    [Header("Visuals")]
+    [SerializeField] [Tooltip("Sorting order for remote player sprites")] private int remotePlayerSpriteOrder = 2;
+    [SerializeField] [Tooltip("Sorting order for remote player UI canvas")] private int remotePlayerCanvasOrder = 3;
+    [SerializeField] [Tooltip("Alpha transparency for remote players (0-1)")] private float remotePlayerAlpha = 0.7f;
+
     /// Component references
     private Camera _mainCamera;
     private Rigidbody2D _rb;
@@ -168,14 +173,14 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
     #region Player Setup
     /// Configures visuals for non-local players
-    private static void SetupRemotePlayerVisuals(SpriteRenderer sr, Graphic nameTagText, Canvas playerCanvas)
+    private void SetupRemotePlayerVisuals(SpriteRenderer sr, Graphic nameTagText, Canvas playerCanvas)
     {
         if (sr != null)
         {
             var c = sr.color;
-            c.a = 0.7f;
+            c.a = remotePlayerAlpha;
             sr.color = c;
-            sr.sortingOrder = 2;
+            sr.sortingOrder = remotePlayerSpriteOrder;
         }
         else
         {
@@ -185,7 +190,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
         if (nameTagText != null)
         {
             var textColor = nameTagText.color;
-            textColor.a = 0.7f;
+            textColor.a = remotePlayerAlpha;
             nameTagText.color = textColor;
         }
         else
@@ -194,7 +199,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
         }
 
         if (playerCanvas != null)
-            playerCanvas.sortingOrder = 3;
+            playerCanvas.sortingOrder = remotePlayerCanvasOrder;
         else
             Debug.LogWarning("No Canvas found on player GameObject!");
     }
