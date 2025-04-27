@@ -71,7 +71,6 @@ public class PlayerController : MonoBehaviourPunCallbacks
     [SerializeField] [Tooltip("Maximum jump force when fully charged")] public float maxJumpForce = 14.5f;
     [SerializeField] [Tooltip("Maximum time to charge jump")] public float maxChargeTime = 2f;
     [SerializeField] [Range(0.05f, 0.5f)] [Tooltip("Time before player can jump again")] public float jumpCooldown = 0.1f;
-    [SerializeField] [Range(0.05f, 0.5f)] [Tooltip("Maximum time to buffer a jump before landing")] public float jumpBufferTime = 0.2f;
 
     [Header("Death")]
     [SerializeField] [Tooltip("Y-position that triggers death when fallen below")] public float deathHeight = -50f;
@@ -122,7 +121,6 @@ public class PlayerController : MonoBehaviourPunCallbacks
     private bool _isBufferingJump;
     private float _bufferedJumpChargeLevel;
     private bool _bufferedJumpMaxCharged;
-    private float _bufferedJumpStartTime;
 
     /// Catnip effects
     private float _newJumpForce;
@@ -485,17 +483,9 @@ public class PlayerController : MonoBehaviourPunCallbacks
             else
             {
                 _isBufferingJump = true;
-                _bufferedJumpStartTime = Time.time;
             }
 
             jumpChargeBarGameObject.SetActive(true);
-        }
-
-        if (_isBufferingJump && Time.time - _bufferedJumpStartTime > jumpBufferTime)
-        {
-            _isBufferingJump = false;
-            if (!_isChargingJump)
-                jumpChargeBarGameObject.SetActive(false);
         }
 
         if (!_playerInputActions.Player.Jump.WasReleasedThisFrame() || !_jumpButtonHeld)

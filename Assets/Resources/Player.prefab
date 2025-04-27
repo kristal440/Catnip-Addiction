@@ -254,7 +254,7 @@ Canvas:
   m_AdditionalShaderChannelsFlag: 25
   m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: 0
-  m_SortingOrder: 1
+  m_SortingOrder: 9
   m_TargetDisplay: 0
 --- !u!114 &3505282861642777454
 MonoBehaviour:
@@ -1021,7 +1021,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 1
+  m_SortingOrder: 8
   m_Sprite: {fileID: -926048052, guid: 18e6d971025d9054d8abb92dac9d0c13, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -1593,12 +1593,11 @@ MonoBehaviour:
   minJumpForce: 8.5
   maxJumpForce: 14.2
   maxChargeTime: 1.1
-  jumpCooldown: 0.2
-  jumpBufferTime: 0.2
+  jumpCooldown: 0.08
   deathHeight: -50
   playerDeathHandler: {fileID: 6099844445017409013}
-  remotePlayerSpriteOrder: 2
-  remotePlayerCanvasOrder: 3
+  remotePlayerSpriteOrder: 6
+  remotePlayerCanvasOrder: 7
   remotePlayerAlpha: 0.7
   cameraOffset: {x: 0, y: 0, z: -10}
   idleToLayingTime: 3
