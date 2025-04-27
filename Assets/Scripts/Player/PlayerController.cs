@@ -63,6 +63,9 @@ public class PlayerController : MonoBehaviourPunCallbacks
     [SerializeField] [Tooltip("Layers that prevent wall sliding when colliding with them")] public LayerMask wallSlidePreventionLayers;
     [SerializeField] [Range(-10f, 0f)] [Tooltip("Vertical velocity threshold to activate wall sliding")] public float wallSlideVerticalThreshold = -1f;
 
+    [Header("Wall Collision")]
+    [SerializeField] [Range(1f, 10f)] [Tooltip("Speed boost when hitting a wall from behind")] public float backWallBoostMultiplier = 1.5f;
+
     [Header("UI")]
     [SerializeField] [Tooltip("Player name text display")] public TextMeshProUGUI playerNameTag;
     [SerializeField] [Tooltip("Container for jump charge bar")] public GameObject jumpChargeBarGameObject;
@@ -409,9 +412,15 @@ public class PlayerController : MonoBehaviourPunCallbacks
                                  ((facingRight && horizontalInput < 0) ||
                                   (!facingRight && horizontalInput > 0));
 
-        if ((movingIntoFrontWall || movingIntoBackWall) && !_wallCollisionHandled)
+        if (movingIntoFrontWall && !_wallCollisionHandled)
         {
             currentSpeed = 0;
+            _wallCollisionHandled = true;
+        }
+        else if (movingIntoBackWall && !_wallCollisionHandled)
+        {
+            var boostSpeed = _newMaxSpeed * backWallBoostMultiplier;
+            currentSpeed = facingRight ? boostSpeed : -boostSpeed;
             _wallCollisionHandled = true;
         }
 
