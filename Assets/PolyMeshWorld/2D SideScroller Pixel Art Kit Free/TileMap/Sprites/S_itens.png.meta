@@ -2535,6 +2535,28 @@ TextureImporter:
       indices: 
       edges: []
       weights: []
+    - serializedVersion: 2
+      name: arrow
+      rect:
+        serializedVersion: 2
+        x: 238
+        y: 6
+        width: 8
+        height: 5
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 7e92406eaf7f53a6f9097297ff7dd756
+      internalID: 157214549
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
     outline: []
     customData: 
     physicsShape: []
@@ -2640,6 +2662,7 @@ TextureImporter:
       S_itens 2_92: 1122890436139462354
       S_itens 2_93: 4107187715168036436
       S_itens 2_94: 5154703675199173452
+      arrow: 157214549
       green_flag_bot: -1357436162
       green_flag_top: 1086141181
       sign_blank: -2861674888303262115
