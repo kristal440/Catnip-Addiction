@@ -140,8 +140,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
         _catnipFx = GetComponent<CatnipFx>();
 
         var playerCanvas = GetComponentInChildren<Canvas>();
-        if (_mainCamera != null)
-            playerCanvas.worldCamera = _mainCamera;
+        playerCanvas.worldCamera = _mainCamera;
 
         var sr = GetComponentInChildren<SpriteRenderer>();
         var nameTagText = GetComponentInChildren<TextMeshProUGUI>();
@@ -175,41 +174,21 @@ public class PlayerController : MonoBehaviourPunCallbacks
     /// Configures visuals for non-local players
     private void SetupRemotePlayerVisuals(SpriteRenderer sr, Graphic nameTagText, Canvas playerCanvas)
     {
-        if (sr != null)
-        {
-            var c = sr.color;
-            c.a = remotePlayerAlpha;
-            sr.color = c;
-            sr.sortingOrder = remotePlayerSpriteOrder;
-        }
-        else
-        {
-            Debug.LogWarning("No SpriteRenderer found on player GameObject!");
-        }
+        var c = sr.color;
+        c.a = remotePlayerAlpha;
+        sr.color = c;
+        sr.sortingOrder = remotePlayerSpriteOrder;
 
-        if (nameTagText != null)
-        {
-            var textColor = nameTagText.color;
-            textColor.a = remotePlayerAlpha;
-            nameTagText.color = textColor;
-        }
-        else
-        {
-            Debug.LogWarning("No TextMeshProUGUI found on player GameObject!");
-        }
+        var textColor = nameTagText.color;
+        textColor.a = remotePlayerAlpha;
+        nameTagText.color = textColor;
 
-        if (playerCanvas != null)
-            playerCanvas.sortingOrder = remotePlayerCanvasOrder;
-        else
-            Debug.LogWarning("No Canvas found on player GameObject!");
+        playerCanvas.sortingOrder = remotePlayerCanvasOrder;
     }
 
     /// Sets up camera for local player
     private void SetupLocalPlayerCamera()
     {
-        if (_mainCamera == null)
-            return;
-
         Transform transform1;
         (transform1 = _mainCamera.transform).SetParent(transform);
         transform1.localPosition = new Vector3(0, 0, -10);
@@ -450,8 +429,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
         jumpChargeBar.fillAmount = chargeProgress;
 
-        if (_cameraController)
-            _cameraController.UpdateChargingJumpFOV(chargeProgress);
+        _cameraController.UpdateChargingJumpFOV(chargeProgress);
 
         if (!(chargeTime >= maxChargeTime)) return;
 
@@ -513,8 +491,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
         if (HasCatnip)
             jumpMultiplier *= 1.1f;
 
-        if (_cameraController)
-            _cameraController.TriggerJumpFOV();
+        _cameraController.TriggerJumpFOV();
 
         if (IsGrounded)
         {
@@ -592,8 +569,6 @@ public class PlayerController : MonoBehaviourPunCallbacks
                 localScale.z);
             playerNameTag.transform.localScale = localScale;
 
-            if (!jumpChargeBarGameObject) return;
-
             var scale = jumpChargeBarGameObject.transform.localScale;
             scale = new Vector3(
                 scaleFactor * Abs(scale.y),
@@ -645,15 +620,13 @@ public class PlayerController : MonoBehaviourPunCallbacks
     /// Disables player's rigidbody simulation
     internal void DisableRigidbody()
     {
-        if (_rb)
-            _rb.simulated = false;
+        _rb.simulated = false;
     }
 
     /// Enables player's rigidbody simulation
     internal void EnableRigidbody()
     {
-        if (_rb)
-            _rb.simulated = true;
+        _rb.simulated = true;
     }
 
     /// Sets player to spectator mode
@@ -691,8 +664,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
         _rb.linearVelocity = zero;
         _rb.constraints = RigidbodyConstraints2D.FreezeAll;
 
-        if (_cameraController)
-            _cameraController.OnPlayerDeath();
+        _cameraController.OnPlayerDeath();
     }
 
     /// Respawns player at the last checkpoint
@@ -712,8 +684,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
         _rb.gravityScale = _originalGravityScale;
         _rb.constraints = RigidbodyConstraints2D.FreezeRotation;
 
-        if (_cameraController)
-            _cameraController.OnPlayerRespawn();
+        _cameraController.OnPlayerRespawn();
     }
     #endregion
 }
