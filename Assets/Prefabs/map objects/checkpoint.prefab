@@ -11,7 +11,6 @@ GameObject:
   - component: {fileID: 5536905237683707851}
   - component: {fileID: 3068846004823968247}
   - component: {fileID: 69780086488678011}
-  - component: {fileID: 7550890796544974344}
   m_Layer: 9
   m_Name: checkpoint
   m_TagString: Checkpoint
@@ -116,28 +115,6 @@ MonoBehaviour:
   - {r: 0.7, g: 1, b: 0.7, a: 1}
   - {r: 1, g: 1, b: 0.7, a: 1}
   - {r: 1, g: 0.7, b: 1, a: 1}
---- !u!114 &7550890796544974344
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 270179587097524395}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: aa584fbee541324448dd18d8409c7a41, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  ObservedComponentsFoldoutOpen: 1
-  Group: 0
-  prefixField: -1
-  Synchronization: 3
-  OwnershipTransfer: 0
-  observableSearch: 2
-  ObservedComponents: []
-  sceneViewId: 0
-  InstantiationId: 0
-  isRuntimeInstantiated: 0
 --- !u!1001 &504765048239504627
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -185,10 +162,6 @@ PrefabInstance:
     - target: {fileID: 4769822134202546116, guid: d2c2ef38042347648b5d818d43abfd0a, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4769822134202546117, guid: d2c2ef38042347648b5d818d43abfd0a, type: 3}
-      propertyPath: m_SortingOrder
-      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4769822134202546122, guid: d2c2ef38042347648b5d818d43abfd0a, type: 3}
       propertyPath: m_Name
@@ -255,10 +228,6 @@ PrefabInstance:
     - target: {fileID: 2832990058111741206, guid: e212dd35cc7eac44092d0f5a1684ca1e, type: 3}
       propertyPath: m_Name
       value: P_FlagBottom
-      objectReference: {fileID: 0}
-    - target: {fileID: 2832990058111741207, guid: e212dd35cc7eac44092d0f5a1684ca1e, type: 3}
-      propertyPath: m_SortingOrder
-      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

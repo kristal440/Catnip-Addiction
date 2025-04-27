@@ -471,15 +471,15 @@ PrefabInstance:
   serializedVersion: 2
   m_Modification:
     serializedVersion: 3
-    m_TransformParent: {fileID: 4790656499674368592}
+    m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: 328476259323457180, guid: 8a5f8ed616699b364af0bcb682fc3d59, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -1170
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 328476259323457180, guid: 8a5f8ed616699b364af0bcb682fc3d59, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -532.3978
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 328476259323457180, guid: 8a5f8ed616699b364af0bcb682fc3d59, type: 3}
       propertyPath: m_LocalPosition.z
@@ -491,15 +491,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 328476259323457180, guid: 8a5f8ed616699b364af0bcb682fc3d59, type: 3}
       propertyPath: m_LocalRotation.x
-      value: -0
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 328476259323457180, guid: 8a5f8ed616699b364af0bcb682fc3d59, type: 3}
       propertyPath: m_LocalRotation.y
-      value: -0
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 328476259323457180, guid: 8a5f8ed616699b364af0bcb682fc3d59, type: 3}
       propertyPath: m_LocalRotation.z
-      value: -0
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 328476259323457180, guid: 8a5f8ed616699b364af0bcb682fc3d59, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -4196,11 +4196,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Padding: {x: -8, y: -5, z: -8, w: -5}
   m_Softness: {x: 0, y: 0}
---- !u!4 &313343361 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 328476259323457180, guid: 8a5f8ed616699b364af0bcb682fc3d59, type: 3}
-  m_PrefabInstance: {fileID: 40652321}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &326658999
 GameObject:
   m_ObjectHideFlags: 0
@@ -15514,7 +15509,6 @@ RectTransform:
   m_LocalScale: {x: 0, y: 0, z: 0}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 313343361}
   - {fileID: 75686108}
   - {fileID: 1836798071}
   m_Father: {fileID: 0}
@@ -15721,6 +15715,7 @@ CanvasGroup:
 SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
+  - {fileID: 40652321}
   - {fileID: 2080165040}
   - {fileID: 4790656499674368592}
   - {fileID: 832149945}

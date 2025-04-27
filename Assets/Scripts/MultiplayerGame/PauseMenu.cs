@@ -3,6 +3,7 @@ using Photon.Pun;
 using Photon.Realtime;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 /// <summary>
 /// Handles the pause menu functionality and player disconnection from multiplayer games.
@@ -11,6 +12,9 @@ using UnityEngine.SceneManagement;
 public class PauseMenu : MonoBehaviourPunCallbacks
 {
     [SerializeField] [Tooltip("Reference to the pause menu UI GameObject")] public GameObject pauseMenuUI;
+    [SerializeField] [Tooltip("Button to pause the game")] private Button pauseButton;
+    [SerializeField] [Tooltip("Button to resume the game")] private Button resumeButton;
+    [SerializeField] [Tooltip("Button to leave the game")] private Button leaveButton;
 
     private PlayerController _playerController;
 
@@ -23,6 +27,15 @@ public class PauseMenu : MonoBehaviourPunCallbacks
             _playerController = playerControllers.FirstOrDefault(static controller => controller.photonView.IsMine);
         }
         pauseMenuUI.SetActive(false);
+
+        if (pauseButton != null)
+            pauseButton.onClick.AddListener(PauseGame);
+
+        if (resumeButton != null)
+            resumeButton.onClick.AddListener(ResumeGame);
+
+        if (leaveButton != null)
+            leaveButton.onClick.AddListener(LeaveGame);
     }
 
     /// Activates the pause menu and pauses player movement
