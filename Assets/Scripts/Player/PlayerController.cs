@@ -541,16 +541,10 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
         if (!(chargeTime >= maxChargeTime)) return;
 
-        if (_isBufferingJump)
-        {
-            _bufferedJumpMaxCharged = true;
-            _bufferedJumpChargeLevel = maxChargeTime;
-        }
-        else if (_isChargingJump && IsGrounded)
-        {
-            ExecuteJump(maxChargeTime);
-            _jumpButtonHeld = false;
-        }
+        if (!_isBufferingJump) return;
+
+        _bufferedJumpMaxCharged = true;
+        _bufferedJumpChargeLevel = maxChargeTime;
     }
 
     /// Handles buffered jump execution when player lands after jump input
