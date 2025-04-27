@@ -141,21 +141,25 @@ public class PlayerController : MonoBehaviourPunCallbacks
     #endregion
 
     #region Unity Lifecycle
+    /// Initializes the input system
     private void Awake()
     {
         _playerInputActions = new InputSystem_Actions();
     }
 
+    /// Enables player input actions
     public override void OnEnable()
     {
         _playerInputActions.Player.Enable();
     }
 
+    /// Disables player input actions
     public override void OnDisable()
     {
         _playerInputActions.Player.Disable();
     }
 
+    /// Sets up initial references and configures local or remote player settings
     private void Start()
     {
         _mainCamera = Camera.main;
@@ -174,6 +178,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
             SetupLocalPlayerCamera();
     }
 
+    /// Handles per-frame animations and movement updates
     private void Update()
     {
         UpdateAnimations();
@@ -191,6 +196,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
             playerDeathHandler.HandleOutOfBoundsDeath();
     }
 
+    /// Handles physics-based calculations for wall sliding
     private void FixedUpdate()
     {
         if (photonView.IsMine)
@@ -199,6 +205,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
     #endregion
 
     #region Player Setup
+    /// Configures visuals for remote players with adjusted transparency and sorting order
     private void SetupRemotePlayerVisuals(SpriteRenderer sr, Graphic nameTagText, Canvas playerCanvas)
     {
         var c = sr.color;
@@ -213,6 +220,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
         playerCanvas.sortingOrder = remotePlayerCanvasOrder;
     }
 
+    /// Configures camera settings for the local player
     private void SetupLocalPlayerCamera()
     {
         Transform transform1;
@@ -224,6 +232,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
     #endregion
 
     #region Movement
+    /// Processes player input for movement and wall collision detection
     private void HandleMovement()
     {
         if (IsPaused)
@@ -249,6 +258,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
         UpdatePlayerSpeed(horizontalInput);
     }
 
+    /// Handles wall slide behavior and applies appropriate physics adjustments
     private void CheckWallSliding()
     {
         if (_defaultGravityScaleCache == 0)
@@ -320,6 +330,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
             animator.SetBool(IsWallSlidingAnimVar, _isWallSliding);
     }
 
+    /// Updates player direction based on input and adjusts related visuals
     private void HandlePlayerDirection(float horizontalInput)
     {
         var facingRight = transform.localScale.x > 0;
@@ -381,6 +392,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
         _previousPlayerScale = transform.localScale;
     }
 
+    /// Calculates player speed based on input, acceleration, and collisions
     private void UpdatePlayerSpeed(float horizontalInput)
     {
         _newMaxSpeed = HasCatnip ? maxSpeed * catnipSpeedMultiplier : maxSpeed;
@@ -460,6 +472,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
     #endregion
 
     #region Jump
+    /// Processes jump button input for charging, buffering and executing jumps
     private void HandleJumpInput()
     {
         var jumpOnCooldown = Time.time < _lastJumpTime + jumpCooldown;
@@ -511,6 +524,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
         }
     }
 
+    /// Updates jump charge bar and camera FOV during jump charging
     private void UpdateJumpCharging()
     {
         if (!_jumpButtonHeld) return;
@@ -539,6 +553,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
         }
     }
 
+    /// Handles buffered jump execution when player lands after jump input
     private void CheckBufferedJumpLanding(bool wasGrounded, bool isGroundedNow)
     {
         if (wasGrounded || !isGroundedNow || !_isBufferingJump) return;
@@ -570,6 +585,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
         }
     }
 
+    /// Applies jump force based on charge time and resets jump-related states
     private void ExecuteJump(float chargeTime)
     {
         _isChargingJump = false;
@@ -595,6 +611,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
         animator.SetBool(IsJumpQueued, false);
     }
 
+    /// Cancels jump charge and resets jump-related states
     private void CancelJumpCharge()
     {
         _isChargingJump = false;
@@ -610,6 +627,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
     #endregion
 
     #region Animations
+    /// Tracks idle time and triggers laying animation when idle threshold reached
     private void CheckIdleState()
     {
         if (_isWallSliding)
@@ -632,6 +650,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
         }
     }
 
+    /// Updates animator parameters and checks ground state
     private void UpdateAnimations()
     {
         var wasGrounded = IsGrounded;
@@ -675,6 +694,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
     #endregion
 
     #region Utility
+    /// Resets acceleration-related variables to initial state
     internal void ResetAccelerationState()
     {
         _currentAccelTime = 0f;
@@ -683,6 +703,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
         _lastMoveDirection = 0;
     }
 
+    /// Gets or sets player acceleration with curve evaluation
     internal float Acceleration
     {
         get => baseAcceleration * accelerationCurve.Evaluate(_currentAccelTime / accelerationTime);
@@ -693,6 +714,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
         }
     }
 
+    /// Teleports player to specified position and resets speed
     internal void Teleport(Vector3 position)
     {
         if (!photonView.IsMine)
@@ -702,26 +724,31 @@ public class PlayerController : MonoBehaviourPunCallbacks
         currentSpeed = 0f;
     }
 
+    /// Enables or disables player movement
     internal void SetMovement(bool isEnabled)
     {
         IsPaused = !isEnabled;
     }
 
+    /// Disables rigidbody simulation
     internal void DisableRigidbody()
     {
         _rb.simulated = false;
     }
 
+    /// Enables rigidbody simulation
     internal void EnableRigidbody()
     {
         _rb.simulated = true;
     }
 
+    /// Sets spectator mode state
     internal void SetSpectatorMode(bool isEnabled)
     {
         SetMovement(isEnabled);
     }
 
+    /// Remote procedure call to toggle catnip effect across network
     [PunRPC]
     internal void RPC_SetCatnipEffectActive(bool isActive)
     {
@@ -737,6 +764,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
     #endregion
 
     #region Death and Respawn
+    /// Handles player death state and physics
     internal void OnPlayerDeath()
     {
         if (IsDead)
@@ -753,6 +781,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
             _cameraController.OnPlayerDeath();
     }
 
+    /// Respawns player at last checkpoint position
     internal void RespawnAtLastCheckpoint()
     {
         CheckpointManager.IsRespawning = true;
@@ -762,11 +791,13 @@ public class PlayerController : MonoBehaviourPunCallbacks
         Invoke(nameof(ResetRespawnFlag), 0.5f);
     }
 
+    /// Resets checkpoint respawn flag after delay
     private void ResetRespawnFlag()
     {
         CheckpointManager.IsRespawning = false;
     }
 
+    /// Resets physics and constraints when player respawns
     private void OnPlayerRespawn()
     {
         if (!IsDead)
