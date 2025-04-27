@@ -26,13 +26,13 @@ public class PlayerController : MonoBehaviourPunCallbacks
         new Keyframe(1f, 1f)
     );
     [SerializeField] [Tooltip("Base acceleration value")] public float baseAcceleration = 10f;
-    [SerializeField] [Tooltip("How long it takes to reach full acceleration")] public float accelerationTime = 0.8f;
+    [SerializeField] [Range(0.2f, 2.0f)] [Tooltip("How long it takes to reach full acceleration")] public float accelerationTime = 0.8f;
     [SerializeField] [Tooltip("How quickly player slows down")] public float deceleration = 15f;
     [SerializeField] [Tooltip("Maximum movement speed")] public float maxSpeed = 5f;
     [SerializeField] [Tooltip("Higher speed reached after maintaining max speed")] public float turboSpeed = 7f;
     [SerializeField] [Tooltip("Time in seconds player needs to maintain max speed before reaching turbo speed")] public float timeToTurboSpeed = 1.5f;
-    [SerializeField] [Tooltip("Minimum input value to register movement")] public float movementDeadzone = 0.01f;
-    [SerializeField] [Tooltip("Threshold to consider player at max speed (0-1)")] public float maxSpeedThreshold = 0.98f;
+    [SerializeField] [Range(0.0f, 0.1f)] [Tooltip("Minimum input value to register movement")] public float movementDeadzone = 0.01f;
+    [SerializeField] [Range(0.7f, 0.99f)] [Tooltip("Threshold to consider player at max speed (0-1)")] public float maxSpeedThreshold = 0.98f;
     [HideInInspector] public float currentSpeed;
     [HideInInspector] public float verticalSpeed;
 
@@ -44,13 +44,13 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
     [Header("Ground Check")]
     [SerializeField] [Tooltip("Transform used to detect ground")] public Transform groundCheck;
-    [SerializeField] [Tooltip("Radius of the ground check sphere")] public float groundCheckRadius = 0.2f;
+    [SerializeField] [Range(0.05f, 0.5f)] [Tooltip("Radius of the ground check sphere")] public float groundCheckRadius = 0.2f;
     [SerializeField] [Tooltip("Layer mask for ground detection")] public LayerMask groundLayerMask;
 
     [Header("Wall Detection")]
     [SerializeField] [Tooltip("Transform used to detect walls in front")] public Transform frontWallCheck;
     [SerializeField] [Tooltip("Transform used to detect walls behind")] public Transform backWallCheck;
-    [SerializeField] [Tooltip("Radius of the wall check sphere")] public float wallCheckRadius = 0.2f;
+    [SerializeField] [Range(0.05f, 0.5f)] [Tooltip("Radius of the wall check sphere")] public float wallCheckRadius = 0.2f;
     [SerializeField] [Tooltip("Layer mask for wall detection")] public LayerMask wallLayerMask;
 
     [Header("UI")]
@@ -62,17 +62,17 @@ public class PlayerController : MonoBehaviourPunCallbacks
     [SerializeField] [Tooltip("Minimum jump force when uncharged")] public float minJumpForce = 8.5f;
     [SerializeField] [Tooltip("Maximum jump force when fully charged")] public float maxJumpForce = 14.5f;
     [SerializeField] [Tooltip("Maximum time to charge jump")] public float maxChargeTime = 2f;
-    [SerializeField] [Tooltip("Time before player can jump again")] public float jumpCooldown = 0.1f;
-    [SerializeField] [Tooltip("Maximum time to buffer a jump before landing")] public float jumpBufferTime = 0.2f;
+    [SerializeField] [Range(0.05f, 0.5f)] [Tooltip("Time before player can jump again")] public float jumpCooldown = 0.1f;
+    [SerializeField] [Range(0.05f, 0.5f)] [Tooltip("Maximum time to buffer a jump before landing")] public float jumpBufferTime = 0.2f;
 
     [Header("Death")]
-    [SerializeField] [Tooltip("Y-position that triggers death when fallen below")] public float deathHeight = -100f;
+    [SerializeField] [Tooltip("Y-position that triggers death when fallen below")] public float deathHeight = -50f;
     [SerializeField] [Tooltip("Handler for player death events")] private PlayerDeathHandler playerDeathHandler;
 
     [Header("Visuals")]
     [SerializeField] [Tooltip("Sorting order for remote player sprites")] private int remotePlayerSpriteOrder = 2;
     [SerializeField] [Tooltip("Sorting order for remote player UI canvas")] private int remotePlayerCanvasOrder = 3;
-    [SerializeField] [Tooltip("Alpha transparency for remote players (0-1)")] private float remotePlayerAlpha = 0.7f;
+    [SerializeField] [Range(0.1f, 1f)] [Tooltip("Alpha transparency for remote players (0-1)")] private float remotePlayerAlpha = 0.7f;
 
     [Header("Camera")]
     [SerializeField] [Tooltip("Local position offset for camera")] public Vector3 cameraOffset = new(0, 0, -10);
@@ -81,12 +81,12 @@ public class PlayerController : MonoBehaviourPunCallbacks
     [SerializeField] [Tooltip("Time in seconds before triggering laying animation")] public float idleToLayingTime = 3.0f;
 
     [Header("Catnip Effects")]
-    [SerializeField] [Tooltip("Speed multiplier when catnip is active")] public float catnipSpeedMultiplier = 1.1f;
-    [SerializeField] [Tooltip("Jump force multiplier when catnip is active")] public float catnipJumpMultiplier = 1.1f;
-    [SerializeField] [Tooltip("Deceleration multiplier when catnip is active")] public float catnipDecelerationMultiplier = 0.9f;
+    [SerializeField] [Range(1.0f, 2.0f)] [Tooltip("Speed multiplier when catnip is active")] public float catnipSpeedMultiplier = 1.1f;
+    [SerializeField] [Range(1.0f, 2.0f)] [Tooltip("Jump force multiplier when catnip is active")] public float catnipJumpMultiplier = 1.1f;
+    [SerializeField] [Range(0.5f, 1.0f)] [Tooltip("Deceleration multiplier when catnip is active")] public float catnipDecelerationMultiplier = 0.9f;
 
     [Header("Physics")]
-    [SerializeField] [Tooltip("Normal gravity scale for the player")] public float defaultGravityScale = 1.0f;
+    [SerializeField] [Range(0.5f, 3.0f)] [Tooltip("Normal gravity scale for the player")] public float defaultGravityScale = 1.0f;
 
     /// Component references
     private Camera _mainCamera;
