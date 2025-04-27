@@ -30,5 +30,6 @@ public class FinishLine : MonoBehaviour
 
         GameManager.Instance.PlayerFinished(playerID, finishTime);
         player.SetSpectatorMode(true);
+        player.SetMovement(false);
     }
 }
