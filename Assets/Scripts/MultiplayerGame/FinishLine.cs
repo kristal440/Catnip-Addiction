@@ -14,6 +14,11 @@ public class FinishLine : MonoBehaviour
     {
         if (!GameManager.Instance.gameStarted) return;
         if (!other.CompareTag("Player")) return;
+
+        _fireworks = FindFirstObjectByType<FireworksManager>();
+        if (_fireworks != null)
+            _fireworks.TriggerFireworksSequence(other.transform.position);
+
         if (!PhotonView.Get(other).IsMine) return;
 
         var player = other.GetComponent<PlayerController>();
@@ -22,10 +27,6 @@ public class FinishLine : MonoBehaviour
 
         var finishTime = Time.timeSinceLevelLoad - GameManager.Instance.startTime;
         var playerID = PhotonNetwork.LocalPlayer.ActorNumber;
-
-        _fireworks = FindFirstObjectByType<FireworksManager>();
-        if (_fireworks != null)
-            _fireworks.TriggerFireworksSequence(other.transform.position);
 
         GameManager.Instance.PlayerFinished(playerID, finishTime);
         player.SetSpectatorMode(true);
