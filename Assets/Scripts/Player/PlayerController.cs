@@ -661,8 +661,15 @@ public class PlayerController : MonoBehaviourPunCallbacks
         if (wasGrounded != IsGrounded)
             CheckBufferedJumpLanding(wasGrounded, IsGrounded);
 
-        if (!IsGrounded && (_isChargingJump || _isJumpQueued))
+        if (wasGrounded && !IsGrounded && (_isChargingJump || _isJumpQueued))
+        {
+            var chargeTime = Min(Time.time - _jumpChargeStartTime, maxChargeTime);
+            ExecuteJump(chargeTime);
+        }
+        else if (!IsGrounded && (_isChargingJump || _isJumpQueued))
+        {
             CancelJumpCharge();
+        }
 
         if (IsGrounded && IsJumpPaused)
         {
