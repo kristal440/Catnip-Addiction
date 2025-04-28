@@ -121,6 +121,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
     private float _lastJumpTime;
     private bool _isWallSliding;
     private float _defaultGravityScaleCache;
+    private int _jumpChargeDirection;
 
     /// Jump buffer
     private bool _isBufferingJump;
@@ -132,9 +133,6 @@ public class PlayerController : MonoBehaviourPunCallbacks
     private float _newJumpForce;
     private float _newMaxSpeed;
     private float _newDeceleration;
-
-    /// Direction player was moving when jump was initiated
-    private float _jumpInitialMoveDirection;
 
     /// Properties
     internal bool IsStanding { get; set; }
@@ -503,8 +501,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
             _jumpButtonHeld = true;
             _jumpChargeStartTime = Time.time;
 
-            // Store initial movement direction when starting jump charge
-            _jumpInitialMoveDirection = _playerInputActions.Player.Move.ReadValue<Vector2>().x;
+            _jumpChargeDirection = (int)Sign(_rb.linearVelocity.x);
 
             ResetAccelerationState();
 
@@ -618,24 +615,21 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
         ResetAccelerationState();
 
-        var horizontalInput = _playerInputActions.Player.Move.ReadValue<Vector2>().x;
+        var currentHorizontalInput = _playerInputActions.Player.Move.ReadValue<Vector2>().x;
+        var currentInputDirection = (int)Sign(currentHorizontalInput);
 
-        // Check if player is pressing the opposite direction compared to when they started charging
-        var isPressingOppositeDirection = Sign(horizontalInput) != 0 &&
-                                          Sign(_jumpInitialMoveDirection) != 0 &&
-                                          !Mathf.Approximately(Sign(horizontalInput), Sign(_jumpInitialMoveDirection));
+        var isOppositeDirection = _jumpChargeDirection != 0 &&
+                                  currentInputDirection != 0 &&
+                                  currentInputDirection != _jumpChargeDirection;
 
-        if (isPressingOppositeDirection)
+        if (isOppositeDirection)
         {
-            // Zero out horizontal velocity and speed if pressing opposite direction
             _rb.linearVelocity = new Vector2(0, jumpMultiplier);
             currentSpeed = 0;
         }
         else
         {
-            var jumpDirection = Sign(horizontalInput != 0 ? horizontalInput : transform.localScale.x);
-            var horizontalBoost = _newMaxSpeed * jumpDirection * 0.1f;
-            _rb.linearVelocity = new Vector2(horizontalBoost, jumpMultiplier);
+            _rb.linearVelocity = new Vector2(_rb.linearVelocity.x, jumpMultiplier);
         }
 
         _lastJumpTime = Time.time;
