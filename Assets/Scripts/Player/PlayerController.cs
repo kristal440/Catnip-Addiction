@@ -779,7 +779,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
     /// Sets spectator mode state
     internal void SetSpectatorMode(bool isEnabled)
     {
-        SetMovement(isEnabled);
+        SetMovement(!isEnabled);
     }
 
     /// Remote procedure call to toggle catnip effect across network
