@@ -1019,6 +1019,8 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
         if (_cameraController)
             _cameraController.OnPlayerRespawn();
+
+        CancelJumpCharge();
     }
     #endregion
 }
