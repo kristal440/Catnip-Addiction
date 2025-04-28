@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: PhotonServerSettings
   m_EditorClassIdentifier: 
   AppSettings:
-    AppIdRealtime:
+    AppIdRealtime: 
     AppIdFusion: 
     AppIdChat: 
     AppIdVoice: 
@@ -48,6 +48,12 @@ MonoBehaviour:
   - UpdateLeaderboard
   - SetIsLayingFalse
   - StandUp
+  - RPC_PlayMeow
+  - RPC_SetCatnipEffectActive
+  - RPC_TriggerCheckpointParticles
+  - SpawnWaterSplash
+  - SyncFlickerState
+  - SyncLightSettings
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 1
