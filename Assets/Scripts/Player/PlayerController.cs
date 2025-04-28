@@ -509,8 +509,6 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
             _jumpChargeDirection = (int)Sign(_rb.linearVelocity.x);
 
-            ResetAccelerationState();
-
             if (IsGrounded)
             {
                 _isChargingJump = true;
@@ -624,9 +622,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
         var currentHorizontalInput = _playerInputActions.Player.Move.ReadValue<Vector2>().x;
         var currentInputDirection = (int)Sign(currentHorizontalInput);
 
-        var isOppositeDirection = _jumpChargeDirection != 0 &&
-                                  currentInputDirection != 0 &&
-                                  currentInputDirection != _jumpChargeDirection;
+        var isOppositeDirection = _jumpChargeDirection != 0 && currentInputDirection != 0 && currentInputDirection != _jumpChargeDirection;
 
         if (isOppositeDirection)
         {
