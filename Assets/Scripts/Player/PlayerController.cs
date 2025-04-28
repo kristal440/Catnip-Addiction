@@ -1,6 +1,7 @@
 using Photon.Pun;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 using static UnityEngine.Mathf;
 using static UnityEngine.Vector2;
@@ -63,8 +64,9 @@ public class PlayerController : MonoBehaviourPunCallbacks
     [SerializeField] [Tooltip("Layers that prevent wall sliding when colliding with them")] public LayerMask wallSlidePreventionLayers;
     [SerializeField] [Range(-10f, 0f)] [Tooltip("Vertical velocity threshold to activate wall sliding")] public float wallSlideVerticalThreshold = -1f;
 
+    [FormerlySerializedAs("backWallBoostMultiplier")]
     [Header("Wall Collision")]
-    [SerializeField] [Range(1f, 10f)] [Tooltip("Speed boost when hitting a wall from behind")] public float backWallBoostMultiplier = 1.5f;
+    [SerializeField] [Range(1f, 10f)] [Tooltip("Speed boost when hitting a wall from behind")] public float backWallBoost = 1.5f;
 
     [Header("UI")]
     [SerializeField] [Tooltip("Player name text display")] public TextMeshProUGUI playerNameTag;
@@ -399,42 +401,24 @@ public class PlayerController : MonoBehaviourPunCallbacks
     /// Calculates player speed based on input, acceleration, and collisions
     private void UpdatePlayerSpeed(float horizontalInput)
     {
+        _newMaxSpeed = HasCatnip ? maxSpeed * catnipSpeedMultiplier : maxSpeed;
+        _newDeceleration = HasCatnip ? deceleration * catnipDecelerationMultiplier : deceleration;
+        var currentTurboSpeed = HasCatnip ? turboSpeed * catnipSpeedMultiplier : turboSpeed;
+
+        HandleWallCollision(horizontalInput);
+
         if (_isChargingJump || _isBufferingJump)
         {
             _rb.linearVelocity = new Vector2(currentSpeed, _rb.linearVelocity.y);
             return;
         }
 
-        _newMaxSpeed = HasCatnip ? maxSpeed * catnipSpeedMultiplier : maxSpeed;
-        _newDeceleration = HasCatnip ? deceleration * catnipDecelerationMultiplier : deceleration;
-        var currentTurboSpeed = HasCatnip ? turboSpeed * catnipSpeedMultiplier : turboSpeed;
-
         var facingRight = transform.localScale.x > 0;
-
-        var movingIntoFrontWall = _isTouchingFrontWall &&
-                                  ((facingRight && horizontalInput > 0) ||
-                                   (!facingRight && horizontalInput < 0));
-
-        var movingIntoBackWall = _isTouchingBackWall &&
-                                 ((facingRight && horizontalInput < 0) ||
-                                  (!facingRight && horizontalInput > 0));
-
-        if (movingIntoFrontWall && !_wallCollisionHandled)
-        {
-            currentSpeed = 0;
-            _wallCollisionHandled = true;
-        }
-        else if (movingIntoBackWall && !_wallCollisionHandled)
-        {
-            var boostSpeed = _newMaxSpeed * backWallBoostMultiplier;
-            currentSpeed = facingRight ? boostSpeed : -boostSpeed;
-            _wallCollisionHandled = true;
-        }
 
         var moveDirection = (int)Sign(horizontalInput);
         switch (Abs(horizontalInput))
         {
-            case > 0.01f when !movingIntoFrontWall && !movingIntoBackWall:
+            case > 0.01f when !(_isTouchingFrontWall && ((facingRight && horizontalInput > 0) || (!facingRight && horizontalInput < 0))):
                 if (moveDirection != _lastMoveDirection && _lastMoveDirection != 0)
                 {
                     _currentAccelTime = 0f;
@@ -484,6 +468,28 @@ public class PlayerController : MonoBehaviourPunCallbacks
         }
 
         _rb.linearVelocity = new Vector2(currentSpeed, _rb.linearVelocity.y);
+    }
+
+    /// Handles wall collision and applies speed effects
+    private void HandleWallCollision(float horizontalInput)
+    {
+        var facingRight = transform.localScale.x > 0;
+
+        var movingIntoFrontWall = _isTouchingFrontWall && ((facingRight && horizontalInput > 0) || (!facingRight && horizontalInput < 0));
+
+        var movingIntoBackWall = _isTouchingBackWall && ((facingRight && horizontalInput < 0) || (!facingRight && horizontalInput > 0));
+
+        if (movingIntoFrontWall && !_wallCollisionHandled)
+        {
+            currentSpeed = 0;
+            _wallCollisionHandled = true;
+        }
+        else if (movingIntoBackWall && !_wallCollisionHandled)
+        {
+            var boostSpeed = _newMaxSpeed + backWallBoost;
+            currentSpeed = facingRight ? boostSpeed : -boostSpeed;
+            _wallCollisionHandled = true;
+        }
     }
     #endregion
 
