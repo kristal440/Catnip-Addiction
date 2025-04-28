@@ -13,7 +13,6 @@ public class RoomManager : MonoBehaviourPunCallbacks
 {
     [SerializeField] [Tooltip("Prefab to instantiate for each player joining the game")] public GameObject playerPrefab;
     [SerializeField] [Tooltip("Positions where players can spawn in the game")] public Transform[] spawnPoints;
-    [SerializeField] [Tooltip("Text component that displays current network ping")] public TMP_Text pingText;
 
     [Header("Player List")]
     [SerializeField] [Tooltip("Container for player list UI elements")] public Transform playerListContainer;
@@ -58,12 +57,6 @@ public class RoomManager : MonoBehaviourPunCallbacks
     {
         UpdatePlayerList();
         UpdatePlayerCountDisplay();
-    }
-
-    /// Updates the ping display every frame
-    public void Update()
-    {
-        pingText.text = $"{PhotonNetwork.GetPing()}ms";
     }
 
     /// Spawns the player character for the local player

@@ -1,7 +1,9 @@
 using System.Collections;
 using Photon.Pun;
+using Photon.Realtime;
 using TMPro;
 using UnityEngine;
+using Hashtable = ExitGames.Client.Photon.Hashtable;
 
 /// <inheritdoc />
 /// <summary>
@@ -41,6 +43,8 @@ public class PlayerPing : MonoBehaviourPunCallbacks
     private Coroutine _updateCoroutine;
     private bool _initialized;
     private Vector3 _previousPlayerScale;
+
+    private const string PingPropertyKey = "PlayerPing";
 
     #region Unity Lifecycle
 
@@ -160,6 +164,15 @@ public class PlayerPing : MonoBehaviourPunCallbacks
 
         while (enabled && showPing)
         {
+            if (photonView.IsMine)
+            {
+                int currentPing = debugMode ? simulatedPing : PhotonNetwork.GetPing();
+
+                Hashtable pingProperty = new Hashtable();
+                pingProperty[PingPropertyKey] = currentPing;
+                PhotonNetwork.LocalPlayer.SetCustomProperties(pingProperty);
+            }
+
             UpdatePingDisplay();
             yield return wait;
         }
@@ -191,7 +204,20 @@ public class PlayerPing : MonoBehaviourPunCallbacks
     /// Get the current ping value
     private int GetCurrentPing()
     {
-        return debugMode ? simulatedPing : PhotonNetwork.GetPing();
+        if (debugMode || photonView.IsMine)
+        {
+            return debugMode ? simulatedPing : PhotonNetwork.GetPing();
+        }
+
+        if (photonView.Owner != null && photonView.Owner.CustomProperties.TryGetValue(PingPropertyKey, out object pingObj))
+        {
+            if (pingObj is int ping)
+            {
+                return ping;
+            }
+        }
+
+        return 0;
     }
 
     /// Determine text color based on ping value
@@ -206,4 +232,13 @@ public class PlayerPing : MonoBehaviourPunCallbacks
     }
 
     #endregion
+
+    // Override OnPlayerPropertiesUpdate to refresh the ping display when properties change
+    public override void OnPlayerPropertiesUpdate(Player targetPlayer, Hashtable changedProps)
+    {
+        if (photonView.Owner != null && targetPlayer == photonView.Owner && changedProps.ContainsKey(PingPropertyKey))
+        {
+            UpdatePingDisplay();
+        }
+    }
 }

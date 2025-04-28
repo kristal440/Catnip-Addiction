@@ -1580,7 +1580,7 @@ MonoBehaviour:
     m_Bits: 8
   frontWallCheck: {fileID: 3951173809159813694}
   backWallCheck: {fileID: 7838709526519794932}
-  wallCheckRadius: 0.17
+  wallCheckRadius: 0.19
   wallLayerMask:
     serializedVersion: 2
     m_Bits: 8
