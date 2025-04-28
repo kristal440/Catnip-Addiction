@@ -64,9 +64,6 @@ public class PlayerController : MonoBehaviourPunCallbacks
     [SerializeField] [Tooltip("Layers that prevent wall sliding when colliding with them")] public LayerMask wallSlidePreventionLayers;
     [SerializeField] [Range(-10f, 0f)] [Tooltip("Vertical velocity threshold to activate wall sliding")] public float wallSlideVerticalThreshold = -1f;
     [SerializeField] [Range(0f, 2f)] [Tooltip("Required time (in seconds) of wall sliding before wall jump is allowed")] public float requiredWallSlideTime = 0.2f;
-    [SerializeField] [Tooltip("Visual feedback for wall slide timer")] public bool showWallSlideTimerFeedback = true;
-    [SerializeField] [Tooltip("Color when wall jump is not ready")] public Color wallJumpNotReadyColor = new(1f, 0.5f, 0.5f, 0.7f);
-    [SerializeField] [Tooltip("Color when wall jump is ready")] public Color wallJumpReadyColor = new(0.5f, 1f, 0.5f, 0.7f);
 
     [FormerlySerializedAs("backWallBoostMultiplier")]
     [Header("Wall Collision")]
@@ -76,7 +73,6 @@ public class PlayerController : MonoBehaviourPunCallbacks
     [SerializeField] [Tooltip("Player name text display")] public TextMeshProUGUI playerNameTag;
     [SerializeField] [Tooltip("Container for jump charge bar")] public GameObject jumpChargeBarGameObject;
     [SerializeField] [Tooltip("Jump charge fill bar")] public Image jumpChargeBar;
-    [SerializeField] [Tooltip("Wall jump charge fill bar")] public Image wallJumpChargeBar;
 
     [Header("Charged Jump")]
     [SerializeField] [Tooltip("Minimum jump force when uncharged")] public float minJumpForce = 8.5f;
@@ -146,6 +142,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
     /// Wall Jump tracking
     private bool _isWallJumping;
     private int _wallJumpDirection;
+    private bool _isWallSlideFirstFrame;
 
     /// Properties
     internal bool IsStanding { get; set; }
@@ -193,10 +190,6 @@ public class PlayerController : MonoBehaviourPunCallbacks
             SetupRemotePlayerVisuals(sr, nameTagText, playerCanvas);
         else
             SetupLocalPlayerCamera();
-
-        // Initialize wall jump charge bar to invisible
-        if (wallJumpChargeBar != null)
-            wallJumpChargeBar.gameObject.SetActive(false);
     }
 
     /// Handles per-frame animations and movement updates
@@ -308,27 +301,15 @@ public class PlayerController : MonoBehaviourPunCallbacks
             {
                 _currentWallSlideTime = 0f;
                 _canWallJumpNow = false;
-
-                if (showWallSlideTimerFeedback && wallJumpChargeBar != null && photonView.IsMine)
-                {
-                    wallJumpChargeBar.gameObject.SetActive(true);
-                    wallJumpChargeBar.fillAmount = 0f;
-                    wallJumpChargeBar.color = wallJumpNotReadyColor;
-                }
+                _isWallSlideFirstFrame = true;
             }
             else
             {
                 _currentWallSlideTime += Time.fixedDeltaTime;
+                _isWallSlideFirstFrame = false;
 
                 if (_currentWallSlideTime >= requiredWallSlideTime && !_canWallJumpNow)
-                {
                     _canWallJumpNow = true;
-                    if (showWallSlideTimerFeedback && wallJumpChargeBar != null && photonView.IsMine)
-                        wallJumpChargeBar.color = wallJumpReadyColor;
-                }
-
-                if (showWallSlideTimerFeedback && wallJumpChargeBar != null && photonView.IsMine)
-                    wallJumpChargeBar.fillAmount = Clamp01(_currentWallSlideTime / requiredWallSlideTime);
             }
 
             _rb.gravityScale = _defaultGravityScaleCache * wallSlideGravityMultiplier;
@@ -337,17 +318,21 @@ public class PlayerController : MonoBehaviourPunCallbacks
             float targetRotationZ = 0;
             float directionMultiplier = facingRight ? 1 : -1;
 
-            switch (facingRight)
-            {
-                case true when _isTouchingFrontWall:
-                case false when _isTouchingBackWall:
-                    targetRotationZ = wallSlideRotationAngle * directionMultiplier;
-                    break;
-                case true when _isTouchingBackWall:
-                case false when _isTouchingFrontWall:
-                    targetRotationZ = -wallSlideRotationAngle * directionMultiplier;
-                    break;
-            }
+            _isWallSlideFirstFrame = true;
+
+            if (_canWallJumpNow)
+                if (!_isWallSlideFirstFrame)
+                    switch (facingRight)
+                    {
+                        case true when _isTouchingFrontWall:
+                        case false when _isTouchingBackWall:
+                            targetRotationZ = wallSlideRotationAngle * directionMultiplier;
+                            break;
+                        case true when _isTouchingBackWall:
+                        case false when _isTouchingFrontWall:
+                            targetRotationZ = -wallSlideRotationAngle * directionMultiplier;
+                            break;
+                    }
 
             if (wallSlideRotationObject)
             {
@@ -365,11 +350,9 @@ public class PlayerController : MonoBehaviourPunCallbacks
         {
             _currentWallSlideTime = 0f;
             _canWallJumpNow = false;
+            _isWallSlideFirstFrame = true;
 
             _rb.gravityScale = _defaultGravityScaleCache;
-
-            if (wallJumpChargeBar != null && photonView.IsMine)
-                wallJumpChargeBar.gameObject.SetActive(false);
 
             if (wallSlideRotationObject)
             {
@@ -551,10 +534,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
     {
         var jumpOnCooldown = Time.time < _lastJumpTime + jumpCooldown;
 
-        if (_playerInputActions.Player.Jump.WasPressedThisFrame() &&
-            !_isJumpQueued &&
-            IsStanding &&
-            !jumpOnCooldown)
+        if (_playerInputActions.Player.Jump.WasPressedThisFrame() && !_isJumpQueued && IsStanding && !jumpOnCooldown)
         {
             _jumpButtonHeld = true;
             _jumpChargeStartTime = Time.time;
@@ -771,8 +751,6 @@ public class PlayerController : MonoBehaviourPunCallbacks
         _isWallJumping = false;
         _isWallSliding = false;
         jumpChargeBarGameObject.SetActive(false);
-        if (wallJumpChargeBar != null)
-            wallJumpChargeBar.gameObject.SetActive(false);
 
         var chargeProgress = Clamp01(chargeTime / maxChargeTime);
         var jumpMultiplier = Lerp(minJumpForce, maxJumpForce, chargeProgress);
@@ -885,16 +863,6 @@ public class PlayerController : MonoBehaviourPunCallbacks
                 scale.y,
                 scale.z);
             jumpChargeBarGameObject.transform.localScale = scale;
-
-            if (wallJumpChargeBar != null)
-            {
-                var wallJumpScale = wallJumpChargeBar.transform.localScale;
-                wallJumpScale = new Vector3(
-                    scaleFactor * Abs(wallJumpScale.y),
-                    wallJumpScale.y,
-                    wallJumpScale.z);
-                wallJumpChargeBar.transform.localScale = wallJumpScale;
-            }
         }
     }
     #endregion
@@ -927,6 +895,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
             return;
 
         transform.position = position;
+        ResetAccelerationState();
         currentSpeed = 0f;
     }
 
@@ -982,10 +951,6 @@ public class PlayerController : MonoBehaviourPunCallbacks
         _rb.constraints = RigidbodyConstraints2D.FreezeAll;
         _isWallSliding = false;
         animator.SetBool(IsWallSlidingAnimVar, false);
-
-        // Hide wall jump bar on death
-        if (wallJumpChargeBar != null)
-            wallJumpChargeBar.gameObject.SetActive(false);
 
         if (_cameraController)
             _cameraController.OnPlayerDeath();
