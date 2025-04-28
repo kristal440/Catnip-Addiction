@@ -136,6 +136,10 @@ public class PlayerController : MonoBehaviourPunCallbacks
     private float _newMaxSpeed;
     private float _newDeceleration;
 
+    /// Wall Jump tracking
+    private bool _isWallJumping;
+    private int _wallJumpDirection;
+
     /// Properties
     internal bool IsStanding { get; set; }
     internal bool IsGrounded { get; private set; }
@@ -205,8 +209,12 @@ public class PlayerController : MonoBehaviourPunCallbacks
     /// Handles physics-based calculations for wall sliding
     private void FixedUpdate()
     {
-        if (photonView.IsMine)
-            CheckWallSliding();
+        if (!photonView.IsMine) return;
+
+        CheckWallSliding();
+
+        if (_isWallSliding && _isBufferingJump)
+            CheckBufferedJumpLanding(false, false);
     }
     #endregion
 
@@ -515,6 +523,20 @@ public class PlayerController : MonoBehaviourPunCallbacks
                 _movementDisabledForJump = true;
                 animator.SetBool(IsJumpQueued, true);
             }
+            else if (_isWallSliding) // Only allow wall jumps during wall sliding
+            {
+                _isChargingJump = true;
+                _movementDisabledForJump = true;
+                animator.SetBool(IsJumpQueued, true);
+
+                var facingRight = transform.localScale.x > 0;
+                if ((facingRight && _isTouchingFrontWall) || (!facingRight && _isTouchingBackWall))
+                    _wallJumpDirection = facingRight ? -1 : 1;
+                else
+                    _wallJumpDirection = facingRight ? 1 : -1;
+
+                _isWallJumping = true;
+            }
             else
             {
                 _isBufferingJump = true;
@@ -531,8 +553,16 @@ public class PlayerController : MonoBehaviourPunCallbacks
         if (_isChargingJump)
         {
             var chargeTime = Min(Time.time - _jumpChargeStartTime, maxChargeTime);
-            ExecuteJump(chargeTime);
-            return;
+            if (_isWallJumping)
+            {
+                ExecuteWallJump(chargeTime);
+                return;
+            }
+            else if (IsGrounded || _isWallSliding)
+            {
+                ExecuteJump(chargeTime);
+                return;
+            }
         }
 
         if (!_isBufferingJump) return;
@@ -574,29 +604,67 @@ public class PlayerController : MonoBehaviourPunCallbacks
     /// Handles buffered jump execution when player lands after jump input
     private void CheckBufferedJumpLanding(bool wasGrounded, bool isGroundedNow)
     {
-        if (wasGrounded || !isGroundedNow || !_isBufferingJump) return;
-
-        _isBufferingJump = false;
-
-        switch (_jumpButtonHeld)
+        if (!wasGrounded && isGroundedNow && _isBufferingJump)
         {
-            case false when _executeBufferedJump:
-            {
-                var chargeToUse = _bufferedJumpMaxCharged ? maxChargeTime : _bufferedJumpChargeLevel;
+            _isBufferingJump = false;
 
-                animator.SetBool(IsJumpQueued, true);
-                ExecuteJump(chargeToUse);
-                _executeBufferedJump = false;
-                break;
+            switch (_jumpButtonHeld)
+            {
+                case false when _executeBufferedJump:
+                {
+                    var chargeToUse = _bufferedJumpMaxCharged ? maxChargeTime : _bufferedJumpChargeLevel;
+
+                    animator.SetBool(IsJumpQueued, true);
+                    ExecuteJump(chargeToUse);
+                    _executeBufferedJump = false;
+                    break;
+                }
+                case true:
+                    _isChargingJump = true;
+                    _movementDisabledForJump = true;
+                    animator.SetBool(IsJumpQueued, true);
+                    break;
+                default:
+                    jumpChargeBarGameObject.SetActive(false);
+                    break;
             }
-            case true:
-                _isChargingJump = true;
-                _movementDisabledForJump = true;
-                animator.SetBool(IsJumpQueued, true);
-                break;
-            default:
-                jumpChargeBarGameObject.SetActive(false);
-                break;
+            return;
+        }
+
+        // Only allow wall jumps when actively wall sliding
+        if (!_isWallSliding || !_isBufferingJump) return;
+
+        {
+            _isBufferingJump = false;
+
+            var facingRight = transform.localScale.x > 0;
+            if ((facingRight && _isTouchingFrontWall) || (!facingRight && _isTouchingBackWall))
+                _wallJumpDirection = facingRight ? -1 : 1;
+            else
+                _wallJumpDirection = facingRight ? 1 : -1;
+
+            _isWallJumping = true;
+
+            switch (_jumpButtonHeld)
+            {
+                case false when _executeBufferedJump:
+                {
+                    var chargeToUse = _bufferedJumpMaxCharged ? maxChargeTime : _bufferedJumpChargeLevel;
+
+                    animator.SetBool(IsJumpQueued, true);
+                    ExecuteWallJump(chargeToUse);
+                    _executeBufferedJump = false;
+                    break;
+                }
+                case true:
+                    _isChargingJump = true;
+                    _movementDisabledForJump = true;
+                    animator.SetBool(IsJumpQueued, true);
+                    break;
+                default:
+                    jumpChargeBarGameObject.SetActive(false);
+                    break;
+            }
         }
     }
 
@@ -638,12 +706,45 @@ public class PlayerController : MonoBehaviourPunCallbacks
         animator.SetBool(IsJumpQueued, false);
     }
 
+    /// Applies wall jump force based on charge time and resets jump-related states
+    private void ExecuteWallJump(float chargeTime)
+    {
+        _isChargingJump = false;
+        _movementDisabledForJump = false;
+        _isBufferingJump = false;
+        _isJumpQueued = false;
+        _isWallJumping = false;
+        _isWallSliding = false;
+        jumpChargeBarGameObject.SetActive(false);
+
+        var chargeProgress = Clamp01(chargeTime / maxChargeTime);
+        var jumpMultiplier = Lerp(minJumpForce, maxJumpForce, chargeProgress);
+
+        if (HasCatnip)
+            jumpMultiplier *= catnipJumpMultiplier;
+
+        _cameraController.TriggerJumpFOV();
+
+        ResetAccelerationState();
+
+        var horizontalJumpForce = maxSpeed * _wallJumpDirection;
+        _rb.linearVelocity = new Vector2(horizontalJumpForce, jumpMultiplier);
+        currentSpeed = horizontalJumpForce;
+
+        _lastJumpTime = Time.time;
+        animator.SetBool(IsJumpQueued, false);
+        animator.SetBool(IsWallSlidingAnimVar, false);
+
+        _wallCollisionHandled = false;
+    }
+
     /// Cancels jump charge and resets jump-related states
     private void CancelJumpCharge()
     {
         _isChargingJump = false;
         _movementDisabledForJump = false;
         _jumpButtonHeld = false;
+        _isWallJumping = false;
 
         if (!_isBufferingJump)
             jumpChargeBarGameObject.SetActive(false);
@@ -681,17 +782,21 @@ public class PlayerController : MonoBehaviourPunCallbacks
     private void UpdateAnimations()
     {
         var wasGrounded = IsGrounded;
+        var wasWallSliding = _isWallSliding;
         IsGrounded = Physics2D.OverlapCircle(groundCheck.position, groundCheckRadius, groundLayerMask) || IsDead;
 
         if (wasGrounded != IsGrounded)
             CheckBufferedJumpLanding(wasGrounded, IsGrounded);
+
+        if (wasWallSliding != _isWallSliding && _isWallSliding && _isBufferingJump)
+            CheckBufferedJumpLanding(false, false);
 
         if (wasGrounded && !IsGrounded && (_isChargingJump || _isJumpQueued))
         {
             var chargeTime = Min(Time.time - _jumpChargeStartTime, maxChargeTime);
             ExecuteJump(chargeTime);
         }
-        else if (!IsGrounded && (_isChargingJump || _isJumpQueued))
+        else if (!IsGrounded && !_isWallSliding && (_isChargingJump || _isJumpQueued))
         {
             CancelJumpCharge();
         }

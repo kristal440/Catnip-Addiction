@@ -1592,7 +1592,7 @@ MonoBehaviour:
   wallSlidePreventionLayers:
     serializedVersion: 2
     m_Bits: 272
-  wallSlideVerticalThreshold: -4
+  wallSlideVerticalThreshold: -1
   backWallBoost: 6
   playerNameTag: {fileID: 8640071455980941114}
   jumpChargeBarGameObject: {fileID: 4709443584379856986}
