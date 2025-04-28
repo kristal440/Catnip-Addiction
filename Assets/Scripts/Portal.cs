@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Linq;
+using Photon.Pun;
 using UnityEngine;
 using static UnityEngine.Mathf;
 
@@ -44,12 +45,18 @@ public class Portal : MonoBehaviour
     /// Detects player collision and starts teleportation
     private void OnTriggerEnter2D(Collider2D other)
     {
+        var photonView = other.GetComponent<PhotonView>();
+        if (photonView == null) return;
+
         var playerController = other.GetComponent<PlayerController>();
-        if (playerController != null && playerController.photonView.IsMine)
-            StartCoroutine(TeleportSequence(playerController));
+        if (playerController == null) return;
+
+        StartCoroutine(playerController.photonView.IsMine
+            ? TeleportSequence(playerController)
+            : RemotePlayerTeleportSequence(playerController));
     }
 
-    /// Handles the teleportation sequence
+    /// Handles the teleportation sequence for the local player
     private IEnumerator TeleportSequence(PlayerController player)
     {
         player.SetMovement(false);
@@ -120,11 +127,51 @@ public class Portal : MonoBehaviour
         playerRb.linearVelocity = newVelocity;
     }
 
+    /// Handles the teleportation sequence for remote players
+    private IEnumerator RemotePlayerTeleportSequence(Component player)
+    {
+        var startPosition = player.transform.position;
+        var distance = Vector3.Distance(startPosition, destinationPosition);
+        var teleportDuration = Max(0.1f, distance / teleportSpeed);
+
+        SetRemotePlayerVisibility(player, false);
+
+        if (useParticleEffects)
+        {
+            var vfxObj = new GameObject("RemoteTeleportVFX");
+            var vfx = vfxObj.AddComponent<TeleportParticles>();
+            vfx.AnimateTeleport(startPosition, destinationPosition, teleportDuration, movementCurve);
+        }
+
+        yield return new WaitForSeconds(teleportDuration + postTeleportDelay);
+
+        SetRemotePlayerVisibility(player, true);
+    }
+
     /// Toggles player visibility and manages canvas exclusions
     private void SetPlayerVisibility(Component player, bool isVisible)
     {
         var renderers = player.GetComponentsInChildren<Renderer>();
         foreach (var renderer1 in renderers.Where(static renderer1 => !renderer1.GetComponentInParent<MeowController>()))
+            renderer1.enabled = isVisible;
+
+        var canvases = player.GetComponentsInChildren<Canvas>();
+        foreach (var canvas in canvases)
+        {
+            var shouldExclude = false;
+            if (canvasExclusions.Length > 0)
+                shouldExclude = useCanvasNames ? Array.Exists(canvasExclusions, exclusion => canvas.name == exclusion) : Array.Exists(canvasExclusions, exclusion => canvas.CompareTag(exclusion));
+
+            if (!shouldExclude)
+                canvas.enabled = isVisible;
+        }
+    }
+
+    /// Toggles remote player visibility while keeping particles visible
+    private void SetRemotePlayerVisibility(Component player, bool isVisible)
+    {
+        var renderers = player.GetComponentsInChildren<Renderer>();
+        foreach (var renderer1 in renderers.Where(static renderer => !renderer.GetComponentInParent<ParticleSystem>()).Where(static renderer => !renderer.GetComponentInParent<MeowController>()))
             renderer1.enabled = isVisible;
 
         var canvases = player.GetComponentsInChildren<Canvas>();
