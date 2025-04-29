@@ -1036,6 +1036,19 @@ public class PlayerController : MonoBehaviourPunCallbacks
             _cameraController.OnPlayerRespawn();
     }
 
+    /// Teleports player to specified position without resetting camera
+    internal void TeleportWithoutCameraReset(Vector3 position)
+    {
+        if (!photonView.IsMine)
+            return;
+
+        transform.position = position;
+        spriteTransform.rotation = Quaternion.identity;
+        spriteTransform.localPosition = _originalSpritePosition;
+        ResetAccelerationState();
+        currentSpeed = 0f;
+    }
+
     /// Enables or disables player movement
     internal void SetMovement(bool isEnabled)
     {

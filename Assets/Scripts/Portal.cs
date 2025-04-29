@@ -78,7 +78,13 @@ public class Portal : MonoBehaviour
 
         yield return new WaitForSeconds(postTeleportDelay);
 
-        player.Teleport(destinationPosition);
+        var cameraController = player.GetComponentInChildren<DynamicCameraController>();
+
+        player.TeleportWithoutCameraReset(destinationPosition);
+
+        if (cameraController != null)
+            StartCoroutine(cameraController.HandleTeleportTransition(destinationPosition));
+
         player.SetMovement(true);
         player.EnableRigidbody();
         SetPlayerVisibility(player, true);

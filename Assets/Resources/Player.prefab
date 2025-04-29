@@ -1572,7 +1572,7 @@ MonoBehaviour:
   maxSpeed: 8
   turboSpeed: 8.2
   timeToTurboSpeed: 1.5
-  maxSpeedThreshold: 0.98
+  maxSpeedThreshold: 0.92
   currentSpeed: 0
   verticalSpeed: 0
   groundCheck: {fileID: 1442861436919526986}

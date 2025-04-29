@@ -19,7 +19,7 @@ public class DynamicCameraController : MonoBehaviour
     [SerializeField] [Range(0.01f, 1f)] [Tooltip("Smoothing time for horizontal position changes")] public float positionSmoothTime = 0.6f;
     [SerializeField] [Tooltip("Maximum vertical offset based on vertical speed")] public float maxVerticalOffset = 0.27f;
     [SerializeField] [Range(0.01f, 1f)] [Tooltip("Smoothing time for vertical position changes")] public float verticalSmoothTime = 0.3f;
-    [SerializeField] [Tooltip("Default camera position relative to player")] public Vector2 defaultCameraOffset = new Vector2(0f, 0f);
+    [SerializeField] [Tooltip("Default camera position relative to player")] public Vector2 defaultCameraOffset = new(0f, 0f);
 
     [Header("Player Search")]
     [SerializeField] [Tooltip("How long to search for player controller before disabling")] public float playerSearchTimeout = 5f;
@@ -36,9 +36,14 @@ public class DynamicCameraController : MonoBehaviour
     [Header("Water Effects")]
     [SerializeField] [Range(-1f, 2f)] [Tooltip("FOV multiplier when underwater")] public float waterZoomMultiplier = 0.8f;
 
+    [Header("Teleport Settings")]
+    [SerializeField] [Range(0.1f, 2f)] [Tooltip("Duration of camera transition after teleportation")] public float teleportTransitionDuration = 0.5f;
+    [SerializeField] [Tooltip("Animation curve for teleport camera movement")] private AnimationCurve teleportCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
+
     private float _defaultFOVBackup;
     private bool _isInJumpTransition;
     private bool _isInDeathZoom;
+    private bool _isInTeleportTransition;
     private float _jumpTransitionTimer;
     private const float JumpTransitionDuration = 0.2f;
 
@@ -117,7 +122,7 @@ public class DynamicCameraController : MonoBehaviour
     /// Updates camera effects based on player movement
     private void FixedUpdate()
     {
-        if (!_playerController) return;
+        if (!_playerController || _isInTeleportTransition) return;
 
         if (Time.deltaTime > 0)
         {
@@ -212,7 +217,9 @@ public class DynamicCameraController : MonoBehaviour
     internal void OnPlayerRespawn()
     {
         _isInDeathZoom = false;
-        CenterCameraOnPlayer();
+
+        if (!_isInTeleportTransition)
+            CenterCameraOnPlayer();
     }
 
     /// Applies underwater FOV effect
@@ -225,5 +232,48 @@ public class DynamicCameraController : MonoBehaviour
     internal void ExitWater()
     {
         defaultFOV = _defaultFOVBackup;
+    }
+
+    /// Handles smooth camera transition after player teleportation
+    internal IEnumerator HandleTeleportTransition(Vector3 destination, float duration = -1f)
+    {
+        if (!_playerController) yield break;
+
+        var transitionDuration = duration > 0 ? duration : teleportTransitionDuration;
+
+        _isInTeleportTransition = true;
+
+        var position = transform.position;
+        var targetCameraPosition = new Vector3(
+            destination.x + _defaultPosition.x,
+            destination.y + _defaultPosition.y,
+            position.z);
+
+        var elapsedTime = 0f;
+
+        while (elapsedTime < transitionDuration)
+        {
+            if (!_playerController)
+            {
+                _isInTeleportTransition = false;
+                yield break;
+            }
+
+            var t = elapsedTime / transitionDuration;
+            var smoothT = teleportCurve.Evaluate(t);
+            transform.position = Vector3.Lerp(position, targetCameraPosition, smoothT);
+
+            elapsedTime += Time.deltaTime;
+            yield return null;
+        }
+
+        transform.position = targetCameraPosition;
+
+        _currentHorizontalVelocity = 0f;
+        _currentVerticalVelocity = 0f;
+
+        _isInTeleportTransition = false;
+
+        _lastPlayerPosition = _playerController.transform.position;
     }
 }
