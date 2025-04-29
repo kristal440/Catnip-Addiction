@@ -32,6 +32,12 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/GameScene_Map5_Multi.unity
     guid: 08fa958c20b52dd0b928a29aa9440e77
+  - enabled: 1
+    path: Assets/Scenes/GameScene_Map6_Multi.unity
+    guid: 401ef87fdb6986446be1354058abda03
+  - enabled: 1
+    path: Assets/Scenes/GameScene_Map7_Multi.unity
+    guid: f51fa44e04a7c8b45a45e4db24ca9a57
   m_configObjects:
     com.unity.adaptiveperformance.google.android.provider_settings: {fileID: 11400000, guid: 2295be1619b539454a8203faab5facd4, type: 2}
     com.unity.adaptiveperformance.loader_settings: {fileID: 11400000, guid: 9a04af1606727f8b9b5a36bbf8d38902, type: 2}

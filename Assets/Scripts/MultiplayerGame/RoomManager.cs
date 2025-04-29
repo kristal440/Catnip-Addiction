@@ -12,7 +12,6 @@ using UnityEngine;
 public class RoomManager : MonoBehaviourPunCallbacks
 {
     [SerializeField] [Tooltip("Prefab to instantiate for each player joining the game")] public GameObject playerPrefab;
-    [SerializeField] [Tooltip("Positions where players can spawn in the game")] public Transform[] spawnPoints;
 
     [Header("Player List")]
     [SerializeField] [Tooltip("Container for player list UI elements")] public Transform playerListContainer;
@@ -64,11 +63,8 @@ public class RoomManager : MonoBehaviourPunCallbacks
     {
         if (playerPrefab && PhotonNetwork.IsConnected)
         {
-            var spawnIndex = PhotonNetwork.LocalPlayer.ActorNumber % spawnPoints.Length;
-            var spawn = spawnPoints.Length > 0 ? spawnPoints[spawnIndex] : null;
-
-            var spawnPosition = spawn ? spawn.position : Vector3.zero;
-            var spawnRotation = spawn ? spawn.rotation : Quaternion.identity;
+            var spawnPosition = Vector3.zero;
+            var spawnRotation = Quaternion.identity;
 
             PhotonNetwork.Instantiate(playerPrefab.name, spawnPosition, spawnRotation);
         }

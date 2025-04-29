@@ -19,6 +19,7 @@ public class DynamicCameraController : MonoBehaviour
     [SerializeField] [Range(0.01f, 1f)] [Tooltip("Smoothing time for horizontal position changes")] public float positionSmoothTime = 0.6f;
     [SerializeField] [Tooltip("Maximum vertical offset based on vertical speed")] public float maxVerticalOffset = 0.27f;
     [SerializeField] [Range(0.01f, 1f)] [Tooltip("Smoothing time for vertical position changes")] public float verticalSmoothTime = 0.3f;
+    [SerializeField] [Tooltip("Default camera position relative to player")] public Vector2 defaultCameraOffset = new Vector2(0f, 0f);
 
     [Header("Player Search")]
     [SerializeField] [Tooltip("How long to search for player controller before disabling")] public float playerSearchTimeout = 5f;
@@ -94,9 +95,23 @@ public class DynamicCameraController : MonoBehaviour
         else
             _camera.fieldOfView = defaultFOV;
 
-        var localPosition = transform.localPosition;
-        _defaultPosition = new Vector2(localPosition.x, localPosition.y);
+        _defaultPosition = defaultCameraOffset;
+
+        // Center camera on player with the configured offset
+        CenterCameraOnPlayer();
+
         _lastPlayerPosition = _playerController.transform.position;
+    }
+
+    /// Centers the camera on the player using the default offset
+    private void CenterCameraOnPlayer()
+    {
+        if (!_playerController) return;
+
+        var transform1 = transform;
+        transform1.localPosition = new Vector3(_defaultPosition.x, _defaultPosition.y, transform1.localPosition.z);
+        _currentHorizontalVelocity = 0;
+        _currentVerticalVelocity = 0;
     }
 
     /// Updates camera effects based on player movement
@@ -169,7 +184,13 @@ public class DynamicCameraController : MonoBehaviour
     /// Updates camera position based on player movement
     private void UpdateCameraPosition(float normalizedSpeed)
     {
-        var targetX = _defaultPosition.x + (normalizedSpeed * maxHorizontalOffset);
+        var targetX = _defaultPosition.x;
+        if (!Approximately(normalizedSpeed, 0))
+        {
+            var direction = Sign(_playerController.currentSpeed);
+            targetX += direction * normalizedSpeed * maxHorizontalOffset;
+        }
+
         var localPosition = transform.localPosition;
         var newX = SmoothDamp(localPosition.x, targetX, ref _currentHorizontalVelocity, positionSmoothTime);
 
@@ -191,6 +212,7 @@ public class DynamicCameraController : MonoBehaviour
     internal void OnPlayerRespawn()
     {
         _isInDeathZoom = false;
+        CenterCameraOnPlayer();
     }
 
     /// Applies underwater FOV effect

@@ -119,11 +119,6 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
---- !u!224 &1433908 stripped
-RectTransform:
-  m_CorrespondingSourceObject: {fileID: 3951173809159813694, guid: 156aa367c27c7a26ba64e71f0ae1b2cc, type: 3}
-  m_PrefabInstance: {fileID: 1479981656}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &134473886
 GameObject:
   m_ObjectHideFlags: 0
@@ -1003,11 +998,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!224 &1299774289 stripped
-RectTransform:
-  m_CorrespondingSourceObject: {fileID: 7838709526519794932, guid: 156aa367c27c7a26ba64e71f0ae1b2cc, type: 3}
-  m_PrefabInstance: {fileID: 1479981656}
-  m_PrefabAsset: {fileID: 0}
 --- !u!4 &1314201357 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 1040442392473280530, guid: f50470713d3dba5ea89ea5748f102ab7, type: 3}
@@ -4473,69 +4463,9 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 145821301250412423, guid: 156aa367c27c7a26ba64e71f0ae1b2cc, type: 3}
-      propertyPath: wallCheck
-      value: 
-      objectReference: {fileID: 1433908}
-    - target: {fileID: 145821301250412423, guid: 156aa367c27c7a26ba64e71f0ae1b2cc, type: 3}
-      propertyPath: playerSprite
-      value: 
-      objectReference: {fileID: 1479981657}
-    - target: {fileID: 145821301250412423, guid: 156aa367c27c7a26ba64e71f0ae1b2cc, type: 3}
-      propertyPath: backWallCheck
-      value: 
-      objectReference: {fileID: 1299774289}
-    - target: {fileID: 145821301250412423, guid: 156aa367c27c7a26ba64e71f0ae1b2cc, type: 3}
-      propertyPath: frontWallCheck
-      value: 
-      objectReference: {fileID: 1433908}
-    - target: {fileID: 145821301250412423, guid: 156aa367c27c7a26ba64e71f0ae1b2cc, type: 3}
-      propertyPath: wallDetachForce
-      value: 10
-      objectReference: {fileID: 0}
-    - target: {fileID: 145821301250412423, guid: 156aa367c27c7a26ba64e71f0ae1b2cc, type: 3}
-      propertyPath: backWallSlideXOffset
-      value: 0.1
-      objectReference: {fileID: 0}
-    - target: {fileID: 145821301250412423, guid: 156aa367c27c7a26ba64e71f0ae1b2cc, type: 3}
-      propertyPath: frontWallSlideXOffset
-      value: 0.1
-      objectReference: {fileID: 0}
-    - target: {fileID: 145821301250412423, guid: 156aa367c27c7a26ba64e71f0ae1b2cc, type: 3}
-      propertyPath: wallJumpChargeYOffset
+    - target: {fileID: 1652324734472532652, guid: 156aa367c27c7a26ba64e71f0ae1b2cc, type: 3}
+      propertyPath: m_Enabled
       value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 145821301250412423, guid: 156aa367c27c7a26ba64e71f0ae1b2cc, type: 3}
-      propertyPath: wallDetachInputThreshold
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 145821301250412423, guid: 156aa367c27c7a26ba64e71f0ae1b2cc, type: 3}
-      propertyPath: backWallJumpChargeXOffset
-      value: 0.1
-      objectReference: {fileID: 0}
-    - target: {fileID: 145821301250412423, guid: 156aa367c27c7a26ba64e71f0ae1b2cc, type: 3}
-      propertyPath: flipSpriteOnBackWallSlide
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 145821301250412423, guid: 156aa367c27c7a26ba64e71f0ae1b2cc, type: 3}
-      propertyPath: backWallSlideRotationAngle
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 145821301250412423, guid: 156aa367c27c7a26ba64e71f0ae1b2cc, type: 3}
-      propertyPath: frontWallJumpChargeXOffset
-      value: 0.1
-      objectReference: {fileID: 0}
-    - target: {fileID: 145821301250412423, guid: 156aa367c27c7a26ba64e71f0ae1b2cc, type: 3}
-      propertyPath: frontWallSlideRotationAngle
-      value: 90
-      objectReference: {fileID: 0}
-    - target: {fileID: 145821301250412423, guid: 156aa367c27c7a26ba64e71f0ae1b2cc, type: 3}
-      propertyPath: backWallJumpChargeRotationAngle
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 145821301250412423, guid: 156aa367c27c7a26ba64e71f0ae1b2cc, type: 3}
-      propertyPath: frontWallJumpChargeRotationAngle
-      value: 90
       objectReference: {fileID: 0}
     - target: {fileID: 2119001226482647906, guid: 156aa367c27c7a26ba64e71f0ae1b2cc, type: 3}
       propertyPath: m_Enabled
@@ -4633,13 +4563,17 @@ PrefabInstance:
       propertyPath: m_Name
       value: Player
       objectReference: {fileID: 0}
+    - target: {fileID: 7500190062043700184, guid: 156aa367c27c7a26ba64e71f0ae1b2cc, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 7617576481928218717, guid: 156aa367c27c7a26ba64e71f0ae1b2cc, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -0.64
+      value: 21.1
       objectReference: {fileID: 0}
     - target: {fileID: 7617576481928218717, guid: 156aa367c27c7a26ba64e71f0ae1b2cc, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -0.78
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7617576481928218717, guid: 156aa367c27c7a26ba64e71f0ae1b2cc, type: 3}
       propertyPath: m_LocalPosition.z

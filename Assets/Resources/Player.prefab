@@ -685,7 +685,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7838709526519794932}
   m_Layer: 6
-  m_Name: BackWallCheck
+  m_Name: LeftWallCheck
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -707,8 +707,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -0.085, y: 0.0117}
-  m_SizeDelta: {x: 0.01237, y: 0.03463}
+  m_AnchoredPosition: {x: -0.09, y: 0}
+  m_SizeDelta: {x: 0.012, y: 0.035}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &4709443584379856986
 GameObject:
@@ -973,7 +973,7 @@ Transform:
   m_GameObject: {fileID: 5740860746093048113}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.01552457, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1087,8 +1087,8 @@ MonoBehaviour:
     SynchronizeType: 1
     Name: IsJumpQueued
   - Type: 4
-    SynchronizeType: 0
-    Name: IsWallSlidingAnimVar
+    SynchronizeType: 1
+    Name: IsWallSliding
   m_SynchronizeLayers:
   - SynchronizeType: 0
     LayerIndex: 0
@@ -1128,7 +1128,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3951173809159813694}
   m_Layer: 6
-  m_Name: FrontWallCheck
+  m_Name: RightWallCheck
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1150,8 +1150,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0.085, y: 0.0117}
-  m_SizeDelta: {x: 0.01237, y: 0.03463}
+  m_AnchoredPosition: {x: 0.09, y: 0}
+  m_SizeDelta: {x: 0.012, y: 0.035}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &6574133941179210712
 GameObject:
@@ -1334,6 +1334,8 @@ GameObject:
   - component: {fileID: 5206486501185713570}
   - component: {fileID: 447548775382103744}
   - component: {fileID: 1910770581723117347}
+  - component: {fileID: 8280965830413822723}
+  - component: {fileID: 944254678035849024}
   m_Layer: 6
   m_Name: Player
   m_TagString: Player
@@ -1427,8 +1429,8 @@ CapsuleCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0.001187683, y: 0.0061766007}
-  m_Size: {x: 0.10663056, y: 0.07194645}
+  m_Offset: {x: 0, y: 0}
+  m_Size: {x: 0.12, y: 0.07194645}
   m_Direction: 1
 --- !u!114 &2047991344694964309
 MonoBehaviour:
@@ -1530,6 +1532,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   animator: {fileID: 5390650277062847292}
+  playerSprite: {fileID: 6563650613660426911}
   accelerationCurve:
     serializedVersion: 2
     m_Curve:
@@ -1569,7 +1572,6 @@ MonoBehaviour:
   maxSpeed: 8
   turboSpeed: 8.2
   timeToTurboSpeed: 1.5
-  movementDeadzone: 0.01
   maxSpeedThreshold: 0.98
   currentSpeed: 0
   verticalSpeed: 0
@@ -1578,27 +1580,30 @@ MonoBehaviour:
   groundLayerMask:
     serializedVersion: 2
     m_Bits: 8
-  frontWallCheck: {fileID: 3951173809159813694}
-  backWallCheck: {fileID: 7838709526519794932}
-  wallCheckRadius: 0.19
+  leftWallCheck: {fileID: 7838709526519794932}
+  rightWallCheck: {fileID: 3951173809159813694}
+  wallCheckRadius: 0.2
   wallLayerMask:
     serializedVersion: 2
     m_Bits: 8
-  wallSlideRotationObject: {fileID: 5740860746093048113}
-  wallSlideRotationAngle: 90
-  wallSlideGravityMultiplier: 0.2
-  wallSlideXOffset: 0.07
-  wallSlideTransitionSpeed: 8
-  wallSlidePreventionLayers:
-    serializedVersion: 2
-    m_Bits: 272
-  wallSlideVerticalThreshold: -4
-  requiredWallSlideTime: 0.1
-  backWallBoost: 6
+  wallRaycastDistance: 0.2
+  wallSlideSpeed: 2.5
+  wallStickForce: 1.52
+  spriteTransform: {fileID: 6004654633719211774}
+  wallSlideOffset: 0.04
+  minWallJumpForce: 8
+  maxWallJumpForce: 14.5
+  maxWallChargeTime: 0.75
+  wallDetachForce: 7
+  wallGroundPushForce: 11
+  minWallContactTime: 0.05
+  wallBounceWindow: 0.05
+  wallBounceForce: 1
+  wallBounceVerticalMultiplier: 1
+  preserveMomentumOnBounce: 1
+  momentumPreservation: 0.25
   playerNameTag: {fileID: 8640071455980941114}
-  jumpChargeBarGameObject: {fileID: 4709443584379856986}
-  jumpChargeBar: {fileID: 1315758324830475671}
-  minJumpForce: 8.5
+  minJumpForce: 9
   maxJumpForce: 14.2
   maxChargeTime: 1.1
   jumpCooldown: 0.08
@@ -1607,12 +1612,11 @@ MonoBehaviour:
   remotePlayerSpriteOrder: 6
   remotePlayerCanvasOrder: 7
   remotePlayerAlpha: 0.7
-  cameraOffset: {x: 0, y: 0, z: -10}
-  idleToLayingTime: 3
+  idleToLayingTime: 4
   catnipSpeedMultiplier: 1.1
   catnipJumpMultiplier: 1.1
   catnipDecelerationMultiplier: 0.95
-  defaultGravityScale: 1
+  defaultGravityScale: 2.5
 --- !u!114 &4098701528552782764
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1736,6 +1740,40 @@ MonoBehaviour:
   poorPingThreshold: 200
   debugMode: 0
   simulatedPing: 50
+--- !u!114 &8280965830413822723
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6966233725223629069}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2c46ba6552d74588bf2b19652eac1973, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  spriteRenderers:
+  - {fileID: 6563650613660426911}
+  transformsToFlip:
+  - {fileID: 8397132607258168604}
+  positionFlipTransforms:
+  - {fileID: 8397132607258168604}
+  isFacingRight: 1
+--- !u!114 &944254678035849024
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6966233725223629069}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 30e77f2721b14274b49ad0671a8bba9b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  jumpChargeBarGameObject: {fileID: 4709443584379856986}
+  jumpChargeBar: {fileID: 1315758324830475671}
+  transitionSpeed: 8
 --- !u!1 &7770859034571384311
 GameObject:
   m_ObjectHideFlags: 0

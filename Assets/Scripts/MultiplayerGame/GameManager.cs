@@ -31,7 +31,6 @@ public class GameManager : MonoBehaviourPunCallbacks
     [Header("Game Settings")]
     [SerializeField] [Tooltip("Duration of the pre-game countdown")] public float countdownDuration = 5f;
     [SerializeField] [Tooltip("Delay before loading the leaderboard scene")] public float leaderboardLoadDelay = 1.5f;
-    [SerializeField] [Tooltip("Spawn position for players")] public Transform spawnPoint;
 
     [Header("UI Elements")]
     [SerializeField] [Tooltip("UI element showing the countdown")] public GameObject countdownUI;
@@ -309,15 +308,12 @@ public class GameManager : MonoBehaviourPunCallbacks
         var gameProps = new Hashtable { { "gameStarted", true } };
         PhotonNetwork.CurrentRoom.SetCustomProperties(gameProps);
 
-        if (spawnPoint != null)
-            CheckpointManager.LastCheckpointPosition = spawnPoint.position;
+        CheckpointManager.LastCheckpointPosition = Vector3.zero;
 
         var players = FindObjectsByType<PlayerController>(FindObjectsSortMode.None);
         foreach (var p in players.Where(static p => p != null && p.photonView != null && p.photonView.Owner != null))
         {
-            if (spawnPoint != null)
-                p.Teleport(spawnPoint.position);
-
+            p.Teleport(Vector3.zero);
             p.SetMovement(true);
         }
 

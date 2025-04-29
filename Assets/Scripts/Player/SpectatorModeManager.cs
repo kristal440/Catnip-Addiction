@@ -5,6 +5,7 @@ using Photon.Pun;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using Hashtable = ExitGames.Client.Photon.Hashtable;
 
 /// <inheritdoc />
 /// <summary>
@@ -30,6 +31,8 @@ public class SpectatorModeManager : MonoBehaviourPunCallbacks
     private PlayerController _localPlayer;
     private Camera _mainCamera;
     private Coroutine _spectatorCoroutine;
+    private int _currentlySpectatedPlayerViewId = -1;
+    private readonly Dictionary<int, PlayerController> _playerControllerCache = new();
 
     /// Initialize singleton and UI elements
     private void Awake()
@@ -52,6 +55,7 @@ public class SpectatorModeManager : MonoBehaviourPunCallbacks
     private void Start()
     {
         FindLocalPlayer();
+        RefreshPlayerList();
     }
 
     /// Locate the player that belongs to this client
@@ -103,6 +107,9 @@ public class SpectatorModeManager : MonoBehaviourPunCallbacks
 
         spectatorModeUI.SetActive(true);
 
+        // Set custom properties to track spectator state
+        SetSpectatorPropertiesInPhoton(true, -1);
+
         SpectatorNextPlayer();
     }
 
@@ -110,6 +117,13 @@ public class SpectatorModeManager : MonoBehaviourPunCallbacks
     private void ExitSpectatorMode()
     {
         if (_localPlayer == null) return;
+
+        // Notify the currently spectated player that they're no longer being spectated
+        NotifyPlayerBeingSpectated(_currentlySpectatedPlayerViewId, false);
+        _currentlySpectatedPlayerViewId = -1;
+
+        // Clear spectator properties
+        SetSpectatorPropertiesInPhoton(false, -1);
 
         spectatorModeUI.SetActive(false);
         _localPlayer.SetSpectatorMode(false);
@@ -129,17 +143,24 @@ public class SpectatorModeManager : MonoBehaviourPunCallbacks
     private void RefreshPlayerList()
     {
         _activePlayers.Clear();
+        _playerControllerCache.Clear();
 
         var allPlayers = FindObjectsByType<PlayerController>(FindObjectsSortMode.None);
 
         foreach (var player in allPlayers)
+        {
             _activePlayers.Add(player);
+            _playerControllerCache[player.photonView.ViewID] = player;
+        }
     }
 
     /// Switches to the next player in the list for spectating
     private void SpectatorNextPlayer()
     {
         if (_activePlayers.Count <= 1) return;
+
+        // Notify the previously spectated player
+        NotifyPlayerBeingSpectated(_currentlySpectatedPlayerViewId, false);
 
         _currentPlayerIndex = (_currentPlayerIndex + 1) % _activePlayers.Count;
 
@@ -153,6 +174,9 @@ public class SpectatorModeManager : MonoBehaviourPunCallbacks
     private void SpectatorPreviousPlayer()
     {
         if (_activePlayers.Count <= 1) return;
+
+        // Notify the previously spectated player
+        NotifyPlayerBeingSpectated(_currentlySpectatedPlayerViewId, false);
 
         _currentPlayerIndex = (_currentPlayerIndex - 1 + _activePlayers.Count) % _activePlayers.Count;
 
@@ -169,11 +193,110 @@ public class SpectatorModeManager : MonoBehaviourPunCallbacks
         if (!_mainCamera) return;
 
         var targetPlayer = _activePlayers[playerIndex];
+        _currentlySpectatedPlayerViewId = targetPlayer.photonView.ViewID;
+
+        // Update custom properties to indicate who we're spectating
+        SetSpectatorPropertiesInPhoton(true, _currentlySpectatedPlayerViewId);
+
+        // Notify the player that they're being spectated
+        NotifyPlayerBeingSpectated(_currentlySpectatedPlayerViewId, true);
 
         spectatingPlayerText.text = $"Spectating: {targetPlayer.photonView.Owner.NickName}";
 
         Transform transform1;
         (transform1 = _mainCamera.transform).SetParent(targetPlayer.transform);
         transform1.localPosition = new Vector3(0, 0, -10);
+    }
+
+    /// Sets custom properties to track spectator state
+    private static void SetSpectatorPropertiesInPhoton(bool isSpectating, int spectatedPlayerId)
+    {
+        var props = new Hashtable
+        {
+            { "IsSpectating", isSpectating },
+            { "SpectatingPlayer", spectatedPlayerId }
+        };
+
+        PhotonNetwork.LocalPlayer.SetCustomProperties(props);
+    }
+
+    /// Notifies a player that they are being spectated or not
+    private void NotifyPlayerBeingSpectated(int playerViewId, bool isBeingSpectated)
+    {
+        if (playerViewId == -1) return;
+
+        // Make sure our cache is up to date
+        if (!_playerControllerCache.ContainsKey(playerViewId))
+        {
+            RefreshPlayerList();
+            if (!_playerControllerCache.ContainsKey(playerViewId)) return;
+        }
+
+        var controller = _playerControllerCache[playerViewId];
+
+        // Set spectated state
+        controller.SetSpectatedState(isBeingSpectated);
+
+        // If starting to spectate, request initial jump charge state
+        if (isBeingSpectated)
+            controller.OnStartSpectating();
+    }
+
+    /// Returns the currently spectated player's view ID
+    internal int GetCurrentlySpectatedPlayerViewId()
+    {
+        return _currentlySpectatedPlayerViewId;
+    }
+
+    /// Checks if a specific player is being spectated by anyone
+    internal static bool IsPlayerBeingSpectated(int playerViewId)
+    {
+        // Check if any player in the room is spectating this player
+        foreach (var player in PhotonNetwork.PlayerList)
+        {
+            if (!player.CustomProperties.TryGetValue("IsSpectating", out var isSpectating) ||
+                !(bool)isSpectating) continue;
+
+            if (player.CustomProperties.TryGetValue("SpectatingPlayer", out var spectatedPlayerId) &&
+                (int)spectatedPlayerId == playerViewId)
+                return true;
+        }
+
+        return false;
+    }
+
+    /// Provides access to the singleton instance
+    internal static SpectatorModeManager GetInstance()
+    {
+        return Instance;
+    }
+
+    /// <inheritdoc />
+    /// Called when player properties are updated
+    public override void OnPlayerPropertiesUpdate(Photon.Realtime.Player targetPlayer, Hashtable changedProps)
+    {
+        base.OnPlayerPropertiesUpdate(targetPlayer, changedProps);
+
+        // If a player's spectator properties change, refresh our player list
+        if (changedProps.ContainsKey("IsSpectating") || changedProps.ContainsKey("SpectatingPlayer"))
+            RefreshPlayerList();
+    }
+
+    /// <inheritdoc />
+    /// Called when a player leaves the room
+    public override void OnPlayerLeftRoom(Photon.Realtime.Player otherPlayer)
+    {
+        base.OnPlayerLeftRoom(otherPlayer);
+
+        // Refresh our player list
+        RefreshPlayerList();
+
+        // If we were spectating this player, find a new one
+        if (_currentlySpectatedPlayerViewId == -1) return;
+
+        var foundPlayer = _playerControllerCache.Values.Any(controller => controller.photonView.ViewID == _currentlySpectatedPlayerViewId);
+
+        if (!foundPlayer && IsSpectating)
+            SpectatorNextPlayer();
     }
 }
