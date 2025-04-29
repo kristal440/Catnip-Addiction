@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using Photon.Pun;
 using UnityEngine;
@@ -11,6 +12,9 @@ using static UnityEngine.Mathf;
 /// </summary>
 public class Portal : MonoBehaviour
 {
+    // Tracking of active teleportations
+    private readonly List<(PlayerController player, Coroutine routine, GameObject vfx)> _activeTeleportations = new();
+
     [Header("Teleport Settings")]
     [SerializeField] [Tooltip("Target position for teleportation")] private Vector3 destinationPosition;
     [SerializeField] [Tooltip("Speed of teleportation")] private float teleportSpeed = 5f;
@@ -36,9 +40,18 @@ public class Portal : MonoBehaviour
         var playerController = other.GetComponent<PlayerController>();
         if (playerController == null) return;
 
-        StartCoroutine(playerController.photonView.IsMine
+        // Cancel any active teleportation for this player on this portal
+        CancelPlayerTeleportation(playerController);
+
+        var routine = StartCoroutine(playerController.photonView.IsMine
             ? TeleportSequence(playerController)
             : RemotePlayerTeleportSequence(playerController));
+
+        // Don't track teleportation if it's a remote player
+        if (!playerController.photonView.IsMine) return;
+
+        // Add to active teleportations
+        _activeTeleportations.Add((playerController, routine, null));
     }
 
     /// Handles the teleportation sequence for the local player
@@ -57,11 +70,23 @@ public class Portal : MonoBehaviour
 
         SetPlayerVisibility(player, false);
 
+        GameObject vfxObj = null;
         if (useParticleEffects)
         {
-            var vfxObj = new GameObject("TeleportVFX");
+            vfxObj = new GameObject("TeleportVFX");
             var vfx = vfxObj.AddComponent<TeleportParticles>();
             vfx.AnimateTeleport(startPosition, destinationPosition, teleportDuration, movementCurve);
+
+            // Update the VFX reference in the active teleportations list
+            for (int i = 0; i < _activeTeleportations.Count; i++)
+            {
+                var (tPlayer, tRoutine, _) = _activeTeleportations[i];
+                if (tPlayer == player)
+                {
+                    _activeTeleportations[i] = (tPlayer, tRoutine, vfxObj);
+                    break;
+                }
+            }
         }
 
         var elapsedTime = 0f;
@@ -88,6 +113,9 @@ public class Portal : MonoBehaviour
         player.SetMovement(true);
         player.EnableRigidbody();
         SetPlayerVisibility(player, true);
+
+        // Remove from active teleportations
+        RemovePlayerFromActiveTeleportations(player);
     }
 
     /// Handles the teleportation sequence for remote players
@@ -99,9 +127,10 @@ public class Portal : MonoBehaviour
 
         SetRemotePlayerVisibility(player, false);
 
+        GameObject vfxObj = null;
         if (useParticleEffects)
         {
-            var vfxObj = new GameObject("RemoteTeleportVFX");
+            vfxObj = new GameObject("RemoteTeleportVFX");
             var vfx = vfxObj.AddComponent<TeleportParticles>();
             vfx.AnimateTeleport(startPosition, destinationPosition, teleportDuration, movementCurve);
         }
@@ -109,6 +138,10 @@ public class Portal : MonoBehaviour
         yield return new WaitForSeconds(teleportDuration + postTeleportDelay);
 
         SetRemotePlayerVisibility(player, true);
+
+        // Clean up VFX if not already destroyed
+        if (vfxObj != null && vfxObj.activeSelf)
+            Destroy(vfxObj);
     }
 
     /// Toggles player visibility and manages canvas exclusions
@@ -159,5 +192,67 @@ public class Portal : MonoBehaviour
 
         Gizmos.color = Color.blue;
         Gizmos.DrawWireSphere(destinationPosition, 1f);
+    }
+
+    /// Cancels teleportation for a specific player
+    private void CancelPlayerTeleportation(PlayerController player)
+    {
+        for (int i = _activeTeleportations.Count - 1; i >= 0; i--)
+        {
+            var (tPlayer, tRoutine, tVfx) = _activeTeleportations[i];
+
+            if (tPlayer != player) continue;
+
+            // Stop the coroutine
+            if (tRoutine != null)
+                StopCoroutine(tRoutine);
+
+            // Clean up VFX
+            if (tVfx != null)
+                Destroy(tVfx);
+
+            // Restore player state
+            tPlayer.SetMovement(true);
+            tPlayer.EnableRigidbody();
+            SetPlayerVisibility(tPlayer, true);
+
+            // Remove from list
+            _activeTeleportations.RemoveAt(i);
+        }
+    }
+
+    /// Removes a player from active teleportations list
+    private void RemovePlayerFromActiveTeleportations(PlayerController player)
+    {
+        for (int i = _activeTeleportations.Count - 1; i >= 0; i--)
+        {
+            if (_activeTeleportations[i].player == player)
+                _activeTeleportations.RemoveAt(i);
+        }
+    }
+
+    /// Cancels all active teleportations for this portal
+    public void CancelAllActivePortalTeleportations()
+    {
+        for (int i = _activeTeleportations.Count - 1; i >= 0; i--)
+        {
+            var (tPlayer, tRoutine, tVfx) = _activeTeleportations[i];
+
+            // Stop the coroutine
+            if (tRoutine != null)
+                StopCoroutine(tRoutine);
+
+            // Clean up VFX
+            if (tVfx != null)
+                Destroy(tVfx);
+
+            // Restore player state
+            tPlayer.SetMovement(true);
+            tPlayer.EnableRigidbody();
+            SetPlayerVisibility(tPlayer, true);
+        }
+
+        // Clear the list
+        _activeTeleportations.Clear();
     }
 }

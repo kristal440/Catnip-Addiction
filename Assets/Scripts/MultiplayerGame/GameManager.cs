@@ -310,6 +310,14 @@ public class GameManager : MonoBehaviourPunCallbacks
 
         CheckpointManager.LastCheckpointPosition = Vector3.zero;
 
+        var portalManager = GameObject.Find("PortalManager");
+        if (portalManager != null)
+        {
+            var portals = portalManager.GetComponentsInChildren<Component>();
+            foreach (var component in portals.Where(static component => component.GetType().Name == "Portal"))
+                component.SendMessage("CancelAllActivePortalTeleportations", null, SendMessageOptions.DontRequireReceiver);
+        }
+
         var players = FindObjectsByType<PlayerController>(FindObjectsSortMode.None);
         foreach (var p in players.Where(static p => p != null && p.photonView != null && p.photonView.Owner != null))
         {
