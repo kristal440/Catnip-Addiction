@@ -54,6 +54,9 @@ MonoBehaviour:
   - SpawnWaterSplash
   - SyncFlickerState
   - SyncLightSettings
+  - RPC_SyncFlipDirection
+  - RPC_SyncJumpCharge
+  - RPC_SyncWallSlideVisuals
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 1
