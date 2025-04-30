@@ -41,17 +41,14 @@ public class Portal : MonoBehaviour
         var playerController = other.GetComponent<PlayerController>();
         if (playerController == null) return;
 
-        // Cancel any active teleportation for this player on this portal
         CancelPlayerTeleportation(playerController);
 
         var routine = StartCoroutine(playerController.photonView.IsMine
             ? TeleportSequence(playerController)
             : RemotePlayerTeleportSequence(playerController));
 
-        // Don't track teleportation if it's a remote player
         if (!playerController.photonView.IsMine) return;
 
-        // Add to active teleportations
         _activeTeleportations.Add((playerController, routine, null));
     }
 
@@ -59,6 +56,7 @@ public class Portal : MonoBehaviour
     private IEnumerator TeleportSequence(PlayerController player)
     {
         player.SetMovement(false);
+        player.ResetAccelerationState();
 
         var playerRb = player.GetComponent<Rigidbody2D>();
         playerRb.linearVelocity = Vector2.zero;
@@ -77,7 +75,6 @@ public class Portal : MonoBehaviour
             var vfx = vfxObj.AddComponent<TeleportParticles>();
             vfx.AnimateTeleport(startPosition, destinationPosition, teleportDuration, movementCurve);
 
-            // Update the VFX reference in the active teleportations list
             for (var i = 0; i < _activeTeleportations.Count; i++)
             {
                 var (tPlayer, tRoutine, _) = _activeTeleportations[i];
@@ -138,7 +135,6 @@ public class Portal : MonoBehaviour
 
         SetRemotePlayerVisibility(player, true);
 
-        // Clean up VFX if not already destroyed
         if (vfxObj != null && vfxObj.activeSelf)
             Destroy(vfxObj);
     }
@@ -202,20 +198,16 @@ public class Portal : MonoBehaviour
 
             if (tPlayer != player) continue;
 
-            // Stop the coroutine
             if (tRoutine != null)
                 StopCoroutine(tRoutine);
 
-            // Clean up VFX
             if (tVfx != null)
                 Destroy(tVfx);
 
-            // Restore player state
             tPlayer.SetMovement(true);
             tPlayer.EnableRigidbody();
             SetPlayerVisibility(tPlayer, true);
 
-            // Remove from list
             _activeTeleportations.RemoveAt(i);
         }
     }
@@ -235,21 +227,17 @@ public class Portal : MonoBehaviour
         {
             var (tPlayer, tRoutine, tVfx) = _activeTeleportations[i];
 
-            // Stop the coroutine
             if (tRoutine != null)
                 StopCoroutine(tRoutine);
 
-            // Clean up VFX
             if (tVfx != null)
                 Destroy(tVfx);
 
-            // Restore player state
             tPlayer.SetMovement(true);
             tPlayer.EnableRigidbody();
             SetPlayerVisibility(tPlayer, true);
         }
 
-        // Clear the list
         _activeTeleportations.Clear();
     }
 }
