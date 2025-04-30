@@ -5030,9 +5030,9 @@ RectTransform:
   - {fileID: 2062627510}
   - {fileID: 2118440934}
   - {fileID: 1166678750}
+  - {fileID: 1490591264}
   - {fileID: 285853016}
   - {fileID: 230529690}
-  - {fileID: 1490591264}
   - {fileID: 1045018733}
   - {fileID: 1605067590}
   m_Father: {fileID: 469500461}
@@ -12576,11 +12576,11 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 304625506192927063, guid: bd3949afda80f61cc9e76170b09b8a04, type: 3}
       propertyPath: m_Name
-      value: mapEntryPrefab (6)
+      value: GameScene_Map8_Multi
       objectReference: {fileID: 0}
     - target: {fileID: 304625506192927063, guid: bd3949afda80f61cc9e76170b09b8a04, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 344573408014063480, guid: bd3949afda80f61cc9e76170b09b8a04, type: 3}
       propertyPath: m_Pivot.x
@@ -12662,6 +12662,18 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 1372168443632368211, guid: bd3949afda80f61cc9e76170b09b8a04, type: 3}
+      propertyPath: m_Color.b
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1372168443632368211, guid: bd3949afda80f61cc9e76170b09b8a04, type: 3}
+      propertyPath: m_Color.g
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1372168443632368211, guid: bd3949afda80f61cc9e76170b09b8a04, type: 3}
+      propertyPath: m_Color.r
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 1622943122347019711, guid: bd3949afda80f61cc9e76170b09b8a04, type: 3}
       propertyPath: m_AnchorMax.y
       value: 1
@@ -12741,6 +12753,10 @@ PrefabInstance:
     - target: {fileID: 6899516322297460518, guid: bd3949afda80f61cc9e76170b09b8a04, type: 3}
       propertyPath: m_AnchoredPosition.y
       value: -51.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 7483161195402696563, guid: bd3949afda80f61cc9e76170b09b8a04, type: 3}
+      propertyPath: m_text
+      value: wall jumper :3
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

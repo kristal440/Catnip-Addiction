@@ -1588,7 +1588,7 @@ MonoBehaviour:
     m_Bits: 8
   wallRaycastDistance: 0.2
   wallSlideSpeed: 2.5
-  wallStickForce: 5
+  wallStickForce: 0.1
   spriteTransform: {fileID: 6004654633719211774}
   wallSlideOffset: 0.04
   minWallJumpForce: 7
@@ -1606,7 +1606,7 @@ MonoBehaviour:
   minJumpForce: 9
   maxJumpForce: 14.2
   maxChargeTime: 1.1
-  jumpCooldown: 0.07
+  jumpCooldown: 0.1
   deathHeight: -50
   playerDeathHandler: {fileID: 6099844445017409013}
   remotePlayerSpriteOrder: 6
