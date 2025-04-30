@@ -35,6 +35,7 @@ public class PlayerWaterEffectsHandler : MonoBehaviour
     [SerializeField] [Tooltip("Whether water affects the camera")] private bool affectCamera = true;
 
     private PlayerController _playerController;
+    private JumpSystem _jumpSystem;
     private PhotonView _photonView;
     private SpriteRenderer _spriteRenderer;
     private DynamicCameraController _cameraController;
@@ -54,7 +55,9 @@ public class PlayerWaterEffectsHandler : MonoBehaviour
     private void Awake()
     {
         _playerController = GetComponent<PlayerController>();
+        _jumpSystem = GetComponent<JumpSystem>();
         _photonView = GetComponent<PhotonView>();
+        _spectatorModeManager = FindFirstObjectByType<SpectatorModeManager>();
 
         if (affectCamera)
         {
@@ -67,23 +70,12 @@ public class PlayerWaterEffectsHandler : MonoBehaviour
                     _cameraController = Camera.main.GetComponent<DynamicCameraController>();
         }
 
-        _originalMaxSpeed = _playerController.maxSpeed;
-        _originalMinJumpForce = _playerController.JumpSystem.minJumpForce;
-        _originalMaxJumpForce = _playerController.JumpSystem.maxJumpForce;
-        _originalBaseAcceleration = _playerController.baseAcceleration;
-
         if (waterEntrySplashPrefab == null)
             waterEntrySplashPrefab = waterSplashPrefab;
 
         _spriteRenderer = GetComponentInChildren<SpriteRenderer>();
         if (_spriteRenderer != null)
             _originalColor = _spriteRenderer.color;
-    }
-
-    /// Find spectator manager on start
-    private void Start()
-    {
-        _spectatorModeManager = FindFirstObjectByType<SpectatorModeManager>();
     }
 
     /// Spawn water splash particles while moving in water
@@ -153,13 +145,13 @@ public class PlayerWaterEffectsHandler : MonoBehaviour
         _waterEffectsApplied = true;
 
         _originalMaxSpeed = _playerController.maxSpeed;
-        _originalMinJumpForce = _playerController.JumpSystem.minJumpForce;
-        _originalMaxJumpForce = _playerController.JumpSystem.maxJumpForce;
+        _originalMinJumpForce = _jumpSystem.minJumpForce;
+        _originalMaxJumpForce = _jumpSystem.maxJumpForce;
         _originalBaseAcceleration = _playerController.baseAcceleration;
 
         _playerController.maxSpeed *= speedMultiplierInWater;
-        _playerController.JumpSystem.minJumpForce *= jumpMultiplierInWater;
-        _playerController.JumpSystem.maxJumpForce *= jumpMultiplierInWater;
+        _jumpSystem.minJumpForce *= jumpMultiplierInWater;
+        _jumpSystem.maxJumpForce *= jumpMultiplierInWater;
         _playerController.baseAcceleration *= accelerationMultiplierInWater;
 
         if (affectCamera && _cameraController != null && (_photonView.IsMine || _spectatorModeManager.IsSpectating))
@@ -175,8 +167,8 @@ public class PlayerWaterEffectsHandler : MonoBehaviour
         _waterEffectsApplied = false;
 
         _playerController.maxSpeed = _originalMaxSpeed;
-        _playerController.JumpSystem.minJumpForce = _originalMinJumpForce;
-        _playerController.JumpSystem.maxJumpForce = _originalMaxJumpForce;
+        _jumpSystem.minJumpForce = _originalMinJumpForce;
+        _jumpSystem.maxJumpForce = _originalMaxJumpForce;
         _playerController.baseAcceleration = _originalBaseAcceleration;
 
         if (_photonView.IsMine)
