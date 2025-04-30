@@ -131,7 +131,7 @@ public class DynamicCameraController : MonoBehaviour
             _lastPlayerPosition = currentPlayerPosition;
         }
 
-        var effectiveSpeed = Min(Abs(_playerController.currentSpeed), _actualPlayerSpeed);
+        var effectiveSpeed = Min(Abs(_playerController.CurrentSpeed), _actualPlayerSpeed);
         var normalizedSpeed = Clamp01(effectiveSpeed / _playerController.maxSpeed);
 
         UpdateFOV(normalizedSpeed);
@@ -192,14 +192,14 @@ public class DynamicCameraController : MonoBehaviour
         var targetX = _defaultPosition.x;
         if (!Approximately(normalizedSpeed, 0))
         {
-            var direction = Sign(_playerController.currentSpeed);
+            var direction = Sign(_playerController.CurrentSpeed);
             targetX += direction * normalizedSpeed * maxHorizontalOffset;
         }
 
         var localPosition = transform.localPosition;
         var newX = SmoothDamp(localPosition.x, targetX, ref _currentHorizontalVelocity, positionSmoothTime);
 
-        var normalizedVerticalSpeed = Clamp(_playerController.verticalSpeed / _playerController.maxSpeed, -1, 1);
+        var normalizedVerticalSpeed = Clamp(_playerController.VerticalSpeed / _playerController.maxSpeed, -1, 1);
         var targetY = _defaultPosition.y + (normalizedVerticalSpeed * maxVerticalOffset);
         var newY = SmoothDamp(localPosition.y, targetY, ref _currentVerticalVelocity, verticalSmoothTime);
 

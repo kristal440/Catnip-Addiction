@@ -23,6 +23,7 @@ public class JumpChargeUIManager : MonoBehaviourPunCallbacks
     [SerializeField] [Tooltip("Scale of the jump charge bar for remote players (Y axis)")] private float remotePlayerChargeBarScaleY = 1f;
 
     private PlayerController _playerController;
+    private JumpSystem _jumpSystem;
     private DynamicCameraController _cameraController;
     private bool _isCharging;
     private float _chargeProgress;
@@ -39,6 +40,7 @@ public class JumpChargeUIManager : MonoBehaviourPunCallbacks
     private void Start()
     {
         _playerController = GetComponent<PlayerController>();
+        _jumpSystem = GetComponent<JumpSystem>();
 
         if (photonView.IsMine)
         {
@@ -76,8 +78,8 @@ public class JumpChargeUIManager : MonoBehaviourPunCallbacks
     /// Updates charge bar for local player
     private void UpdateLocalChargeBar()
     {
-        var isCharging = _playerController.JumpState != PlayerController.JumpStateEnum.Idle;
-        var hasStoredCharge = _playerController.HasBufferedChargeInAir && showStoredChargeBar;
+        var isCharging = _playerController.JumpSystem.JumpState != JumpSystem.JumpStateEnum.Idle;
+        var hasStoredCharge = _playerController.JumpSystem.HasBufferedChargeInAir && showStoredChargeBar;
 
         if (isCharging)
         {
@@ -110,7 +112,7 @@ public class JumpChargeUIManager : MonoBehaviourPunCallbacks
                 jumpChargeBar.color = transparent;
             }
 
-            jumpChargeBar.fillAmount = _playerController.StoredChargeProgress / _playerController.maxChargeTime;
+            jumpChargeBar.fillAmount = _playerController.JumpSystem.StoredChargeProgress / _jumpSystem.maxChargeTime;
         }
         else if (jumpChargeBarGameObject.activeSelf)
         {

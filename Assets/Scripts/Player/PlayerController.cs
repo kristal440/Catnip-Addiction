@@ -13,75 +13,42 @@ public class PlayerController : MonoBehaviourPunCallbacks
 {
     #region Variables
     [Header("Animation")]
-    private static readonly int Speed = Animator.StringToHash("Speed");
-    private static readonly int InAir = Animator.StringToHash("InAir");
-    private static readonly int IsJumpQueued = Animator.StringToHash("IsJumpQueued");
-    private static readonly int IsLaying = Animator.StringToHash("IsLaying");
-    private static readonly int IsWallSliding = Animator.StringToHash("IsWallSliding");
-    [SerializeField] [Tooltip("Reference to the player's animator component")] public Animator animator;
-    [SerializeField] [Tooltip("Reference to the player's sprite renderer")] public SpriteRenderer playerSprite;
+    [SerializeField] [Tooltip("Reference to the player's animator component")] internal Animator animator;
+    [SerializeField] [Tooltip("Reference to the player's sprite renderer")] internal SpriteRenderer playerSprite;
 
     [Header("Movement")]
-    [SerializeField] [Tooltip("How quickly player accelerates")] public AnimationCurve accelerationCurve = new(new Keyframe(0f, 0.3f), new Keyframe(0.6f, 0.7f), new Keyframe(1f, 1f));
-    [SerializeField] [Tooltip("Base acceleration value")] public float baseAcceleration = 10f;
-    [SerializeField] [Range(0.2f, 2.0f)] [Tooltip("How long it takes to reach full acceleration")] public float accelerationTime = 0.8f;
-    [SerializeField] [Tooltip("How quickly player slows down")] public float deceleration = 15f;
-    [SerializeField] [Tooltip("Maximum movement speed")] public float maxSpeed = 5f;
-    [SerializeField] [Tooltip("Higher speed reached after maintaining max speed")] public float turboSpeed = 7f;
-    [SerializeField] [Tooltip("Time in seconds player needs to maintain max speed before reaching turbo speed")] public float timeToTurboSpeed = 1.5f;
-    [SerializeField] [Range(0.7f, 0.99f)] [Tooltip("Threshold to consider player at max speed (0-1)")] public float maxSpeedThreshold = 0.98f;
-    [HideInInspector] public float currentSpeed;
-    [HideInInspector] public float verticalSpeed;
-
-    private float _currentAccelTime;
-    private float _timeAtMaxSpeed;
-    private bool _isTurboActive;
-    private int _lastMoveDirection;
+    [SerializeField] [Tooltip("How quickly player accelerates")] internal AnimationCurve accelerationCurve = new(new Keyframe(0f, 0.3f), new Keyframe(0.6f, 0.7f), new Keyframe(1f, 1f));
+    [SerializeField] [Tooltip("Base acceleration value")] internal float baseAcceleration = 10f;
+    [SerializeField] [Range(0.2f, 2.0f)] [Tooltip("How long it takes to reach full acceleration")] internal float accelerationTime = 0.8f;
+    [SerializeField] [Tooltip("How quickly player slows down")] internal float deceleration = 15f;
+    [SerializeField] [Tooltip("Maximum movement speed")] internal float maxSpeed = 5f;
+    [SerializeField] [Tooltip("Higher speed reached after maintaining max speed")] internal float turboSpeed = 7f;
+    [SerializeField] [Tooltip("Time in seconds player needs to maintain max speed before reaching turbo speed")] internal float timeToTurboSpeed = 1.5f;
+    [SerializeField] [Range(0.7f, 0.99f)] [Tooltip("Threshold to consider player at max speed (0-1)")] internal float maxSpeedThreshold = 0.98f;
 
     [Header("Ground Check")]
-    [SerializeField] [Tooltip("Transform used to detect ground")] public Transform groundCheck;
-    [SerializeField] [Range(0.05f, 0.5f)] [Tooltip("Radius of the ground check sphere")] public float groundCheckRadius = 0.2f;
-    [SerializeField] [Tooltip("Layer mask for ground detection")] public LayerMask groundLayerMask;
+    [SerializeField] [Tooltip("Transform used to detect ground")] internal Transform groundCheck;
+    [SerializeField] [Range(0.05f, 0.5f)] [Tooltip("Radius of the ground check sphere")] internal float groundCheckRadius = 0.2f;
+    [SerializeField] [Tooltip("Layer mask for ground detection")] internal LayerMask groundLayerMask;
 
     [Header("Wall Check")]
-    [SerializeField] [Tooltip("Transform used to detect left wall")] public Transform leftWallCheck;
-    [SerializeField] [Tooltip("Transform used to detect right wall")] public Transform rightWallCheck;
-    [SerializeField] [Range(0.05f, 0.5f)] [Tooltip("Radius of the wall check sphere")] public float wallCheckRadius = 0.2f;
-    [SerializeField] [Tooltip("Layer mask for wall detection")] public LayerMask wallLayerMask;
-    [SerializeField] [Range(0f, 1f)] [Tooltip("Distance for wall raycast detection")] public float wallRaycastDistance = 0.1f;
+    [SerializeField] [Tooltip("Transform used to detect left wall")] internal Transform leftWallCheck;
+    [SerializeField] [Tooltip("Transform used to detect right wall")] internal Transform rightWallCheck;
+    [SerializeField] [Range(0.05f, 0.5f)] [Tooltip("Radius of the wall check sphere")] internal float wallCheckRadius = 0.2f;
+    [SerializeField] [Tooltip("Layer mask for wall detection")] internal LayerMask wallLayerMask;
+    [SerializeField] [Range(0f, 1f)] [Tooltip("Distance for wall raycast detection")] internal float wallRaycastDistance = 0.1f;
 
     [Header("Wall Sliding")]
-    [SerializeField] [Range(0.1f, 5f)] [Tooltip("Reduced falling speed when sliding on walls")] public float wallSlideSpeed = 2f;
+    [SerializeField] [Range(0.1f, 5f)] [Tooltip("Reduced falling speed when sliding on walls")] internal float wallSlideSpeed = 2f;
     [SerializeField] [Range(0.1f, 5f)] [Tooltip("Force to apply against the wall")] private float wallStickForce = 1.5f;
-    [SerializeField] [Tooltip("Transform of the visual object to rotate during wall slide")] public Transform spriteTransform;
-    [SerializeField] [Range(-0.2f, 0.05f)] [Tooltip("X offset of sprite during wall sliding")] public float wallSlideOffset = -0.06f;
-
-    [Header("Wall Jumping")]
-    [SerializeField] [Tooltip("Minimum jump force when uncharged")] public float minWallJumpForce = 10f;
-    [SerializeField] [Tooltip("Maximum jump force when fully charged")] public float maxWallJumpForce = 16f;
-    [SerializeField] [Range(0.1f, 2f)] [Tooltip("Maximum time to charge wall jump")] public float maxWallChargeTime = 1f;
-    [SerializeField] [Tooltip("Force applied perpendicular to the wall")] public float wallDetachForce = 8f;
-    [SerializeField] [Tooltip("Force pushing player away when reaching ground during wall jump charge")] public float wallGroundPushForce = 5f;
-    [SerializeField] [Tooltip("Minimum time player needs to be on wall before can wall jump")] public float minWallContactTime = 0.05f;
-
-    [Header("Wall Bounce")]
-    [SerializeField] [Range(0f, 2f)] [Tooltip("Time window after a charged jump when wall bounces are enabled")] public float wallBounceWindow = 0.5f;
-    [SerializeField] [Range(1f, 15f)] [Tooltip("Force applied when bouncing off a wall")] public float wallBounceForce = 8f;
-    [SerializeField] [Range(0f, 2f)] [Tooltip("Vertical force multiplier for wall bounces")] public float wallBounceVerticalMultiplier = 0.5f;
-    [SerializeField] [Tooltip("Whether bounce preserves some of the player's momentum")] public bool preserveMomentumOnBounce = true;
-    [SerializeField] [Range(0f, 1f)] [Tooltip("How much of the player's momentum is preserved during a bounce (0-1)")] public float momentumPreservation = 0.7f;
+    [SerializeField] [Tooltip("Transform of the visual object to rotate during wall slide")] internal Transform spriteTransform;
+    [SerializeField] [Range(-0.2f, 0.05f)] [Tooltip("X offset of sprite during wall sliding")] internal float wallSlideOffset = -0.06f;
 
     [Header("UI")]
-    [SerializeField] [Tooltip("Player name text display")] public TextMeshProUGUI playerNameTag;
-
-    [Header("Charged Jump")]
-    [SerializeField] [Tooltip("Minimum jump force when uncharged")] public float minJumpForce = 8.5f;
-    [SerializeField] [Tooltip("Maximum jump force when fully charged")] public float maxJumpForce = 14f;
-    [SerializeField] [Range(0.1f, 2f)] [Tooltip("Maximum time to charge regular jump")] public float maxChargeTime = 2f;
-    [SerializeField] [Range(0.05f, 0.5f)] [Tooltip("Time before player can jump again")] public float jumpCooldown = 0.1f;
+    [SerializeField] [Tooltip("Player name text display")] internal TextMeshProUGUI playerNameTag;
 
     [Header("Death")]
-    [SerializeField] [Tooltip("Y-position that triggers death when fallen below")] public float deathHeight = -50f;
+    [SerializeField] [Tooltip("Y-position that triggers death when fallen below")] internal float deathHeight = -50f;
     [SerializeField] [Tooltip("Handler for player death events")] private PlayerDeathHandler playerDeathHandler;
 
     [Header("Visuals")]
@@ -90,16 +57,23 @@ public class PlayerController : MonoBehaviourPunCallbacks
     [SerializeField] [Range(0.1f, 1f)] [Tooltip("Alpha transparency for remote players (0-1)")] private float remotePlayerAlpha = 0.7f;
 
     [Header("Idle Behavior")]
-    [SerializeField] [Tooltip("Time in seconds before triggering laying animation")] public float idleToLayingTime = 3.0f;
+    [SerializeField] [Tooltip("Time in seconds before triggering laying animation")] internal float idleToLayingTime = 3.0f;
 
     [Header("Catnip Effects")]
-    [SerializeField] [Range(1.0f, 2.0f)] [Tooltip("Speed multiplier when catnip is active")] public float catnipSpeedMultiplier = 1.1f;
-    [SerializeField] [Range(1.0f, 2.0f)] [Tooltip("Jump force multiplier when catnip is active")] public float catnipJumpMultiplier = 1.1f;
-    [SerializeField] [Range(0.5f, 1.0f)] [Tooltip("Deceleration multiplier when catnip is active")] public float catnipDecelerationMultiplier = 0.9f;
+    [SerializeField] [Range(1.0f, 2.0f)] [Tooltip("Speed multiplier when catnip is active")] internal float catnipSpeedMultiplier = 1.1f;
+    [SerializeField] [Range(1.0f, 2.0f)] [Tooltip("Jump force multiplier when catnip is active")] internal float catnipJumpMultiplier = 1.1f;
+    [SerializeField] [Range(0.5f, 1.0f)] [Tooltip("Deceleration multiplier when catnip is active")] internal float catnipDecelerationMultiplier = 0.9f;
 
     [Header("Physics")]
-    [SerializeField] [Range(0.5f, 3.0f)] [Tooltip("Normal gravity scale for the player")] public float defaultGravityScale = 1.0f;
+    [SerializeField] [Range(0.5f, 3.0f)] [Tooltip("Normal gravity scale for the player")] internal float defaultGravityScale = 1.0f;
 
+    // Animator variables
+    private static readonly int Speed = Animator.StringToHash("Speed");
+    private static readonly int InAir = Animator.StringToHash("InAir");
+    private static readonly int IsLaying = Animator.StringToHash("IsLaying");
+    private static readonly int IsWallSlidingAnimVar = Animator.StringToHash("IsWallSliding");
+
+    // Component references
     private Camera _mainCamera;
     private Rigidbody2D _rb;
     private Collider2D _collider;
@@ -107,46 +81,32 @@ public class PlayerController : MonoBehaviourPunCallbacks
     private InputSystem_Actions _playerInputActions;
     private CatnipFx _catnipFx;
     private SpriteFlipManager _spriteFlipManager;
-    private JumpChargeUIManager _jumpChargeUIManager;
-    private JumpStateEnum _previousJumpState;
 
-    internal enum JumpStateEnum
-    {
-        Idle,
-        Charging,
-        WallCharging,
-        Buffered
-    }
+    // helper scripts
+    internal JumpSystem JumpSystem;
 
-    private float _jumpChargeStartTime;
-    private bool _jumpButtonHeld;
-    private bool _movementDisabledForJump;
+    // Internal state variables
     private float _idleTimer;
     private bool _wallCollisionHandled;
-    private float _lastJumpTime;
     private float _defaultGravityScaleCache;
-    private int _jumpChargeDirection;
-
-    private bool _startedChargingOnGround;
-    private bool _releaseJumpInAir;
-    private float _jumpChargeLevel;
-    private bool _jumpFullyCharged;
-
     private float _newMaxSpeed;
     private float _newDeceleration;
+    private float _currentAccelTime;
+    private float _timeAtMaxSpeed;
+    private bool _isTurboActive;
+    private int _lastMoveDirection;
 
-    private bool _isTouchingLeftWall;
-    private bool _isTouchingRightWall;
-    private bool _isWallSliding;
-    private int _wallSlideSide; // -1 for left, 1 for right
-    private float _wallContactTime;
-    private Vector3 _originalSpritePosition;
-    private bool _postWallJump; // Flag to track post-wall-jump state
+    // Properties
+    internal float CurrentSpeed;
+    internal float VerticalSpeed;
+    internal bool IsTouchingLeftWall;
+    internal bool IsTouchingRightWall;
+    internal bool IsWallSliding;
+    internal int WallSlideSide; // -1 for left, 1 for right
+    internal float WallContactTime;
+    internal Vector3 OriginalSpritePosition;
+    internal bool PostWallJump; // Flag to track post-wall-jump state
     private int _lastWallSlideSideRPC;
-
-    private bool _isInBounceWindow;
-    private float _bounceWindowEndTime;
-    private bool _hasBounced;
 
     internal bool IsStanding { get; set; }
     internal bool IsGrounded { get; private set; }
@@ -154,11 +114,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
     internal bool IsPaused { get; set; }
     internal bool HasCatnip { get; set; }
     internal bool IsDead { get; private set; }
-    private bool IsTouchingWall => _isTouchingLeftWall || _isTouchingRightWall;
-    internal JumpStateEnum JumpState = JumpStateEnum.Idle;
-    internal float StoredChargeProgress;
-    internal bool HasBufferedChargeInAir;
-
+    private bool IsTouchingWall => IsTouchingLeftWall || IsTouchingRightWall;
     #endregion
 
     #region Unity Lifecycle
@@ -171,12 +127,14 @@ public class PlayerController : MonoBehaviourPunCallbacks
     /// Enables player input actions
     public override void OnEnable()
     {
+        base.OnEnable();
         _playerInputActions.Player.Enable();
     }
 
     /// Disables player input actions
     public override void OnDisable()
     {
+        base.OnDisable();
         _playerInputActions.Player.Disable();
     }
 
@@ -188,13 +146,12 @@ public class PlayerController : MonoBehaviourPunCallbacks
         _collider = GetComponent<Collider2D>();
         _catnipFx = GetComponent<CatnipFx>();
         _spriteFlipManager = GetComponent<SpriteFlipManager>();
-        _jumpChargeUIManager = GetComponent<JumpChargeUIManager>();
-        _previousJumpState = JumpState;
+        JumpSystem = GetComponent<JumpSystem>();
 
         if (spriteTransform == null)
             spriteTransform = playerSprite.transform;
 
-        _originalSpritePosition = spriteTransform.localPosition;
+        OriginalSpritePosition = spriteTransform.localPosition;
 
         var playerCanvas = GetComponentInChildren<Canvas>();
         playerCanvas.worldCamera = _mainCamera;
@@ -214,113 +171,32 @@ public class PlayerController : MonoBehaviourPunCallbacks
         if (!photonView.IsMine)
             return;
 
-        if (JumpState != _previousJumpState)
-        {
-            SyncJumpState();
-            _previousJumpState = JumpState;
-        }
-
-        verticalSpeed = _rb.linearVelocity.y;
+        VerticalSpeed = _rb.linearVelocity.y;
         HandleWallSliding();
         CheckIdleState();
         HandleMovement();
-        CheckWallBounce();
-
-        _jumpButtonHeld = _playerInputActions.Player.Jump.IsPressed();
-
-        UpdateJumpCharging();
 
         if (transform.position.y < deathHeight && !IsDead)
             playerDeathHandler.HandleOutOfBoundsDeath();
 
-        if (_postWallJump && IsTouchingWall)
+        if (PostWallJump && IsTouchingWall)
         {
             var horizontalInput = _playerInputActions.Player.Move.ReadValue<Vector2>().x;
             var moveDirection = (int)Sign(horizontalInput);
 
-            if (moveDirection != 0 && moveDirection != _wallSlideSide)
+            if (moveDirection != 0 && moveDirection != WallSlideSide)
             {
-                _postWallJump = false;
+                PostWallJump = false;
                 spriteTransform.rotation = Quaternion.identity;
-                spriteTransform.localPosition = _originalSpritePosition;
+                spriteTransform.localPosition = OriginalSpritePosition;
             }
         }
 
-        if (_postWallJump && !IsTouchingWall)
-            _postWallJump = false;
+        if (PostWallJump && !IsTouchingWall)
+            PostWallJump = false;
 
-        if (_isInBounceWindow && Time.time > _bounceWindowEndTime)
-            _isInBounceWindow = false;
-    }
-    #endregion
-
-    #region Wall Bounce
-    /// Checks if player should bounce off wall after a charged jump
-    private void CheckWallBounce()
-    {
-        if (!_isInBounceWindow || _isWallSliding || _hasBounced || JumpState == JumpStateEnum.WallCharging)
-            return;
-
-        var horizontalInput = _playerInputActions.Player.Move.ReadValue<Vector2>().x;
-        var moveDirection = (int)Sign(horizontalInput);
-
-        if (_isTouchingLeftWall && moveDirection < 0)
-        {
-            ApplyWallBounce(-1);
-            _hasBounced = true;
-            return;
-        }
-
-        if (_isTouchingRightWall && moveDirection > 0)
-        {
-            ApplyWallBounce(1);
-            _hasBounced = true;
-            return;
-        }
-
-        if (!(Abs(horizontalInput) < 0.01f)) return;
-
-        var velocityDirection = (int)Sign(_rb.linearVelocity.x);
-
-        if (_isTouchingLeftWall && velocityDirection < 0)
-        {
-            ApplyWallBounce(-1);
-            _hasBounced = true;
-            return;
-        }
-
-        if (!_isTouchingRightWall || velocityDirection <= 0) return;
-
-        ApplyWallBounce(1);
-        _hasBounced = true;
-    }
-
-    /// Applies bounce force when hitting a wall during bounce window
-    private void ApplyWallBounce(int wallSide)
-    {
-        var bounceDirection = -wallSide;
-        var linearVelocity = _rb.linearVelocity;
-        var currentXVelocity = linearVelocity.x;
-        var currentYVelocity = linearVelocity.y;
-
-        var xVelocity = bounceDirection * wallBounceForce;
-
-        if (preserveMomentumOnBounce && Abs(currentXVelocity) > 0)
-            if (Sign(currentXVelocity) * bounceDirection > 0)
-            {
-                var preservedMomentum = Abs(currentXVelocity) * momentumPreservation;
-                xVelocity = bounceDirection * Max(wallBounceForce, preservedMomentum);
-            }
-
-        var yVelocity = Max(currentYVelocity, 0) + (wallBounceForce * wallBounceVerticalMultiplier);
-
-        _rb.linearVelocity = new Vector2(xVelocity, yVelocity);
-        currentSpeed = xVelocity;
-
-        ResetAccelerationState();
-
-        if (_cameraController)
-            _cameraController.TriggerJumpFOV();
+        // Update the jump system
+        JumpSystem.UpdateJumpSystem();
     }
     #endregion
 
@@ -356,8 +232,8 @@ public class PlayerController : MonoBehaviourPunCallbacks
     /// Checks for wall contact on both sides using transform checks and collider contacts
     private void CheckWallContact()
     {
-        var wasLeftWall = _isTouchingLeftWall;
-        var wasRightWall = _isTouchingRightWall;
+        var wasLeftWall = IsTouchingLeftWall;
+        var wasRightWall = IsTouchingRightWall;
 
         var leftTransformCheck = Physics2D.OverlapCircle(leftWallCheck.position, wallCheckRadius, wallLayerMask);
         var rightTransformCheck = Physics2D.OverlapCircle(rightWallCheck.position, wallCheckRadius, wallLayerMask);
@@ -372,110 +248,95 @@ public class PlayerController : MonoBehaviourPunCallbacks
         var rightColliderCheck = Physics2D.Raycast(rightRayOrigin, right, wallRaycastDistance, wallLayerMask);
         Debug.DrawRay(rightRayOrigin, right * wallRaycastDistance, rightColliderCheck ? Color.red : Color.green);
 
-        _isTouchingLeftWall = leftTransformCheck && leftColliderCheck;
-        _isTouchingRightWall = rightTransformCheck && rightColliderCheck;
+        IsTouchingLeftWall = leftTransformCheck && leftColliderCheck;
+        IsTouchingRightWall = rightTransformCheck && rightColliderCheck;
 
-        CheckWallJumpAutoExecute(wasLeftWall, wasRightWall);
-
-        if (!wasLeftWall && _isTouchingLeftWall)
+        if (!wasLeftWall && IsTouchingLeftWall)
         {
-            _wallSlideSide = -1;
-            _wallContactTime = 0f;
+            WallSlideSide = -1;
+            WallContactTime = 0f;
         }
-        else if (!wasRightWall && _isTouchingRightWall)
+        else if (!wasRightWall && IsTouchingRightWall)
         {
-            _wallSlideSide = 1;
-            _wallContactTime = 0f;
+            WallSlideSide = 1;
+            WallContactTime = 0f;
         }
 
         if (IsTouchingWall)
-            _wallContactTime += Time.deltaTime;
+            WallContactTime += Time.deltaTime;
 
-        if (IsGrounded && JumpState == JumpStateEnum.WallCharging)
-            CancelWallJumpWithGroundPush();
+        if (IsGrounded && JumpSystem.JumpState == JumpSystem.JumpStateEnum.WallCharging)
+            JumpSystem.CancelWallJumpWithGroundPush();
 
-        if ((_isTouchingLeftWall || _isTouchingRightWall) &&
-            (JumpState == JumpStateEnum.Charging || JumpState == JumpStateEnum.Buffered) &&
-            !_startedChargingOnGround)
-            ConvertToWallJump();
-    }
-
-    /// Executes wall jump if player loses contact with wall during charge
-    private void CheckWallJumpAutoExecute(bool wasTouchingLeftWall, bool wasTouchingRightWall)
-    {
-        var lostWallContact = (wasTouchingLeftWall && !_isTouchingLeftWall) ||
-                              (wasTouchingRightWall && !_isTouchingRightWall);
-
-        if (!lostWallContact || JumpState != JumpStateEnum.WallCharging) return;
-
-        var horizontalInput = photonView.IsMine ? _playerInputActions.Player.Move.ReadValue<Vector2>().x : 0;
-        var wallChargeTime = Min(Time.time - _jumpChargeStartTime, maxWallChargeTime);
-        ExecuteWallJump(wallChargeTime, horizontalInput);
+        if ((IsTouchingLeftWall || IsTouchingRightWall) &&
+            (JumpSystem.JumpState == JumpSystem.JumpStateEnum.Charging || JumpSystem.JumpState == JumpSystem.JumpStateEnum.Buffered) &&
+            !JumpSystem.GetStartedChargingOnGround())
+            JumpSystem.ConvertToWallJump();
     }
 
     /// Handles wall sliding physics and visuals for both local and remote players
     private void HandleWallSliding()
     {
-        var wasWallSliding = _isWallSliding;
+        var wasWallSliding = IsWallSliding;
 
         if (photonView.IsMine)
         {
-            var wallSlideCondition = IsTouchingWall && !IsGrounded && (_rb.linearVelocity.y < 0 || _postWallJump);
-            _isWallSliding = wallSlideCondition;
+            var wallSlideCondition = IsTouchingWall && !IsGrounded && (_rb.linearVelocity.y < 0 || PostWallJump);
+            IsWallSliding = wallSlideCondition;
 
-            if (_isWallSliding)
+            if (IsWallSliding)
             {
-                if (_isTouchingLeftWall)
-                    _wallSlideSide = -1;
-                else if (_isTouchingRightWall)
-                    _wallSlideSide = 1;
+                if (IsTouchingLeftWall)
+                    WallSlideSide = -1;
+                else if (IsTouchingRightWall)
+                    WallSlideSide = 1;
             }
 
-            if (_isWallSliding)
+            if (IsWallSliding)
             {
                 if (_rb.linearVelocity.y < 0)
                 {
-                    _rb.linearVelocity = new Vector2(_wallSlideSide * wallStickForce, Max(_rb.linearVelocity.y, -wallSlideSpeed));
+                    _rb.linearVelocity = new Vector2(WallSlideSide * wallStickForce, Max(_rb.linearVelocity.y, -wallSlideSpeed));
 
-                    if (_postWallJump)
-                        _postWallJump = false;
+                    if (PostWallJump)
+                        PostWallJump = false;
                 }
             }
-            else if (JumpState == JumpStateEnum.WallCharging)
+            else if (JumpSystem.JumpState == JumpSystem.JumpStateEnum.WallCharging)
             {
-                _rb.linearVelocity = new Vector2(_wallSlideSide * wallStickForce, _rb.linearVelocity.y);
+                _rb.linearVelocity = new Vector2(WallSlideSide * wallStickForce, _rb.linearVelocity.y);
             }
 
-            if (wasWallSliding != _isWallSliding || (_isWallSliding && _lastWallSlideSideRPC != _wallSlideSide))
+            if (wasWallSliding != IsWallSliding || (IsWallSliding && _lastWallSlideSideRPC != WallSlideSide))
             {
-                photonView.RPC(nameof(RPC_SyncWallSlideVisuals), RpcTarget.Others, _isWallSliding, _wallSlideSide);
-                _lastWallSlideSideRPC = _wallSlideSide;
+                photonView.RPC(nameof(RPC_SyncWallSlideVisuals), RpcTarget.Others, IsWallSliding, WallSlideSide);
+                _lastWallSlideSideRPC = WallSlideSide;
             }
         }
 
-        UpdateWallSlideVisuals(_isWallSliding, _wallSlideSide);
+        UpdateWallSlideVisuals(IsWallSliding, WallSlideSide);
 
-        animator.SetBool(IsWallSliding, _isWallSliding);
+        animator.SetBool(IsWallSlidingAnimVar, IsWallSliding);
     }
 
     /// Updates wall sliding visuals for both local and remote players
     private void UpdateWallSlideVisuals(bool isSliding, int slideSide)
     {
-        if (isSliding || JumpState == JumpStateEnum.WallCharging)
+        if (isSliding || JumpSystem.JumpState == JumpSystem.JumpStateEnum.WallCharging)
         {
             var shouldFaceRight = slideSide > 0;
             if (shouldFaceRight != _spriteFlipManager.IsFacingRight() && photonView.IsMine)
                 FlipPlayerSprite();
 
             spriteTransform.rotation = Quaternion.Euler(0, 0, slideSide * 90f);
-            var offsetPosition = _originalSpritePosition;
+            var offsetPosition = OriginalSpritePosition;
             offsetPosition.x += slideSide * wallSlideOffset;
             spriteTransform.localPosition = offsetPosition;
         }
-        else if (spriteTransform.rotation != Quaternion.identity || spriteTransform.localPosition != _originalSpritePosition)
+        else if (spriteTransform.rotation != Quaternion.identity || spriteTransform.localPosition != OriginalSpritePosition)
         {
             spriteTransform.rotation = Quaternion.identity;
-            spriteTransform.localPosition = _originalSpritePosition;
+            spriteTransform.localPosition = OriginalSpritePosition;
         }
     }
 
@@ -485,42 +346,10 @@ public class PlayerController : MonoBehaviourPunCallbacks
     {
         if (photonView.IsMine) return;
 
-        _isWallSliding = isSliding;
-        _wallSlideSide = slideSide;
+        IsWallSliding = isSliding;
+        WallSlideSide = slideSide;
 
         UpdateWallSlideVisuals(isSliding, slideSide);
-    }
-
-    /// Converts normal jump to wall jump when hitting a wall
-    private void ConvertToWallJump()
-    {
-        var chargeTime = Min(Time.time - _jumpChargeStartTime, maxChargeTime);
-        var chargeProgress = Clamp01(chargeTime / maxChargeTime);
-
-        JumpState = JumpStateEnum.WallCharging;
-
-        _jumpChargeStartTime = Time.time - (chargeProgress * maxWallChargeTime);
-
-        if (_isTouchingLeftWall)
-            _wallSlideSide = -1;
-        else if (_isTouchingRightWall)
-            _wallSlideSide = 1;
-
-        animator.SetBool(IsJumpQueued, true);
-    }
-
-    /// Pushes player away from wall when they reach ground during wall jump charge
-    private void CancelWallJumpWithGroundPush()
-    {
-        JumpState = JumpStateEnum.Idle;
-
-        _jumpChargeUIManager.SetChargingState(false, 0f, false);
-        animator.SetBool(IsJumpQueued, false);
-
-        _rb.linearVelocity = new Vector2(-_wallSlideSide * wallGroundPushForce, _rb.linearVelocity.y);
-
-        spriteTransform.rotation = Quaternion.identity;
-        spriteTransform.localPosition = _originalSpritePosition;
     }
     #endregion
 
@@ -531,14 +360,14 @@ public class PlayerController : MonoBehaviourPunCallbacks
         if (IsPaused)
             return;
 
-        HandleJumpInput();
+        JumpSystem.HandleJumpInput();
 
-        if (_movementDisabledForJump)
+        if (JumpSystem.IsMovementDisabledForJump())
             return;
 
         var horizontalInput = _playerInputActions.Player.Move.ReadValue<Vector2>().x;
 
-        if (!_isWallSliding && JumpState != JumpStateEnum.WallCharging)
+        if (!IsWallSliding && JumpSystem.JumpState != JumpSystem.JumpStateEnum.WallCharging)
             HandlePlayerDirection(horizontalInput);
 
         if (!IsStanding)
@@ -576,22 +405,22 @@ public class PlayerController : MonoBehaviourPunCallbacks
         _newDeceleration = HasCatnip ? deceleration * catnipDecelerationMultiplier : deceleration;
         var currentTurboSpeed = HasCatnip ? turboSpeed * catnipSpeedMultiplier : turboSpeed;
 
-        if (_isWallSliding || JumpState == JumpStateEnum.WallCharging)
+        if (IsWallSliding || JumpSystem.JumpState == JumpSystem.JumpStateEnum.WallCharging)
         {
             _rb.linearVelocity = new Vector2(0, _rb.linearVelocity.y);
             return;
         }
 
-        if (JumpState == JumpStateEnum.Charging && _startedChargingOnGround)
+        if (JumpSystem.JumpState == JumpSystem.JumpStateEnum.Charging && JumpSystem.GetStartedChargingOnGround())
         {
-            _rb.linearVelocity = new Vector2(currentSpeed, _rb.linearVelocity.y);
+            _rb.linearVelocity = new Vector2(CurrentSpeed, _rb.linearVelocity.y);
             return;
         }
 
-        if ((horizontalInput < 0 && _isTouchingLeftWall) || (horizontalInput > 0 && _isTouchingRightWall))
+        if ((horizontalInput < 0 && IsTouchingLeftWall) || (horizontalInput > 0 && IsTouchingRightWall))
         {
-            currentSpeed = MoveTowards(currentSpeed, 0, _newDeceleration * Time.deltaTime);
-            _rb.linearVelocity = new Vector2(currentSpeed, _rb.linearVelocity.y);
+            CurrentSpeed = MoveTowards(CurrentSpeed, 0, _newDeceleration * Time.deltaTime);
+            _rb.linearVelocity = new Vector2(CurrentSpeed, _rb.linearVelocity.y);
             return;
         }
 
@@ -615,7 +444,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
                 var targetSpeed = _newMaxSpeed;
 
-                if (Abs(currentSpeed) >= _newMaxSpeed * maxSpeedThreshold && Approximately(Sign(currentSpeed), moveDirection))
+                if (Abs(CurrentSpeed) >= _newMaxSpeed * maxSpeedThreshold && Approximately(Sign(CurrentSpeed), moveDirection))
                 {
                     _timeAtMaxSpeed += Time.deltaTime;
 
@@ -630,7 +459,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
                 if (_isTurboActive)
                     targetSpeed = currentTurboSpeed;
 
-                currentSpeed = MoveTowards(currentSpeed, horizontalInput * targetSpeed, currentAccel * Time.deltaTime);
+                CurrentSpeed = MoveTowards(CurrentSpeed, horizontalInput * targetSpeed, currentAccel * Time.deltaTime);
                 break;
 
             case <= 0.01f:
@@ -640,391 +469,12 @@ public class PlayerController : MonoBehaviourPunCallbacks
                 _isTurboActive = false;
                 _lastMoveDirection = 0;
 
-                currentSpeed = MoveTowards(currentSpeed, 0, _newDeceleration * Time.deltaTime);
+                CurrentSpeed = MoveTowards(CurrentSpeed, 0, _newDeceleration * Time.deltaTime);
                 break;
             }
         }
 
-        _rb.linearVelocity = new Vector2(currentSpeed, _rb.linearVelocity.y);
-    }
-    #endregion
-
-    #region Jump
-    /// Processes jump input and initiates jump
-    private void HandleJumpInput()
-    {
-        var jumpOnCooldown = Time.time < _lastJumpTime + jumpCooldown;
-        var horizontalInput = _playerInputActions.Player.Move.ReadValue<Vector2>().x;
-
-        // Handle initial jump button press
-        if (_playerInputActions.Player.Jump.WasPressedThisFrame() && JumpState == JumpStateEnum.Idle && IsStanding && !jumpOnCooldown)
-        {
-            switch (_isWallSliding)
-            {
-                case true when _wallContactTime >= minWallContactTime:
-                    _jumpChargeStartTime = Time.time;
-                    JumpState = JumpStateEnum.WallCharging;
-                    _jumpFullyCharged = false;
-                    _jumpChargeUIManager.SetChargingState(true, 0f, false);
-                    animator.SetBool(IsJumpQueued, true);
-                    break;
-                case false:
-                    _jumpChargeStartTime = Time.time - StoredChargeProgress;
-                    _jumpChargeDirection = (int)Sign(_rb.linearVelocity.x);
-                    _startedChargingOnGround = IsGrounded;
-                    _releaseJumpInAir = false;
-                    JumpState = _startedChargingOnGround ? JumpStateEnum.Charging : JumpStateEnum.Buffered;
-                    _jumpFullyCharged = false;
-                    HasBufferedChargeInAir = !_startedChargingOnGround;
-                    if (_startedChargingOnGround)
-                    {
-                        _movementDisabledForJump = true;
-                        animator.SetBool(IsJumpQueued, true);
-                    }
-                    _jumpChargeUIManager.SetChargingState(true, StoredChargeProgress / maxChargeTime, false);
-                    break;
-            }
-        }
-        // Handle additional jump presses while buffered jump is active
-        else if (_playerInputActions.Player.Jump.WasPressedThisFrame() &&
-                 JumpState == JumpStateEnum.Idle &&
-                 !IsGrounded &&
-                 HasBufferedChargeInAir &&
-                 !jumpOnCooldown)
-        {
-            // Resume buffered jump with stored progress
-            _jumpChargeStartTime = Time.time - StoredChargeProgress;
-            _jumpChargeDirection = (int)Sign(_rb.linearVelocity.x);
-            _releaseJumpInAir = false;
-            JumpState = JumpStateEnum.Buffered;
-            _jumpFullyCharged = StoredChargeProgress >= maxChargeTime;
-            _jumpChargeUIManager.SetChargingState(true, StoredChargeProgress / maxChargeTime, _jumpFullyCharged);
-        }
-
-        if (_playerInputActions.Player.Jump.IsPressed() || !_jumpButtonHeld) return;
-
-        _jumpButtonHeld = false;
-
-        switch (JumpState)
-        {
-            case JumpStateEnum.Charging:
-            case JumpStateEnum.Buffered:
-                var chargeTime = Min(Time.time - _jumpChargeStartTime, maxChargeTime);
-                _jumpChargeLevel = chargeTime;
-                StoredChargeProgress = chargeTime;
-
-                if (IsGrounded)
-                {
-                    ExecuteJump(chargeTime);
-                    HasBufferedChargeInAir = false;
-                    StoredChargeProgress = 0f;
-                }
-                else
-                {
-                    _releaseJumpInAir = true;
-                    HasBufferedChargeInAir = true;
-                    JumpState = JumpStateEnum.Idle;
-
-                    _jumpChargeUIManager.SetChargingState(false, StoredChargeProgress / maxChargeTime, _jumpFullyCharged);
-                }
-                break;
-
-            case JumpStateEnum.WallCharging:
-                var wallChargeTime = Min(Time.time - _jumpChargeStartTime, maxWallChargeTime);
-                ExecuteWallJump(wallChargeTime, horizontalInput);
-                break;
-        }
-    }
-
-    /// Checks if a jump should execute on landing
-    private void CheckJumpLanding(bool wasGrounded, bool isGroundedNow)
-    {
-        if (!wasGrounded && IsGrounded)
-        {
-            spriteTransform.rotation = Quaternion.identity;
-            spriteTransform.localPosition = _originalSpritePosition;
-            _postWallJump = false;
-            _isInBounceWindow = false;
-        }
-
-        if (wasGrounded || !isGroundedNow) return;
-
-        if (JumpState == JumpStateEnum.WallCharging)
-        {
-            CancelJumpCharge();
-            return;
-        }
-
-        if (JumpState != JumpStateEnum.Charging && JumpState != JumpStateEnum.Buffered && !HasBufferedChargeInAir) return;
-
-        if (_startedChargingOnGround)
-        {
-            var chargeTime = Min(Time.time - _jumpChargeStartTime, maxChargeTime);
-            ExecuteJump(chargeTime);
-            return;
-        }
-
-        if (JumpState == JumpStateEnum.Buffered)
-        {
-            animator.SetBool(IsJumpQueued, true);
-            if (!_jumpButtonHeld)
-            {
-                ExecuteJump(_jumpFullyCharged ? maxChargeTime : _jumpChargeLevel);
-            }
-            else
-            {
-                JumpState = JumpStateEnum.Charging;
-                _startedChargingOnGround = true;
-                _movementDisabledForJump = true;
-            }
-            return;
-        }
-
-        // Handle landing with stored charge
-        if (HasBufferedChargeInAir)
-        {
-            animator.SetBool(IsJumpQueued, true);
-            if (_jumpButtonHeld)
-            {
-                JumpState = JumpStateEnum.Charging;
-                _jumpChargeStartTime = Time.time - StoredChargeProgress;
-                _startedChargingOnGround = true;
-                _movementDisabledForJump = true;
-                _jumpChargeUIManager.SetChargingState(true, StoredChargeProgress / maxChargeTime, _jumpFullyCharged);
-            }
-            else
-            {
-                ExecuteJump(_jumpFullyCharged ? maxChargeTime : StoredChargeProgress);
-                HasBufferedChargeInAir = false;
-                StoredChargeProgress = 0f;
-            }
-            return;
-        }
-
-        if (_jumpButtonHeld)
-        {
-            _startedChargingOnGround = true;
-            _movementDisabledForJump = true;
-            animator.SetBool(IsJumpQueued, true);
-        }
-        else if (_releaseJumpInAir)
-        {
-            animator.SetBool(IsJumpQueued, true);
-            ExecuteJump(_jumpFullyCharged ? maxChargeTime : _jumpChargeLevel);
-            _releaseJumpInAir = false;
-            HasBufferedChargeInAir = false;
-            StoredChargeProgress = 0f;
-        }
-        else
-        {
-            JumpState = JumpStateEnum.Idle;
-            _jumpChargeUIManager.SetChargingState(false, 0f, false);
-        }
-    }
-
-    /// Performs the actual jump with calculated force
-    private void ExecuteJump(float chargeTime)
-    {
-        JumpState = JumpStateEnum.Idle;
-        _movementDisabledForJump = false;
-        _releaseJumpInAir = false;
-        _startedChargingOnGround = false;
-        HasBufferedChargeInAir = false;
-        StoredChargeProgress = 0f;
-
-        _jumpChargeUIManager.SetChargingState(false, 0f, false);
-        _jumpChargeUIManager.ForceUIStateSync();
-
-        var chargeProgress = Clamp01(chargeTime / maxChargeTime);
-        var jumpMultiplier = Lerp(minJumpForce, maxJumpForce, chargeProgress);
-
-        if (HasCatnip)
-            jumpMultiplier *= catnipJumpMultiplier;
-
-        _cameraController.TriggerJumpFOV();
-
-        ResetAccelerationState();
-
-        var currentHorizontalInput = _playerInputActions.Player.Move.ReadValue<Vector2>().x;
-        var currentInputDirection = (int)Sign(currentHorizontalInput);
-
-        var isOppositeDirection = _jumpChargeDirection != 0 && currentInputDirection != 0 && currentInputDirection != _jumpChargeDirection;
-
-        _rb.linearVelocity = new Vector2(_rb.linearVelocity.x, 0);
-        if (isOppositeDirection)
-        {
-            _rb.linearVelocity = new Vector2(0, jumpMultiplier);
-            currentSpeed = 0;
-        }
-        else
-        {
-            _rb.linearVelocity = new Vector2(_rb.linearVelocity.x, jumpMultiplier);
-        }
-
-        _isInBounceWindow = true;
-        _bounceWindowEndTime = Time.time + wallBounceWindow;
-        _hasBounced = false;
-
-        _lastJumpTime = Time.time;
-        animator.SetBool(IsJumpQueued, false);
-    }
-
-    /// Performs wall jump with calculated force
-    private void ExecuteWallJump(float chargeTime, float currentHorizontalInput)
-    {
-        JumpState = JumpStateEnum.Idle;
-        _jumpChargeUIManager.SetChargingState(false, 0f, false);
-        animator.SetBool(IsJumpQueued, false);
-
-        _postWallJump = true;
-
-        var chargeProgress = Clamp01(chargeTime / maxWallChargeTime);
-        var jumpMultiplier = Lerp(minWallJumpForce, maxWallJumpForce, chargeProgress);
-
-        if (HasCatnip)
-            jumpMultiplier *= catnipJumpMultiplier;
-
-        _cameraController.TriggerJumpFOV();
-
-        ResetAccelerationState();
-
-        var currentInputDirection = (int)Sign(currentHorizontalInput);
-
-        var pushingAwayFromWall = (currentInputDirection == -1 && _wallSlideSide == 1) ||
-                                  (currentInputDirection == 1 && _wallSlideSide == -1);
-
-        if (pushingAwayFromWall)
-        {
-            _rb.linearVelocity = new Vector2(-_wallSlideSide * wallDetachForce, jumpMultiplier);
-            _postWallJump = false;
-
-            spriteTransform.rotation = Quaternion.identity;
-            spriteTransform.localPosition = _originalSpritePosition;
-        }
-        else
-        {
-            _rb.linearVelocity = new Vector2(0, jumpMultiplier);
-        }
-
-        currentSpeed = _rb.linearVelocity.x;
-        _lastJumpTime = Time.time;
-    }
-
-    /// Cancels the jump charge process
-    private void CancelJumpCharge()
-    {
-        if (JumpState == JumpStateEnum.Idle && !HasBufferedChargeInAir)
-            return;
-
-        if (!IsGrounded && JumpState != JumpStateEnum.WallCharging && JumpState != JumpStateEnum.Idle)
-        {
-            var chargeTime = Min(Time.time - _jumpChargeStartTime, maxChargeTime);
-            StoredChargeProgress = chargeTime;
-            HasBufferedChargeInAir = true;
-        }
-        else
-        {
-            HasBufferedChargeInAir = false;
-            StoredChargeProgress = 0f;
-        }
-
-        JumpState = JumpStateEnum.Idle;
-
-        _movementDisabledForJump = false;
-        _jumpButtonHeld = false;
-        _releaseJumpInAir = false;
-        _startedChargingOnGround = false;
-
-        _jumpChargeUIManager.SetChargingState(false, 0f, false);
-        _jumpChargeUIManager.ForceUIStateSync();
-        animator.SetBool(IsJumpQueued, false);
-
-        if (!_isWallSliding && spriteTransform.localPosition == _originalSpritePosition) return;
-
-        spriteTransform.rotation = Quaternion.identity;
-        spriteTransform.localPosition = _originalSpritePosition;
-    }
-    #endregion
-
-    #region Jump Charge Visualization
-    /// Updates jump charge progress and visuals with network synchronization
-    private void UpdateJumpCharging()
-    {
-        if (!_jumpButtonHeld) return;
-
-        var chargeProgress = 0f;
-        var fullCharged = false;
-
-        switch (JumpState)
-        {
-            case JumpStateEnum.Charging:
-            case JumpStateEnum.Buffered:
-                var chargeTime = Min(Time.time - _jumpChargeStartTime, maxChargeTime);
-                chargeProgress = Clamp01(chargeTime / maxChargeTime);
-
-                if (_cameraController)
-                    _cameraController.UpdateChargingJumpFOV(chargeProgress);
-
-                if (chargeTime >= maxChargeTime)
-                {
-                    _jumpFullyCharged = true;
-                    _jumpChargeLevel = maxChargeTime;
-                    fullCharged = true;
-                }
-                break;
-
-            case JumpStateEnum.WallCharging:
-                var wallChargeTime = Min(Time.time - _jumpChargeStartTime, maxWallChargeTime);
-                chargeProgress = Clamp01(wallChargeTime / maxWallChargeTime);
-
-                if (_cameraController)
-                    _cameraController.UpdateChargingJumpFOV(chargeProgress);
-
-                if (wallChargeTime >= maxWallChargeTime)
-                {
-                    _jumpFullyCharged = true;
-                    _jumpChargeLevel = maxWallChargeTime;
-                    fullCharged = true;
-                }
-                break;
-        }
-
-        // Update the UI with current charge state
-        _jumpChargeUIManager.SetChargingState(true, chargeProgress, fullCharged);
-    }
-
-    /// Syncs jump state to other players
-    private void SyncJumpState()
-    {
-        if (!photonView.IsMine) return;
-
-        if (_previousJumpState == JumpState) return;
-
-        if (JumpState == JumpStateEnum.Idle)
-        {
-            photonView.RPC(nameof(_jumpChargeUIManager.RPC_EndJumpCharge), RpcTarget.Others);
-        }
-        else if (_previousJumpState == JumpStateEnum.Idle)
-        {
-            var maxChargeTimeToUse = JumpState == JumpStateEnum.WallCharging ? maxWallChargeTime : maxChargeTime;
-            photonView.RPC(nameof(_jumpChargeUIManager.RPC_StartJumpCharge), RpcTarget.Others, (int)JumpState, maxChargeTimeToUse);
-        }
-
-        _previousJumpState = JumpState;
-    }
-
-    /// Sets this player as being spectated or not
-    internal void SetSpectatedState()
-    {
-        if (_jumpChargeUIManager)
-            _jumpChargeUIManager.SetSpectatedState();
-    }
-
-    /// Called when this player starts being spectated
-    internal void OnStartSpectating()
-    {
-        if (photonView.IsMine && JumpState != JumpStateEnum.Idle)
-            SyncJumpState();
+        _rb.linearVelocity = new Vector2(CurrentSpeed, _rb.linearVelocity.y);
     }
     #endregion
 
@@ -1032,7 +482,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
     /// Checks if player is idle for animations
     private void CheckIdleState()
     {
-        if (_isWallSliding || JumpState == JumpStateEnum.WallCharging)
+        if (IsWallSliding || JumpSystem.JumpState == JumpSystem.JumpStateEnum.WallCharging)
         {
             _idleTimer = 0f;
             animator.SetBool(IsLaying, false);
@@ -1050,7 +500,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
             return;
         }
 
-        if (Approximately(currentSpeed, 0f) && Approximately(verticalSpeed, 0f) && animator.GetBool(IsLaying) == false)
+        if (Approximately(CurrentSpeed, 0f) && Approximately(VerticalSpeed, 0f) && animator.GetBool(IsLaying) == false)
         {
             _idleTimer += Time.deltaTime;
             if (!(_idleTimer >= idleToLayingTime)) return;
@@ -1071,34 +521,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
         IsGrounded = Physics2D.OverlapCircle(groundCheck.position, groundCheckRadius, groundLayerMask) || IsDead;
 
         if (wasGrounded != IsGrounded)
-            CheckJumpLanding(wasGrounded, IsGrounded);
-
-        if (wasGrounded && !IsGrounded)
-            switch (JumpState)
-            {
-                case JumpStateEnum.Charging when _startedChargingOnGround:
-                {
-                    var chargeTime = Min(Time.time - _jumpChargeStartTime, maxChargeTime);
-                    ExecuteJump(chargeTime);
-                    break;
-                }
-                case JumpStateEnum.Charging when !_jumpButtonHeld && !_releaseJumpInAir:
-                    JumpState = JumpStateEnum.Idle;
-                    _jumpChargeUIManager.SetChargingState(false, 0f, false);
-                    _jumpChargeUIManager.ForceUIStateSync();
-                    animator.SetBool(IsJumpQueued, false);
-                    break;
-            }
-
-        if (wasGrounded && !IsGrounded && (JumpState == JumpStateEnum.Charging && _startedChargingOnGround))
-        {
-            var chargeTime = Min(Time.time - _jumpChargeStartTime, maxChargeTime);
-            ExecuteJump(chargeTime);
-        }
-        else if (!IsGrounded && (JumpState == JumpStateEnum.Charging && _startedChargingOnGround))
-        {
-            CancelJumpCharge();
-        }
+            JumpSystem.CheckJumpLanding(wasGrounded, IsGrounded);
 
         if (IsGrounded && IsJumpPaused)
         {
@@ -1131,9 +554,9 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
         transform.position = position;
         spriteTransform.rotation = Quaternion.identity;
-        spriteTransform.localPosition = _originalSpritePosition;
+        spriteTransform.localPosition = OriginalSpritePosition;
         ResetAccelerationState();
-        currentSpeed = 0f;
+        CurrentSpeed = 0f;
 
         if (_cameraController)
             _cameraController.OnPlayerRespawn();
@@ -1147,9 +570,9 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
         transform.position = position;
         spriteTransform.rotation = Quaternion.identity;
-        spriteTransform.localPosition = _originalSpritePosition;
+        spriteTransform.localPosition = OriginalSpritePosition;
         ResetAccelerationState();
-        currentSpeed = 0f;
+        CurrentSpeed = 0f;
     }
 
     /// Enables or disables player movement
@@ -1204,7 +627,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
         _rb.constraints = RigidbodyConstraints2D.FreezeAll;
 
         spriteTransform.rotation = Quaternion.identity;
-        spriteTransform.localPosition = _originalSpritePosition;
+        spriteTransform.localPosition = OriginalSpritePosition;
 
         if (_cameraController)
             _cameraController.OnPlayerDeath();
@@ -1239,7 +662,21 @@ public class PlayerController : MonoBehaviourPunCallbacks
         if (_cameraController)
             _cameraController.OnPlayerRespawn();
 
-        CancelJumpCharge();
+        JumpSystem.CancelJumpCharge();
+    }
+    #endregion
+
+    #region Spectating
+    /// Sets this player as being spectated
+    internal void SetSpectatedState()
+    {
+        JumpSystem.SetSpectatedState();
+    }
+
+    /// Called when this player starts being spectated
+    internal void OnStartSpectating()
+    {
+        JumpSystem.OnStartSpectating();
     }
     #endregion
 }

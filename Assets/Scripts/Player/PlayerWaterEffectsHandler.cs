@@ -68,8 +68,8 @@ public class PlayerWaterEffectsHandler : MonoBehaviour
         }
 
         _originalMaxSpeed = _playerController.maxSpeed;
-        _originalMinJumpForce = _playerController.minJumpForce;
-        _originalMaxJumpForce = _playerController.maxJumpForce;
+        _originalMinJumpForce = _playerController.JumpSystem.minJumpForce;
+        _originalMaxJumpForce = _playerController.JumpSystem.maxJumpForce;
         _originalBaseAcceleration = _playerController.baseAcceleration;
 
         if (waterEntrySplashPrefab == null)
@@ -93,7 +93,7 @@ public class PlayerWaterEffectsHandler : MonoBehaviour
 
         if (!_photonView.IsMine ||
             !waterSplashPrefab ||
-            !(Mathf.Abs(_playerController.currentSpeed) > minSpeedToShowParticles) ||
+            !(Mathf.Abs(_playerController.CurrentSpeed) > minSpeedToShowParticles) ||
             !(Time.time > _lastParticleTime + particleSpawnInterval)) return;
 
         _photonView.RPC(nameof(SpawnWaterSplash), RpcTarget.All);
@@ -153,13 +153,13 @@ public class PlayerWaterEffectsHandler : MonoBehaviour
         _waterEffectsApplied = true;
 
         _originalMaxSpeed = _playerController.maxSpeed;
-        _originalMinJumpForce = _playerController.minJumpForce;
-        _originalMaxJumpForce = _playerController.maxJumpForce;
+        _originalMinJumpForce = _playerController.JumpSystem.minJumpForce;
+        _originalMaxJumpForce = _playerController.JumpSystem.maxJumpForce;
         _originalBaseAcceleration = _playerController.baseAcceleration;
 
         _playerController.maxSpeed *= speedMultiplierInWater;
-        _playerController.minJumpForce *= jumpMultiplierInWater;
-        _playerController.maxJumpForce *= jumpMultiplierInWater;
+        _playerController.JumpSystem.minJumpForce *= jumpMultiplierInWater;
+        _playerController.JumpSystem.maxJumpForce *= jumpMultiplierInWater;
         _playerController.baseAcceleration *= accelerationMultiplierInWater;
 
         if (affectCamera && _cameraController != null && (_photonView.IsMine || _spectatorModeManager.IsSpectating))
@@ -175,8 +175,8 @@ public class PlayerWaterEffectsHandler : MonoBehaviour
         _waterEffectsApplied = false;
 
         _playerController.maxSpeed = _originalMaxSpeed;
-        _playerController.minJumpForce = _originalMinJumpForce;
-        _playerController.maxJumpForce = _originalMaxJumpForce;
+        _playerController.JumpSystem.minJumpForce = _originalMinJumpForce;
+        _playerController.JumpSystem.maxJumpForce = _originalMaxJumpForce;
         _playerController.baseAcceleration = _originalBaseAcceleration;
 
         if (_photonView.IsMine)

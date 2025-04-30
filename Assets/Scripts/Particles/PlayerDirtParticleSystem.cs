@@ -97,7 +97,7 @@ public class PlayerDirtParticleSystem : MonoBehaviour
         _photonView = playerObject.GetComponent<PhotonView>();
         _wasGrounded = _playerController.IsGrounded;
 
-        _inverseJumpForceRange = 1f / (_playerController.maxJumpForce - _playerController.minJumpForce);
+        _inverseJumpForceRange = 1f / (_playerController.JumpSystem.maxJumpForce - _playerController.JumpSystem.minJumpForce);
         _inverseLandingForceRange = 1f / (maximumLandingForce - minimumLandingForce);
         _inverseMaxSpeed = 1f / _playerController.maxSpeed;
 
@@ -126,7 +126,7 @@ public class PlayerDirtParticleSystem : MonoBehaviour
         }
 
         var isGrounded = _playerController.IsGrounded;
-        var verticalSpeed = _playerController.verticalSpeed;
+        var verticalSpeed = _playerController.VerticalSpeed;
 
         if (!isGrounded && verticalSpeed < 0)
             _lastFallingSpeed = Abs(verticalSpeed);
@@ -141,7 +141,7 @@ public class PlayerDirtParticleSystem : MonoBehaviour
 
         if (isGrounded)
         {
-            var currentSpeed = Abs(_playerController.currentSpeed);
+            var currentSpeed = Abs(_playerController.CurrentSpeed);
             UpdateWalkingParticles(currentSpeed);
         }
         else if (_emission.rateOverTime.constant > 0)
@@ -244,7 +244,7 @@ public class PlayerDirtParticleSystem : MonoBehaviour
     private void EmitJumpParticles(float jumpForce)
     {
         var jumpForceFactor = Clamp01(
-            (jumpForce - _playerController.minJumpForce) * _inverseJumpForceRange
+            (jumpForce - _playerController.JumpSystem.minJumpForce) * _inverseJumpForceRange
         );
 
         var burstCount = RoundToInt(Lerp(jumpBurstCountMin, jumpBurstCountMax, jumpForceFactor));

@@ -1329,6 +1329,7 @@ GameObject:
   - component: {fileID: 1652324734472532652}
   - component: {fileID: 413369398684653171}
   - component: {fileID: 145821301250412423}
+  - component: {fileID: 1965097904456595345}
   - component: {fileID: 4098701528552782764}
   - component: {fileID: 9176519645128001645}
   - component: {fileID: 6099844445017409013}
@@ -1588,8 +1589,6 @@ MonoBehaviour:
   turboSpeed: 8.1
   timeToTurboSpeed: 1.5
   maxSpeedThreshold: 0.97
-  currentSpeed: 0
-  verticalSpeed: 0
   groundCheck: {fileID: 1442861436919526986}
   groundCheckRadius: 0.2
   groundLayerMask:
@@ -1606,6 +1605,34 @@ MonoBehaviour:
   wallStickForce: 0.5
   spriteTransform: {fileID: 6004654633719211774}
   wallSlideOffset: 0.04
+  playerNameTag: {fileID: 8640071455980941114}
+  deathHeight: -50
+  playerDeathHandler: {fileID: 6099844445017409013}
+  remotePlayerSpriteOrder: 6
+  remotePlayerCanvasOrder: 7
+  remotePlayerAlpha: 0.7
+  idleToLayingTime: 4
+  catnipSpeedMultiplier: 1.1
+  catnipJumpMultiplier: 1.1
+  catnipDecelerationMultiplier: 0.95
+  defaultGravityScale: 2.5
+--- !u!114 &1965097904456595345
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6966233725223629069}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1dfd791b75074f13832dcf45b192b761, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  animator: {fileID: 5390650277062847292}
+  minJumpForce: 8.5
+  maxJumpForce: 14.2
+  maxChargeTime: 1.1
+  jumpCooldown: 0.1
   minWallJumpForce: 6
   maxWallJumpForce: 14
   maxWallChargeTime: 0.8
@@ -1617,21 +1644,6 @@ MonoBehaviour:
   wallBounceVerticalMultiplier: 1
   preserveMomentumOnBounce: 1
   momentumPreservation: 0.5
-  playerNameTag: {fileID: 8640071455980941114}
-  minJumpForce: 9
-  maxJumpForce: 14.2
-  maxChargeTime: 1.1
-  jumpCooldown: 0.1
-  deathHeight: -50
-  playerDeathHandler: {fileID: 6099844445017409013}
-  remotePlayerSpriteOrder: 6
-  remotePlayerCanvasOrder: 7
-  remotePlayerAlpha: 0.7
-  idleToLayingTime: 4
-  catnipSpeedMultiplier: 1.1
-  catnipJumpMultiplier: 1.1
-  catnipDecelerationMultiplier: 0.95
-  defaultGravityScale: 2.5
 --- !u!114 &4098701528552782764
 MonoBehaviour:
   m_ObjectHideFlags: 0
