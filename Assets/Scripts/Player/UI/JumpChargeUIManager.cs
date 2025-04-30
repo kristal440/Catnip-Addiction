@@ -12,6 +12,11 @@ public class JumpChargeUIManager : MonoBehaviourPunCallbacks
     [SerializeField] [Tooltip("Container for jump charge bar")] private GameObject jumpChargeBarGameObject;
     [SerializeField] [Tooltip("Jump charge fill bar")] private Image jumpChargeBar;
 
+    [Header("Buffered Jump Visualization")]
+    [SerializeField] [Tooltip("Should charge bar remain visible for buffered jumps")] private bool showStoredChargeBar = true;
+    [SerializeField] [Range(0.1f, 1.0f)] [Tooltip("Alpha transparency for stored charge visualization")] private float storedChargeAlpha = 0.7f;
+    [SerializeField] [Tooltip("Color for stored charge bar")] private Color storedChargeColor = new(0.7f, 0.7f, 1f);
+
     [Header("Remote Player Settings")]
     [SerializeField] [Tooltip("Show jump charge for all other players regardless of spectating")] private bool alwaysShowOtherPlayersCharge;
     [SerializeField] [Tooltip("Scale of the jump charge bar for remote players (X axis)")] private float remotePlayerChargeBarScaleX = 1f;
@@ -22,6 +27,8 @@ public class JumpChargeUIManager : MonoBehaviourPunCallbacks
     private bool _isCharging;
     private float _chargeProgress;
     private Vector3 _originalScale;
+    private Color _originalChargeColor;
+    private bool _showingStoredCharge;
 
     // Values for local calculation for remote players
     private bool _remotePlayerIsCharging;
@@ -49,6 +56,7 @@ public class JumpChargeUIManager : MonoBehaviourPunCallbacks
             );
         }
 
+        _originalChargeColor = jumpChargeBar.color;
         HideChargeBar();
     }
 
@@ -61,23 +69,48 @@ public class JumpChargeUIManager : MonoBehaviourPunCallbacks
         else if (_remotePlayerIsCharging && (alwaysShowOtherPlayersCharge || IsBeingSpectated()))
             // Remote player needs to calculate charge progression locally
             UpdateRemoteChargeBar();
-        else if (jumpChargeBarGameObject.activeSelf) HideChargeBar();
+        else if (jumpChargeBarGameObject.activeSelf && !_showingStoredCharge)
+            HideChargeBar();
     }
 
     /// Updates charge bar for local player
     private void UpdateLocalChargeBar()
     {
         var isCharging = _playerController.JumpState != PlayerController.JumpStateEnum.Idle;
+        var hasStoredCharge = _playerController.HasBufferedChargeInAir && showStoredChargeBar;
 
         if (isCharging)
         {
             if (!jumpChargeBarGameObject.activeSelf)
                 jumpChargeBarGameObject.SetActive(true);
 
+            if (_showingStoredCharge)
+            {
+                _showingStoredCharge = false;
+                jumpChargeBar.color = _originalChargeColor;
+            }
+
             jumpChargeBar.fillAmount = _chargeProgress;
 
             if (_cameraController)
                 _cameraController.UpdateChargingJumpFOV(_chargeProgress);
+        }
+        else if (hasStoredCharge)
+        {
+            if (!jumpChargeBarGameObject.activeSelf)
+                jumpChargeBarGameObject.SetActive(true);
+
+            if (!_showingStoredCharge)
+            {
+                _showingStoredCharge = true;
+                jumpChargeBar.color = storedChargeColor;
+
+                var transparent = jumpChargeBar.color;
+                transparent.a = storedChargeAlpha;
+                jumpChargeBar.color = transparent;
+            }
+
+            jumpChargeBar.fillAmount = _playerController.StoredChargeProgress / _playerController.maxChargeTime;
         }
         else if (jumpChargeBarGameObject.activeSelf)
         {
@@ -110,6 +143,8 @@ public class JumpChargeUIManager : MonoBehaviourPunCallbacks
     private void HideChargeBar()
     {
         jumpChargeBarGameObject.SetActive(false);
+        _showingStoredCharge = false;
+        jumpChargeBar.color = _originalChargeColor;
 
         if (!photonView.IsMine)
         {

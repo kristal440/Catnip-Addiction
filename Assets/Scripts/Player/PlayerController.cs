@@ -156,6 +156,8 @@ public class PlayerController : MonoBehaviourPunCallbacks
     internal bool IsDead { get; private set; }
     private bool IsTouchingWall => _isTouchingLeftWall || _isTouchingRightWall;
     internal JumpStateEnum JumpState = JumpStateEnum.Idle;
+    internal float StoredChargeProgress;
+    internal bool HasBufferedChargeInAir;
 
     #endregion
 
@@ -654,7 +656,9 @@ public class PlayerController : MonoBehaviourPunCallbacks
         var jumpOnCooldown = Time.time < _lastJumpTime + jumpCooldown;
         var horizontalInput = _playerInputActions.Player.Move.ReadValue<Vector2>().x;
 
+        // Handle initial jump button press
         if (_playerInputActions.Player.Jump.WasPressedThisFrame() && JumpState == JumpStateEnum.Idle && IsStanding && !jumpOnCooldown)
+        {
             switch (_isWallSliding)
             {
                 case true when _wallContactTime >= minWallContactTime:
@@ -665,20 +669,37 @@ public class PlayerController : MonoBehaviourPunCallbacks
                     animator.SetBool(IsJumpQueued, true);
                     break;
                 case false:
-                    _jumpChargeStartTime = Time.time;
+                    _jumpChargeStartTime = Time.time - StoredChargeProgress;
                     _jumpChargeDirection = (int)Sign(_rb.linearVelocity.x);
                     _startedChargingOnGround = IsGrounded;
                     _releaseJumpInAir = false;
                     JumpState = _startedChargingOnGround ? JumpStateEnum.Charging : JumpStateEnum.Buffered;
                     _jumpFullyCharged = false;
+                    HasBufferedChargeInAir = !_startedChargingOnGround;
                     if (_startedChargingOnGround)
                     {
                         _movementDisabledForJump = true;
                         animator.SetBool(IsJumpQueued, true);
                     }
-                    _jumpChargeUIManager.SetChargingState(true, 0f, false);
+                    _jumpChargeUIManager.SetChargingState(true, StoredChargeProgress / maxChargeTime, false);
                     break;
             }
+        }
+        // Handle additional jump presses while buffered jump is active
+        else if (_playerInputActions.Player.Jump.WasPressedThisFrame() &&
+                 JumpState == JumpStateEnum.Idle &&
+                 !IsGrounded &&
+                 HasBufferedChargeInAir &&
+                 !jumpOnCooldown)
+        {
+            // Resume buffered jump with stored progress
+            _jumpChargeStartTime = Time.time - StoredChargeProgress;
+            _jumpChargeDirection = (int)Sign(_rb.linearVelocity.x);
+            _releaseJumpInAir = false;
+            JumpState = JumpStateEnum.Buffered;
+            _jumpFullyCharged = StoredChargeProgress >= maxChargeTime;
+            _jumpChargeUIManager.SetChargingState(true, StoredChargeProgress / maxChargeTime, _jumpFullyCharged);
+        }
 
         if (_playerInputActions.Player.Jump.IsPressed() || !_jumpButtonHeld) return;
 
@@ -690,8 +711,22 @@ public class PlayerController : MonoBehaviourPunCallbacks
             case JumpStateEnum.Buffered:
                 var chargeTime = Min(Time.time - _jumpChargeStartTime, maxChargeTime);
                 _jumpChargeLevel = chargeTime;
-                if (IsGrounded) ExecuteJump(chargeTime);
-                else _releaseJumpInAir = true;
+                StoredChargeProgress = chargeTime;
+
+                if (IsGrounded)
+                {
+                    ExecuteJump(chargeTime);
+                    HasBufferedChargeInAir = false;
+                    StoredChargeProgress = 0f;
+                }
+                else
+                {
+                    _releaseJumpInAir = true;
+                    HasBufferedChargeInAir = true;
+                    JumpState = JumpStateEnum.Idle;
+
+                    _jumpChargeUIManager.SetChargingState(false, StoredChargeProgress / maxChargeTime, _jumpFullyCharged);
+                }
                 break;
 
             case JumpStateEnum.WallCharging:
@@ -720,7 +755,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
             return;
         }
 
-        if (JumpState != JumpStateEnum.Charging && JumpState != JumpStateEnum.Buffered) return;
+        if (JumpState != JumpStateEnum.Charging && JumpState != JumpStateEnum.Buffered && !HasBufferedChargeInAir) return;
 
         if (_startedChargingOnGround)
         {
@@ -745,6 +780,27 @@ public class PlayerController : MonoBehaviourPunCallbacks
             return;
         }
 
+        // Handle landing with stored charge
+        if (HasBufferedChargeInAir)
+        {
+            animator.SetBool(IsJumpQueued, true);
+            if (_jumpButtonHeld)
+            {
+                JumpState = JumpStateEnum.Charging;
+                _jumpChargeStartTime = Time.time - StoredChargeProgress;
+                _startedChargingOnGround = true;
+                _movementDisabledForJump = true;
+                _jumpChargeUIManager.SetChargingState(true, StoredChargeProgress / maxChargeTime, _jumpFullyCharged);
+            }
+            else
+            {
+                ExecuteJump(_jumpFullyCharged ? maxChargeTime : StoredChargeProgress);
+                HasBufferedChargeInAir = false;
+                StoredChargeProgress = 0f;
+            }
+            return;
+        }
+
         if (_jumpButtonHeld)
         {
             _startedChargingOnGround = true;
@@ -756,6 +812,8 @@ public class PlayerController : MonoBehaviourPunCallbacks
             animator.SetBool(IsJumpQueued, true);
             ExecuteJump(_jumpFullyCharged ? maxChargeTime : _jumpChargeLevel);
             _releaseJumpInAir = false;
+            HasBufferedChargeInAir = false;
+            StoredChargeProgress = 0f;
         }
         else
         {
@@ -771,6 +829,8 @@ public class PlayerController : MonoBehaviourPunCallbacks
         _movementDisabledForJump = false;
         _releaseJumpInAir = false;
         _startedChargingOnGround = false;
+        HasBufferedChargeInAir = false;
+        StoredChargeProgress = 0f;
 
         _jumpChargeUIManager.SetChargingState(false, 0f, false);
         _jumpChargeUIManager.ForceUIStateSync();
@@ -853,8 +913,20 @@ public class PlayerController : MonoBehaviourPunCallbacks
     /// Cancels the jump charge process
     private void CancelJumpCharge()
     {
-        if (JumpState == JumpStateEnum.Idle)
+        if (JumpState == JumpStateEnum.Idle && !HasBufferedChargeInAir)
             return;
+
+        if (!IsGrounded && JumpState != JumpStateEnum.WallCharging && JumpState != JumpStateEnum.Idle)
+        {
+            var chargeTime = Min(Time.time - _jumpChargeStartTime, maxChargeTime);
+            StoredChargeProgress = chargeTime;
+            HasBufferedChargeInAir = true;
+        }
+        else
+        {
+            HasBufferedChargeInAir = false;
+            StoredChargeProgress = 0f;
+        }
 
         JumpState = JumpStateEnum.Idle;
 
