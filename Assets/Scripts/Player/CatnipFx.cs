@@ -13,6 +13,7 @@ public class CatnipFx : MonoBehaviour
     [SerializeField] [Tooltip("Parent object containing all catnip visual effects")] private GameObject catnipFxParent;
     [SerializeField] [Tooltip("UI image used for screen color overlay during catnip effect")] private Image screenMask;
     [SerializeField] [Tooltip("2D light for glow effects during catnip")] private Light2D light2D;
+    [SerializeField] [Tooltip("UI image used for displaying remaining catnip effect time")] private Image chargeBarFill;
 
     [Header("Effect Settings")]
     [SerializeField] [Tooltip("Duration of effect transition in seconds")] private float transitionDuration = 1.0f;
@@ -20,39 +21,29 @@ public class CatnipFx : MonoBehaviour
     [SerializeField] [Range(0, 255)] [Tooltip("Maximum transparency of screen mask during effect (0-255)")] private int targetMaskTransparency = 75;
 
     private Coroutine _activeEffectCoroutine;
+    private Coroutine _chargeFillCoroutine;
 
-    /// Validates and initializes required components
+    /// Makes sure to disable all catnip fx
     private void Awake()
     {
-        if (catnipFxParent == null)
-            Debug.LogError("CatnipFx: CatnipFxParent is not assigned!");
-
-        if (screenMask == null)
-            Debug.LogError("CatnipFx: ScreenMask is not assigned!");
-
-        if (light2D == null)
-            Debug.LogError("CatnipFx: Light2D is not assigned!");
-
-        if (catnipFxParent != null)
-            catnipFxParent.SetActive(false);
+        catnipFxParent.SetActive(false);
+        chargeBarFill.fillAmount = 0f;
     }
 
     /// Starts the catnip effect transition
     internal void ActivateCatnipEffect()
     {
-        if (catnipFxParent == null || screenMask == null || light2D == null)
-        {
-            Debug.LogError("CatnipFx: Cannot activate effect - missing required components!");
-            return;
-        }
-
         if (_activeEffectCoroutine != null)
             StopCoroutine(_activeEffectCoroutine);
+
+        if (_chargeFillCoroutine != null)
+            StopCoroutine(_chargeFillCoroutine);
 
         var maskColor = screenMask.color;
         maskColor.a = 0f;
         screenMask.color = maskColor;
         light2D.intensity = 0f;
+        chargeBarFill.fillAmount = 1f;
 
         catnipFxParent.SetActive(true);
 
@@ -62,16 +53,55 @@ public class CatnipFx : MonoBehaviour
     /// Fades out the catnip effect
     internal void DeactivateCatnipEffect()
     {
-        if (catnipFxParent == null || screenMask == null || light2D == null)
-        {
-            Debug.LogError("CatnipFx: Cannot deactivate effect - missing required components!");
-            return;
-        }
-
         if (_activeEffectCoroutine != null)
             StopCoroutine(_activeEffectCoroutine);
 
+        if (_chargeFillCoroutine != null)
+            StopCoroutine(_chargeFillCoroutine);
+
         _activeEffectCoroutine = StartCoroutine(TransitionCatnipEffect(false));
+    }
+
+    /// Updates the charge bar fill based on the remaining effect time
+    internal void UpdateCatnipRemainingTime(float totalDuration, float remainingTime)
+    {
+        if (!chargeBarFill)
+            return;
+
+        chargeBarFill.fillAmount = Mathf.Clamp01(remainingTime / totalDuration);
+
+        // Start fading the screen mask 1 second before effect ends
+        if (!(remainingTime <= 1.0f) || !(screenMask.color.a > 0)) return;
+
+        if (_chargeFillCoroutine != null)
+            StopCoroutine(_chargeFillCoroutine);
+
+        _chargeFillCoroutine = StartCoroutine(FadeScreenMask(remainingTime));
+    }
+
+    /// Fades the screen mask based on the remaining time (last second)
+    private IEnumerator FadeScreenMask(float remainingTime)
+    {
+        var startAlpha = screenMask.color.a;
+        var elapsedTime = 0f;
+
+        while (elapsedTime < remainingTime)
+        {
+            elapsedTime += Time.deltaTime;
+            var t = Mathf.Clamp01(elapsedTime / remainingTime);
+
+            var maskColor = screenMask.color;
+            maskColor.a = Mathf.Lerp(startAlpha, 0f, t);
+            screenMask.color = maskColor;
+
+            yield return null;
+        }
+
+        var finalMaskColor = screenMask.color;
+        finalMaskColor.a = 0f;
+        screenMask.color = finalMaskColor;
+
+        _chargeFillCoroutine = null;
     }
 
     /// Smoothly transitions the catnip effect in or out
@@ -105,7 +135,10 @@ public class CatnipFx : MonoBehaviour
         screenMask.color = finalMaskColor;
 
         if (!activating)
+        {
             catnipFxParent.SetActive(false);
+            chargeBarFill.fillAmount = 0f;
+        }
 
         _activeEffectCoroutine = null;
     }

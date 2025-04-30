@@ -804,7 +804,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &7926711377221481696
 RectTransform:
   m_ObjectHideFlags: 0
@@ -821,8 +821,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: -1.5}
-  m_SizeDelta: {x: -3.9999993, y: -7}
+  m_AnchoredPosition: {x: 0, y: -1.75}
+  m_SizeDelta: {x: -3.9999993, y: -7.5}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &6507909115401139723
 CanvasRenderer:
@@ -845,7 +845,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.67102385, g: 0.9245283, b: 0.6236205, a: 1}
+  m_Color: {r: 0.2784314, g: 1, b: 0, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -1818,6 +1818,7 @@ MonoBehaviour:
   catnipFxParent: {fileID: 8312902675959255697}
   screenMask: {fileID: 6013248352977476011}
   light2D: {fileID: 3355601911020256697}
+  chargeBarFill: {fileID: 5392801747192945491}
   transitionDuration: 0.5
   targetLightIntensity: 0.15
   targetMaskTransparency: 50
@@ -1886,7 +1887,7 @@ MonoBehaviour:
   jumpChargeBar: {fileID: 1315758324830475671}
   showStoredChargeBar: 1
   storedChargeAlpha: 1
-  storedChargeColor: {r: 0.5372549, g: 1, b: 0.6293752, a: 1}
+  storedChargeColor: {r: 0.8117647, g: 0.62352943, b: 1, a: 1}
   alwaysShowOtherPlayersCharge: 1
   remotePlayerChargeBarScaleX: 0.9
   remotePlayerChargeBarScaleY: 0.9

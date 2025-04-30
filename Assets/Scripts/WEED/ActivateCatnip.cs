@@ -17,6 +17,7 @@ public class ActivateCatnip : MonoBehaviour
     private Collider2D _collider;
     private bool _isEffectActive;
     private GameObject[] _childObjects;
+    private Coroutine _updateChargeBarCoroutine;
 
     /// Initializes components and prepares collider
     private void Awake()
@@ -59,13 +60,41 @@ public class ActivateCatnip : MonoBehaviour
 
         playerPhotonView.RPC(nameof(playerC.RPC_SetCatnipEffectActive), RpcTarget.All, true);
 
-        StartCoroutine(DeactivateEffectAfterDelay(effectDuration, playerC, playerPhotonView));
+        var catnipFx = other.gameObject.GetComponent<CatnipFx>();
+        if (_updateChargeBarCoroutine != null)
+            StopCoroutine(_updateChargeBarCoroutine);
+
+        _updateChargeBarCoroutine = StartCoroutine(UpdateChargeBar(catnipFx, effectDuration));
+
+        StartCoroutine(DeactivateEffectAfterDelay(effectDuration, playerC, playerPhotonView, catnipFx));
+    }
+
+    /// Updates the charge bar fill regularly during the catnip effect
+    private IEnumerator UpdateChargeBar(CatnipFx catnipFx, float duration)
+    {
+        var startTime = Time.time;
+        var endTime = startTime + duration;
+
+        while (Time.time < endTime)
+        {
+            var remainingTime = endTime - Time.time;
+            catnipFx.UpdateCatnipRemainingTime(duration, remainingTime);
+            yield return null;
+        }
+
+        _updateChargeBarCoroutine = null;
     }
 
     /// Deactivates catnip effect after specified duration
-    private IEnumerator DeactivateEffectAfterDelay(float delay, PlayerController playerC, PhotonView playerPhotonView)
+    private IEnumerator DeactivateEffectAfterDelay(float delay, PlayerController playerC, PhotonView playerPhotonView, CatnipFx catnipFx)
     {
         yield return new WaitForSeconds(delay);
+
+        if (_updateChargeBarCoroutine != null)
+        {
+            StopCoroutine(_updateChargeBarCoroutine);
+            _updateChargeBarCoroutine = null;
+        }
 
         if (playerC && playerPhotonView)
         {
