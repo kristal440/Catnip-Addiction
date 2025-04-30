@@ -1570,9 +1570,9 @@ MonoBehaviour:
   accelerationTime: 0.6
   deceleration: 30
   maxSpeed: 8
-  turboSpeed: 8.2
+  turboSpeed: 8.1
   timeToTurboSpeed: 1.5
-  maxSpeedThreshold: 0.96
+  maxSpeedThreshold: 0.97
   currentSpeed: 0
   verticalSpeed: 0
   groundCheck: {fileID: 1442861436919526986}
@@ -1594,7 +1594,7 @@ MonoBehaviour:
   minWallJumpForce: 7
   maxWallJumpForce: 14
   maxWallChargeTime: 0.8
-  wallDetachForce: 1
+  wallDetachForce: 5.5
   wallGroundPushForce: 0
   minWallContactTime: 0.05
   wallBounceWindow: 0.05
@@ -1664,11 +1664,6 @@ MonoBehaviour:
   playerCanvasToHide: {fileID: 8698612799634927445}
   explosionDuration: 5
   enableDeathNotifications: 1
-  environmentalDeathMessages:
-  - fell to their doom
-  - died
-  - perished
-  hazardDeathMessage: was eliminated
 --- !u!114 &5206486501185713570
 MonoBehaviour:
   m_ObjectHideFlags: 0
