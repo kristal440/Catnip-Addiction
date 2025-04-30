@@ -1327,6 +1327,7 @@ GameObject:
   - component: {fileID: 6319566315764023598}
   - component: {fileID: 7500190062043700184}
   - component: {fileID: 1652324734472532652}
+  - component: {fileID: 413369398684653171}
   - component: {fileID: 145821301250412423}
   - component: {fileID: 4098701528552782764}
   - component: {fileID: 9176519645128001645}
@@ -1483,6 +1484,7 @@ MonoBehaviour:
   ObservedComponents:
   - {fileID: 7500190062043700184}
   - {fileID: 1652324734472532652}
+  - {fileID: 413369398684653171}
   - {fileID: 5859951783172496949}
   sceneViewId: 0
   InstantiationId: 0
@@ -1519,6 +1521,19 @@ MonoBehaviour:
   m_SynchronizeAngularVelocity: 0
   m_TeleportEnabled: 1
   m_TeleportIfDistanceGreaterThan: 3
+--- !u!114 &413369398684653171
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6966233725223629069}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 35144820bcc25444bb8f0fd767d9423e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  SmoothingDelay: 1
 --- !u!114 &145821301250412423
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1586,12 +1601,12 @@ MonoBehaviour:
   wallLayerMask:
     serializedVersion: 2
     m_Bits: 8
-  wallRaycastDistance: 0.2
-  wallSlideSpeed: 2.5
-  wallStickForce: 0.1
+  wallRaycastDistance: 0.1
+  wallSlideSpeed: 2.2
+  wallStickForce: 0.5
   spriteTransform: {fileID: 6004654633719211774}
   wallSlideOffset: 0.04
-  minWallJumpForce: 7
+  minWallJumpForce: 6
   maxWallJumpForce: 14
   maxWallChargeTime: 0.8
   wallDetachForce: 5.5
