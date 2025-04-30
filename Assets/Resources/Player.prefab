@@ -1773,7 +1773,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   jumpChargeBarGameObject: {fileID: 4709443584379856986}
   jumpChargeBar: {fileID: 1315758324830475671}
-  transitionSpeed: 8
+  alwaysShowOtherPlayersCharge: 1
+  remotePlayerChargeBarScaleX: 0.9
+  remotePlayerChargeBarScaleY: 0.9
 --- !u!1 &7770859034571384311
 GameObject:
   m_ObjectHideFlags: 0

@@ -5,6 +5,7 @@ using System.Linq;
 using Photon.Pun;
 using UnityEngine;
 using static UnityEngine.Mathf;
+using Object = UnityEngine.Object;
 
 /// <inheritdoc />
 /// <summary>
@@ -70,22 +71,20 @@ public class Portal : MonoBehaviour
 
         SetPlayerVisibility(player, false);
 
-        GameObject vfxObj = null;
         if (useParticleEffects)
         {
-            vfxObj = new GameObject("TeleportVFX");
+            var vfxObj = new GameObject("TeleportVFX");
             var vfx = vfxObj.AddComponent<TeleportParticles>();
             vfx.AnimateTeleport(startPosition, destinationPosition, teleportDuration, movementCurve);
 
             // Update the VFX reference in the active teleportations list
-            for (int i = 0; i < _activeTeleportations.Count; i++)
+            for (var i = 0; i < _activeTeleportations.Count; i++)
             {
                 var (tPlayer, tRoutine, _) = _activeTeleportations[i];
-                if (tPlayer == player)
-                {
-                    _activeTeleportations[i] = (tPlayer, tRoutine, vfxObj);
-                    break;
-                }
+                if (tPlayer != player) continue;
+
+                _activeTeleportations[i] = (tPlayer, tRoutine, vfxObj);
+                break;
             }
         }
 
@@ -195,9 +194,9 @@ public class Portal : MonoBehaviour
     }
 
     /// Cancels teleportation for a specific player
-    private void CancelPlayerTeleportation(PlayerController player)
+    private void CancelPlayerTeleportation(Object player)
     {
-        for (int i = _activeTeleportations.Count - 1; i >= 0; i--)
+        for (var i = _activeTeleportations.Count - 1; i >= 0; i--)
         {
             var (tPlayer, tRoutine, tVfx) = _activeTeleportations[i];
 
@@ -222,19 +221,17 @@ public class Portal : MonoBehaviour
     }
 
     /// Removes a player from active teleportations list
-    private void RemovePlayerFromActiveTeleportations(PlayerController player)
+    private void RemovePlayerFromActiveTeleportations(Object player)
     {
-        for (int i = _activeTeleportations.Count - 1; i >= 0; i--)
-        {
+        for (var i = _activeTeleportations.Count - 1; i >= 0; i--)
             if (_activeTeleportations[i].player == player)
                 _activeTeleportations.RemoveAt(i);
-        }
     }
 
     /// Cancels all active teleportations for this portal
     public void CancelAllActivePortalTeleportations()
     {
-        for (int i = _activeTeleportations.Count - 1; i >= 0; i--)
+        for (var i = _activeTeleportations.Count - 1; i >= 0; i--)
         {
             var (tPlayer, tRoutine, tVfx) = _activeTeleportations[i];
 

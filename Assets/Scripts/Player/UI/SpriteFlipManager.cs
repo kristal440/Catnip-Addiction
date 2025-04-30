@@ -1,7 +1,9 @@
 using System.Collections.Generic;
 using System.Linq;
-using UnityEngine;
+using ExitGames.Client.Photon;
 using Photon.Pun;
+using Photon.Realtime;
+using UnityEngine;
 
 /// <inheritdoc />
 /// <summary>
@@ -112,7 +114,7 @@ public class SpriteFlipManager : MonoBehaviourPunCallbacks
 
     /// <inheritdoc />
     /// Called when player properties are updated, useful for late-joining players
-    public override void OnPlayerPropertiesUpdate(Photon.Realtime.Player targetPlayer, ExitGames.Client.Photon.Hashtable changedProps)
+    public override void OnPlayerPropertiesUpdate(Player targetPlayer, Hashtable changedProps)
     {
         // If this is our player object and properties have been updated, sync our state
         if (targetPlayer.IsLocal && _photonView.Owner.Equals(targetPlayer))

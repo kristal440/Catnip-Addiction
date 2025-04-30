@@ -235,7 +235,7 @@ public class SpectatorModeManager : MonoBehaviourPunCallbacks
         var controller = _playerControllerCache[playerViewId];
 
         // Set spectated state
-        controller.SetSpectatedState(isBeingSpectated);
+        controller.SetSpectatedState();
 
         // If starting to spectate, request initial jump charge state
         if (isBeingSpectated)

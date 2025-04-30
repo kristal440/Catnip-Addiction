@@ -100,8 +100,6 @@ public class PlayerController : MonoBehaviourPunCallbacks
     [Header("Physics")]
     [SerializeField] [Range(0.5f, 3.0f)] [Tooltip("Normal gravity scale for the player")] public float defaultGravityScale = 1.0f;
 
-    private float _lastJumpChargeSync;
-
     private Camera _mainCamera;
     private Rigidbody2D _rb;
     private Collider2D _collider;
@@ -110,12 +108,14 @@ public class PlayerController : MonoBehaviourPunCallbacks
     private CatnipFx _catnipFx;
     private SpriteFlipManager _spriteFlipManager;
     private JumpChargeUIManager _jumpChargeUIManager;
+    private JumpStateEnum _previousJumpState;
 
     internal enum JumpStateEnum
     {
         Idle,
         Charging,
-        WallCharging
+        WallCharging,
+        Buffered
     }
 
     private float _jumpChargeStartTime;
@@ -187,6 +187,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
         _catnipFx = GetComponent<CatnipFx>();
         _spriteFlipManager = GetComponent<SpriteFlipManager>();
         _jumpChargeUIManager = GetComponent<JumpChargeUIManager>();
+        _previousJumpState = JumpState;
 
         if (spriteTransform == null)
             spriteTransform = playerSprite.transform;
@@ -210,6 +211,12 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
         if (!photonView.IsMine)
             return;
+
+        if (JumpState != _previousJumpState)
+        {
+            SyncJumpState();
+            _previousJumpState = JumpState;
+        }
 
         verticalSpeed = _rb.linearVelocity.y;
         HandleWallSliding();
@@ -238,7 +245,6 @@ public class PlayerController : MonoBehaviourPunCallbacks
         if (_postWallJump && !IsTouchingWall)
             _postWallJump = false;
 
-        // Check if bounce window should end
         if (_isInBounceWindow && Time.time > _bounceWindowEndTime)
             _isInBounceWindow = false;
     }
@@ -407,7 +413,9 @@ public class PlayerController : MonoBehaviourPunCallbacks
         if (IsGrounded && JumpState == JumpStateEnum.WallCharging)
             CancelWallJumpWithGroundPush();
 
-        if ((_isTouchingLeftWall || _isTouchingRightWall) && JumpState == JumpStateEnum.Charging && !_startedChargingOnGround)
+        if ((_isTouchingLeftWall || _isTouchingRightWall) &&
+            (JumpState == JumpStateEnum.Charging || JumpState == JumpStateEnum.Buffered) &&
+            !_startedChargingOnGround)
             ConvertToWallJump();
     }
 
@@ -519,6 +527,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
         var chargeProgress = Clamp01(chargeTime / maxChargeTime);
 
         JumpState = JumpStateEnum.WallCharging;
+
         _jumpChargeStartTime = Time.time - (chargeProgress * maxWallChargeTime);
         _wallSlideSide = _isTouchingLeftWall ? -1 : 1;
 
@@ -529,6 +538,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
     private void CancelWallJumpWithGroundPush()
     {
         JumpState = JumpStateEnum.Idle;
+
         _jumpChargeUIManager.SetChargingState(false, 0f, false);
         animator.SetBool(IsJumpQueued, false);
 
@@ -689,7 +699,8 @@ public class PlayerController : MonoBehaviourPunCallbacks
                     _jumpChargeDirection = (int)Sign(_rb.linearVelocity.x);
                     _startedChargingOnGround = IsGrounded;
                     _releaseJumpInAir = false;
-                    JumpState = JumpStateEnum.Charging;
+
+                    JumpState = _startedChargingOnGround ? JumpStateEnum.Charging : JumpStateEnum.Buffered;
                     _jumpFullyCharged = false;
 
                     if (_startedChargingOnGround)
@@ -710,13 +721,19 @@ public class PlayerController : MonoBehaviourPunCallbacks
         switch (JumpState)
         {
             case JumpStateEnum.Charging:
+            case JumpStateEnum.Buffered:
                 var chargeTime = Min(Time.time - _jumpChargeStartTime, maxChargeTime);
                 _jumpChargeLevel = chargeTime;
 
                 if (IsGrounded)
+                {
                     ExecuteJump(chargeTime);
+                }
                 else
+                {
                     _releaseJumpInAir = true;
+                    _jumpChargeUIManager.SetChargingState(false, 0f, false);
+                }
                 break;
 
             case JumpStateEnum.WallCharging:
@@ -737,12 +754,30 @@ public class PlayerController : MonoBehaviourPunCallbacks
             _isInBounceWindow = false;
         }
 
-        if (wasGrounded || !isGroundedNow || JumpState != JumpStateEnum.Charging) return;
+        if (wasGrounded || !isGroundedNow) return;
+
+        if (JumpState != JumpStateEnum.Charging && JumpState != JumpStateEnum.Buffered) return;
 
         if (_startedChargingOnGround)
         {
             var chargeTime = Min(Time.time - _jumpChargeStartTime, maxChargeTime);
             ExecuteJump(chargeTime);
+            return;
+        }
+
+        if (JumpState == JumpStateEnum.Buffered)
+        {
+            animator.SetBool(IsJumpQueued, true);
+            if (!_jumpButtonHeld)
+            {
+                ExecuteJump(_jumpFullyCharged ? maxChargeTime : _jumpChargeLevel);
+            }
+            else
+            {
+                JumpState = JumpStateEnum.Charging;
+                _startedChargingOnGround = true;
+                _movementDisabledForJump = true;
+            }
             return;
         }
 
@@ -772,7 +807,9 @@ public class PlayerController : MonoBehaviourPunCallbacks
         _movementDisabledForJump = false;
         _releaseJumpInAir = false;
         _startedChargingOnGround = false;
+
         _jumpChargeUIManager.SetChargingState(false, 0f, false);
+        _jumpChargeUIManager.ForceUIStateSync();
 
         var chargeProgress = Clamp01(chargeTime / maxChargeTime);
         var jumpMultiplier = Lerp(minJumpForce, maxJumpForce, chargeProgress);
@@ -800,7 +837,6 @@ public class PlayerController : MonoBehaviourPunCallbacks
             _rb.linearVelocity = new Vector2(_rb.linearVelocity.x, jumpMultiplier);
         }
 
-        // Start the wall bounce window
         _isInBounceWindow = true;
         _bounceWindowEndTime = Time.time + wallBounceWindow;
         _hasBounced = false;
@@ -855,12 +891,14 @@ public class PlayerController : MonoBehaviourPunCallbacks
             return;
 
         JumpState = JumpStateEnum.Idle;
+
         _movementDisabledForJump = false;
         _jumpButtonHeld = false;
         _releaseJumpInAir = false;
         _startedChargingOnGround = false;
 
         _jumpChargeUIManager.SetChargingState(false, 0f, false);
+        _jumpChargeUIManager.ForceUIStateSync();
         animator.SetBool(IsJumpQueued, false);
 
         if (!_isWallSliding && spriteTransform.localPosition == _originalSpritePosition) return;
@@ -882,6 +920,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
         switch (JumpState)
         {
             case JumpStateEnum.Charging:
+            case JumpStateEnum.Buffered:
                 var chargeTime = Min(Time.time - _jumpChargeStartTime, maxChargeTime);
                 chargeProgress = Clamp01(chargeTime / maxChargeTime);
 
@@ -912,22 +951,42 @@ public class PlayerController : MonoBehaviourPunCallbacks
                 break;
         }
 
-        // Update the UI manager with current charge state
+        // Update the UI with current charge state
         _jumpChargeUIManager.SetChargingState(true, chargeProgress, fullCharged);
     }
 
+    /// Syncs jump state to other players
+    private void SyncJumpState()
+    {
+        if (!photonView.IsMine) return;
+
+        if (_previousJumpState == JumpState) return;
+
+        if (JumpState == JumpStateEnum.Idle)
+        {
+            photonView.RPC(nameof(_jumpChargeUIManager.RPC_EndJumpCharge), RpcTarget.Others);
+        }
+        else if (_previousJumpState == JumpStateEnum.Idle)
+        {
+            var maxChargeTimeToUse = JumpState == JumpStateEnum.WallCharging ? maxWallChargeTime : maxChargeTime;
+            photonView.RPC(nameof(_jumpChargeUIManager.RPC_StartJumpCharge), RpcTarget.Others, (int)JumpState, maxChargeTimeToUse);
+        }
+
+        _previousJumpState = JumpState;
+    }
+
     /// Sets this player as being spectated or not
-    internal void SetSpectatedState(bool isBeingSpectated)
+    internal void SetSpectatedState()
     {
         if (_jumpChargeUIManager)
-            _jumpChargeUIManager.SetSpectatedState(isBeingSpectated);
+            _jumpChargeUIManager.SetSpectatedState();
     }
 
     /// Called when this player starts being spectated
     internal void OnStartSpectating()
     {
-        if (_jumpChargeUIManager)
-            _jumpChargeUIManager.OnStartSpectating();
+        if (photonView.IsMine && JumpState != JumpStateEnum.Idle)
+            SyncJumpState();
     }
     #endregion
 
@@ -975,6 +1034,23 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
         if (wasGrounded != IsGrounded)
             CheckJumpLanding(wasGrounded, IsGrounded);
+
+        if (wasGrounded && !IsGrounded)
+            switch (JumpState)
+            {
+                case JumpStateEnum.Charging when _startedChargingOnGround:
+                {
+                    var chargeTime = Min(Time.time - _jumpChargeStartTime, maxChargeTime);
+                    ExecuteJump(chargeTime);
+                    break;
+                }
+                case JumpStateEnum.Charging when !_jumpButtonHeld && !_releaseJumpInAir:
+                    JumpState = JumpStateEnum.Idle;
+                    _jumpChargeUIManager.SetChargingState(false, 0f, false);
+                    _jumpChargeUIManager.ForceUIStateSync();
+                    animator.SetBool(IsJumpQueued, false);
+                    break;
+            }
 
         if (wasGrounded && !IsGrounded && (JumpState == JumpStateEnum.Charging && _startedChargingOnGround))
         {

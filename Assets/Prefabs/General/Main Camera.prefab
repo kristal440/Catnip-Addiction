@@ -166,7 +166,7 @@ MonoBehaviour:
   deathZoomFOV: 23
   deathZoomSpeed: 4
   waterZoomMultiplier: 0.8
-  teleportTransitionDuration: 0.25
+  teleportTransitionDuration: 0.3
   teleportCurve:
     serializedVersion: 2
     m_Curve:

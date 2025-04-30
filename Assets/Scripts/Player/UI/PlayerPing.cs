@@ -166,10 +166,12 @@ public class PlayerPing : MonoBehaviourPunCallbacks
         {
             if (photonView.IsMine)
             {
-                int currentPing = debugMode ? simulatedPing : PhotonNetwork.GetPing();
+                var currentPing = debugMode ? simulatedPing : PhotonNetwork.GetPing();
 
-                Hashtable pingProperty = new Hashtable();
-                pingProperty[PingPropertyKey] = currentPing;
+                var pingProperty = new Hashtable
+                {
+                    [PingPropertyKey] = currentPing
+                };
                 PhotonNetwork.LocalPlayer.SetCustomProperties(pingProperty);
             }
 
@@ -205,17 +207,12 @@ public class PlayerPing : MonoBehaviourPunCallbacks
     private int GetCurrentPing()
     {
         if (debugMode || photonView.IsMine)
-        {
             return debugMode ? simulatedPing : PhotonNetwork.GetPing();
-        }
 
-        if (photonView.Owner != null && photonView.Owner.CustomProperties.TryGetValue(PingPropertyKey, out object pingObj))
-        {
-            if (pingObj is int ping)
-            {
-                return ping;
-            }
-        }
+        if (photonView.Owner == null ||
+            !photonView.Owner.CustomProperties.TryGetValue(PingPropertyKey, out var pingObj)) return 0;
+        if (pingObj is int ping)
+            return ping;
 
         return 0;
     }
@@ -236,9 +233,7 @@ public class PlayerPing : MonoBehaviourPunCallbacks
     // Override OnPlayerPropertiesUpdate to refresh the ping display when properties change
     public override void OnPlayerPropertiesUpdate(Player targetPlayer, Hashtable changedProps)
     {
-        if (photonView.Owner != null && targetPlayer == photonView.Owner && changedProps.ContainsKey(PingPropertyKey))
-        {
+        if (photonView.Owner != null && Equals(targetPlayer, photonView.Owner) && changedProps.ContainsKey(PingPropertyKey))
             UpdatePingDisplay();
-        }
     }
 }
