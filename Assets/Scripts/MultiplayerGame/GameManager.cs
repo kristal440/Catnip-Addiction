@@ -313,6 +313,7 @@ public class GameManager : MonoBehaviourPunCallbacks
         {
             p.Teleport(Vector3.zero);
             p.SetMovement(true);
+            p.ResetAccelerationState();
         }
 
         finishLine.GetComponent<BoxCollider2D>().enabled = true;

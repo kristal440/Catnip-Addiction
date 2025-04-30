@@ -260,28 +260,24 @@ public class PlayerController : MonoBehaviourPunCallbacks
         var horizontalInput = _playerInputActions.Player.Move.ReadValue<Vector2>().x;
         var moveDirection = (int)Sign(horizontalInput);
 
-        // Check for left wall bounce - player actively pressing left toward a left wall
         if (_isTouchingLeftWall && moveDirection < 0)
         {
-            ApplyWallBounce(-1); // -1 is left wall
+            ApplyWallBounce(-1);
             _hasBounced = true;
             return;
         }
 
-        // Check for right wall bounce - player actively pressing right toward a right wall
         if (_isTouchingRightWall && moveDirection > 0)
         {
-            ApplyWallBounce(1); // 1 is right wall
+            ApplyWallBounce(1);
             _hasBounced = true;
             return;
         }
 
-        // Alternative detection using velocity if no input
         if (!(Abs(horizontalInput) < 0.01f)) return;
 
         var velocityDirection = (int)Sign(_rb.linearVelocity.x);
 
-        // Check for bounce based on velocity direction
         if (_isTouchingLeftWall && velocityDirection < 0)
         {
             ApplyWallBounce(-1);
@@ -298,34 +294,27 @@ public class PlayerController : MonoBehaviourPunCallbacks
     /// Applies bounce force when hitting a wall during bounce window
     private void ApplyWallBounce(int wallSide)
     {
-        var bounceDirection = -wallSide; // Bounce away from wall
+        var bounceDirection = -wallSide;
         var linearVelocity = _rb.linearVelocity;
         var currentXVelocity = linearVelocity.x;
         var currentYVelocity = linearVelocity.y;
 
-        // Calculate bounce velocity
         var xVelocity = bounceDirection * wallBounceForce;
 
-        // Preserve some momentum if enabled
         if (preserveMomentumOnBounce && Abs(currentXVelocity) > 0)
-            // Only preserve momentum if moving toward the wall (not if already moving away)
             if (Approximately(Sign(currentXVelocity), wallSide))
             {
                 var preservedMomentum = Abs(currentXVelocity) * momentumPreservation;
                 xVelocity = bounceDirection * Max(wallBounceForce, preservedMomentum);
             }
 
-        // Apply vertical boost
         var yVelocity = Max(currentYVelocity, 0) + (wallBounceForce * wallBounceVerticalMultiplier);
 
-        // Apply the bounce force
         _rb.linearVelocity = new Vector2(xVelocity, yVelocity);
         currentSpeed = xVelocity;
 
-        // Reset acceleration state for smooth control after bounce
         ResetAccelerationState();
 
-        // Trigger camera effect
         if (_cameraController)
             _cameraController.TriggerJumpFOV();
     }
@@ -1083,17 +1072,6 @@ public class PlayerController : MonoBehaviourPunCallbacks
         _timeAtMaxSpeed = 0f;
         _isTurboActive = false;
         _lastMoveDirection = 0;
-    }
-
-    /// Gets or sets player acceleration with curve evaluation
-    internal float Acceleration
-    {
-        get => baseAcceleration * accelerationCurve.Evaluate(_currentAccelTime / accelerationTime);
-        set
-        {
-            baseAcceleration = value;
-            _currentAccelTime = 0f;
-        }
     }
 
     /// Moves player to specified position
