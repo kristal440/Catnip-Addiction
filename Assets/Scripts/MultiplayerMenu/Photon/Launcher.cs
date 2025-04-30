@@ -5,6 +5,7 @@ using Photon.Pun;
 using Photon.Realtime;
 using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using Hashtable = ExitGames.Client.Photon.Hashtable;
 
@@ -64,7 +65,6 @@ public class Launcher : MonoBehaviourPunCallbacks
         }
 
         _isConnecting = true;
-        PhotonNetwork.GameVersion = "1";
         loadingText.text = "Connecting to Server...";
         PhotonNetwork.ConnectUsingSettings();
         if (mapSelectionManager != null)
@@ -84,7 +84,15 @@ public class Launcher : MonoBehaviourPunCallbacks
     {
         if (!_isConnecting) return;
 
-        PhotonNetwork.JoinLobby();
+        try
+        {
+            PhotonNetwork.JoinLobby();
+        }
+        catch
+        {
+            SceneManager.LoadScene("MainMenu");
+        }
+
         _isConnecting = false;
         loadingText.text = "Connected to Server :3";
     }

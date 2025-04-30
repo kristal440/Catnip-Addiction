@@ -1572,7 +1572,7 @@ MonoBehaviour:
   maxSpeed: 8
   turboSpeed: 8.2
   timeToTurboSpeed: 1.5
-  maxSpeedThreshold: 0.92
+  maxSpeedThreshold: 0.96
   currentSpeed: 0
   verticalSpeed: 0
   groundCheck: {fileID: 1442861436919526986}
@@ -1588,25 +1588,25 @@ MonoBehaviour:
     m_Bits: 8
   wallRaycastDistance: 0.2
   wallSlideSpeed: 2.5
-  wallStickForce: 1.52
+  wallStickForce: 5
   spriteTransform: {fileID: 6004654633719211774}
   wallSlideOffset: 0.04
-  minWallJumpForce: 8
-  maxWallJumpForce: 14.5
-  maxWallChargeTime: 0.75
-  wallDetachForce: 7
-  wallGroundPushForce: 11
+  minWallJumpForce: 7
+  maxWallJumpForce: 14
+  maxWallChargeTime: 0.8
+  wallDetachForce: 1
+  wallGroundPushForce: 0
   minWallContactTime: 0.05
   wallBounceWindow: 0.05
-  wallBounceForce: 1
+  wallBounceForce: 3
   wallBounceVerticalMultiplier: 1
   preserveMomentumOnBounce: 1
-  momentumPreservation: 0.25
+  momentumPreservation: 0.5
   playerNameTag: {fileID: 8640071455980941114}
   minJumpForce: 9
   maxJumpForce: 14.2
   maxChargeTime: 1.1
-  jumpCooldown: 0.08
+  jumpCooldown: 0.07
   deathHeight: -50
   playerDeathHandler: {fileID: 6099844445017409013}
   remotePlayerSpriteOrder: 6

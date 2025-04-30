@@ -48,7 +48,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
     [SerializeField] [Tooltip("Transform used to detect right wall")] public Transform rightWallCheck;
     [SerializeField] [Range(0.05f, 0.5f)] [Tooltip("Radius of the wall check sphere")] public float wallCheckRadius = 0.2f;
     [SerializeField] [Tooltip("Layer mask for wall detection")] public LayerMask wallLayerMask;
-    [SerializeField] [Range(0f, 0.2f)] [Tooltip("Distance for wall raycast detection")] public float wallRaycastDistance = 0.1f;
+    [SerializeField] [Range(0f, 1f)] [Tooltip("Distance for wall raycast detection")] public float wallRaycastDistance = 0.1f;
 
     [Header("Wall Sliding")]
     [SerializeField] [Range(0.1f, 5f)] [Tooltip("Reduced falling speed when sliding on walls")] public float wallSlideSpeed = 2f;
