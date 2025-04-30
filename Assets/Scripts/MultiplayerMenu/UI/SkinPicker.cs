@@ -34,6 +34,8 @@ public class SkinPicker : MonoBehaviour
     private bool _isSnapping;
     private float _snapTargetPosition;
 
+    private const string PlayerPrefsSkinKey = "SelectedSkin";
+
     /// Sets up skin previews and UI controls on startup
     private void Start()
     {
@@ -43,6 +45,7 @@ public class SkinPicker : MonoBehaviour
             return;
         }
 
+        LoadSavedSkin();
         InitializeSkinPreviews();
         SetupButtons();
         UpdateContentPosition();
@@ -76,6 +79,30 @@ public class SkinPicker : MonoBehaviour
             : new Vector2(0, content.sizeDelta.y);
 
         _contentStartPosition = content.anchoredPosition.x;
+    }
+
+    /// Loads the previously selected skin from PlayerPrefs
+    private void LoadSavedSkin()
+    {
+        if (skinNames.Count == 0) return;
+
+        var savedSkin = PlayerPrefs.GetString(PlayerPrefsSkinKey, string.Empty);
+
+        if (string.IsNullOrEmpty(savedSkin)) return;
+
+        var savedIndex = GetSkinIndexByName(savedSkin);
+        if (savedIndex >= 0)
+            _currentIndex = savedIndex;
+    }
+
+    /// Gets the index of a skin by its name
+    private int GetSkinIndexByName(string skinName)
+    {
+        for (var i = 0; i < skinNames.Count; i++)
+            if (skinNames[i] == skinName)
+                return i;
+
+        return 0;
     }
 
     /// Configures navigation button click handlers
@@ -171,5 +198,9 @@ public class SkinPicker : MonoBehaviour
 
         var selectedSkin = skinNames[_currentIndex];
         PhotonNetwork.LocalPlayer.SetCustomProperties(new Hashtable { { "Skin", selectedSkin } });
+
+        // Save to PlayerPrefs
+        PlayerPrefs.SetString(PlayerPrefsSkinKey, selectedSkin);
+        PlayerPrefs.Save();
     }
 }

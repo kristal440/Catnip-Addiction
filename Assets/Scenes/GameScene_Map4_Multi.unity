@@ -15070,7 +15070,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6527983290951184688, guid: 79d520e561396a21baa4bd1e8d1e4d8d, type: 3}
       propertyPath: teleportSpeed
-      value: 3
+      value: 13
       objectReference: {fileID: 0}
     - target: {fileID: 6527983290951184688, guid: 79d520e561396a21baa4bd1e8d1e4d8d, type: 3}
       propertyPath: destinationPosition.x
