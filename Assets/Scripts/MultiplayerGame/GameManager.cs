@@ -24,7 +24,6 @@ public class GameManager : MonoBehaviourPunCallbacks
     [SerializeField] [Tooltip("Time when the game started")] public float startTime;
 
     private bool _countdownStarted;
-    private bool _localPlayerFinished;
     private readonly Hashtable _finishTimes = new();
     private Coroutine _countdownCoroutine;
 
@@ -99,9 +98,6 @@ public class GameManager : MonoBehaviourPunCallbacks
     private void UpdateTimer()
     {
         if (!gameStarted)
-            return;
-
-        if (_localPlayerFinished)
             return;
 
         if (Time.timeSinceLevelLoad <= startTime)
@@ -243,13 +239,7 @@ public class GameManager : MonoBehaviourPunCallbacks
     internal void PlayerFinished(int playerId, float finishTime)
     {
         if (playerId == PhotonNetwork.LocalPlayer.ActorNumber)
-        {
-            _localPlayerFinished = true;
-            DisplayTime(finishTime);
-
-            if (GetComponent<SpectatorModeManager>() != null)
-                GetComponent<SpectatorModeManager>().OnPlayerFinish();
-        }
+            GetComponent<SpectatorModeManager>().OnPlayerFinish();
 
         if (_finishTimes.ContainsKey(playerId))
             return;
