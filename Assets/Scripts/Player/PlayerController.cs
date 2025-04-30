@@ -263,13 +263,16 @@ public class PlayerController : MonoBehaviourPunCallbacks
         }
 
         if (IsTouchingWall)
+        {
             WallContactTime += Time.deltaTime;
+            JumpSystem.OnWallContactStart();
+        }
 
         if (IsGrounded && JumpSystem.JumpState == JumpSystem.JumpStateEnum.WallCharging)
             JumpSystem.CancelWallJumpWithGroundPush();
 
         if ((IsTouchingLeftWall || IsTouchingRightWall) &&
-            (JumpSystem.JumpState == JumpSystem.JumpStateEnum.Charging || JumpSystem.JumpState == JumpSystem.JumpStateEnum.Buffered) &&
+            JumpSystem.JumpState is JumpSystem.JumpStateEnum.Charging or JumpSystem.JumpStateEnum.Buffered &&
             !JumpSystem.GetStartedChargingOnGround())
             JumpSystem.ConvertToWallJump();
     }
@@ -411,7 +414,12 @@ public class PlayerController : MonoBehaviourPunCallbacks
             return;
         }
 
-        if (JumpSystem.JumpState == JumpSystem.JumpStateEnum.Charging && JumpSystem.GetStartedChargingOnGround())
+        // Apply movement modifiers from JumpSystem if charging on ground
+        var (speedMultiplier, accelMultiplier) = JumpSystem.GetJumpChargeMovementMultipliers();
+        _newMaxSpeed *= speedMultiplier;
+        currentTurboSpeed *= speedMultiplier;
+
+        if (JumpSystem.JumpState == JumpSystem.JumpStateEnum.Charging && JumpSystem.GetStartedChargingOnGround() && JumpSystem.IsMovementDisabledForJump())
         {
             _rb.linearVelocity = new Vector2(CurrentSpeed, _rb.linearVelocity.y);
             return;
@@ -439,8 +447,8 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
                 _currentAccelTime = Min(_currentAccelTime + Time.deltaTime, accelerationTime);
 
-                var accelMultiplier = accelerationCurve.Evaluate(_currentAccelTime / accelerationTime);
-                var currentAccel = baseAcceleration * accelMultiplier;
+                var accelCurveMultiplier = accelerationCurve.Evaluate(_currentAccelTime / accelerationTime);
+                var currentAccel = baseAcceleration * accelCurveMultiplier * accelMultiplier;
 
                 var targetSpeed = _newMaxSpeed;
 

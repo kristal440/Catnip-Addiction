@@ -161,8 +161,8 @@ MonoBehaviour:
   defaultCameraOffset: {x: 0, y: 0}
   playerSearchTimeout: 5
   jumpFOV: 45
-  minChargeJumpFOV: 20
-  jumpFOVTransitionSpeed: 5
+  minChargeJumpFOV: 25
+  jumpFOVTransitionSpeed: 4.8
   deathZoomFOV: 23
   deathZoomSpeed: 4
   waterZoomMultiplier: 0.8

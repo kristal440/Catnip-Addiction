@@ -34,8 +34,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0.010000229, y: -0.0041503906}
-  m_SizeDelta: {x: -3.9600003, y: -3.9483004}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: -3.9999993, y: -4}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &7169605940674182798
 CanvasRenderer:
@@ -727,7 +727,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &3172073648717832006
 RectTransform:
   m_ObjectHideFlags: 0
@@ -741,6 +741,7 @@ RectTransform:
   m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 1876941017741999555}
+  - {fileID: 7926711377221481696}
   m_Father: {fileID: 6934162617730736680}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
@@ -782,6 +783,81 @@ MonoBehaviour:
   m_FillCenter: 1
   m_FillMethod: 4
   m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
+--- !u!1 &5441117070519023610
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7926711377221481696}
+  - component: {fileID: 6507909115401139723}
+  - component: {fileID: 5392801747192945491}
+  m_Layer: 5
+  m_Name: CatnipFill
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 0
+--- !u!224 &7926711377221481696
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5441117070519023610}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 1
+  m_Children: []
+  m_Father: {fileID: 3172073648717832006}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: 0, y: -1.5}
+  m_SizeDelta: {x: -3.9999993, y: -7}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!222 &6507909115401139723
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5441117070519023610}
+  m_CullTransparentMesh: 1
+--- !u!114 &5392801747192945491
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5441117070519023610}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Material: {fileID: 0}
+  m_Color: {r: 0.67102385, g: 0.9245283, b: 0.6236205, a: 1}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 7482667652216324306, guid: 311925a002f4447b3a28927169b83ea6, type: 3}
+  m_Type: 3
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 0
+  m_FillAmount: 0.888
   m_FillClockwise: 1
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
@@ -1596,11 +1672,11 @@ MonoBehaviour:
     m_Bits: 8
   leftWallCheck: {fileID: 7838709526519794932}
   rightWallCheck: {fileID: 3951173809159813694}
-  wallCheckRadius: 0.2
+  wallCheckRadius: 0.18
   wallLayerMask:
     serializedVersion: 2
     m_Bits: 8
-  wallRaycastDistance: 0.1
+  wallRaycastDistance: 0.08
   wallSlideSpeed: 2.2
   wallStickForce: 0.5
   spriteTransform: {fileID: 6004654633719211774}
@@ -1633,6 +1709,13 @@ MonoBehaviour:
   maxJumpForce: 14.2
   maxChargeTime: 1.1
   jumpCooldown: 0.1
+  coyoteTime: 0.15
+  autoExecuteOnFalling: 1
+  allowMovementDuringCharge: 1
+  chargeMovementSpeedMultiplier: 0.1
+  chargeAccelerationMultiplier: 0.5
+  reduceMovementWithCharge: 1
+  minMovementMultiplierAtFullCharge: 0.1
   minWallJumpForce: 6
   maxWallJumpForce: 14
   maxWallChargeTime: 0.8
