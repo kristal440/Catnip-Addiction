@@ -224,6 +224,8 @@ public class PlayerController : MonoBehaviourPunCallbacks
         HandleMovement();
         CheckWallBounce();
 
+        _jumpButtonHeld = _playerInputActions.Player.Jump.IsPressed();
+
         UpdateJumpCharging();
 
         if (transform.position.y < deathHeight && !IsDead)
@@ -656,7 +658,6 @@ public class PlayerController : MonoBehaviourPunCallbacks
             switch (_isWallSliding)
             {
                 case true when _wallContactTime >= minWallContactTime:
-                    _jumpButtonHeld = true;
                     _jumpChargeStartTime = Time.time;
                     JumpState = JumpStateEnum.WallCharging;
                     _jumpFullyCharged = false;
@@ -664,28 +665,22 @@ public class PlayerController : MonoBehaviourPunCallbacks
                     animator.SetBool(IsJumpQueued, true);
                     break;
                 case false:
-                {
-                    _jumpButtonHeld = true;
                     _jumpChargeStartTime = Time.time;
                     _jumpChargeDirection = (int)Sign(_rb.linearVelocity.x);
                     _startedChargingOnGround = IsGrounded;
                     _releaseJumpInAir = false;
-
                     JumpState = _startedChargingOnGround ? JumpStateEnum.Charging : JumpStateEnum.Buffered;
                     _jumpFullyCharged = false;
-
                     if (_startedChargingOnGround)
                     {
                         _movementDisabledForJump = true;
                         animator.SetBool(IsJumpQueued, true);
                     }
-
                     _jumpChargeUIManager.SetChargingState(true, 0f, false);
                     break;
-                }
             }
 
-        if (!_playerInputActions.Player.Jump.WasReleasedThisFrame() || !_jumpButtonHeld) return;
+        if (_playerInputActions.Player.Jump.IsPressed() || !_jumpButtonHeld) return;
 
         _jumpButtonHeld = false;
 
@@ -695,16 +690,8 @@ public class PlayerController : MonoBehaviourPunCallbacks
             case JumpStateEnum.Buffered:
                 var chargeTime = Min(Time.time - _jumpChargeStartTime, maxChargeTime);
                 _jumpChargeLevel = chargeTime;
-
-                if (IsGrounded)
-                {
-                    ExecuteJump(chargeTime);
-                }
-                else
-                {
-                    _releaseJumpInAir = true;
-                    _jumpChargeUIManager.SetChargingState(false, 0f, false);
-                }
+                if (IsGrounded) ExecuteJump(chargeTime);
+                else _releaseJumpInAir = true;
                 break;
 
             case JumpStateEnum.WallCharging:
