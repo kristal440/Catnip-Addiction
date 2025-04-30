@@ -727,6 +727,12 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
         if (wasGrounded || !isGroundedNow) return;
 
+        if (JumpState == JumpStateEnum.WallCharging)
+        {
+            CancelJumpCharge();
+            return;
+        }
+
         if (JumpState != JumpStateEnum.Charging && JumpState != JumpStateEnum.Buffered) return;
 
         if (_startedChargingOnGround)
