@@ -1410,6 +1410,8 @@ MonoBehaviour:
   slideDistance: 35
   deathNameColor: {r: 1, g: 1, b: 1, a: 1}
   deathMessageColor: {r: 1, g: 0.75, b: 0.96153855, a: 1}
+  finishNameColor: {r: 1, g: 1, b: 1, a: 1}
+  finishMessageColor: {r: 0.5960785, g: 0.9843138, b: 0.5960785, a: 1}
 --- !u!1 &2926832033419436486
 GameObject:
   m_ObjectHideFlags: 0
@@ -1654,7 +1656,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 368.6819, y: 50}
+  m_SizeDelta: {x: 391.5823, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &5195735821556596741
 CanvasRenderer:
@@ -2791,7 +2793,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 207.8823, y: 50}
+  m_SizeDelta: {x: 242.3374, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &7280578893609465116
 CanvasRenderer:

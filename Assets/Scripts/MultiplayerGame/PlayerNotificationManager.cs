@@ -25,6 +25,10 @@ public class PlayerNotificationManager : MonoBehaviourPunCallbacks
     [SerializeField] [Tooltip("Color for player names in death notifications")] private Color deathNameColor = new(1f, 0.5f, 0.5f);
     [SerializeField] [Tooltip("Color for death messages")] private Color deathMessageColor = new(1f, 0.3f, 0.3f);
 
+    [Header("Finish Notification Settings")]
+    [SerializeField] [Tooltip("Color for player names in finish notifications")] private Color finishNameColor = Color.white;
+    [SerializeField] [Tooltip("Color for finish messages")] private Color finishMessageColor = Color.paleGreen;
+
     private CanvasGroup _canvasGroup;
     private RectTransform _rectTransform;
     private Vector2 _originalPosition;
@@ -45,7 +49,8 @@ public class PlayerNotificationManager : MonoBehaviourPunCallbacks
     {
         PlayerJoined,
         PlayerLeft,
-        PlayerDeath
+        PlayerDeath,
+        PlayerFinished
     }
 
     /// Initializes required components and sets initial state
@@ -82,6 +87,12 @@ public class PlayerNotificationManager : MonoBehaviourPunCallbacks
     internal void ShowDeathNotification(string playerName)
     {
         QueueNotification(playerName, "died.", NotificationType.PlayerDeath);
+    }
+
+    /// Shows a finish notification for the specified player
+    internal void ShowFinishNotification(string playerName)
+    {
+        QueueNotification(playerName, "finished", NotificationType.PlayerFinished);
     }
 
     /// Adds a notification to the queue and starts processing if needed
@@ -123,6 +134,10 @@ public class PlayerNotificationManager : MonoBehaviourPunCallbacks
                 case NotificationType.PlayerDeath:
                     statusText.color = deathMessageColor;
                     playerNameText.color = deathNameColor;
+                    break;
+                case NotificationType.PlayerFinished:
+                    statusText.color = finishMessageColor;
+                    playerNameText.color = finishNameColor;
                     break;
             }
 

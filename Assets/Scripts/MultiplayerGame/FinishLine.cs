@@ -8,6 +8,12 @@ using UnityEngine;
 public class FinishLine : MonoBehaviour
 {
     private FireworksManager _fireworks;
+    private PlayerNotificationManager _notificationManager;
+
+    private void Start()
+    {
+        _notificationManager = FindFirstObjectByType<PlayerNotificationManager>();
+    }
 
     /// Detects when players reach the finish line
     private void OnTriggerEnter2D(Collider2D other)
@@ -19,7 +25,13 @@ public class FinishLine : MonoBehaviour
         if (_fireworks != null)
             _fireworks.TriggerFireworksSequence(other.transform.position);
 
-        if (!PhotonView.Get(other).IsMine) return;
+        var photonView = PhotonView.Get(other);
+        var playerName = photonView.Owner.NickName;
+
+        if (_notificationManager != null)
+            _notificationManager.ShowFinishNotification(playerName);
+
+        if (!photonView.IsMine) return;
 
         var player = other.GetComponent<PlayerController>();
 
