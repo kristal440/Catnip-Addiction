@@ -302,7 +302,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
         var xVelocity = bounceDirection * wallBounceForce;
 
         if (preserveMomentumOnBounce && Abs(currentXVelocity) > 0)
-            if (Approximately(Sign(currentXVelocity), wallSide))
+            if (Sign(currentXVelocity) * bounceDirection > 0)
             {
                 var preservedMomentum = Abs(currentXVelocity) * momentumPreservation;
                 xVelocity = bounceDirection * Max(wallBounceForce, preservedMomentum);
@@ -355,30 +355,18 @@ public class PlayerController : MonoBehaviourPunCallbacks
         var wasLeftWall = _isTouchingLeftWall;
         var wasRightWall = _isTouchingRightWall;
 
-        var horizontalInput = photonView.IsMine ? _playerInputActions.Player.Move.ReadValue<Vector2>().x : 0;
-        var moveDirection = (int)Sign(horizontalInput);
-        var velocityDirection = (int)Sign(_rb.linearVelocity.x);
-
         var leftTransformCheck = Physics2D.OverlapCircle(leftWallCheck.position, wallCheckRadius, wallLayerMask);
         var rightTransformCheck = Physics2D.OverlapCircle(rightWallCheck.position, wallCheckRadius, wallLayerMask);
 
         var colliderBounds = _collider.bounds;
-        var leftColliderCheck = false;
-        var rightColliderCheck = false;
 
-        if (moveDirection <= 0 || velocityDirection < 0)
-        {
-            var leftRayOrigin = new Vector2(colliderBounds.min.x, colliderBounds.center.y);
-            leftColliderCheck = Physics2D.Raycast(leftRayOrigin, left, wallRaycastDistance, wallLayerMask);
-            Debug.DrawRay(leftRayOrigin, left * wallRaycastDistance, leftColliderCheck ? Color.red : Color.green);
-        }
+        var leftRayOrigin = new Vector2(colliderBounds.min.x, colliderBounds.center.y);
+        var leftColliderCheck = Physics2D.Raycast(leftRayOrigin, left, wallRaycastDistance, wallLayerMask);
+        Debug.DrawRay(leftRayOrigin, left * wallRaycastDistance, leftColliderCheck ? Color.red : Color.green);
 
-        if (moveDirection >= 0 || velocityDirection > 0)
-        {
-            var rightRayOrigin = new Vector2(colliderBounds.max.x, colliderBounds.center.y);
-            rightColliderCheck = Physics2D.Raycast(rightRayOrigin, right, wallRaycastDistance, wallLayerMask);
-            Debug.DrawRay(rightRayOrigin, right * wallRaycastDistance, rightColliderCheck ? Color.red : Color.green);
-        }
+        var rightRayOrigin = new Vector2(colliderBounds.max.x, colliderBounds.center.y);
+        var rightColliderCheck = Physics2D.Raycast(rightRayOrigin, right, wallRaycastDistance, wallLayerMask);
+        Debug.DrawRay(rightRayOrigin, right * wallRaycastDistance, rightColliderCheck ? Color.red : Color.green);
 
         _isTouchingLeftWall = leftTransformCheck && leftColliderCheck;
         _isTouchingRightWall = rightTransformCheck && rightColliderCheck;
@@ -426,24 +414,19 @@ public class PlayerController : MonoBehaviourPunCallbacks
     {
         var wasWallSliding = _isWallSliding;
 
-        // Local player logic for detecting wall sliding
         if (photonView.IsMine)
         {
             var wallSlideCondition = IsTouchingWall && !IsGrounded && (_rb.linearVelocity.y < 0 || _postWallJump);
             _isWallSliding = wallSlideCondition;
 
-            if ((_isTouchingLeftWall || _isTouchingRightWall) && !wasWallSliding && _isWallSliding)
-                _wallSlideSide = _isTouchingLeftWall ? -1 : 1;
-
-            if (_isWallSliding && IsTouchingWall)
+            if (_isWallSliding)
             {
-                if (_isTouchingLeftWall && _wallSlideSide != -1)
+                if (_isTouchingLeftWall)
                     _wallSlideSide = -1;
-                else if (_isTouchingRightWall && _wallSlideSide != 1)
+                else if (_isTouchingRightWall)
                     _wallSlideSide = 1;
             }
 
-            // Local player physics
             if (_isWallSliding)
             {
                 if (_rb.linearVelocity.y < 0)
@@ -459,7 +442,6 @@ public class PlayerController : MonoBehaviourPunCallbacks
                 _rb.linearVelocity = new Vector2(_wallSlideSide * wallStickForce, _rb.linearVelocity.y);
             }
 
-            // Sync wall slide side to other players when it changes
             if (wasWallSliding != _isWallSliding || (_isWallSliding && _lastWallSlideSideRPC != _wallSlideSide))
             {
                 photonView.RPC(nameof(RPC_SyncWallSlideVisuals), RpcTarget.Others, _isWallSliding, _wallSlideSide);
@@ -467,7 +449,6 @@ public class PlayerController : MonoBehaviourPunCallbacks
             }
         }
 
-        // Visual updates for both local and remote players
         UpdateWallSlideVisuals(_isWallSliding, _wallSlideSide);
 
         animator.SetBool(IsWallSliding, _isWallSliding);
@@ -478,12 +459,10 @@ public class PlayerController : MonoBehaviourPunCallbacks
     {
         if (isSliding || JumpState == JumpStateEnum.WallCharging)
         {
-            // Handle sprite orientation for all players
-            if (slideSide > 0 != _spriteFlipManager.IsFacingRight())
-                if (photonView.IsMine)
-                    FlipPlayerSprite();
-            // Remote players will receive this through RPC in SpriteFlipManager
-            // Apply rotation and offset to the sprite
+            var shouldFaceRight = slideSide > 0;
+            if (shouldFaceRight != _spriteFlipManager.IsFacingRight() && photonView.IsMine)
+                FlipPlayerSprite();
+
             spriteTransform.rotation = Quaternion.Euler(0, 0, slideSide * 90f);
             var offsetPosition = _originalSpritePosition;
             offsetPosition.x += slideSide * wallSlideOffset;
@@ -491,7 +470,6 @@ public class PlayerController : MonoBehaviourPunCallbacks
         }
         else if (spriteTransform.rotation != Quaternion.identity || spriteTransform.localPosition != _originalSpritePosition)
         {
-            // Reset sprite transformation when not wall sliding
             spriteTransform.rotation = Quaternion.identity;
             spriteTransform.localPosition = _originalSpritePosition;
         }
@@ -518,7 +496,11 @@ public class PlayerController : MonoBehaviourPunCallbacks
         JumpState = JumpStateEnum.WallCharging;
 
         _jumpChargeStartTime = Time.time - (chargeProgress * maxWallChargeTime);
-        _wallSlideSide = _isTouchingLeftWall ? -1 : 1;
+
+        if (_isTouchingLeftWall)
+            _wallSlideSide = -1;
+        else if (_isTouchingRightWall)
+            _wallSlideSide = 1;
 
         animator.SetBool(IsJumpQueued, true);
     }
@@ -854,9 +836,11 @@ public class PlayerController : MonoBehaviourPunCallbacks
         ResetAccelerationState();
 
         var currentInputDirection = (int)Sign(currentHorizontalInput);
-        var applyDetachForce = currentInputDirection != 0 && currentInputDirection != _wallSlideSide;
 
-        if (applyDetachForce)
+        var pushingAwayFromWall = (currentInputDirection == -1 && _wallSlideSide == 1) ||
+                                  (currentInputDirection == 1 && _wallSlideSide == -1);
+
+        if (pushingAwayFromWall)
         {
             _rb.linearVelocity = new Vector2(-_wallSlideSide * wallDetachForce, jumpMultiplier);
             _postWallJump = false;
