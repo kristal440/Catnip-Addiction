@@ -229,6 +229,8 @@ public class CloudManager : MonoBehaviour
     /// Moves clouds and recycles them when they go off-screen
     private void UpdateClouds()
     {
+        if (!_mainCamera) return;
+
         var movementDirection = moveRight ? 1f : -1f;
 
         var speedMultiplier = 1f;

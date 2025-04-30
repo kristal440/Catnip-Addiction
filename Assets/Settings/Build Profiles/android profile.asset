@@ -187,6 +187,12 @@ MonoBehaviour:
     - line: '|   preloadedAssets:'
     - line: '|   - {fileID: -944628639613478452, guid: 2bcd2660ca9b64942af0de543d8d7100,
         type: 3}'
+    - line: '|   - {fileID: -5404593336924864303, guid: 9a04af1606727f8b9b5a36bbf8d38902,
+        type: 2}'
+    - line: '|   - {fileID: 11400000, guid: 2295be1619b539454a8203faab5facd4, type:
+        2}'
+    - line: '|   - {fileID: 11400000, guid: 324456ac4736ecc7685a456d7b7c7009, type:
+        2}'
     - line: '|   metroInputSource: 0'
     - line: '|   wsaTransparentSwapchain: 0'
     - line: '|   m_HolographicPauseOnTrackingLoss: 1'
@@ -227,11 +233,11 @@ MonoBehaviour:
     - line: '|   stripEngineCode: 1'
     - line: '|   iPhoneStrippingLevel: 0'
     - line: '|   iPhoneScriptCallOptimization: 0'
-    - line: '|   ForceInternetPermission: 0'
+    - line: '|   ForceInternetPermission: 1'
     - line: '|   ForceSDCardPermission: 0'
     - line: '|   CreateWallpaper: 0'
     - line: '|   androidSplitApplicationBinary: 0'
-    - line: '|   keepLoadedShadersAlive: 0'
+    - line: '|   keepLoadedShadersAlive: 1'
     - line: '|   StripUnusedMeshComponents: 0'
     - line: '|   strictShaderVariantMatching: 0'
     - line: '|   VertexChannelCompressionMask: 4054'
@@ -310,7 +316,7 @@ MonoBehaviour:
     - line: '|   useCustomGradlePropertiesTemplate: 0'
     - line: '|   useCustomGradleSettingsTemplate: 0'
     - line: '|   useCustomProguardFile: 0'
-    - line: '|   AndroidTargetArchitectures: 3'
+    - line: '|   AndroidTargetArchitectures: 2'
     - line: '|   AndroidSplashScreenScale: 0'
     - line: '|   androidSplashScreen: {instanceID: 0}'
     - line: '|   AndroidKeystoreName: ''{inproject}: my-release-key.keystore'''
@@ -329,7 +335,7 @@ MonoBehaviour:
     - line: '|     height: 180'
     - line: '|     banner: {instanceID: 0}'
     - line: '|   androidGamepadSupportLevel: 0'
-    - line: '|   AndroidMinifyRelease: 0'
+    - line: '|   AndroidMinifyRelease: 1'
     - line: '|   AndroidMinifyDebug: 0'
     - line: '|   AndroidValidateAppBundleSize: 1'
     - line: '|   AndroidAppBundleSizeToValidate: 150'
@@ -999,7 +1005,7 @@ MonoBehaviour:
     - rid: 7016962890364354665
       type: {class: AndroidPlatformBuildSettings, ns: UnityEditor.Android, asm: UnityEditor.Android.Extensions}
       data:
-        m_Development: 1
+        m_Development: 0
         m_ConnectProfiler: 0
         m_BuildWithDeepProfilingSupport: 0
         m_AllowDebugging: 0
@@ -1016,7 +1022,7 @@ MonoBehaviour:
         m_DebugSymbolLevel: 1
         m_DebugSymbolFormat: 5
         m_CurrentDeploymentTargetId: __builtin__target_default
-        m_BuildType: 1
+        m_BuildType: 2
         m_BuildAppBundle: 0
         m_IPAddressToConnect: 
         m_SymlinkSources: 0
