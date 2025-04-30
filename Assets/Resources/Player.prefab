@@ -1663,6 +1663,12 @@ MonoBehaviour:
   playerSpriteToHide: {fileID: 6563650613660426911}
   playerCanvasToHide: {fileID: 8698612799634927445}
   explosionDuration: 5
+  enableDeathNotifications: 1
+  environmentalDeathMessages:
+  - fell to their doom
+  - died
+  - perished
+  hazardDeathMessage: was eliminated
 --- !u!114 &5206486501185713570
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -1361,8 +1361,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -375.27002, y: -270}
-  m_SizeDelta: {x: 673.5, y: 74.77661}
+  m_AnchoredPosition: {x: -375, y: -213}
+  m_SizeDelta: {x: 700, y: 75}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &3244753793400917437
 MonoBehaviour:
@@ -1408,6 +1408,8 @@ MonoBehaviour:
   displayDuration: 2.5
   fadeOutDuration: 0.25
   slideDistance: 35
+  deathNameColor: {r: 1, g: 1, b: 1, a: 1}
+  deathMessageColor: {r: 1, g: 0.75, b: 0.96153855, a: 1}
 --- !u!1 &2926832033419436486
 GameObject:
   m_ObjectHideFlags: 0
@@ -3063,7 +3065,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 0}
   m_AnchorMax: {x: 1, y: 0}
-  m_AnchoredPosition: {x: 605, y: -87}
+  m_AnchoredPosition: {x: 600, y: -70}
   m_SizeDelta: {x: 187.28723, y: 150.51898}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &4730495012819201512

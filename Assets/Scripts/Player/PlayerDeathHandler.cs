@@ -1,12 +1,13 @@
 using System.Collections;
 using UnityEngine;
+using Photon.Pun;
 
 /// <inheritdoc />
 /// <summary>
 /// Handles player death events, respawning, and visual effects when player dies
 /// </summary>
 [RequireComponent(typeof(CheckpointManager))]
-public class PlayerDeathHandler : MonoBehaviour
+public class PlayerDeathHandler : MonoBehaviourPun
 {
     [SerializeField] [Tooltip("Tag that identifies hazardous objects causing death")] private string hazardTag = "Death";
     [SerializeField] [Tooltip("Delay in seconds before respawning after death")] private float respawnDelay = 1f;
@@ -16,6 +17,9 @@ public class PlayerDeathHandler : MonoBehaviour
     [SerializeField] [Tooltip("Player sprite to hide during death sequence")] private SpriteRenderer playerSpriteToHide;
     [SerializeField] [Tooltip("Player UI canvas to hide during death sequence")] private Canvas playerCanvasToHide;
     [SerializeField] [Tooltip("How long death explosion effect remains before being destroyed")] private float explosionDuration = 10f;
+
+    [Header("Death Notifications")]
+    [SerializeField] [Tooltip("Enable death notifications")] private bool enableDeathNotifications = true;
 
     private SpectatorModeManager _spectatorModeManager;
     private DynamicCameraController _cameraController;
@@ -36,6 +40,9 @@ public class PlayerDeathHandler : MonoBehaviour
     {
         if (_isRespawning || !other.CompareTag(hazardTag))
             return;
+
+        if (enableDeathNotifications && photonView.IsMine)
+            photonView.RPC(nameof(RPC_NotifyPlayerDeath), RpcTarget.All);
 
         StartCoroutine(RespawnPlayer());
     }
@@ -90,6 +97,19 @@ public class PlayerDeathHandler : MonoBehaviour
         if (_isRespawning)
             return;
 
+        if (enableDeathNotifications && photonView.IsMine)
+            photonView.RPC(nameof(RPC_NotifyPlayerDeath), RpcTarget.All);
+
         StartCoroutine(RespawnPlayer());
+    }
+
+    /// <summary>
+    /// RPC method to notify all clients when a player dies
+    /// </summary>
+    [PunRPC]
+    private void RPC_NotifyPlayerDeath()
+    {
+        var playerName = photonView.Owner.NickName;
+        FindFirstObjectByType<PlayerNotificationManager>().ShowDeathNotification(playerName);
     }
 }

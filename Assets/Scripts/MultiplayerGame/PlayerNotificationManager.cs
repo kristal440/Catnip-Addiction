@@ -21,16 +21,31 @@ public class PlayerNotificationManager : MonoBehaviourPunCallbacks
     [SerializeField] [Tooltip("Duration of the fade-out animation")] public float fadeOutDuration = 0.5f;
     [SerializeField] [Tooltip("Vertical distance the notification slides during animations")] public float slideDistance = 50f;
 
+    [Header("Death Notification Settings")]
+    [SerializeField] [Tooltip("Color for player names in death notifications")] private Color deathNameColor = new(1f, 0.5f, 0.5f);
+    [SerializeField] [Tooltip("Color for death messages")] private Color deathMessageColor = new(1f, 0.3f, 0.3f);
+
     private CanvasGroup _canvasGroup;
     private RectTransform _rectTransform;
     private Vector2 _originalPosition;
+    private Vector2 _startPosition;
+    private Vector2 _endPosition;
     private readonly Queue<NotificationInfo> _notificationQueue = new();
     private bool _isProcessingQueue;
 
     private struct NotificationInfo
     {
         public string PlayerName;
-        public bool IsJoining;
+        public string Message;
+        public NotificationType Type;
+        public float CustomDisplayDuration;
+    }
+
+    private enum NotificationType
+    {
+        PlayerJoined,
+        PlayerLeft,
+        PlayerDeath
     }
 
     /// Initializes required components and sets initial state
@@ -43,6 +58,9 @@ public class PlayerNotificationManager : MonoBehaviourPunCallbacks
         _rectTransform = GetComponent<RectTransform>();
         _originalPosition = _rectTransform.anchoredPosition;
 
+        _startPosition = _originalPosition - new Vector2(0, slideDistance);
+        _endPosition = _originalPosition + new Vector2(0, slideDistance);
+
         _canvasGroup.alpha = 0f;
     }
 
@@ -50,20 +68,31 @@ public class PlayerNotificationManager : MonoBehaviourPunCallbacks
     /// Called when a new player joins the room
     public override void OnPlayerEnteredRoom(Player newPlayer)
     {
-        QueueNotification(newPlayer.NickName, true);
+        QueueNotification(newPlayer.NickName, "joined", NotificationType.PlayerJoined);
     }
 
     /// <inheritdoc />
     /// Called when a player leaves the room
     public override void OnPlayerLeftRoom(Player otherPlayer)
     {
-        QueueNotification(otherPlayer.NickName, false);
+        QueueNotification(otherPlayer.NickName, "left", NotificationType.PlayerLeft);
+    }
+
+    /// Shows a death notification for the specified player
+    internal void ShowDeathNotification(string playerName)
+    {
+        QueueNotification(playerName, "died.", NotificationType.PlayerDeath);
     }
 
     /// Adds a notification to the queue and starts processing if needed
-    private void QueueNotification(string playerName, bool isJoining)
+    private void QueueNotification(string playerName, string message, NotificationType type)
     {
-        _notificationQueue.Enqueue(new NotificationInfo { PlayerName = playerName, IsJoining = isJoining });
+        _notificationQueue.Enqueue(new NotificationInfo
+        {
+            PlayerName = playerName,
+            Message = message,
+            Type = type
+        });
 
         if (!_isProcessingQueue)
             StartCoroutine(ProcessNotificationQueue());
@@ -79,10 +108,25 @@ public class PlayerNotificationManager : MonoBehaviourPunCallbacks
             var notification = _notificationQueue.Dequeue();
 
             playerNameText.text = notification.PlayerName;
-            statusText.text = notification.IsJoining ? "joined" : "left";
-            statusText.color = notification.IsJoining ? Color.green : Color.red;
+            statusText.text = notification.Message;
 
-            yield return StartCoroutine(AnimateNotification());
+            switch (notification.Type)
+            {
+                case NotificationType.PlayerJoined:
+                    statusText.color = Color.green;
+                    playerNameText.color = Color.white;
+                    break;
+                case NotificationType.PlayerLeft:
+                    statusText.color = Color.red;
+                    playerNameText.color = Color.white;
+                    break;
+                case NotificationType.PlayerDeath:
+                    statusText.color = deathMessageColor;
+                    playerNameText.color = deathNameColor;
+                    break;
+            }
+
+            yield return StartCoroutine(AnimateNotification(notification.CustomDisplayDuration));
 
             yield return new WaitForSeconds(0.2f);
         }
@@ -91,9 +135,9 @@ public class PlayerNotificationManager : MonoBehaviourPunCallbacks
     }
 
     /// Handles the animation sequence for a notification
-    private IEnumerator AnimateNotification()
+    private IEnumerator AnimateNotification(float customDisplayDuration = -1)
     {
-        _rectTransform.anchoredPosition = _originalPosition - new Vector2(0, slideDistance);
+        var actualDisplayDuration = customDisplayDuration > 0 ? customDisplayDuration : displayDuration;
 
         _canvasGroup.alpha = 0f;
         float time = 0;
@@ -102,7 +146,7 @@ public class PlayerNotificationManager : MonoBehaviourPunCallbacks
             var t = time / fadeInDuration;
             _canvasGroup.alpha = t;
             _rectTransform.anchoredPosition = Vector2.Lerp(
-                _originalPosition - new Vector2(0, slideDistance),
+                _startPosition,
                 _originalPosition,
                 t
             );
@@ -113,7 +157,7 @@ public class PlayerNotificationManager : MonoBehaviourPunCallbacks
         _canvasGroup.alpha = 1f;
         _rectTransform.anchoredPosition = _originalPosition;
 
-        yield return new WaitForSeconds(displayDuration);
+        yield return new WaitForSeconds(actualDisplayDuration);
 
         time = 0;
         while (time < fadeOutDuration)
@@ -122,7 +166,7 @@ public class PlayerNotificationManager : MonoBehaviourPunCallbacks
             _canvasGroup.alpha = 1 - t;
             _rectTransform.anchoredPosition = Vector2.Lerp(
                 _originalPosition,
-                _originalPosition + new Vector2(0, slideDistance),
+                _endPosition,
                 t
             );
             time += Time.deltaTime;
