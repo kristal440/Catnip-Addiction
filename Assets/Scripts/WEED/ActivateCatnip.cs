@@ -66,7 +66,7 @@ public class ActivateCatnip : MonoBehaviour
 
         _updateChargeBarCoroutine = StartCoroutine(UpdateChargeBar(catnipFx, effectDuration));
 
-        StartCoroutine(DeactivateEffectAfterDelay(effectDuration, playerC, playerPhotonView, catnipFx));
+        StartCoroutine(DeactivateEffectAfterDelay(effectDuration, playerC, playerPhotonView));
     }
 
     /// Updates the charge bar fill regularly during the catnip effect
@@ -86,7 +86,7 @@ public class ActivateCatnip : MonoBehaviour
     }
 
     /// Deactivates catnip effect after specified duration
-    private IEnumerator DeactivateEffectAfterDelay(float delay, PlayerController playerC, PhotonView playerPhotonView, CatnipFx catnipFx)
+    private IEnumerator DeactivateEffectAfterDelay(float delay, PlayerController playerC, PhotonView playerPhotonView)
     {
         yield return new WaitForSeconds(delay);
 
