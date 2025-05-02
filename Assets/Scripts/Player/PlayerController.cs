@@ -77,13 +77,13 @@ public class PlayerController : MonoBehaviourPunCallbacks
     private Camera _mainCamera;
     private Rigidbody2D _rb;
     private Collider2D _collider;
-    private DynamicCameraController _cameraController;
     private InputSystem_Actions _playerInputActions;
-    private CatnipFx _catnipFx;
     private SpriteFlipManager _spriteFlipManager;
 
     // helper scripts
     internal JumpSystem JumpSystem;
+    internal CatnipFx CatnipFx;
+    internal DynamicCameraController CameraController;
 
     // Internal state variables
     private float _idleTimer;
@@ -144,7 +144,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
         _mainCamera = Camera.main;
         _rb = GetComponent<Rigidbody2D>();
         _collider = GetComponent<Collider2D>();
-        _catnipFx = GetComponent<CatnipFx>();
+        CatnipFx = GetComponent<CatnipFx>();
         _spriteFlipManager = GetComponent<SpriteFlipManager>();
         JumpSystem = GetComponent<JumpSystem>();
 
@@ -222,9 +222,9 @@ public class PlayerController : MonoBehaviourPunCallbacks
         Transform transform1;
         (transform1 = _mainCamera.transform).SetParent(transform);
         transform1.localRotation = Quaternion.identity;
-        _cameraController = _mainCamera.GetComponent<DynamicCameraController>();
-        if (_cameraController == null)
-            _cameraController = _mainCamera.gameObject.AddComponent<DynamicCameraController>();
+        CameraController = _mainCamera.GetComponent<DynamicCameraController>();
+        if (CameraController == null)
+            CameraController = _mainCamera.gameObject.AddComponent<DynamicCameraController>();
     }
     #endregion
 
@@ -566,8 +566,8 @@ public class PlayerController : MonoBehaviourPunCallbacks
         ResetAccelerationState();
         CurrentSpeed = 0f;
 
-        if (_cameraController)
-            _cameraController.OnPlayerRespawn();
+        if (CameraController)
+            CameraController.OnPlayerRespawn();
     }
 
     /// Teleports player to specified position without resetting camera
@@ -616,9 +616,9 @@ public class PlayerController : MonoBehaviourPunCallbacks
         if (!photonView.IsMine) return;
 
         if (isActive)
-            _catnipFx.ActivateCatnipEffect();
+            CatnipFx.ActivateCatnipEffect();
         else
-            _catnipFx.DeactivateCatnipEffect();
+            CatnipFx.DeactivateCatnipEffect();
     }
     #endregion
 
@@ -636,9 +636,10 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
         spriteTransform.rotation = Quaternion.identity;
         spriteTransform.localPosition = OriginalSpritePosition;
+        photonView.RPC(nameof(RPC_SetCatnipEffectActive), RpcTarget.All, false);
 
-        if (_cameraController)
-            _cameraController.OnPlayerDeath();
+        if (CameraController)
+            CameraController.OnPlayerDeath();
     }
 
     /// Respawns player at last checkpoint
@@ -667,8 +668,8 @@ public class PlayerController : MonoBehaviourPunCallbacks
         _rb.gravityScale = defaultGravityScale;
         _rb.constraints = RigidbodyConstraints2D.FreezeRotation;
 
-        if (_cameraController)
-            _cameraController.OnPlayerRespawn();
+        if (CameraController)
+            CameraController.OnPlayerRespawn();
 
         JumpSystem.CancelJumpCharge();
     }

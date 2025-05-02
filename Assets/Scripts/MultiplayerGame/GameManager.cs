@@ -288,6 +288,11 @@ public class GameManager : MonoBehaviourPunCallbacks
             StopCoroutine(_countdownCoroutine);
 
         _countdownCoroutine = StartCoroutine(CountdownCoroutine(serverStartTime));
+
+        // Trigger camera transition after countdown starts
+        var cameraController = FindObjectOfType<DynamicCameraController>();
+        if (cameraController != null)
+            cameraController.TriggerTransitionAfterCountdown();
     }
 
     /// Starts the game across all clients
@@ -314,6 +319,7 @@ public class GameManager : MonoBehaviourPunCallbacks
             p.Teleport(Vector3.zero);
             p.SetMovement(true);
             p.ResetAccelerationState();
+            photonView.RPC(nameof(p.RPC_SetCatnipEffectActive), RpcTarget.All, false);
         }
 
         finishLine.GetComponent<BoxCollider2D>().enabled = true;
@@ -375,3 +381,4 @@ public struct PlayerResultData
         finishTime = time;
     }
 }
+
