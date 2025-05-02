@@ -564,6 +564,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
         spriteTransform.rotation = Quaternion.identity;
         spriteTransform.localPosition = OriginalSpritePosition;
         ResetAccelerationState();
+        JumpSystem.CancelJumpCharge();
         CurrentSpeed = 0f;
 
         if (CameraController)
@@ -580,6 +581,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
         spriteTransform.rotation = Quaternion.identity;
         spriteTransform.localPosition = OriginalSpritePosition;
         ResetAccelerationState();
+        JumpSystem.CancelJumpCharge();
         CurrentSpeed = 0f;
     }
 

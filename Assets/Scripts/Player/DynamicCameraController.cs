@@ -89,16 +89,7 @@ public class DynamicCameraController : MonoBehaviour
     {
         // Find the finish object
         _finishObject = GameObject.FindWithTag("Finish");
-        if (_finishObject == null)
-        {
-            Debug.LogWarning("No object with tag 'Finish' found. Proceeding to find player.");
-            StartCoroutine(FindPlayerControllerWithTimeout());
-            yield break;
-        }
-
-        // Initially focus on the finish object
-        FocusOnFinishObject();
-        _isInInitialTransition = true;
+        StartCoroutine(FindPlayerControllerWithTimeout());
 
         // Find the player controller
         var startTime = Time.time;
@@ -112,14 +103,9 @@ public class DynamicCameraController : MonoBehaviour
         if (_playerController == null)
         {
             Debug.LogError($"PlayerController not found after {playerSearchTimeout}s. Cannot transition to player.");
-            _isInInitialTransition = false;
             enabled = false;
             yield break;
         }
-
-        // Disable player movement during the transition
-        _playerController.SetMovement(false);
-        _playerController.DisableRigidbody();
 
         // Initialize default camera values
         if (defaultFOV <= 0)
@@ -127,16 +113,6 @@ public class DynamicCameraController : MonoBehaviour
 
         _defaultPosition = defaultCameraOffset;
         _lastPlayerPosition = _playerController.transform.position;
-
-        // Wait for the specified delay
-        yield return new WaitForSeconds(finishFocusDelay);
-
-        // Transition from finish to player
-        yield return StartCoroutine(TransitionFromFinishToPlayer());
-
-        // Re-enable player movement after the transition
-        _playerController.SetMovement(true);
-        _playerController.EnableRigidbody();
     }
 
     /// Centers the camera on the finish object
@@ -414,6 +390,8 @@ public class DynamicCameraController : MonoBehaviour
     private IEnumerator DelayedTransitionFromFinishToPlayer()
     {
         yield return new WaitForSeconds(countdownStartTransitionDelay);
+        
+        FocusOnFinishObject();
 
         if (_playerController == null)
         {

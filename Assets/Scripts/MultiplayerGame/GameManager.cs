@@ -290,7 +290,7 @@ public class GameManager : MonoBehaviourPunCallbacks
         _countdownCoroutine = StartCoroutine(CountdownCoroutine(serverStartTime));
 
         // Trigger camera transition after countdown starts
-        var cameraController = FindObjectOfType<DynamicCameraController>();
+        var cameraController = FindFirstObjectByType<DynamicCameraController>();
         if (cameraController != null)
             cameraController.TriggerTransitionAfterCountdown();
     }
@@ -321,6 +321,7 @@ public class GameManager : MonoBehaviourPunCallbacks
             p.ResetAccelerationState();
             photonView.RPC(nameof(p.RPC_SetCatnipEffectActive), RpcTarget.All, false);
         }
+        
 
         finishLine.GetComponent<BoxCollider2D>().enabled = true;
         gameTimerText.enabled = true;
