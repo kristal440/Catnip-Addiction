@@ -1,4 +1,5 @@
 using System.Collections;
+using Photon.Pun;
 using UnityEngine;
 using static UnityEngine.Mathf;
 
@@ -43,8 +44,8 @@ public class DynamicCameraController : MonoBehaviour
     [Header("Initial Finish Target Settings")]
     [SerializeField] [Tooltip("Duration of camera transition from finish to player")] public float finishToPlayerTransitionDuration = 2.0f;
     [SerializeField] [Tooltip("Animation curve for finish to player transition")] private AnimationCurve finishToPlayerCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
-    [SerializeField] [Tooltip("Delay before starting transition from finish to player")] public float finishFocusDelay = 1.0f;
     [SerializeField] [Tooltip("FOV when focusing on finish object")] public float finishFocusFOV = 45f;
+    [SerializeField] [Tooltip("Duration the camera remains focused on finish object before transitioning to player")] public float finishFocusDuration = 1.5f;
 
     [Header("Game Start Transition")]
     [SerializeField] [Tooltip("Delay after countdown starts before transitioning from finish to player")] 
@@ -380,28 +381,34 @@ public class DynamicCameraController : MonoBehaviour
         _lastPlayerPosition = _playerController.transform.position;
     }
 
-    /// Triggers the transition from finish to player after a delay
-    public void TriggerTransitionAfterCountdown()
+    /// Triggers the transition from finish to player after a synchronized delay
+    public void TriggerTransitionAfterCountdown(int serverStartTime)
     {
-        StartCoroutine(DelayedTransitionFromFinishToPlayer());
+        StartCoroutine(DelayedTransitionFromFinishToPlayer(serverStartTime));
     }
 
-    /// Delays the transition from finish to player
-    private IEnumerator DelayedTransitionFromFinishToPlayer()
+    /// Delays the transition from finish to player using Photon server time for consistency
+    private IEnumerator DelayedTransitionFromFinishToPlayer(int serverStartTime)
     {
-        yield return new WaitForSeconds(countdownStartTransitionDelay);
+        // Disable player movement during the transition
+        _playerController.SetMovement(false);
+        _playerController.DisableRigidbody();
         
+        // Compute delay so that transition starts at: (serverStartTime/1000 + countdownStartTransitionDelay)
+        var currentServerTime = PhotonNetwork.Time;
+        var targetTransitionServerTime = (serverStartTime / 1000.0) + countdownStartTransitionDelay;
+        var waitTime = Mathf.Max(0, (float)(targetTransitionServerTime - currentServerTime));
+        yield return new WaitForSeconds(waitTime);
+        
+        _isInInitialTransition = true;
         FocusOnFinishObject();
+        yield return new WaitForSeconds(finishFocusDuration);
 
-        if (_playerController == null)
+        if (!_playerController)
         {
             Debug.LogError("PlayerController not found. Cannot transition to player.");
             yield break;
         }
-
-        // Disable player movement during the transition
-        _playerController.SetMovement(false);
-        _playerController.DisableRigidbody();
 
         // Transition from finish to player
         yield return StartCoroutine(TransitionFromFinishToPlayer());

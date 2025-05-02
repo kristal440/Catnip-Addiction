@@ -289,10 +289,10 @@ public class GameManager : MonoBehaviourPunCallbacks
 
         _countdownCoroutine = StartCoroutine(CountdownCoroutine(serverStartTime));
 
-        // Trigger camera transition after countdown starts
+        // Trigger camera transition after countdown starts, passing the server start time for consistency
         var cameraController = FindFirstObjectByType<DynamicCameraController>();
         if (cameraController != null)
-            cameraController.TriggerTransitionAfterCountdown();
+            cameraController.TriggerTransitionAfterCountdown(serverStartTime);
     }
 
     /// Starts the game across all clients
