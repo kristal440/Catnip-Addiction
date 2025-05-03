@@ -1,4 +1,5 @@
 using System.Collections;
+using Photon.Pun;
 using UnityEngine;
 using static UnityEngine.Mathf;
 
@@ -40,10 +41,21 @@ public class DynamicCameraController : MonoBehaviour
     [SerializeField] [Range(0.1f, 2f)] [Tooltip("Duration of camera transition after teleportation")] public float teleportTransitionDuration = 0.5f;
     [SerializeField] [Tooltip("Animation curve for teleport camera movement")] private AnimationCurve teleportCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
 
+    [Header("Initial Finish Target Settings")]
+    [SerializeField] [Tooltip("Duration of camera transition from finish to player")] public float finishToPlayerTransitionDuration = 2.0f;
+    [SerializeField] [Tooltip("Animation curve for finish to player transition")] private AnimationCurve finishToPlayerCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
+    [SerializeField] [Tooltip("FOV when focusing on finish object")] public float finishFocusFOV = 45f;
+    [SerializeField] [Tooltip("Duration the camera remains focused on finish object before transitioning to player")] public float finishFocusDuration = 1.5f;
+
+    [Header("Game Start Transition")]
+    [SerializeField] [Tooltip("Delay after countdown starts before transitioning from finish to player")] 
+    public float countdownStartTransitionDelay = 2.0f;
+
     private float _defaultFOVBackup;
     private bool _isInJumpTransition;
     private bool _isInDeathZoom;
     private bool _isInTeleportTransition;
+    private bool _isInInitialTransition;
     private float _jumpTransitionTimer;
     private const float JumpTransitionDuration = 0.2f;
 
@@ -56,6 +68,7 @@ public class DynamicCameraController : MonoBehaviour
 
     private Vector2 _lastPlayerPosition;
     private float _actualPlayerSpeed;
+    private GameObject _finishObject;
 
     /// Initializes the camera controller and triggers player search
     private void Start()
@@ -69,7 +82,98 @@ public class DynamicCameraController : MonoBehaviour
         }
 
         _defaultFOVBackup = defaultFOV;
+        StartCoroutine(InitialSetup());
+    }
+
+    /// Initial setup that finds finish object, player, and handles the transition
+    private IEnumerator InitialSetup()
+    {
+        // Find the finish object
+        _finishObject = GameObject.FindWithTag("Finish");
         StartCoroutine(FindPlayerControllerWithTimeout());
+
+        // Find the player controller
+        var startTime = Time.time;
+        while (Time.time - startTime < playerSearchTimeout)
+        {
+            _playerController = GetComponentInParent<PlayerController>();
+            if (_playerController) break;
+            yield return null;
+        }
+
+        if (_playerController == null)
+        {
+            Debug.LogError($"PlayerController not found after {playerSearchTimeout}s. Cannot transition to player.");
+            enabled = false;
+            yield break;
+        }
+
+        // Initialize default camera values
+        if (defaultFOV <= 0)
+            defaultFOV = _camera.fieldOfView;
+
+        _defaultPosition = defaultCameraOffset;
+        _lastPlayerPosition = _playerController.transform.position;
+    }
+
+    /// Centers the camera on the finish object
+    private void FocusOnFinishObject()
+    {
+        if (_finishObject == null) return;
+
+        // Position the camera at the finish object position
+        transform.position = new Vector3(
+            _finishObject.transform.position.x,
+            _finishObject.transform.position.y,
+            transform.position.z
+        );
+
+        // Set the initial FOV
+        _camera.fieldOfView = finishFocusFOV;
+    }
+
+    /// Handles the transition from finish object to player
+    private IEnumerator TransitionFromFinishToPlayer()
+    {
+        if (_finishObject == null || _playerController == null) yield break;
+
+        var startPosition = transform.position;
+        var startFOV = _camera.fieldOfView;
+
+        var targetPosition = new Vector3(
+            _playerController.transform.position.x + _defaultPosition.x,
+            _playerController.transform.position.y + _defaultPosition.y,
+            transform.position.z
+        );
+        var targetFOV = defaultFOV;
+
+        var elapsedTime = 0f;
+
+        while (elapsedTime < finishToPlayerTransitionDuration)
+        {
+            var t = elapsedTime / finishToPlayerTransitionDuration;
+            var smoothT = finishToPlayerCurve.Evaluate(t);
+
+            // Update position and FOV
+            transform.position = Vector3.Lerp(startPosition, targetPosition, smoothT);
+            _camera.fieldOfView = Lerp(startFOV, targetFOV, smoothT);
+
+            elapsedTime += Time.deltaTime;
+            yield return null;
+        }
+
+        // Ensure we reach the exact target
+        transform.position = targetPosition;
+        _camera.fieldOfView = targetFOV;
+
+        // Reset velocities and flags
+        _currentHorizontalVelocity = 0f;
+        _currentVerticalVelocity = 0f;
+        _currentFOVVelocity = 0f;
+        _isInInitialTransition = false;
+
+        // Update the last player position
+        _lastPlayerPosition = _playerController.transform.position;
     }
 
     /// Searches for player controller with timeout
@@ -122,7 +226,7 @@ public class DynamicCameraController : MonoBehaviour
     /// Updates camera effects based on player movement
     private void FixedUpdate()
     {
-        if (!_playerController || _isInTeleportTransition) return;
+        if (!_playerController || _isInTeleportTransition || _isInInitialTransition) return;
 
         if (Time.deltaTime > 0)
         {
@@ -141,7 +245,7 @@ public class DynamicCameraController : MonoBehaviour
     /// Updates FOV when charging a jump based on charge progress
     internal void UpdateChargingJumpFOV(float chargeProgress)
     {
-        if (_isInDeathZoom) return;
+        if (_isInDeathZoom || _isInInitialTransition) return;
 
         var targetFOV = Lerp(defaultFOV, minChargeJumpFOV, chargeProgress);
         _camera.fieldOfView = Lerp(_camera.fieldOfView, targetFOV, Time.deltaTime * jumpFOVTransitionSpeed);
@@ -150,7 +254,7 @@ public class DynamicCameraController : MonoBehaviour
     /// Triggers jump transition FOV effect
     internal void TriggerJumpFOV()
     {
-        if (_isInDeathZoom) return;
+        if (_isInDeathZoom || _isInInitialTransition) return;
 
         _isInJumpTransition = true;
         _jumpTransitionTimer = 0f;
@@ -218,7 +322,7 @@ public class DynamicCameraController : MonoBehaviour
     {
         _isInDeathZoom = false;
 
-        if (!_isInTeleportTransition)
+        if (!_isInTeleportTransition && !_isInInitialTransition)
             CenterCameraOnPlayer();
     }
 
@@ -237,7 +341,7 @@ public class DynamicCameraController : MonoBehaviour
     /// Handles smooth camera transition after player teleportation
     internal IEnumerator HandleTeleportTransition(Vector3 destination, float duration = -1f)
     {
-        if (!_playerController) yield break;
+        if (!_playerController || _isInInitialTransition) yield break;
 
         var transitionDuration = duration > 0 ? duration : teleportTransitionDuration;
 
@@ -275,5 +379,42 @@ public class DynamicCameraController : MonoBehaviour
         _isInTeleportTransition = false;
 
         _lastPlayerPosition = _playerController.transform.position;
+    }
+
+    /// Triggers the transition from finish to player after a synchronized delay
+    public void TriggerTransitionAfterCountdown(int serverStartTime)
+    {
+        StartCoroutine(DelayedTransitionFromFinishToPlayer(serverStartTime));
+    }
+
+    /// Delays the transition from finish to player using Photon server time for consistency
+    private IEnumerator DelayedTransitionFromFinishToPlayer(int serverStartTime)
+    {
+        // Disable player movement during the transition
+        _playerController.SetMovement(false);
+        _playerController.DisableRigidbody();
+        
+        // Compute delay so that transition starts at: (serverStartTime/1000 + countdownStartTransitionDelay)
+        var currentServerTime = PhotonNetwork.Time;
+        var targetTransitionServerTime = (serverStartTime / 1000.0) + countdownStartTransitionDelay;
+        var waitTime = Mathf.Max(0, (float)(targetTransitionServerTime - currentServerTime));
+        yield return new WaitForSeconds(waitTime);
+        
+        _isInInitialTransition = true;
+        FocusOnFinishObject();
+        yield return new WaitForSeconds(finishFocusDuration);
+
+        if (!_playerController)
+        {
+            Debug.LogError("PlayerController not found. Cannot transition to player.");
+            yield break;
+        }
+
+        // Transition from finish to player
+        yield return StartCoroutine(TransitionFromFinishToPlayer());
+
+        // Re-enable player movement after the transition
+        _playerController.SetMovement(true);
+        _playerController.EnableRigidbody();
     }
 }
