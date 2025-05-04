@@ -43,6 +43,8 @@ public class PlayerController : MonoBehaviourPunCallbacks
     [SerializeField] [Range(0.1f, 5f)] [Tooltip("Force to apply against the wall")] private float wallStickForce = 1.5f;
     [SerializeField] [Tooltip("Transform of the visual object to rotate during wall slide")] internal Transform spriteTransform;
     [SerializeField] [Range(-0.2f, 0.05f)] [Tooltip("X offset of sprite during wall sliding")] internal float wallSlideOffset = -0.06f;
+    [SerializeField] [Range(0.1f, 1.0f)] [Tooltip("Time threshold to detect being stuck against a wall")] internal float wallStuckThreshold = 0.3f;
+    [SerializeField] [Range(0.01f, 0.5f)] [Tooltip("Maximum velocity to consider player as stuck")] internal float stuckVelocityThreshold = 0.1f;
 
     [Header("UI")]
     [SerializeField] [Tooltip("Player name text display")] internal TextMeshProUGUI playerNameTag;
@@ -95,6 +97,8 @@ public class PlayerController : MonoBehaviourPunCallbacks
     private float _timeAtMaxSpeed;
     private bool _isTurboActive;
     private int _lastMoveDirection;
+    private float _wallStuckTimer;
+    private bool _isPotentiallyStuck;
 
     // Properties
     internal float CurrentSpeed;
@@ -284,7 +288,11 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
         if (photonView.IsMine)
         {
-            var wallSlideCondition = IsTouchingWall && !IsGrounded && (_rb.linearVelocity.y < 0 || PostWallJump);
+            var wallSlideCondition = IsTouchingWall && !IsGrounded && (
+                _rb.linearVelocity.y < 0 ||
+                PostWallJump ||
+                _isPotentiallyStuck);
+
             IsWallSliding = wallSlideCondition;
 
             if (IsWallSliding)
@@ -297,12 +305,16 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
             if (IsWallSliding)
             {
-                if (_rb.linearVelocity.y < 0)
+                if (_rb.linearVelocity.y < 0 || _isPotentiallyStuck)
                 {
                     _rb.linearVelocity = new Vector2(WallSlideSide * wallStickForce, Max(_rb.linearVelocity.y, -wallSlideSpeed));
 
                     if (PostWallJump)
                         PostWallJump = false;
+
+                    // Reset stuck status
+                    _isPotentiallyStuck = false;
+                    _wallStuckTimer = 0f;
                 }
             }
             else if (JumpSystem.JumpState == JumpSystem.JumpStateEnum.WallCharging)
@@ -425,14 +437,32 @@ public class PlayerController : MonoBehaviourPunCallbacks
             return;
         }
 
-        if ((horizontalInput < 0 && IsTouchingLeftWall) || (horizontalInput > 0 && IsTouchingRightWall))
+        // Check for stuck-against-wall condition
+        var moveDirection = (int)Sign(horizontalInput);
+        var isPressingAgainstWall = (horizontalInput < 0 && IsTouchingLeftWall) || (horizontalInput > 0 && IsTouchingRightWall);
+
+        if (isPressingAgainstWall)
         {
+            // Only check for stuck condition if not already wall sliding
+            if (Abs(_rb.linearVelocity.x) < stuckVelocityThreshold && !IsGrounded && !IsWallSliding)
+            {
+                _wallStuckTimer += Time.deltaTime;
+
+                if (_wallStuckTimer >= wallStuckThreshold)
+                    _isPotentiallyStuck = true;
+            }
+
             CurrentSpeed = MoveTowards(CurrentSpeed, 0, _newDeceleration * Time.deltaTime);
             _rb.linearVelocity = new Vector2(CurrentSpeed, _rb.linearVelocity.y);
             return;
         }
+        else
+        {
+            // Reset stuck detection
+            _wallStuckTimer = 0f;
+            _isPotentiallyStuck = false;
+        }
 
-        var moveDirection = (int)Sign(horizontalInput);
         switch (Abs(horizontalInput))
         {
             case > 0.01f:

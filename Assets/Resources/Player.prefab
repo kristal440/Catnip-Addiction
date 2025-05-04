@@ -1681,6 +1681,8 @@ MonoBehaviour:
   wallStickForce: 0.5
   spriteTransform: {fileID: 6004654633719211774}
   wallSlideOffset: 0.04
+  wallStuckThreshold: 0.1
+  stuckVelocityThreshold: 0.05
   playerNameTag: {fileID: 8640071455980941114}
   deathHeight: -50
   playerDeathHandler: {fileID: 6099844445017409013}
