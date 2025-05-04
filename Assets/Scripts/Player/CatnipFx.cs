@@ -70,7 +70,6 @@ public class CatnipFx : MonoBehaviour
 
         chargeBarFill.fillAmount = Mathf.Clamp01(remainingTime / totalDuration);
 
-        // Start fading the screen mask 1 second before effect ends
         if (!(remainingTime <= 1.0f) || !(screenMask.color.a > 0)) return;
 
         if (_chargeFillCoroutine != null)

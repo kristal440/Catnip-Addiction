@@ -289,10 +289,38 @@ public class GameManager : MonoBehaviourPunCallbacks
 
         _countdownCoroutine = StartCoroutine(CountdownCoroutine(serverStartTime));
 
-        // Trigger camera transition after countdown starts, passing the server start time for consistency
+        StartCoroutine(SetupPlayersForCountdown());
+
         var cameraController = FindFirstObjectByType<DynamicCameraController>();
         if (cameraController != null)
             cameraController.TriggerTransitionAfterCountdown(serverStartTime);
+    }
+
+    /// Ensures all players are properly positioned and disabled for countdown
+    private static IEnumerator SetupPlayersForCountdown()
+    {
+        yield return new WaitForSeconds(0.2f);
+
+        var players = FindObjectsByType<PlayerController>(FindObjectsSortMode.None);
+        foreach (var player in players.Where(static player => player && player.photonView))
+            try
+            {
+                var portalManager = GameObject.Find("PortalManager");
+                if (portalManager)
+                {
+                    var portals = portalManager.GetComponentsInChildren<Component>();
+                    foreach (var component in portals.Where(static component => component.GetType().Name == "Portal"))
+                        component.SendMessage("CancelAllActivePortalTeleportations", null, SendMessageOptions.DontRequireReceiver);
+                }
+
+                player.Teleport(Vector3.zero);
+                player.SetMovement(false);
+                player.DisableRigidbody();
+            }
+            catch (Exception e)
+            {
+                Debug.LogWarning($"Error setting up player for countdown: {e.Message}");
+            }
     }
 
     /// Starts the game across all clients
@@ -305,23 +333,14 @@ public class GameManager : MonoBehaviourPunCallbacks
 
         CheckpointManager.LastCheckpointPosition = Vector3.zero;
 
-        var portalManager = GameObject.Find("PortalManager");
-        if (portalManager != null)
-        {
-            var portals = portalManager.GetComponentsInChildren<Component>();
-            foreach (var component in portals.Where(static component => component.GetType().Name == "Portal"))
-                component.SendMessage("CancelAllActivePortalTeleportations", null, SendMessageOptions.DontRequireReceiver);
-        }
-
         var players = FindObjectsByType<PlayerController>(FindObjectsSortMode.None);
         foreach (var p in players.Where(static p => p != null && p.photonView != null && p.photonView.Owner != null))
         {
             p.Teleport(Vector3.zero);
             p.SetMovement(true);
             p.ResetAccelerationState();
-            photonView.RPC(nameof(p.RPC_SetCatnipEffectActive), RpcTarget.All, false);
+            p.photonView.RPC(nameof(p.RPC_SetCatnipEffectActive), RpcTarget.All, false);
         }
-        
 
         finishLine.GetComponent<BoxCollider2D>().enabled = true;
         gameTimerText.enabled = true;
@@ -382,4 +401,3 @@ public struct PlayerResultData
         finishTime = time;
     }
 }
-

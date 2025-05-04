@@ -13,7 +13,6 @@ using Object = UnityEngine.Object;
 /// </summary>
 public class Portal : MonoBehaviour
 {
-    // Tracking of active teleportations
     private readonly List<(PlayerController player, Coroutine routine, GameObject vfx)> _activeTeleportations = new();
 
     [Header("Teleport Settings")]
@@ -110,7 +109,6 @@ public class Portal : MonoBehaviour
         player.EnableRigidbody();
         SetPlayerVisibility(player, true);
 
-        // Remove from active teleportations
         RemovePlayerFromActiveTeleportations(player);
     }
 
