@@ -1683,6 +1683,9 @@ MonoBehaviour:
   wallSlideOffset: 0.04
   wallStuckThreshold: 0.1
   stuckVelocityThreshold: 0.5
+  unstickForce: 5
+  unstickUpwardBoost: 1
+  unstickCooldown: 0.3
   playerNameTag: {fileID: 8640071455980941114}
   deathHeight: -50
   playerDeathHandler: {fileID: 6099844445017409013}

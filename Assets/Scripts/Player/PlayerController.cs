@@ -45,6 +45,9 @@ public class PlayerController : MonoBehaviourPunCallbacks
     [SerializeField] [Range(-0.2f, 0.05f)] [Tooltip("X offset of sprite during wall sliding")] internal float wallSlideOffset = -0.06f;
     [SerializeField] [Range(0.1f, 1.0f)] [Tooltip("Time threshold to detect being stuck against a wall")] internal float wallStuckThreshold = 0.3f;
     [SerializeField] [Range(0.01f, 0.5f)] [Tooltip("Maximum velocity to consider player as stuck")] internal float stuckVelocityThreshold = 0.1f;
+    [SerializeField] [Range(0.5f, 10f)] [Tooltip("Force applied to unstick player from wall")] private float unstickForce = 3f;
+    [SerializeField] [Range(0.1f, 2.0f)] [Tooltip("Upward boost when unsticking from wall")] private float unstickUpwardBoost = 1f;
+    [SerializeField] [Range(0.1f, 1.0f)] [Tooltip("Cooldown before allowing another unstick attempt")] private float unstickCooldown = 0.3f;
 
     [Header("UI")]
     [SerializeField] [Tooltip("Player name text display")] internal TextMeshProUGUI playerNameTag;
@@ -99,6 +102,10 @@ public class PlayerController : MonoBehaviourPunCallbacks
     private int _lastMoveDirection;
     private float _wallStuckTimer;
     private bool _isPotentiallyStuck;
+    private float _unstickCooldownTimer;
+    private bool _isUnsticking;
+    private int _oppositeDirectionInput;
+    private float _unstickingTimer;
 
     // Properties
     internal float CurrentSpeed;
@@ -119,6 +126,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
     internal bool HasCatnip { get; set; }
     internal bool IsDead { get; private set; }
     internal bool IsTouchingWall => IsTouchingLeftWall || IsTouchingRightWall;
+    private bool CanAttemptUnstick => _unstickCooldownTimer <= 0;
     #endregion
 
     #region Unity Lifecycle
@@ -177,6 +185,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
         VerticalSpeed = _rb.linearVelocity.y;
         HandleWallSliding();
+        UpdateUnstickCooldown();
         CheckIdleState();
         HandleMovement();
 
@@ -279,6 +288,20 @@ public class PlayerController : MonoBehaviourPunCallbacks
             JumpSystem.ConvertToWallJump();
     }
 
+    /// Updates the unstick cooldown timer
+    private void UpdateUnstickCooldown()
+    {
+        if (_unstickCooldownTimer > 0)
+            _unstickCooldownTimer -= Time.deltaTime;
+
+        if (!_isUnsticking) return;
+
+        _unstickingTimer -= Time.deltaTime;
+        if (!(_unstickingTimer <= 0)) return;
+
+        _isUnsticking = false;
+    }
+
     /// Handles wall sliding physics and visuals for both local and remote players
     private void HandleWallSliding()
     {
@@ -286,6 +309,8 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
         if (photonView.IsMine)
         {
+            CheckWallUnstickInput();
+
             var wallSlideCondition = IsTouchingWall && !IsGrounded && (
                 _rb.linearVelocity.y < 0 ||
                 PostWallJump ||
@@ -305,19 +330,21 @@ public class PlayerController : MonoBehaviourPunCallbacks
             {
                 if (_rb.linearVelocity.y < 0 || _isPotentiallyStuck)
                 {
+                    // Apply wall slide physics
                     _rb.linearVelocity = new Vector2(WallSlideSide * wallStickForce, Max(_rb.linearVelocity.y, -wallSlideSpeed));
 
                     if (PostWallJump)
                         PostWallJump = false;
-
-                    // Reset stuck status
-                    _isPotentiallyStuck = false;
-                    _wallStuckTimer = 0f;
                 }
             }
             else if (JumpSystem.JumpState == JumpSystem.JumpStateEnum.WallCharging)
             {
                 _rb.linearVelocity = new Vector2(WallSlideSide * wallStickForce, _rb.linearVelocity.y);
+            }
+            else
+            {
+                _isPotentiallyStuck = false;
+                _wallStuckTimer = 0f;
             }
 
             if (wasWallSliding != IsWallSliding || (IsWallSliding && _lastWallSlideSideRPC != WallSlideSide))
@@ -328,13 +355,58 @@ public class PlayerController : MonoBehaviourPunCallbacks
         }
 
         UpdateWallSlideVisuals(IsWallSliding, WallSlideSide);
-
         animator.SetBool(IsWallSlidingAnimVar, IsWallSliding);
+    }
+
+    /// Checks for input to unstick from wall
+    private void CheckWallUnstickInput()
+    {
+        if (!IsWallSliding || !CanAttemptUnstick || _isUnsticking)
+            return;
+
+        var horizontalInput = _playerInputActions.Player.Move.ReadValue<Vector2>().x;
+        var moveDirection = (int)Sign(horizontalInput);
+
+        if (moveDirection != 0 && moveDirection == -WallSlideSide)
+        {
+            if (_oppositeDirectionInput == moveDirection) return;
+
+            _oppositeDirectionInput = moveDirection;
+            TryUnstickFromWall();
+        }
+        else
+        {
+            _oppositeDirectionInput = 0;
+        }
+    }
+
+    /// Attempts to unstick player from wall
+    private void TryUnstickFromWall()
+    {
+        if (!CanAttemptUnstick || !IsWallSliding)
+            return;
+
+        var unstickDirection = -WallSlideSide;
+        _rb.linearVelocity = new Vector2(unstickDirection * unstickForce, Max(_rb.linearVelocity.y, unstickUpwardBoost));
+
+        _unstickCooldownTimer = unstickCooldown;
+
+        _isUnsticking = true;
+        _unstickingTimer = 0.2f;
+
+        IsWallSliding = false;
+        _isPotentiallyStuck = false;
+        _wallStuckTimer = 0f;
+
+        photonView.RPC(nameof(RPC_SyncUnstickVisuals), RpcTarget.Others, unstickDirection);
     }
 
     /// Updates wall sliding visuals for both local and remote players
     private void UpdateWallSlideVisuals(bool isSliding, int slideSide)
     {
+        if (_isUnsticking)
+            return;
+
         if (isSliding || JumpSystem.JumpState == JumpSystem.JumpStateEnum.WallCharging)
         {
             var shouldFaceRight = slideSide > 0;
@@ -363,6 +435,20 @@ public class PlayerController : MonoBehaviourPunCallbacks
         WallSlideSide = slideSide;
 
         UpdateWallSlideVisuals(isSliding, slideSide);
+    }
+
+    /// RPC to sync unstick animation to remote players
+    [PunRPC]
+    private void RPC_SyncUnstickVisuals()
+    {
+        if (photonView.IsMine) return;
+
+        _isUnsticking = true;
+        _unstickingTimer = 0.2f;
+
+        IsWallSliding = false;
+        spriteTransform.rotation = Quaternion.identity;
+        spriteTransform.localPosition = OriginalSpritePosition;
     }
     #endregion
 
@@ -423,6 +509,9 @@ public class PlayerController : MonoBehaviourPunCallbacks
             _rb.linearVelocity = new Vector2(0, _rb.linearVelocity.y);
             return;
         }
+
+        if (_isUnsticking)
+            return;
 
         // Apply movement modifiers from JumpSystem if charging on ground
         var (speedMultiplier, accelMultiplier) = JumpSystem.GetJumpChargeMovementMultipliers();
@@ -537,7 +626,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
     /// Checks if player is idle for animations
     private void CheckIdleState()
     {
-        if (IsWallSliding || JumpSystem.JumpState == JumpSystem.JumpStateEnum.WallCharging)
+        if (IsWallSliding || JumpSystem.JumpState == JumpSystem.JumpStateEnum.WallCharging || _isUnsticking)
         {
             _idleTimer = 0f;
             animator.SetBool(IsLaying, false);
