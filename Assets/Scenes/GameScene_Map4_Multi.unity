@@ -15214,6 +15214,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Bg Camera
       objectReference: {fileID: 0}
+    - target: {fileID: 7518269461545255114, guid: 4b83f8423bbd83d40b9d7caca4004f3b, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -16554,8 +16558,8 @@ SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
   - {fileID: 1260287658}
-  - {fileID: 1983233544210928966}
   - {fileID: 1388670939}
+  - {fileID: 1983233544210928966}
   - {fileID: 8651265576806824250}
   - {fileID: 1555058395}
   - {fileID: 925381192}

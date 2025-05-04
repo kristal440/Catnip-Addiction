@@ -8728,23 +8728,23 @@ MonoBehaviour:
   mapsContainer: {fileID: 480557251}
   mapPreviewImage: {fileID: 326659001}
   mapPreviews:
-  - mapSceneName: GameScene_Map8_Multi
-    previewImage: {fileID: 5231955405131483233, guid: 1a85a063ec9043b429f1ca02963d05ad, type: 3}
-  - mapSceneName: GameScene_Map7_Multi
-    previewImage: {fileID: 2420710669748072859, guid: 28af1b064c4325949a2303130acbd9c2, type: 3}
-  - mapSceneName: GameScene_Map6_Multi
-    previewImage: {fileID: 5319052386094295448, guid: 08eb1e888941c7e4e8d6a47ae146d6da, type: 3}
-  - mapSceneName: GameScene_Map5_Multi
-    previewImage: {fileID: 3877225246180839719, guid: 7aa02614da7c3424cb6eb2ecf6fcc9ab, type: 3}
-  - mapSceneName: GameScene_Map4_Multi
-    previewImage: {fileID: 559733691055182366, guid: 95207de7d0e832846a297065cb513e42, type: 3}
-  - mapSceneName: GameScene_Map3_Multi
-    previewImage: {fileID: 2094054384690014641, guid: d199efb106e019041b03f1fc5d790529, type: 3}
-  - mapSceneName: GameScene_Map2_Multi
-    previewImage: {fileID: 5959265116843494517, guid: 507af1d57e8022b4b8ed191d5f4f2673, type: 3}
   - mapSceneName: GameScene_Map1_Multi
     previewImage: {fileID: -5184503945739712488, guid: 195b2d7d48d4c1e439afe759ca83e9ee, type: 3}
-  skipMapsNotInBuild: 0
+  - mapSceneName: GameScene_Map2_Multi
+    previewImage: {fileID: 5959265116843494517, guid: 507af1d57e8022b4b8ed191d5f4f2673, type: 3}
+  - mapSceneName: GameScene_Map3_Multi
+    previewImage: {fileID: 2094054384690014641, guid: d199efb106e019041b03f1fc5d790529, type: 3}
+  - mapSceneName: GameScene_Map4_Multi
+    previewImage: {fileID: 559733691055182366, guid: 95207de7d0e832846a297065cb513e42, type: 3}
+  - mapSceneName: GameScene_Map5_Multi
+    previewImage: {fileID: 3877225246180839719, guid: 7aa02614da7c3424cb6eb2ecf6fcc9ab, type: 3}
+  - mapSceneName: GameScene_Map6_Multi
+    previewImage: {fileID: 5319052386094295448, guid: 08eb1e888941c7e4e8d6a47ae146d6da, type: 3}
+  - mapSceneName: GameScene_Map7_Multi
+    previewImage: {fileID: 2420710669748072859, guid: 28af1b064c4325949a2303130acbd9c2, type: 3}
+  - mapSceneName: GameScene_Map8_Multi
+    previewImage: {fileID: 5231955405131483233, guid: 1a85a063ec9043b429f1ca02963d05ad, type: 3}
+  skipMapsNotInBuild: 1
 --- !u!1 &838320657
 GameObject:
   m_ObjectHideFlags: 0

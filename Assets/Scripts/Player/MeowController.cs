@@ -84,6 +84,9 @@ public class MeowController : MonoBehaviourPunCallbacks
         if (!_playerController.IsStanding)
             return;
 
+        if (_playerController.IsWallSliding)
+            return;
+
         _nextMeowTime = Time.time + meowCooldown;
 
         _meowButton.interactable = false;
