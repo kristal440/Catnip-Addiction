@@ -707,7 +707,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -0.09, y: 0}
+  m_AnchoredPosition: {x: -0.07, y: 0}
   m_SizeDelta: {x: 0.012, y: 0.035}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &4709443584379856986
@@ -1226,7 +1226,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0.09, y: 0}
+  m_AnchoredPosition: {x: 0.07, y: 0}
   m_SizeDelta: {x: 0.012, y: 0.035}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &6574133941179210712
@@ -1672,7 +1672,7 @@ MonoBehaviour:
     m_Bits: 8
   leftWallCheck: {fileID: 7838709526519794932}
   rightWallCheck: {fileID: 3951173809159813694}
-  wallCheckRadius: 0.18
+  wallCheckRadius: 0.05
   wallLayerMask:
     serializedVersion: 2
     m_Bits: 8
@@ -1682,7 +1682,7 @@ MonoBehaviour:
   spriteTransform: {fileID: 6004654633719211774}
   wallSlideOffset: 0.04
   wallStuckThreshold: 0.1
-  stuckVelocityThreshold: 0.05
+  stuckVelocityThreshold: 0.5
   playerNameTag: {fileID: 8640071455980941114}
   deathHeight: -50
   playerDeathHandler: {fileID: 6099844445017409013}
@@ -1711,8 +1711,6 @@ MonoBehaviour:
   maxJumpForce: 14.2
   maxChargeTime: 1.1
   jumpCooldown: 0.1
-  coyoteTime: 0.15
-  autoExecuteOnFalling: 1
   allowMovementDuringCharge: 1
   chargeMovementSpeedMultiplier: 0.1
   chargeAccelerationMultiplier: 0.5
@@ -1722,7 +1720,7 @@ MonoBehaviour:
   maxWallJumpForce: 14
   maxWallChargeTime: 0.8
   wallDetachForce: 5.5
-  wallGroundPushForce: 0
+  wallGroundPushForce: 10
   minWallContactTime: 0.05
   wallBounceWindow: 0.05
   wallBounceForce: 3

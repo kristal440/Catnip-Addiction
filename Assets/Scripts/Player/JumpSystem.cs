@@ -17,8 +17,6 @@ public class JumpSystem : MonoBehaviourPunCallbacks
     [SerializeField] [Tooltip("Maximum jump force when fully charged")] internal float maxJumpForce = 14f;
     [SerializeField] [Range(0.1f, 2f)] [Tooltip("Maximum time to charge regular jump")] internal float maxChargeTime = 2f;
     [SerializeField] [Range(0.05f, 0.5f)] [Tooltip("Time before player can jump again")] internal float jumpCooldown = 0.1f;
-    [SerializeField] [Range(0.05f, 0.3f)] [Tooltip("Grace period for jumping after leaving ground (coyote time)")] internal float coyoteTime = 0.15f;
-    [SerializeField] [Tooltip("When enabled, automatically executes jump if player becomes ungrounded while charging")] internal bool autoExecuteOnFalling;
 
     [Header("Jump Movement Control")]
     [SerializeField] [Tooltip("Whether movement is allowed during jump charging")] internal bool allowMovementDuringCharge;
@@ -82,6 +80,8 @@ public class JumpSystem : MonoBehaviourPunCallbacks
     private bool _releaseJumpInAir;
     private float _timeLeftGround;
     private bool _wasGroundedLastFrame;
+    private bool _delayWallJumpQueuedReset;
+
     #endregion
 
     #region Unity Lifecycle
@@ -133,7 +133,7 @@ public class JumpSystem : MonoBehaviourPunCallbacks
             _timeLeftGround = Time.time;
 
             // Check if we should auto-execute jump when falling off edge while charging
-            if (autoExecuteOnFalling && JumpState == JumpStateEnum.Charging)
+            if (JumpState == JumpStateEnum.Charging)
             {
                 var chargeTime = Min(Time.time - _jumpChargeStartTime, maxChargeTime);
                 ExecuteJump(chargeTime);
@@ -141,6 +141,18 @@ public class JumpSystem : MonoBehaviourPunCallbacks
             }
         }
         _wasGroundedLastFrame = isGroundedNow;
+
+        if (_delayWallJumpQueuedReset && !_playerController.IsTouchingWall)
+        {
+            animator.SetBool(IsJumpQueued, false);
+            _delayWallJumpQueuedReset = false;
+        }
+
+        if (JumpState == JumpStateEnum.WallCharging && !_playerController.IsTouchingWall)
+        {
+            CancelJumpCharge();
+            return;
+        }
 
         UpdateJumpCharging();
         UpdateBounceState();
@@ -299,7 +311,7 @@ public class JumpSystem : MonoBehaviourPunCallbacks
         }
         else
         {
-            var inCoyoteTime = !_playerController.IsGrounded && (Time.time - _timeLeftGround <= coyoteTime);
+            var inCoyoteTime = !_playerController.IsGrounded && Time.time - _timeLeftGround <= 0;
             StartRegularJumpCharge(inCoyoteTime);
         }
     }
@@ -445,7 +457,6 @@ public class JumpSystem : MonoBehaviourPunCallbacks
     {
         JumpState = JumpStateEnum.Idle;
         _jumpChargeUIManager.SetChargingState(false, 0f, false);
-        animator.SetBool(IsJumpQueued, false);
 
         _playerController.PostWallJump = true;
 
@@ -471,10 +482,13 @@ public class JumpSystem : MonoBehaviourPunCallbacks
 
             _playerController.spriteTransform.rotation = Quaternion.identity;
             _playerController.spriteTransform.localPosition = _playerController.OriginalSpritePosition;
+
+            _delayWallJumpQueuedReset = true;
         }
         else
         {
             _rb.linearVelocity = new Vector2(0, jumpMultiplier);
+            animator.SetBool(IsJumpQueued, false);
         }
 
         _playerController.CurrentSpeed = _rb.linearVelocity.x;
@@ -536,6 +550,7 @@ public class JumpSystem : MonoBehaviourPunCallbacks
         _movementDisabledForJump = false;
         _jumpButtonHeld = false;
         _releaseJumpInAir = false;
+        _delayWallJumpQueuedReset = false;
 
         _jumpChargeUIManager.SetChargingState(false, 0f, false);
         _jumpChargeUIManager.ForceUIStateSync();
@@ -579,6 +594,7 @@ public class JumpSystem : MonoBehaviourPunCallbacks
         JumpState = JumpStateEnum.Idle;
         _jumpChargeUIManager.SetChargingState(false, 0f, false);
         animator.SetBool(IsJumpQueued, false);
+        _delayWallJumpQueuedReset = false;
 
         _rb.linearVelocity = new Vector2(-_playerController.WallSlideSide * wallGroundPushForce, _rb.linearVelocity.y);
 
@@ -635,6 +651,7 @@ public class JumpSystem : MonoBehaviourPunCallbacks
         _playerController.spriteTransform.rotation = Quaternion.identity;
         _playerController.spriteTransform.localPosition = _playerController.OriginalSpritePosition;
         _playerController.PostWallJump = false;
+        _delayWallJumpQueuedReset = false;
 
         // Handle "released in air" jump execution
         if (_releaseJumpInAir)

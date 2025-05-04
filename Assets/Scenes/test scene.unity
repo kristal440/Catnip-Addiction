@@ -4847,6 +4847,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 145821301250412423, guid: 156aa367c27c7a26ba64e71f0ae1b2cc, type: 3}
+      propertyPath: wallSlideStateCooldown
+      value: 0.5
+      objectReference: {fileID: 0}
     - target: {fileID: 413369398684653171, guid: 156aa367c27c7a26ba64e71f0ae1b2cc, type: 3}
       propertyPath: m_Enabled
       value: 0

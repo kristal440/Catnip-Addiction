@@ -9,15 +9,6 @@ public class AnimatorEvents : MonoBehaviour
 {
     [CanBeNull] [SerializeField] [Tooltip("Reference to the player controller component")] public PlayerController playerController;
 
-    /// Pauses jump animation while player is in the air
-    public void PauseJump()
-    {
-        if (playerController == null || playerController.IsGrounded) return;
-
-        playerController.animator.speed = 0f;
-        playerController.IsJumpPaused = true;
-    }
-
     /// Called by animation event when standing animation completes
     public void OnStandingAnimationComplete()
     {
