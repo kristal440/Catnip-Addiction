@@ -183,10 +183,16 @@ MonoBehaviour:
     - line: '|   loadStoreDebugModeEnabled: 0'
     - line: '|   visionOSBundleVersion: 1.0'
     - line: '|   tvOSBundleVersion: 1.0'
-    - line: '|   bundleVersion: beta-test'
+    - line: '|   bundleVersion: alpha-test'
     - line: '|   preloadedAssets:'
     - line: '|   - {fileID: -944628639613478452, guid: 2bcd2660ca9b64942af0de543d8d7100,
         type: 3}'
+    - line: '|   - {fileID: -5404593336924864303, guid: 9a04af1606727f8b9b5a36bbf8d38902,
+        type: 2}'
+    - line: '|   - {fileID: 11400000, guid: 2295be1619b539454a8203faab5facd4, type:
+        2}'
+    - line: '|   - {fileID: 11400000, guid: 324456ac4736ecc7685a456d7b7c7009, type:
+        2}'
     - line: '|   metroInputSource: 0'
     - line: '|   wsaTransparentSwapchain: 0'
     - line: '|   m_HolographicPauseOnTrackingLoss: 1'
@@ -310,7 +316,7 @@ MonoBehaviour:
     - line: '|   useCustomGradlePropertiesTemplate: 0'
     - line: '|   useCustomGradleSettingsTemplate: 0'
     - line: '|   useCustomProguardFile: 0'
-    - line: '|   AndroidTargetArchitectures: 2'
+    - line: '|   AndroidTargetArchitectures: 3'
     - line: '|   AndroidSplashScreenScale: 0'
     - line: '|   androidSplashScreen: {instanceID: 0}'
     - line: '|   AndroidKeystoreName: ''{inproject}: my-release-key.keystore'''
